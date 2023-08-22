@@ -4,26 +4,33 @@ pragma solidity ^0.8.19;
 
 // import {APVault_V1} from "../core/vault/APVault_V1.sol";
 import {IVault} from "../core/vault/interfaces/IVault.sol";
+import {IVaultEmitter} from "../core/vault/interfaces/IVaultEmitter.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract DummyVault is IVault {
   VaultConfig vaultConfig;
   uint256 dummyAmt;
+  address emitterAddress;
 
   /// Test helpers
   function setDummyAmt(uint256 _newDummyAmt) external {
     dummyAmt = _newDummyAmt;
   }
 
+  /// Test helpers
+  function setEmitterAddress(address _newEmitterAddress) external {
+    emitterAddress = _newEmitterAddress;
+  }
+
   /// Vault impl
   constructor(VaultConfig memory _config) {
     vaultConfig = _config;
-    emit VaultConfigUpdated(address(this), _config);
+    IVaultEmitter(emitterAddress).vaultConfigUpdated(address(this), _config);
   }
 
   function setVaultConfig(VaultConfig memory _newConfig) external override {
     vaultConfig = _newConfig;
-    emit VaultConfigUpdated(address(this), _newConfig);
+    IVaultEmitter(emitterAddress).vaultConfigUpdated(address(this), _newConfig);
   }
 
   function getVaultConfig() external view virtual override returns (VaultConfig memory) {
@@ -31,7 +38,7 @@ contract DummyVault is IVault {
   }
 
   function deposit(uint32 accountId, address, uint256 amt) public payable override {
-    emit Deposit(accountId, address(this), amt, amt);
+    IVaultEmitter(emitterAddress).deposit(accountId, address(this), amt, amt);
   }
 
   function redeem(
@@ -39,7 +46,7 @@ contract DummyVault is IVault {
     uint256 amt
   ) public payable override returns (RedemptionResponse memory) {
     IERC20(vaultConfig.baseToken).approve(msg.sender, amt);
-    emit Redeem(accountId, address(this), amt, amt);
+    IVaultEmitter(emitterAddress).redeem(accountId, address(this), amt, amt);
     return
       RedemptionResponse({
         token: vaultConfig.baseToken,
@@ -50,7 +57,7 @@ contract DummyVault is IVault {
 
   function redeemAll(uint32 accountId) public payable override returns (RedemptionResponse memory) {
     IERC20(vaultConfig.baseToken).approve(msg.sender, dummyAmt);
-    emit Redeem(accountId, address(this), dummyAmt, dummyAmt);
+    IVaultEmitter(emitterAddress).redeem(accountId, address(this), dummyAmt, dummyAmt);
     return
       RedemptionResponse({
         token: vaultConfig.baseToken,
@@ -61,7 +68,7 @@ contract DummyVault is IVault {
 
   function harvest(uint32[] calldata accountIds) public override {
     for (uint32 i; i < accountIds.length; i++) {
-      emit Redeem(accountIds[i], address(this), dummyAmt, dummyAmt);
+      IVaultEmitter(emitterAddress).redeem(accountIds[i], address(this), dummyAmt, dummyAmt);
     }
   }
 

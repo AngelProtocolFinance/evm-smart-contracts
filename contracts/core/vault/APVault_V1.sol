@@ -3,6 +3,7 @@
 pragma solidity ^0.8.19;
 
 import {IVault} from "./interfaces/IVault.sol";
+import {IVaultEmitter} from "./interfaces/IVaultEmitter.sol";
 import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import {ERC4626AP} from "./ERC4626AP.sol";
 import {IStrategy} from "../strategy/IStrategy.sol";
@@ -14,14 +15,18 @@ import {FixedPointMathLib} from "../../lib/FixedPointMathLib.sol";
 contract APVault_V1 is IVault, ERC4626AP {
   using FixedPointMathLib for uint256;
 
+  address public immutable EMITTER_ADDRESS;
+
   VaultConfig public vaultConfig;
   mapping(uint32 => Principle) public principleByAccountId;
 
   constructor(
-    VaultConfig memory _config
+    VaultConfig memory _config,
+    address _emitter
   ) ERC4626AP(IERC20Metadata(_config.yieldToken), _config.apTokenName, _config.apTokenSymbol) {
+    EMITTER_ADDRESS = _emitter;
     vaultConfig = _config;
-    emit VaultConfigUpdated(address(this), _config);
+    IVaultEmitter(EMITTER_ADDRESS).vaultCreated(address(this), _config);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -69,7 +74,7 @@ contract APVault_V1 is IVault, ERC4626AP {
 
   function setVaultConfig(VaultConfig memory _newConfig) external virtual override onlyAdmin {
     vaultConfig = _newConfig;
-    emit VaultConfigUpdated(address(this), _newConfig);
+    IVaultEmitter(EMITTER_ADDRESS).vaultConfigUpdated(address(this), _newConfig);
   }
 
   function getVaultConfig() external view virtual override returns (VaultConfig memory) {
@@ -94,7 +99,7 @@ contract APVault_V1 is IVault, ERC4626AP {
 
     uint256 shares = super.depositERC4626(vaultConfig.strategy, yieldAmt, accountId);
 
-    emit Deposit(accountId, address(this), amt, shares);
+    IVaultEmitter(EMITTER_ADDRESS).deposit(accountId, address(this), amt, shares);
   }
 
   function redeem(
@@ -116,7 +121,7 @@ contract APVault_V1 is IVault, ERC4626AP {
       // redeem shares for yieldToken -> approve strategy -> strategy withdraw -> base token
       uint256 yieldTokenAmt = super.redeemERC4626(shares, vaultConfig.strategy, accountId);
       uint256 returnAmt = IStrategy(vaultConfig.strategy).withdraw(yieldTokenAmt);
-      emit Redeem(accountId, address(this), returnAmt, shares);
+      IVaultEmitter(EMITTER_ADDRESS).redeem(accountId, address(this), shares, returnAmt);
 
       if (
         !IERC20Metadata(vaultConfig.baseToken).transferFrom(
@@ -162,7 +167,7 @@ contract APVault_V1 is IVault, ERC4626AP {
     // withdraw all baseToken
     uint256 returnAmt = IStrategy(vaultConfig.strategy).withdraw(yieldTokenAmt);
 
-    emit Redeem(accountId, address(this), returnAmt, balance);
+    IVaultEmitter(EMITTER_ADDRESS).redeem(accountId, address(this), returnAmt, balance);
 
     if (
       !IERC20Metadata(vaultConfig.baseToken).transferFrom(
@@ -241,7 +246,7 @@ contract APVault_V1 is IVault, ERC4626AP {
     // Redeem shares to cover fee
     uint256 dYieldToken = super.redeemERC4626(taxShares, vaultConfig.strategy, accountId);
     uint256 redemption = IStrategy(vaultConfig.strategy).withdraw(dYieldToken);
-    emit Redeem(accountId, address(this), taxShares, redemption);
+    IVaultEmitter(EMITTER_ADDRESS).redeem(accountId, address(this), taxShares, redemption);
     if (
       !IERC20Metadata(vaultConfig.baseToken).transferFrom(
         vaultConfig.strategy,
@@ -374,7 +379,12 @@ contract APVault_V1 is IVault, ERC4626AP {
       accountId
     );
     uint256 redemption = IStrategy(vaultConfig.strategy).withdraw(dYieldToken);
-    emit Redeem(accountId, address(this), taxShares + rebalShares, redemption);
+    IVaultEmitter(EMITTER_ADDRESS).redeem(
+      accountId,
+      address(this),
+      taxShares + rebalShares,
+      redemption
+    );
     if (
       !IERC20Metadata(vaultConfig.baseToken).transferFrom(
         vaultConfig.strategy,
