@@ -40,21 +40,25 @@ interface IAccountsUpdateEndowments {
   ) external;
 
   /**
-    @notice Updates the delegate for a specific endowment setting
-    @dev This function allows authorized users to update the delegate for a specific endowment setting
+    @notice Sets the delegate for a specific endowment setting
     @param id The ID of the endowment
     @param setting The setting for which to update the delegate
-    @param action The action to perform (set/revoke)
     @param delegateAddress The address of the delegate to add/revoke
     @param delegateExpiry The timestamp at which the delegate's permission expires
     */
-  function updateDelegate(
+  function setDelegate(
     uint32 id,
     ControllerSettingOption setting,
-    LibAccounts.DelegateAction action,
     address delegateAddress,
     uint256 delegateExpiry
   ) external;
+
+  /**
+    @notice Revokes the delegate for a specific endowment setting
+    @param id The ID of the endowment
+    @param setting The setting for which to update the delegate
+    */
+  function revokeDelegate(uint32 id, ControllerSettingOption setting) external;
 
   /**
     @notice Updates the endowment-level list of accepted tokens with a status for the given ERC20 Token address & Chainlink Price Feed contract address.
