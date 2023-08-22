@@ -396,41 +396,24 @@ describe("AccountsUpdateEndowments", function () {
         })
       );
       await expect(
-        facet.updateDelegate(
+        facet.setDelegate(
           normalEndowId,
           ControllerSettingOption.AcceptedTokens,
-          DelegateAction.Set,
           ethers.constants.AddressZero,
           0
         )
       ).to.be.revertedWith("UpdatesAfterClosed");
     });
 
-    it("reverts if neither DelegateAction.Set nor DelegateAction.Revoke action is used", async () => {
-      const invalidAction = 2;
-
-      await expect(
-        facet.updateDelegate(
-          normalEndowId,
-          ControllerSettingOption.EarlyLockedWithdrawFee,
-          invalidAction,
-          ethers.constants.AddressZero,
-          0
-        )
-      ).to.be.revertedWithoutReason();
-    });
-
     it("reverts if invalid setting option is used", async () => {
       const invalidSettingOption = 200;
 
       await expect(
-        facet.updateDelegate(
-          normalEndowId,
-          invalidSettingOption,
-          DelegateAction.Set,
-          ethers.constants.AddressZero,
-          0
-        )
+        facet.revokeDelegate(normalEndowId, invalidSettingOption)
+      ).to.be.revertedWithoutReason();
+
+      await expect(
+        facet.setDelegate(normalEndowId, invalidSettingOption, ethers.constants.AddressZero, 0)
       ).to.be.revertedWithoutReason();
     });
 
@@ -444,66 +427,32 @@ describe("AccountsUpdateEndowments", function () {
         field: "lockedInvestmentManagement",
       },
       {
-        setting: ControllerSettingOption.LiquidInvestmentManagement,
-        field: "liquidInvestmentManagement",
-      },
-      {
         setting: ControllerSettingOption.AllowlistedBeneficiaries,
         field: "allowlistedBeneficiaries",
       },
-      {
-        setting: ControllerSettingOption.AllowlistedContributors,
-        field: "allowlistedContributors",
-      },
-      {setting: ControllerSettingOption.MaturityAllowlist, field: "maturityAllowlist"},
       {setting: ControllerSettingOption.MaturityTime, field: "maturityTime"},
-      {setting: ControllerSettingOption.EarlyLockedWithdrawFee, field: "earlyLockedWithdrawFee"},
-      {setting: ControllerSettingOption.WithdrawFee, field: "withdrawFee"},
       {setting: ControllerSettingOption.DepositFee, field: "depositFee"},
-      {setting: ControllerSettingOption.BalanceFee, field: "balanceFee"},
       {setting: ControllerSettingOption.Name, field: "name"},
       {setting: ControllerSettingOption.Image, field: "image"},
-      {setting: ControllerSettingOption.Logo, field: "logo"},
-      {setting: ControllerSettingOption.Sdgs, field: "sdgs"},
-      {setting: ControllerSettingOption.SplitToLiquid, field: "splitToLiquid"},
-      {setting: ControllerSettingOption.IgnoreUserSplits, field: "ignoreUserSplits"},
     ];
     runs.forEach(({setting, field}) => {
       describe(`Updating delegate for setting option "${ControllerSettingOption[setting]}"`, () => {
         it(`sets a new the delegate`, async () => {
-          await expect(
-            facet.updateDelegate(
-              normalEndowId,
-              setting,
-              DelegateAction.Set,
-              newDelegate,
-              newDelegateExpiry
-            )
-          )
+          await expect(facet.setDelegate(normalEndowId, setting, newDelegate, newDelegateExpiry))
             .to.emit(facet, "EndowmentUpdated")
             .withArgs(normalEndowId);
 
           const {settingsController} = await state.getEndowmentDetails(normalEndowId);
-
           expect(settingsController[field].delegate.addr).to.equal(newDelegate);
           expect(settingsController[field].delegate.expires).to.equal(newDelegateExpiry);
         });
 
         it(`revokes delegate`, async () => {
-          await expect(
-            facet.updateDelegate(
-              normalEndowId,
-              setting,
-              DelegateAction.Revoke,
-              newDelegate, // the value is ignored
-              newDelegateExpiry // the value is ignored
-            )
-          )
+          await expect(facet.revokeDelegate(normalEndowId, setting))
             .to.emit(facet, "EndowmentUpdated")
             .withArgs(normalEndowId);
 
           const {settingsController} = await state.getEndowmentDetails(normalEndowId);
-
           expect(settingsController[field].delegate.addr).to.equal(ethers.constants.AddressZero);
           expect(settingsController[field].delegate.expires).to.equal(0);
         });
@@ -511,30 +460,16 @@ describe("AccountsUpdateEndowments", function () {
         describe("cases with missing permissions", () => {
           it("reverts if sender is neither an owner nor delegate", async () => {
             await expect(
-              facet
-                .connect(accOwner)
-                .updateDelegate(
-                  normalEndowId,
-                  setting,
-                  DelegateAction.Revoke,
-                  newDelegate,
-                  newDelegateExpiry
-                )
+              facet.connect(accOwner).revokeDelegate(normalEndowId, setting)
             ).to.be.revertedWith("Unauthorized");
           });
 
           it("reverts if settings are locked", async () => {
             await updateSettings(normalEndowId, field, {locked: true}, state);
 
-            await expect(
-              facet.updateDelegate(
-                normalEndowId,
-                setting,
-                DelegateAction.Revoke,
-                newDelegate,
-                newDelegateExpiry
-              )
-            ).to.be.revertedWith("Unauthorized");
+            await expect(facet.revokeDelegate(normalEndowId, setting)).to.be.revertedWith(
+              "Unauthorized"
+            );
           });
 
           it("reverts if delegation has expired", async () => {
@@ -552,15 +487,7 @@ describe("AccountsUpdateEndowments", function () {
             );
 
             await expect(
-              facet
-                .connect(delegate)
-                .updateDelegate(
-                  normalEndowId,
-                  setting,
-                  DelegateAction.Revoke,
-                  newDelegate,
-                  newDelegateExpiry
-                )
+              facet.connect(delegate).revokeDelegate(normalEndowId, setting)
             ).to.be.revertedWith("Unauthorized");
           });
         });
