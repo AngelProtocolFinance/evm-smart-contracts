@@ -5,11 +5,6 @@ export enum StrategyApprovalState {
   DEPRECATED,
 }
 
-export type VaultParams = {
-  Type: VaultType;
-  vaultAddr: string;
-};
-
 export enum VaultType {
   LOCKED,
   LIQUID,

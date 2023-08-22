@@ -26,8 +26,6 @@ library RegistrarStorage {
 
   struct State {
     bytes4[] STRATEGIES;
-    mapping(LibAccounts.FeeTypes => LibAccounts.FeeSetting) FeeSettingsByFeeType;
-    mapping(string => LocalRegistrarLib.NetworkInfo) NETWORK_CONNECTIONS;
     mapping(address => address) PriceFeeds;
     Config config;
   }

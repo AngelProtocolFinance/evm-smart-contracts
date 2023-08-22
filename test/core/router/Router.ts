@@ -617,14 +617,8 @@ describe("Router", function () {
       const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
         approvalState: StrategyApprovalState.APPROVED,
         network: localChain,
-        Locked: {
-          Type: 0,
-          vaultAddr: lockedVault.address,
-        },
-        Liquid: {
-          Type: 1,
-          vaultAddr: liquidVault.address,
-        },
+        lockedVaultAddr: lockedVault.address,
+        liquidVaultAddr: liquidVault.address,
       };
 
       gateway.validateContractCall.returns(true);
@@ -776,14 +770,8 @@ describe("Router", function () {
       const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
         approvalState: StrategyApprovalState.APPROVED,
         network: localChain,
-        Locked: {
-          Type: 0,
-          vaultAddr: lockedVault.address,
-        },
-        Liquid: {
-          Type: 1,
-          vaultAddr: liquidVault.address,
-        },
+        lockedVaultAddr: lockedVault.address,
+        liquidVaultAddr: liquidVault.address,
       };
 
       gateway.validateContractCall.returns(true);
@@ -860,14 +848,8 @@ describe("Router", function () {
       const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
         approvalState: StrategyApprovalState.APPROVED,
         network: localChain,
-        Locked: {
-          Type: 0,
-          vaultAddr: lockedVault.address,
-        },
-        Liquid: {
-          Type: 1,
-          vaultAddr: liquidVault.address,
-        },
+        lockedVaultAddr: lockedVault.address,
+        liquidVaultAddr: liquidVault.address,
       };
 
       gateway.validateContractCall.returns(true);
@@ -1015,14 +997,8 @@ describe("Router", function () {
       const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
         approvalState: StrategyApprovalState.APPROVED,
         network: localChain,
-        Locked: {
-          Type: 0,
-          vaultAddr: lockedVault.address,
-        },
-        Liquid: {
-          Type: 1,
-          vaultAddr: liquidVault.address,
-        },
+        lockedVaultAddr: lockedVault.address,
+        liquidVaultAddr: liquidVault.address,
       };
 
       gateway.validateContractCall.returns(true);

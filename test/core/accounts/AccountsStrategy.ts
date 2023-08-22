@@ -265,7 +265,6 @@ describe("AccountsStrategy", function () {
           ...DEFAULT_INVEST_REQUEST,
           lockAmt: LOCK_AMT,
           liquidAmt: LIQ_AMT,
-          token: token.address,
         };
 
         const vaultActionData: IVaultStrategy.VaultActionDataStruct = {
@@ -273,7 +272,7 @@ describe("AccountsStrategy", function () {
           strategyId: DEFAULT_STRATEGY_SELECTOR,
           selector: DEFAULT_METHOD_SELECTOR,
           accountIds: [ACCOUNT_ID],
-          token: investRequest.token,
+          token: token.address,
           lockAmt: investRequest.lockAmt,
           liqAmt: investRequest.liquidAmt,
           status: VaultActionStatus.SUCCESS,
@@ -282,7 +281,14 @@ describe("AccountsStrategy", function () {
 
         await expect(facet.strategyInvest(ACCOUNT_ID, investRequest))
           .to.emit(facet, "EndowmentInvested")
-          .withArgs(ACCOUNT_ID);
+          .withArgs(
+            ACCOUNT_ID,
+            investRequest.strategy,
+            NET_NAME_THIS,
+            token.address,
+            investRequest.lockAmt,
+            investRequest.liquidAmt
+          );
 
         expect(token.transfer).to.have.been.calledWith(
           netInfoThis.router,
@@ -295,7 +301,7 @@ describe("AccountsStrategy", function () {
             strategyId: DEFAULT_STRATEGY_SELECTOR,
             selector: vault.interface.getSighash("deposit"),
             accountIds: [ACCOUNT_ID],
-            token: investRequest.token,
+            token: token.address,
             lockAmt: investRequest.lockAmt,
             liqAmt: investRequest.liquidAmt,
             status: VaultActionStatus.UNPROCESSED,
@@ -327,23 +333,23 @@ describe("AccountsStrategy", function () {
         VaultActionStatus.UNPROCESSED,
       ].forEach((vaultStatus) => {
         it(`reverts when the response is ${VaultActionStatus[vaultStatus]}`, async function () {
+          const investRequest: AccountMessages.InvestRequestStruct = {
+            ...DEFAULT_INVEST_REQUEST,
+            lockAmt: LOCK_AMT,
+            liquidAmt: LIQ_AMT,
+          };
+
           const vaultActionData: IVaultStrategy.VaultActionDataStruct = {
             destinationChain: "",
             strategyId: DEFAULT_STRATEGY_SELECTOR,
             selector: DEFAULT_METHOD_SELECTOR,
             accountIds: [ACCOUNT_ID],
             token: token.address,
-            lockAmt: LOCK_AMT,
-            liqAmt: LIQ_AMT,
+            lockAmt: investRequest.lockAmt,
+            liqAmt: investRequest.liquidAmt,
             status: vaultStatus,
           };
           router.executeWithTokenLocal.returns(vaultActionData);
-
-          const investRequest: AccountMessages.InvestRequestStruct = {
-            ...DEFAULT_INVEST_REQUEST,
-            lockAmt: LOCK_AMT,
-            liquidAmt: LIQ_AMT,
-          };
 
           await expect(facet.strategyInvest(ACCOUNT_ID, investRequest))
             .to.be.revertedWithCustomError(facet, "InvestFailed")
@@ -378,7 +384,14 @@ describe("AccountsStrategy", function () {
 
           await expect(facet.strategyInvest(ACCOUNT_ID, investRequest))
             .to.emit(facet, "EndowmentInvested")
-            .withArgs(ACCOUNT_ID);
+            .withArgs(
+              ACCOUNT_ID,
+              investRequest.strategy,
+              NET_NAME_THAT,
+              token.address,
+              investRequest.lockAmt,
+              investRequest.liquidAmt
+            );
 
           expect(gasFwd.payForGas).to.have.been.calledWith(token.address, investRequest.gasFee);
           expect(token.approve).to.have.been.calledWith(gasService.address, investRequest.gasFee);
@@ -481,7 +494,14 @@ describe("AccountsStrategy", function () {
 
           await expect(facet.strategyInvest(ACCOUNT_ID, investRequest))
             .to.emit(facet, "EndowmentInvested")
-            .withArgs(ACCOUNT_ID);
+            .withArgs(
+              ACCOUNT_ID,
+              investRequest.strategy,
+              NET_NAME_THAT,
+              token.address,
+              investRequest.lockAmt,
+              investRequest.liquidAmt
+            );
 
           expect(gasFwd.payForGas).to.have.been.calledWith(token.address, investRequest.gasFee);
           expect(token.approve).to.have.been.calledWith(gasService.address, investRequest.gasFee);
@@ -668,7 +688,14 @@ describe("AccountsStrategy", function () {
 
           await expect(facet.strategyRedeem(ACCOUNT_ID, redeemRequest))
             .to.emit(facet, "EndowmentRedeemed")
-            .withArgs(ACCOUNT_ID, vaultStatus);
+            .withArgs(
+              ACCOUNT_ID,
+              redeemRequest.strategy,
+              stratParams.network,
+              token.address,
+              redeemRequest.lockAmt,
+              redeemRequest.liquidAmt
+            );
 
           const payload = packActionData(
             {
@@ -1005,6 +1032,17 @@ describe("AccountsStrategy", function () {
             };
             router.executeLocal.returns(vaultActionData);
 
+            await expect(facet.strategyRedeemAll(ACCOUNT_ID, redeemAllRequest))
+              .to.emit(facet, "EndowmentRedeemed")
+              .withArgs(
+                ACCOUNT_ID,
+                redeemAllRequest.strategy,
+                stratParams.network,
+                token.address,
+                vaultActionData.lockAmt,
+                vaultActionData.liqAmt
+              );
+
             const payload = packActionData(
               {
                 destinationChain: NET_NAME_THIS,
@@ -1018,11 +1056,6 @@ describe("AccountsStrategy", function () {
               },
               hre
             );
-
-            await expect(facet.strategyRedeemAll(ACCOUNT_ID, redeemAllRequest))
-              .to.emit(facet, "EndowmentRedeemed")
-              .withArgs(ACCOUNT_ID, VaultActionStatus.POSITION_EXITED);
-
             expect(router.executeLocal).to.have.been.calledWith(
               NET_NAME_THIS,
               facet.address.toLowerCase(),
@@ -1700,7 +1733,14 @@ describe("AccountsStrategy", function () {
             )
           )
             .to.emit(facet, "EndowmentRedeemed")
-            .withArgs(ACCOUNT_ID, vaultStatus);
+            .withArgs(
+              ACCOUNT_ID,
+              action.strategyId,
+              action.destinationChain,
+              action.token,
+              action.lockAmt,
+              action.liqAmt
+            );
 
           const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
           expect(lockBal).to.equal(INITIAL_LOCK_BAL + LOCK_AMT);
