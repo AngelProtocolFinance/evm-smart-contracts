@@ -176,20 +176,11 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
   ) public virtual onlyOwner {
     LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
 
-    LocalRegistrarLib.VaultParams memory lockedParams = LocalRegistrarLib.VaultParams(
-      IVault.VaultType.LOCKED,
-      _lockAddr
-    );
-    LocalRegistrarLib.VaultParams memory liquidParams = LocalRegistrarLib.VaultParams(
-      IVault.VaultType.LIQUID,
-      _liqAddr
-    );
-
     lrs.VaultsByStrategyId[_strategyId] = LocalRegistrarLib.StrategyParams(
       _approvalState,
       _network,
-      lockedParams,
-      liquidParams
+      _lockAddr,
+      _liqAddr
     );
     emit StrategyParamsUpdated(_strategyId, _network, _lockAddr, _liqAddr, _approvalState);
   }

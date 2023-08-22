@@ -21,6 +21,7 @@ contract APVault_V1 is IVault, ERC4626AP {
     VaultConfig memory _config
   ) ERC4626AP(IERC20Metadata(_config.yieldToken), _config.apTokenName, _config.apTokenSymbol) {
     vaultConfig = _config;
+    emit VaultConfigUpdated(address(this), _config);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -68,6 +69,7 @@ contract APVault_V1 is IVault, ERC4626AP {
 
   function setVaultConfig(VaultConfig memory _newConfig) external virtual override onlyAdmin {
     vaultConfig = _newConfig;
+    emit VaultConfigUpdated(address(this), _newConfig);
   }
 
   function getVaultConfig() external view virtual override returns (VaultConfig memory) {
@@ -90,18 +92,20 @@ contract APVault_V1 is IVault, ERC4626AP {
 
     _updatePrincipleDeposit(accountId, amt, yieldAmt);
 
-    super.depositERC4626(vaultConfig.strategy, yieldAmt, accountId);
+    uint256 shares = super.depositERC4626(vaultConfig.strategy, yieldAmt, accountId);
+
+    emit Deposit(accountId, address(this), amt, shares);
   }
 
   function redeem(
     uint32 accountId,
-    uint256 amt
+    uint256 shares
   ) public payable virtual override notPaused onlyApproved returns (RedemptionResponse memory) {
-    // check against requested amt
-    if (balanceOf(accountId) <= amt) {
+    // check against requested shares
+    if (balanceOf(accountId) <= shares) {
       // redeemAll if less
       return redeemAll(accountId);
-    } else if (amt == 0) {
+    } else if (shares == 0) {
       return
         RedemptionResponse({
           token: vaultConfig.baseToken,
@@ -110,8 +114,10 @@ contract APVault_V1 is IVault, ERC4626AP {
         });
     } else {
       // redeem shares for yieldToken -> approve strategy -> strategy withdraw -> base token
-      uint256 yieldTokenAmt = super.redeemERC4626(amt, vaultConfig.strategy, accountId);
+      uint256 yieldTokenAmt = super.redeemERC4626(shares, vaultConfig.strategy, accountId);
       uint256 returnAmt = IStrategy(vaultConfig.strategy).withdraw(yieldTokenAmt);
+      emit Redeem(accountId, address(this), returnAmt, shares);
+
       if (
         !IERC20Metadata(vaultConfig.baseToken).transferFrom(
           vaultConfig.strategy,
@@ -121,10 +127,10 @@ contract APVault_V1 is IVault, ERC4626AP {
       ) {
         revert TransferFailed();
       }
-      // apply tax and deduct from returned amt
-      returnAmt -= _taxIfNecessary(accountId, amt, returnAmt);
+      // apply tax and deduct from returned shares
+      returnAmt -= _taxIfNecessary(accountId, shares, returnAmt);
       // update principles and approve txfer of redeemed tokens
-      _updatePrincipleRedemption(accountId, amt);
+      _updatePrincipleRedemption(accountId, shares);
       if (!IERC20Metadata(vaultConfig.baseToken).approve(_msgSender(), returnAmt)) {
         revert ApproveFailed();
       }
@@ -141,7 +147,9 @@ contract APVault_V1 is IVault, ERC4626AP {
   function redeemAll(
     uint32 accountId
   ) public payable virtual override notPaused onlyApproved returns (RedemptionResponse memory) {
-    if (balanceOf(accountId) == 0) {
+    uint256 balance = balanceOf(accountId);
+
+    if (balance == 0) {
       return
         RedemptionResponse({
           token: vaultConfig.baseToken,
@@ -149,11 +157,13 @@ contract APVault_V1 is IVault, ERC4626AP {
           status: VaultActionStatus.POSITION_EXITED
         });
     }
-    uint256 balance = balanceOf(accountId);
     // redeem shares for yieldToken -> approve strategy
     uint256 yieldTokenAmt = super.redeemERC4626(balance, vaultConfig.strategy, accountId);
     // withdraw all baseToken
     uint256 returnAmt = IStrategy(vaultConfig.strategy).withdraw(yieldTokenAmt);
+
+    emit Redeem(accountId, address(this), returnAmt, balance);
+
     if (
       !IERC20Metadata(vaultConfig.baseToken).transferFrom(
         vaultConfig.strategy,
@@ -231,6 +241,7 @@ contract APVault_V1 is IVault, ERC4626AP {
     // Redeem shares to cover fee
     uint256 dYieldToken = super.redeemERC4626(taxShares, vaultConfig.strategy, accountId);
     uint256 redemption = IStrategy(vaultConfig.strategy).withdraw(dYieldToken);
+    emit Redeem(accountId, address(this), taxShares, redemption);
     if (
       !IERC20Metadata(vaultConfig.baseToken).transferFrom(
         vaultConfig.strategy,
@@ -363,6 +374,7 @@ contract APVault_V1 is IVault, ERC4626AP {
       accountId
     );
     uint256 redemption = IStrategy(vaultConfig.strategy).withdraw(dYieldToken);
+    emit Redeem(accountId, address(this), taxShares + rebalShares, redemption);
     if (
       !IERC20Metadata(vaultConfig.baseToken).transferFrom(
         vaultConfig.strategy,
@@ -386,13 +398,13 @@ contract APVault_V1 is IVault, ERC4626AP {
       .getStrategyParamsById(vaultConfig.strategySelector);
     if (
       !IERC20Metadata(vaultConfig.baseToken).transfer(
-        stratParams.Liquid.vaultAddr,
+        stratParams.liquidVaultAddr,
         (redemption - tax)
       )
     ) {
       revert TransferFailed();
     }
-    IVault(stratParams.Liquid.vaultAddr).deposit(
+    IVault(stratParams.liquidVaultAddr).deposit(
       accountId,
       vaultConfig.baseToken,
       (redemption - tax)
@@ -420,8 +432,8 @@ contract APVault_V1 is IVault, ERC4626AP {
       .getStrategyParamsById(vaultConfig.strategySelector);
     return (
       vaultConfig.vaultType == VaultType.LOCKED
-        ? (_msgSender() == stratParams.Liquid.vaultAddr)
-        : (_msgSender() == stratParams.Locked.vaultAddr)
+        ? (_msgSender() == stratParams.liquidVaultAddr)
+        : (_msgSender() == stratParams.lockedVaultAddr)
     );
   }
 

@@ -44,13 +44,8 @@ library LocalRegistrarLib {
   struct StrategyParams {
     StrategyApprovalState approvalState;
     string network;
-    VaultParams Locked;
-    VaultParams Liquid;
-  }
-
-  struct VaultParams {
-    IVault.VaultType Type;
-    address vaultAddr;
+    address lockedVaultAddr;
+    address liquidVaultAddr;
   }
 
   struct LocalRegistrarStorage {

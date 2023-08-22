@@ -18,18 +18,20 @@ contract DummyVault is IVault {
   /// Vault impl
   constructor(VaultConfig memory _config) {
     vaultConfig = _config;
+    emit VaultConfigUpdated(address(this), _config);
   }
 
   function setVaultConfig(VaultConfig memory _newConfig) external override {
     vaultConfig = _newConfig;
+    emit VaultConfigUpdated(address(this), _newConfig);
   }
 
   function getVaultConfig() external view virtual override returns (VaultConfig memory) {
     return vaultConfig;
   }
 
-  function deposit(uint32 accountId, address token, uint256 amt) public payable override {
-    emit Deposit(accountId, vaultConfig.vaultType, token, amt);
+  function deposit(uint32 accountId, address, uint256 amt) public payable override {
+    emit Deposit(accountId, address(this), amt, amt);
   }
 
   function redeem(
@@ -37,7 +39,7 @@ contract DummyVault is IVault {
     uint256 amt
   ) public payable override returns (RedemptionResponse memory) {
     IERC20(vaultConfig.baseToken).approve(msg.sender, amt);
-    emit Redeem(accountId, vaultConfig.vaultType, vaultConfig.baseToken, amt);
+    emit Redeem(accountId, address(this), amt, amt);
     return
       RedemptionResponse({
         token: vaultConfig.baseToken,
@@ -48,7 +50,7 @@ contract DummyVault is IVault {
 
   function redeemAll(uint32 accountId) public payable override returns (RedemptionResponse memory) {
     IERC20(vaultConfig.baseToken).approve(msg.sender, dummyAmt);
-    emit Redeem(accountId, vaultConfig.vaultType, address(this), dummyAmt);
+    emit Redeem(accountId, address(this), dummyAmt, dummyAmt);
     return
       RedemptionResponse({
         token: vaultConfig.baseToken,
@@ -58,7 +60,9 @@ contract DummyVault is IVault {
   }
 
   function harvest(uint32[] calldata accountIds) public override {
-    emit RewardsHarvested(accountIds);
+    for (uint32 i; i < accountIds.length; i++) {
+      emit Redeem(accountIds[i], address(this), dummyAmt, dummyAmt);
+    }
   }
 
   function _isApprovedRouter() internal view override returns (bool) {}

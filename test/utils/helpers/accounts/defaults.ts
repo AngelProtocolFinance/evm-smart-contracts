@@ -2,7 +2,6 @@ import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetP
 import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsStrategy";
 import {LibAccounts} from "typechain-types/contracts/multisigs/CharityApplications";
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
-import {BigNumber} from "ethers";
 import {DEFAULT_STRATEGY_SELECTOR} from "test/utils";
 import {IVault} from "typechain-types/contracts/core/accounts/facets/AccountsStrategy";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
@@ -145,14 +144,8 @@ export const DEFAULT_REDEEM_ALL_REQUEST: AccountMessages.RedeemAllRequestStruct 
 export const DEFAULT_STRATEGY_PARAMS: LocalRegistrarLib.StrategyParamsStruct = {
   approvalState: 0,
   network: DEFAULT_NETWORK,
-  Locked: {
-    Type: 0,
-    vaultAddr: ADDRESS_ZERO,
-  },
-  Liquid: {
-    Type: 1,
-    vaultAddr: ADDRESS_ZERO,
-  },
+  lockedVaultAddr: ADDRESS_ZERO,
+  liquidVaultAddr: ADDRESS_ZERO,
 };
 
 export const DEFAULT_ACTION_DATA: IVault.VaultActionDataStruct = {

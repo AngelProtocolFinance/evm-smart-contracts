@@ -86,7 +86,7 @@ pragma solidity >=0.8.0;
 
 //     ` {
 //         LocalRegistrarLib.StrategyParams memory stratParams = registrar.getStrategyParamsById(STRATEGY_ID);
-//         return(msg.sender == stratParams.Locked.vaultAddr);
+//         return(msg.sender == stratParams.lockedVaultAddr);
 //     }
 
 //     /*////////////////////////////////////////////////
@@ -286,8 +286,8 @@ pragma solidity >=0.8.0;
 
 //         // Rebalance to sibling vault
 //         LocalRegistrarLib.StrategyParams memory stratParams = registrar.getStrategyParamsById(STRATEGY_ID);
-//         require(IERC20(USDC).transfer(stratParams.Liquid.vaultAddr, (redeemedUSDC - tax)));
-//         IVault(stratParams.Liquid.vaultAddr).deposit(accountId, USDC, (redeemedUSDC - tax));
+//         require(IERC20(USDC).transfer(stratParams.liquidVaultAddr, (redeemedUSDC - tax)));
+//         IVault(stratParams.liquidVaultAddr).deposit(accountId, USDC, (redeemedUSDC - tax));
 //     }
 
 //     function _taxRedemption(
