@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.16;
+pragma solidity ^0.8.19;
 
 // interfaces
 import {IAccountsAllowance} from "./IAccountsAllowance.sol";
