@@ -77,12 +77,23 @@ abstract contract IVault {
 
   /// @notice Event emited on each Deposit call
   /// @dev Upon deposit, emit this event. Index the account and staking contract for analytics
+  /// @param endowId ID of Endowment for which to deposit
+  /// @param vault Address of the Vault
+  /// @param amount Amount of tokens deposited
+  /// @param sharesReceived Number of shares received
   event Deposit(uint32 endowId, address vault, uint256 amount, uint256 sharesReceived);
 
   /// @notice Event emited on each Redemption call
   /// @dev Upon redemption, emit this event. Index the account and staking contract for analytics
+  /// @param endowId ID of Endowment for which to redeem
+  /// @param vault Address of the Vault
+  /// @param shares Number of shares
+  /// @param amountRedeemed Amount of tokens redeemed
   event Redeem(uint32 endowId, address vault, uint256 shares, uint256 amountRedeemed);
 
+  /// @notice Event emited on each Harvest call
+  /// @param vault Address of the Vault
+  /// @param config New Vault config values
   event VaultConfigUpdated(address vault, VaultConfig config);
 
   /*////////////////////////////////////////////////
