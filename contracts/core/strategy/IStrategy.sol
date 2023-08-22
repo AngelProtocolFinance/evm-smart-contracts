@@ -21,6 +21,7 @@ interface IStrategy {
   error ApproveFailed();
   error DepositFailed();
   error WithdrawFailed();
+  error ZeroAmount();
 
   /// @notice Returns the config struct
   /// @return Config the current strategy config
