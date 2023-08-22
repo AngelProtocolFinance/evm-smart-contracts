@@ -2,8 +2,7 @@
 pragma solidity ^0.8.16;
 
 //Libraries
-import "./storage.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import {Storage, IndexFundStorage} from "./storage.sol";
 import {Validator} from "../validator.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
@@ -31,7 +30,6 @@ uint256 constant MIN_AMOUNT_PER_ENDOWMENT = 100;
  */
 contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard, IterableMapping {
   using SafeERC20 for IERC20;
-  using SafeMath for uint256;
 
   /**
    * @notice Initializer function for index fund contract, to be called when proxy is deployed
@@ -307,14 +305,14 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard, 
         // check that the amount donated will have enough funds for the last round of donations
         if (amount > goalLeftover) {
           postFirstRoundAmnt = amount - goalLeftover;
-          rounds += postFirstRoundAmnt.div(state.config.fundingGoal);
+          rounds += (postFirstRoundAmnt / state.config.fundingGoal);
           // Check if there is a non-zero amount of funds after dividing the post-first round amount out
           // that would require an additional round (ie. this amount is greater than the min per
           // endowment multipled by the max members in a fund)
           if (
             postFirstRoundAmnt % state.config.fundingGoal > 0 &&
             postFirstRoundAmnt % state.config.fundingGoal >=
-            MIN_AMOUNT_PER_ENDOWMENT.mul(MAX_ENDOWMENT_MEMBERS)
+            (MIN_AMOUNT_PER_ENDOWMENT * MAX_ENDOWMENT_MEMBERS)
           ) {
             rounds += 1;
           }
@@ -334,7 +332,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard, 
             if (
               round == 0 &&
               postFirstRoundAmnt % state.config.fundingGoal <
-              MIN_AMOUNT_PER_ENDOWMENT.mul(MAX_ENDOWMENT_MEMBERS)
+              (MIN_AMOUNT_PER_ENDOWMENT * MAX_ENDOWMENT_MEMBERS)
             ) {
               loopDonation += postFirstRoundAmnt % state.config.fundingGoal;
             }
@@ -485,7 +483,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard, 
     require(state.EndowmentsByFund[fundId].keys.length > 0, "Fund must have members");
     // require enough funds to allow for downstream fees calulations, etc
     require(
-      amount >= MIN_AMOUNT_PER_ENDOWMENT.mul(state.EndowmentsByFund[fundId].keys.length),
+      amount >= (MIN_AMOUNT_PER_ENDOWMENT * state.EndowmentsByFund[fundId].keys.length),
       "Amount must be enough to cover the minimum units per endowment for all members of a Fund"
     );
 
@@ -499,7 +497,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard, 
           donationMatch: msg.sender
         }),
         token,
-        amount.div(state.EndowmentsByFund[fundId].keys.length)
+        (amount / state.EndowmentsByFund[fundId].keys.length)
       );
     }
 

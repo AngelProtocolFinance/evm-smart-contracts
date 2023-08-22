@@ -6,7 +6,6 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 
 library StakingRewardsVesting {
-  using SafeMath for uint256;
   using StakingRewardsVesting for Rewards;
 
   uint256 internal constant PERCENTAGE_DECIMALS = 1e18;
@@ -27,15 +26,15 @@ library StakingRewardsVesting {
   }
 
   function claim(Rewards storage rewards, uint256 reward) internal {
-    rewards.totalClaimed = rewards.totalClaimed.add(reward);
+    rewards.totalClaimed = rewards.totalClaimed + reward;
   }
 
   function claimable(Rewards storage rewards) internal view returns (uint256) {
-    return rewards.totalVested.add(rewards.totalPreviouslyVested).sub(rewards.totalClaimed);
+    return rewards.totalVested + rewards.totalPreviouslyVested - rewards.totalClaimed;
   }
 
   function rentGrant(Rewards storage rewards) internal view returns (uint256) {
-    return rewards.totalUnvested.add(rewards.totalVested);
+    return rewards.totalUnvested + rewards.totalVested;
   }
 
   function checkpoint(Rewards storage rewards) internal {
@@ -47,8 +46,8 @@ library StakingRewardsVesting {
     );
 
     if (newTotalVested > rewards.totalVested) {
-      uint256 difference = newTotalVested.sub(rewards.totalVested);
-      rewards.totalUnvested = rewards.totalUnvested.sub(difference);
+      uint256 difference = newTotalVested - rewards.totalVested;
+      rewards.totalUnvested = rewards.totalUnvested - difference;
       rewards.totalVested = newTotalVested;
     }
   }
@@ -63,6 +62,6 @@ library StakingRewardsVesting {
       return grantedAmount;
     }
 
-    return Math.min(grantedAmount.mul(time.sub(start)).div(end.sub(start)), grantedAmount);
+    return Math.min((grantedAmount * (time - start)) / (end - start), grantedAmount);
   }
 }
