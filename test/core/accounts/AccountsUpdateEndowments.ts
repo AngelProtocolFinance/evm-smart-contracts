@@ -427,13 +427,29 @@ describe("AccountsUpdateEndowments", function () {
         field: "lockedInvestmentManagement",
       },
       {
+        setting: ControllerSettingOption.LiquidInvestmentManagement,
+        field: "liquidInvestmentManagement",
+      },
+      {
         setting: ControllerSettingOption.AllowlistedBeneficiaries,
         field: "allowlistedBeneficiaries",
       },
+      {
+        setting: ControllerSettingOption.AllowlistedContributors,
+        field: "allowlistedContributors",
+      },
+      {setting: ControllerSettingOption.MaturityAllowlist, field: "maturityAllowlist"},
       {setting: ControllerSettingOption.MaturityTime, field: "maturityTime"},
+      {setting: ControllerSettingOption.EarlyLockedWithdrawFee, field: "earlyLockedWithdrawFee"},
+      {setting: ControllerSettingOption.WithdrawFee, field: "withdrawFee"},
       {setting: ControllerSettingOption.DepositFee, field: "depositFee"},
+      {setting: ControllerSettingOption.BalanceFee, field: "balanceFee"},
       {setting: ControllerSettingOption.Name, field: "name"},
       {setting: ControllerSettingOption.Image, field: "image"},
+      {setting: ControllerSettingOption.Logo, field: "logo"},
+      {setting: ControllerSettingOption.Sdgs, field: "sdgs"},
+      {setting: ControllerSettingOption.SplitToLiquid, field: "splitToLiquid"},
+      {setting: ControllerSettingOption.IgnoreUserSplits, field: "ignoreUserSplits"},
     ];
     runs.forEach(({setting, field}) => {
       describe(`Updating delegate for setting option "${ControllerSettingOption[setting]}"`, () => {
