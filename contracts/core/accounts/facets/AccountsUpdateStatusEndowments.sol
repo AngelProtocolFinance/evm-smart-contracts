@@ -41,7 +41,7 @@ contract AccountsUpdateStatusEndowments is
 
     require(msg.sender == tempEndowment.owner, "Unauthorized");
     require(!state.States[id].closingEndowment, "Endowment is closed");
-    require(state.ActiveStrategies[id].keys.length > 0, "Not fully exited");
+    require(state.ActiveStrategies[id].keys.length == 0, "Not fully exited");
 
     RegistrarStorage.Config memory registrarConfig = IRegistrar(state.config.registrarContract)
       .queryConfig();
