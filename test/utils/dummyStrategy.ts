@@ -1,6 +1,6 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {DummyStrategy, DummyStrategy__factory, IStrategy} from "typechain-types";
-import {DEFAULT_STRATEGY_SELECTOR} from "./constants";
+import {DEFAULT_STRATEGY_ID} from "./constants";
 
 export async function deployDummyStrategy(
   deployer: SignerWithAddress,
@@ -8,12 +8,12 @@ export async function deployDummyStrategy(
     baseToken,
     yieldToken,
     admin,
-    strategySelector = DEFAULT_STRATEGY_SELECTOR,
+    strategyId = DEFAULT_STRATEGY_ID,
   }: {
     baseToken: string;
     yieldToken: string;
     admin: string;
-    strategySelector?: string;
+    strategyId?: string;
   }
 ): Promise<DummyStrategy> {
   let Strategy = new DummyStrategy__factory(deployer);
@@ -21,7 +21,7 @@ export async function deployDummyStrategy(
     baseToken: baseToken,
     yieldToken: yieldToken,
     admin: admin,
-    strategySelector: strategySelector,
+    strategyId: strategyId,
   };
   const strategy = await Strategy.deploy(stratInitConfig);
   await strategy.deployed();

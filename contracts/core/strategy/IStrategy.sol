@@ -4,7 +4,7 @@ pragma solidity ^0.8.19;
 
 interface IStrategy {
   struct StrategyConfig {
-    bytes4 strategySelector;
+    bytes4 strategyId;
     address baseToken;
     address yieldToken;
     address admin;

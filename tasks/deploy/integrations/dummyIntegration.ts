@@ -47,7 +47,7 @@ task("Deploy:dummyIntegration", "Will deploy a set of vaults and a dummy strateg
 
       let Strategy = new GoerliDummy__factory(deployer);
       let strategy = await Strategy.deploy({
-        strategySelector: config.id,
+        strategyId: config.id,
         baseToken: addresses.tokens.usdc,
         yieldToken: yieldToken.address,
         admin: admin,
@@ -59,7 +59,7 @@ task("Deploy:dummyIntegration", "Will deploy a set of vaults and a dummy strateg
 
       let lockedConfig = {
         vaultType: VaultType.LOCKED,
-        strategySelector: config.id,
+        strategyId: config.id,
         strategy: strategy.address,
         registrar: addresses.registrar.proxy,
         baseToken: addresses.tokens.usdc,
@@ -73,7 +73,7 @@ task("Deploy:dummyIntegration", "Will deploy a set of vaults and a dummy strateg
 
       let liquidConfig = {
         vaultType: VaultType.LIQUID,
-        strategySelector: config.id,
+        strategyId: config.id,
         strategy: strategy.address,
         registrar: addresses.registrar.proxy,
         baseToken: addresses.tokens.usdc,

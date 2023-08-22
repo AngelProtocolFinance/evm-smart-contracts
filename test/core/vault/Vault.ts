@@ -7,7 +7,7 @@ import {StrategyApprovalState, getSigners} from "utils";
 import {
   deployDummyStrategy,
   deployDummyERC20,
-  DEFAULT_STRATEGY_SELECTOR,
+  DEFAULT_STRATEGY_ID,
   DEFAULT_VAULT_NAME,
   DEFAULT_VAULT_SYMBOL,
   DEFAULT_NETWORK,
@@ -42,7 +42,7 @@ describe("Vault", function () {
     yieldToken,
     admin,
     vaultType = 0,
-    strategySelector = DEFAULT_STRATEGY_SELECTOR,
+    strategyId = DEFAULT_STRATEGY_ID,
     strategy = ethers.constants.AddressZero,
     registrar = ethers.constants.AddressZero,
     apTokenName = "TestVault",
@@ -52,7 +52,7 @@ describe("Vault", function () {
     yieldToken: string;
     admin: string;
     vaultType?: number;
-    strategySelector?: string;
+    strategyId?: string;
     strategy?: string;
     registrar?: string;
     apTokenName?: string;
@@ -61,7 +61,7 @@ describe("Vault", function () {
     let Vault = new APVault_V1__factory(owner);
     let vaultInitConfig: IVault.VaultConfigStruct = {
       vaultType: vaultType,
-      strategySelector: strategySelector,
+      strategyId: strategyId,
       strategy: strategy,
       registrar: registrar,
       baseToken: baseToken,
@@ -131,7 +131,7 @@ describe("Vault", function () {
     it("should set the config as specified on deployment", async function () {
       let config = await vault.getVaultConfig();
       expect(config.vaultType).to.equal(0);
-      expect(config.strategySelector).to.equal(DEFAULT_STRATEGY_SELECTOR);
+      expect(config.strategyId).to.equal(DEFAULT_STRATEGY_ID);
       expect(config.strategy).to.equal(ethers.constants.AddressZero);
       expect(config.registrar).to.equal(ethers.constants.AddressZero);
       expect(config.baseToken).to.equal(token.address);
@@ -143,7 +143,7 @@ describe("Vault", function () {
     it("should accept new config values", async function () {
       let newConfig = {
         vaultType: 1,
-        strategySelector: "0x87654321",
+        strategyId: "0x87654321",
         strategy: user.address,
         registrar: user.address,
         baseToken: token.address,
@@ -155,7 +155,7 @@ describe("Vault", function () {
       await vault.setVaultConfig(newConfig);
       let queriedConfig = await vault.getVaultConfig();
       expect(queriedConfig.vaultType).to.equal(newConfig.vaultType);
-      expect(queriedConfig.strategySelector).to.equal(newConfig.strategySelector);
+      expect(queriedConfig.strategyId).to.equal(newConfig.strategyId);
       expect(queriedConfig.strategy).to.equal(newConfig.strategy);
       expect(queriedConfig.registrar).to.equal(newConfig.registrar);
       expect(queriedConfig.baseToken).to.equal(newConfig.baseToken);
@@ -167,7 +167,7 @@ describe("Vault", function () {
     it("should revert when a non-admin calls the set method", async function () {
       let newConfig = {
         vaultType: 1,
-        strategySelector: "0x87654321",
+        strategyId: "0x87654321",
         strategy: user.address,
         registrar: user.address,
         baseToken: token.address,
@@ -208,9 +208,7 @@ describe("Vault", function () {
         strategy: strategy.address,
         registrar: registrarFake.address,
       });
-      registrarFake.getStrategyApprovalState
-        .whenCalledWith(DEFAULT_STRATEGY_SELECTOR)
-        .returns(true);
+      registrarFake.getStrategyApprovalState.whenCalledWith(DEFAULT_STRATEGY_ID).returns(true);
       registrarFake.thisChain.returns(DEFAULT_NETWORK);
       registrarFake.queryNetworkConnection.whenCalledWith(DEFAULT_NETWORK).returns({
         ...DEFAULT_NETWORK_INFO,

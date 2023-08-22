@@ -30,7 +30,7 @@ task("Deploy:genericVault", "Will deploy a generic vault with the provided param
 
       let vaultConfig = {
         vaultType: 1,
-        strategySelector: "0x12345678",
+        strategyId: "0x12345678",
         strategy: hre.ethers.constants.AddressZero,
         registrar: hre.ethers.constants.AddressZero,
         baseToken: baseTokenAddress,

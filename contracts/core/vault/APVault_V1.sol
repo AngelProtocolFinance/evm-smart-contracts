@@ -395,7 +395,7 @@ contract APVault_V1 is IVault, ERC4626AP {
     }
     // Rebalance remainder to liquid
     LocalRegistrarLib.StrategyParams memory stratParams = IRegistrar(vaultConfig.registrar)
-      .getStrategyParamsById(vaultConfig.strategySelector);
+      .getStrategyParamsById(vaultConfig.strategyId);
     if (
       !IERC20Metadata(vaultConfig.baseToken).transfer(
         stratParams.liquidVaultAddr,
@@ -429,7 +429,7 @@ contract APVault_V1 is IVault, ERC4626AP {
 
   function _isSiblingVault() internal view override returns (bool) {
     LocalRegistrarLib.StrategyParams memory stratParams = IRegistrar(vaultConfig.registrar)
-      .getStrategyParamsById(vaultConfig.strategySelector);
+      .getStrategyParamsById(vaultConfig.strategyId);
     return (
       vaultConfig.vaultType == VaultType.LOCKED
         ? (_msgSender() == stratParams.liquidVaultAddr)

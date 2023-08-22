@@ -15,7 +15,7 @@ library RouterLib {
   ) internal pure returns (IVault.VaultActionData memory) {
     (
       string memory destinationChain,
-      bytes4 strategySelector,
+      bytes4 strategyId,
       bytes4 selector,
       uint32[] memory accountIds,
       address token,
@@ -30,7 +30,7 @@ library RouterLib {
     return
       IVault.VaultActionData(
         destinationChain,
-        strategySelector,
+        strategyId,
         selector,
         accountIds,
         token,
@@ -46,7 +46,7 @@ library RouterLib {
     return
       abi.encode(
         _calldata.destinationChain,
-        _calldata.strategySelector,
+        _calldata.strategyId,
         _calldata.selector,
         _calldata.accountIds,
         _calldata.token,

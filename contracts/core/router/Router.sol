@@ -62,7 +62,7 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     require(registrar.isTokenAccepted(tokenAddress), "Token not accepted");
     // Get parameters from registrar if approved
     require(
-      registrar.getStrategyApprovalState(action.strategySelector) ==
+      registrar.getStrategyApprovalState(action.strategyId) ==
         LocalRegistrarLib.StrategyApprovalState.APPROVED,
       "Strategy not approved"
     );
@@ -71,9 +71,9 @@ contract Router is IRouter, Initializable, AxelarExecutable {
 
   modifier validateCall(IVault.VaultActionData memory action) {
     require(
-      (registrar.getStrategyApprovalState(action.strategySelector) ==
+      (registrar.getStrategyApprovalState(action.strategyId) ==
         LocalRegistrarLib.StrategyApprovalState.APPROVED) ||
-        registrar.getStrategyApprovalState(action.strategySelector) ==
+        registrar.getStrategyApprovalState(action.strategyId) ==
         LocalRegistrarLib.StrategyApprovalState.WITHDRAW_ONLY,
       "Strategy not approved"
     );
@@ -115,7 +115,7 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     uint256 amount
   ) public onlySelf validateDeposit(action, tokenSymbol, amount) {
     LocalRegistrarLib.StrategyParams memory params = registrar.getStrategyParamsById(
-      action.strategySelector
+      action.strategyId
     );
 
     if (action.lockAmt > 0) {
@@ -441,7 +441,7 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     // decode payload
     IVault.VaultActionData memory action = RouterLib.unpackCalldata(payload);
     LocalRegistrarLib.StrategyParams memory params = registrar.getStrategyParamsById(
-      action.strategySelector
+      action.strategyId
     );
 
     // update action.destinationChain to source chain for token redemptions

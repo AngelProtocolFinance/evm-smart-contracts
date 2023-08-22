@@ -3,7 +3,7 @@ import {IVault} from "typechain-types/contracts/core/accounts/facets/AccountsStr
 export function convertVaultActionStructToArray(actionData: IVault.VaultActionDataStruct) {
   return [
     actionData.destinationChain,
-    actionData.strategySelector,
+    actionData.strategyId,
     actionData.selector,
     actionData.accountIds,
     actionData.token,
@@ -16,7 +16,7 @@ export function convertVaultActionStructToArray(actionData: IVault.VaultActionDa
 export function convertArrayToVaultActionStruct(decodedData: any) {
   return {
     destinationChain: decodedData[0],
-    strategySelector: decodedData[1],
+    strategyId: decodedData[1],
     selector: decodedData[2],
     accountIds: decodedData[3],
     token: decodedData[4],

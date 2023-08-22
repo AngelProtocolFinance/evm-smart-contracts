@@ -2,7 +2,7 @@ import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetP
 import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsStrategy";
 import {LibAccounts} from "typechain-types/contracts/multisigs/CharityApplications";
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
-import {DEFAULT_STRATEGY_SELECTOR} from "test/utils";
+import {DEFAULT_STRATEGY_ID} from "test/utils";
 import {IVault} from "typechain-types/contracts/core/accounts/facets/AccountsStrategy";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
 import {ADDRESS_ZERO} from "utils";
@@ -110,7 +110,7 @@ export const DEFAULT_REGISTRAR_CONFIG: RegistrarStorage.ConfigStruct = {
 };
 
 export const DEFAULT_INVEST_REQUEST: AccountMessages.InvestRequestStruct = {
-  strategy: DEFAULT_STRATEGY_SELECTOR,
+  strategy: DEFAULT_STRATEGY_ID,
   token: "TKN",
   lockAmt: 0,
   liquidAmt: 0,
@@ -118,7 +118,7 @@ export const DEFAULT_INVEST_REQUEST: AccountMessages.InvestRequestStruct = {
 };
 
 export const DEFAULT_REDEEM_REQUEST: AccountMessages.RedeemRequestStruct = {
-  strategy: DEFAULT_STRATEGY_SELECTOR,
+  strategy: DEFAULT_STRATEGY_ID,
   token: "TKN",
   lockAmt: 0,
   liquidAmt: 0,
@@ -126,7 +126,7 @@ export const DEFAULT_REDEEM_REQUEST: AccountMessages.RedeemRequestStruct = {
 };
 
 export const DEFAULT_REDEEM_ALL_REQUEST: AccountMessages.RedeemAllRequestStruct = {
-  strategy: DEFAULT_STRATEGY_SELECTOR,
+  strategy: DEFAULT_STRATEGY_ID,
   token: "TKN",
   redeemLocked: false,
   redeemLiquid: false,
@@ -142,7 +142,7 @@ export const DEFAULT_STRATEGY_PARAMS: LocalRegistrarLib.StrategyParamsStruct = {
 
 export const DEFAULT_ACTION_DATA: IVault.VaultActionDataStruct = {
   destinationChain: "",
-  strategySelector: DEFAULT_STRATEGY_SELECTOR,
+  strategyId: DEFAULT_STRATEGY_ID,
   selector: "",
   accountIds: [],
   token: "",
