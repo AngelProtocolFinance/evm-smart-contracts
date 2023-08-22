@@ -31,11 +31,7 @@ import {IVault} from "../../core/vault/interfaces/IVault.sol";
  * you should think of the `ProxyAdmin` instance as the real administrative interface of your proxy.
  */
 
-contract TestFacetProxyContract is
-  TransparentUpgradeableProxy,
-  IterableMappingAddr,
-  IterableMappingStrategy
-{
+contract TestFacetProxyContract is TransparentUpgradeableProxy, IterableMappingAddr, IterableMappingStrategy {
   constructor(
     address implementation,
     address admin,

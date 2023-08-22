@@ -15,7 +15,9 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol";
-import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+
+uint256 constant ACCEPTABLE_PRICE_DELAY = 300; // 5 minutes, in seconds
 
 /**
  * @title AccountsSwapRouter
@@ -159,7 +161,7 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsS
     require(
       answer > 0 &&
         answeredInRound >= roundId &&
-        updatedAt >= (block.timestamp - LibAccounts.ACCEPTABLE_PRICE_DELAY),
+        updatedAt >= (block.timestamp - ACCEPTABLE_PRICE_DELAY),
       "Invalid price feed answer"
     );
     return uint256(answer);
