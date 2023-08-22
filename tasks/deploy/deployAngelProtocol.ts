@@ -22,6 +22,7 @@ import {deployEndowmentMultiSig} from "contracts/multisigs/endowment-multisig/sc
 
 import {deployGasFwd} from "contracts/core/gasFwd/scripts/deploy";
 import {getOrDeployThirdPartyContracts, updateRegistrarNetworkConnections} from "../helpers";
+import {deployVaultEmitter} from "contracts/core/vault/scripts/deployVaultEmitter";
 
 task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
   .addFlag("skipVerify", "Skip contract verification")
@@ -89,6 +90,8 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
 
       const endowmentMultiSig = await deployEndowmentMultiSig(registrar?.address, hre);
 
+      const vaultEmitter = await deployVaultEmitter(hre);
+
       await hre.run("manage:registrar:updateConfig", {
         accountsContract: accounts?.diamond.address, //Address
         collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare, //uint256
@@ -130,6 +133,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
           endowmentMultiSig?.implementation,
           gasFwd?.factory,
           gasFwd?.implementation,
+          vaultEmitter,
         ];
 
         for (const deployment of deployments) {
