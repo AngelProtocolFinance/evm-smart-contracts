@@ -7,6 +7,7 @@ type TaskArgs = Partial<RegistrarMessages.UpdateConfigRequestStruct> & {
   yes: boolean;
 };
 
+// TODO: update param descriptions
 task("manage:registrar:updateConfig", "Will update Accounts Diamond config")
   .addOptionalParam(
     "accountsContract",
@@ -95,6 +96,12 @@ task("manage:registrar:updateConfig", "Will update Accounts Diamond config")
   .addOptionalParam(
     "gasFwdFactory",
     "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
+    undefined,
+    types.string
+  )
+  .addOptionalParam(
+    "vaultEmitter",
+    "Vault Emitter address. Will do a local lookup from contract-address.json if none is provided.",
     undefined,
     types.string
   )

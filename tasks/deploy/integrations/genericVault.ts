@@ -39,7 +39,7 @@ task("Deploy:genericVault", "Will deploy a generic vault with the provided param
         apTokenSymbol: "TV",
         admin: deployer.address,
       };
-      let vault = await Vault.deploy(vaultConfig);
+      let vault = await Vault.deploy(vaultConfig, addresses.vaultEmitter.proxy);
       logger.pad(30, "Vault deployed to", vault.address);
     } catch (error) {
       logger.out(error, logger.Level.Error);

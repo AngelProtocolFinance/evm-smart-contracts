@@ -107,6 +107,7 @@ export const DEFAULT_REGISTRAR_CONFIG: RegistrarStorage.ConfigStruct = {
   usdcAddress: ADDRESS_ZERO,
   wMaticAddress: ADDRESS_ZERO,
   gasFwdFactory: ADDRESS_ZERO,
+  vaultEmitter: ADDRESS_ZERO,
 };
 
 export const DEFAULT_INVEST_REQUEST: AccountMessages.InvestRequestStruct = {

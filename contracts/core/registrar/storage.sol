@@ -22,6 +22,7 @@ library RegistrarStorage {
     address usdcAddress;
     address wMaticAddress;
     address gasFwdFactory;
+    address vaultEmitter;
   }
 
   struct State {

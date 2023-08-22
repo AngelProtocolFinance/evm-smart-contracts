@@ -107,6 +107,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
         wMaticAddress: thirdPartyAddresses.wmaticToken.address,
         gasFwdFactory: gasFwd?.factory.address,
         yes: true,
+        vaultEmitter: vaultEmitter?.address,
       });
 
       // Registrar NetworkInfo's Router address must be updated for the current network

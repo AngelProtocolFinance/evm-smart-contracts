@@ -68,7 +68,7 @@ task("Deploy:dummyIntegration", "Will deploy a set of vaults and a dummy strateg
         apTokenSymbol: "LockTV",
         admin: admin,
       };
-      let lockVault = await Vault.deploy(lockedConfig);
+      let lockVault = await Vault.deploy(lockedConfig, addresses.vaultEmitter.proxy);
       logger.pad(30, "Locked Vault deployed to", lockVault.address);
 
       let liquidConfig = {
@@ -82,7 +82,7 @@ task("Deploy:dummyIntegration", "Will deploy a set of vaults and a dummy strateg
         apTokenSymbol: "LiqTV",
         admin: admin,
       };
-      let liqVault = await Vault.deploy(liquidConfig);
+      let liqVault = await Vault.deploy(liquidConfig, addresses.vaultEmitter.proxy);
       logger.pad(30, "Liquid Vault deployed to", liqVault.address);
 
       const data: StrategyObject = {
