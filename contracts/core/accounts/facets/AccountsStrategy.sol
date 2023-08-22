@@ -20,6 +20,7 @@ import {AxelarExecutableAccounts} from "../lib/AxelarExecutableAccounts.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IGasFwd} from "../../gasFwd/IGasFwd.sol";
+import {IterableMappingStrategy} from "../../../lib/IterableMappingStrategy.sol";
 
 /**
  * @title AccountsStrategy
@@ -29,7 +30,8 @@ contract AccountsStrategy is
   IAccountsStrategy,
   AxelarExecutableAccounts,
   ReentrancyGuardFacet,
-  IAccountsEvents
+  IAccountsEvents,
+  IterableMappingStrategy
 {
   using SafeERC20 for IERC20;
 
@@ -112,7 +114,7 @@ contract AccountsStrategy is
 
     state.Balances[id][IVault.VaultType.LOCKED][tokenAddress] -= investRequest.lockAmt;
     state.Balances[id][IVault.VaultType.LIQUID][tokenAddress] -= investRequest.liquidAmt;
-    state.ActiveStrategies[id][investRequest.strategy] = true;
+    IterableMappingStrategy.set(state.ActiveStrategies[id], investRequest.strategy, true);
     emit EndowmentInvested(id);
 
     // Strategy exists on the local network
@@ -271,7 +273,7 @@ contract AccountsStrategy is
       } else if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
         state.Balances[id][IVault.VaultType.LOCKED][tokenAddress] += response.lockAmt;
         state.Balances[id][IVault.VaultType.LIQUID][tokenAddress] += response.liqAmt;
-        state.ActiveStrategies[id][redeemRequest.strategy] = false;
+        IterableMappingStrategy.remove(state.ActiveStrategies[id], redeemRequest.strategy);
         emit EndowmentRedeemed(id, response.status);
       } else {
         revert RedeemFailed(response.status);
@@ -400,7 +402,7 @@ contract AccountsStrategy is
       if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
         state.Balances[id][IVault.VaultType.LOCKED][response.token] += response.lockAmt;
         state.Balances[id][IVault.VaultType.LIQUID][response.token] += response.liqAmt;
-        state.ActiveStrategies[id][redeemAllRequest.strategy] = false;
+        IterableMappingStrategy.remove(state.ActiveStrategies[id], redeemAllRequest.strategy);
         emit EndowmentRedeemed(id, response.status);
       } else {
         revert RedeemAllFailed(response.status);
@@ -485,7 +487,7 @@ contract AccountsStrategy is
       } else if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
         state.Balances[id][IVault.VaultType.LOCKED][response.token] += response.lockAmt;
         state.Balances[id][IVault.VaultType.LIQUID][response.token] += response.liqAmt;
-        state.ActiveStrategies[id][response.strategyId] = false;
+        IterableMappingStrategy.remove(state.ActiveStrategies[id], response.strategyId);
         emit EndowmentRedeemed(id, response.status);
         return true;
       }

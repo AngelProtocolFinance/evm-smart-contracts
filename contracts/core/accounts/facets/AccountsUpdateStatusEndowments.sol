@@ -12,6 +12,7 @@ import {IAccountsGasManager} from "../interfaces/IAccountsGasManager.sol";
 import {IAccountsUpdateStatusEndowments} from "../interfaces/IAccountsUpdateStatusEndowments.sol";
 import {IAccountsDepositWithdrawEndowments} from "../interfaces/IAccountsDepositWithdrawEndowments.sol";
 import {IVault} from "../../vault/interfaces/IVault.sol";
+import {IterableMappingStrategy} from "../../../lib/IterableMappingStrategy.sol";
 
 /**
  * @title AccountsUpdateStatusEndowments
@@ -21,7 +22,8 @@ import {IVault} from "../../vault/interfaces/IVault.sol";
 contract AccountsUpdateStatusEndowments is
   IAccountsUpdateStatusEndowments,
   ReentrancyGuardFacet,
-  IAccountsEvents
+  IAccountsEvents,
+  IterableMappingStrategy
 {
   /**
    * @notice Closes an endowment, setting the endowment state to "closingEndowment" and the closing beneficiary to the provided beneficiary.
@@ -39,7 +41,7 @@ contract AccountsUpdateStatusEndowments is
 
     require(msg.sender == tempEndowment.owner, "Unauthorized");
     require(!state.States[id].closingEndowment, "Endowment is closed");
-    require(checkFullyExited(id), "Not fully exited");
+    require(state.ActiveStrategies[id].keys.length > 0, "Not fully exited");
 
     RegistrarStorage.Config memory registrarConfig = IRegistrar(state.config.registrarContract)
       .queryConfig();
@@ -103,17 +105,6 @@ contract AccountsUpdateStatusEndowments is
     emit EndowmentClosed(id, beneficiary);
   }
 
-  function checkFullyExited(uint32 id) internal view returns (bool) {
-    AccountStorage.State storage state = LibAccounts.diamondStorage();
-    bytes4[] memory allStrategies = IRegistrar(state.config.registrarContract).queryAllStrategies();
-    for (uint256 i; i < allStrategies.length; i++) {
-      if (state.ActiveStrategies[id][allStrategies[i]]) {
-        return false;
-      }
-    }
-    return true;
-  }
-
   /**
    * @notice Force a strategy inactive for `checkFullyExited` to pass
    * @dev We optimistically expect that a cross-chain `deposit` call will be successful
@@ -125,6 +116,6 @@ contract AccountsUpdateStatusEndowments is
   function forceSetStrategyInactive(uint32 id, bytes4 strategySelector) public {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     require(msg.sender == state.Endowments[id].owner, "Unauthorized");
-    state.ActiveStrategies[id][strategySelector] = false;
+    IterableMappingStrategy.set(state.ActiveStrategies[id], strategySelector, false);
   }
 }
