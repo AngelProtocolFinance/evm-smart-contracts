@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 // author: @stevieraykatz
-pragma solidity >=0.8.0;
+pragma solidity ^0.8.19;
 
 // import {APVault_V1} from "../core/vault/APVault_V1.sol";
 import {IVault} from "../core/vault/interfaces/IVault.sol";

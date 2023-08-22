@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 // author: @stevieraykatz
-pragma solidity >=0.8.0;
+pragma solidity ^0.8.19;
 
 import {IStrategy} from "../../core/strategy/IStrategy.sol";
 import {DummyStrategy} from "../../test/DummyStrategy.sol";

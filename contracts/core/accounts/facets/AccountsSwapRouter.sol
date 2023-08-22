@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.16;
+pragma solidity ^0.8.19;
 
 import {LibAccounts} from "../lib/LibAccounts.sol";
 import {AccountStorage} from "../storage.sol";
@@ -12,7 +12,7 @@ import {IAccountsSwapRouter} from "../interfaces/IAccountsSwapRouter.sol";
 import {IVault} from "../../vault/interfaces/IVault.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import {FixedPointMathLib} from "../../../lib/FixedPointMathLib.sol";
 import {ISwapRouter} from "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 import {IUniswapV3Factory} from "@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol";
 import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
@@ -22,7 +22,7 @@ import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/interfaces/Ag
  * @dev This contract manages the swaps for endowments
  */
 contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsSwapRouter {
-  using SafeMath for uint256;
+  using FixedPointMathLib for uint256;
   using SafeERC20 for IERC20;
 
   /**
@@ -187,11 +187,13 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsS
     address uniswapRouter,
     address uniswapFactory
   ) internal returns (uint256 amountOut) {
-    uint256 priceRatio = getLatestPriceData(priceFeedOut).mul(LibAccounts.BIG_NUMBA_BASIS).div(
+    uint256 priceRatio = getLatestPriceData(priceFeedOut).mulDivDown(
+      LibAccounts.BIG_NUMBA_BASIS,
       getLatestPriceData(priceFeedIn)
     );
-    uint256 estAmountOut = amountIn.mul(priceRatio).div(LibAccounts.BIG_NUMBA_BASIS);
-    uint256 minAmountOut = estAmountOut.sub(estAmountOut.mul(slippage).div(LibAccounts.FEE_BASIS));
+    uint256 estAmountOut = amountIn.mulDivDown(priceRatio, LibAccounts.BIG_NUMBA_BASIS);
+    uint256 minAmountOut = estAmountOut -
+      (estAmountOut.mulDivDown(slippage, LibAccounts.FEE_BASIS));
 
     // find the lowest fee pool available, if any, to swap tokens
     IUniswapV3Factory factory = IUniswapV3Factory(uniswapFactory);

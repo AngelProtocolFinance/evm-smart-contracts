@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.16;
+pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import {LibAccounts} from "../../core/accounts/lib/LibAccounts.sol";
 import {AccountStorage} from "../../core/accounts/storage.sol";
 import {IterableMappingAddr} from "../../lib/IterableMappingAddr.sol";
+import {IterableMappingStrategy} from "../../lib/IterableMappingStrategy.sol";
 import {Utils} from "../../lib/utils.sol";
 import {IVault} from "../../core/vault/interfaces/IVault.sol";
 
@@ -30,7 +31,7 @@ import {IVault} from "../../core/vault/interfaces/IVault.sol";
  * you should think of the `ProxyAdmin` instance as the real administrative interface of your proxy.
  */
 
-contract TestFacetProxyContract is TransparentUpgradeableProxy, IterableMappingAddr {
+contract TestFacetProxyContract is TransparentUpgradeableProxy, IterableMappingAddr, IterableMappingStrategy {
   constructor(
     address implementation,
     address admin,
@@ -102,7 +103,7 @@ contract TestFacetProxyContract is TransparentUpgradeableProxy, IterableMappingA
     bool _accepted
   ) external {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    state.ActiveStrategies[accountId][_strategy] = _accepted;
+    IterableMappingStrategy.set(state.ActiveStrategies[accountId], _strategy, _accepted);
   }
 
   function getActiveStrategyEndowmentState(
@@ -110,7 +111,7 @@ contract TestFacetProxyContract is TransparentUpgradeableProxy, IterableMappingA
     bytes4 _strategy
   ) external view returns (bool) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    return state.ActiveStrategies[accountId][_strategy];
+    return IterableMappingStrategy.get(state.ActiveStrategies[accountId], _strategy);
   }
 
   function setEndowmentDetails(

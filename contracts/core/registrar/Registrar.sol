@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.16;
+pragma solidity ^0.8.19;
 
 import {Validator} from "../validator.sol";
 import {LibAccounts} from "../accounts/lib/LibAccounts.sol";

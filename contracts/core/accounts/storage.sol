@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.16;
+pragma solidity ^0.8.19;
 
 import {LibAccounts} from "./lib/LibAccounts.sol";
 import {LocalRegistrarLib} from "../registrar/lib/LocalRegistrarLib.sol";
 import {IterableMappingAddr} from "../../lib/IterableMappingAddr.sol";
+import {IterableMappingStrategy} from "../../lib/IterableMappingStrategy.sol";
 import {IVault} from "../vault/interfaces/IVault.sol";
 
 library AccountStorage {
@@ -65,7 +66,7 @@ library AccountStorage {
     // endow ID -> token Addr -> Price Feed Addr
     mapping(uint32 => mapping(address => address)) PriceFeeds;
     // endow ID -> strategies that an Endowment is invested
-    mapping(uint32 => mapping(bytes4 => bool)) ActiveStrategies;
+    mapping(uint32 => IterableMappingStrategy.StratMap) ActiveStrategies;
     // Endowments that a DAF can withdraw to, managed by contract Owner
     mapping(uint32 => bool) DafApprovedEndowments;
     // Endowments AllowLists Iterable mappings
