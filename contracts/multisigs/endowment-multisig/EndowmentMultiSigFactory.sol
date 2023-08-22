@@ -62,6 +62,7 @@ contract EndowmentMultiSigFactory is Ownable {
    * @param implementationAddress The address of the new implementation
    */
   function updateImplementation(address implementationAddress) public onlyOwner {
+    require(implementationAddress != address(0), "Invalid Address");
     IMPLEMENTATION_ADDRESS = implementationAddress;
     emit ImplementationUpdated(implementationAddress);
   }
@@ -71,6 +72,7 @@ contract EndowmentMultiSigFactory is Ownable {
    * @param proxyAdmin The address of the new proxy admin
    */
   function updateProxyAdmin(address proxyAdmin) public onlyOwner {
+    require(proxyAdmin != address(0), "Invalid Address");
     PROXY_ADMIN = proxyAdmin;
     emit ProxyAdminUpdated(proxyAdmin);
   }
