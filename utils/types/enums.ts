@@ -43,11 +43,6 @@ export enum ControllerSettingOption {
   IgnoreUserSplits,
 }
 
-export enum DelegateAction {
-  Set,
-  Revoke,
-}
-
 export enum FeeTypes {
   Default,
   Harvest,
