@@ -116,10 +116,6 @@ contract AccountsUpdateStatusEndowments is
   function forceSetStrategyInactive(uint32 id, bytes4 strategyId) public {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     require(msg.sender == state.Endowments[id].owner, "Unauthorized");
-<<<<<<< HEAD
-    IterableMappingStrategy.set(state.ActiveStrategies[id], strategySelector, false);
-=======
-    state.ActiveStrategies[id][strategyId] = false;
->>>>>>> a1f4e218 (Rename strategySelector -> strategyId)
+    IterableMappingStrategy.set(state.ActiveStrategies[id], strategyId, false);
   }
 }
