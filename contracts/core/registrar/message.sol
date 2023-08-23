@@ -32,7 +32,6 @@ library RegistrarMessages {
     address usdcAddress;
     address wMaticAddress;
     address gasFwdFactory;
-    address vaultEmitter;
   }
 
   struct UpdateFeeRequest {

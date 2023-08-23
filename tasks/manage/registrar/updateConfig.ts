@@ -99,12 +99,6 @@ task("manage:registrar:updateConfig", "Will update Accounts Diamond config")
     undefined,
     types.string
   )
-  .addOptionalParam(
-    "vaultEmitter",
-    "Vault Emitter address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.string
-  )
   .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     logger.divider();

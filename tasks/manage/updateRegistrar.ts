@@ -42,7 +42,6 @@ task(
         usdcAddress: addresses.tokens.usdc,
         wMaticAddress: addresses.tokens.wmatic,
         gasFwdFactory: addresses.gasFwd.factory,
-        vaultEmitter: addresses.vaultEmitter.proxy,
       };
 
       await hre.run("manage:registrar:updateConfig", {

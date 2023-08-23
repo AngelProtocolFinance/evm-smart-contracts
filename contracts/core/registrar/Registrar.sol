@@ -45,8 +45,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
       proxyAdmin: address(0),
       usdcAddress: address(0),
       wMaticAddress: address(0),
-      gasFwdFactory: address(0),
-      vaultEmitter: address(0)
+      gasFwdFactory: address(0)
     });
     emit ConfigUpdated();
 
@@ -133,10 +132,6 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
 
     if (Validator.addressChecker(details.gasFwdFactory)) {
       state.config.gasFwdFactory = details.gasFwdFactory;
-    }
-
-    if (Validator.addressChecker(details.vaultEmitter)) {
-      state.config.vaultEmitter = details.vaultEmitter;
     }
 
     emit ConfigUpdated();
