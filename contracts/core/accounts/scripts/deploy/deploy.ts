@@ -8,7 +8,14 @@ import {
   DiamondInit__factory,
   Diamond__factory,
 } from "typechain-types";
-import {Deployment, getSigners, logger, updateAddresses, validateAddress} from "utils";
+import {
+  Deployment,
+  getContractName,
+  getSigners,
+  logger,
+  updateAddresses,
+  validateAddress,
+} from "utils";
 
 import cutDiamond from "./cutDiamond";
 import deployFacets from "./deployFacets";
@@ -38,7 +45,7 @@ export async function deployAccountsDiamond(
 
     const cuts = await deployFacets(proxyAdmin, hre);
 
-    await cutDiamond(diamond.address, diamondInit, proxyAdmin, owner, registrar, cuts, hre);
+    await cutDiamond(diamond.address, diamondInit.address, proxyAdmin, owner, registrar, cuts, hre);
 
     return {
       diamond: {
@@ -46,10 +53,12 @@ export async function deployAccountsDiamond(
         contractName: "Accounts Diamond",
         constructorArguments: [proxyAdmin.address, diamondCutFacet.address],
       },
-      facets: cuts.map<Deployment>(({cut, facetName}) => ({
-        address: cut.facetAddress.toString(),
-        contractName: facetName,
-      })),
+      facets: cuts
+        .map<Deployment>(({cut, facetName}) => ({
+          address: cut.facetAddress.toString(),
+          contractName: facetName,
+        }))
+        .concat(diamondCutFacet, diamondInit),
     };
   } catch (error) {
     logger.out(error, logger.Level.Error);
@@ -59,7 +68,7 @@ export async function deployAccountsDiamond(
 async function deployDiamond(
   admin: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
-): Promise<{diamond: Diamond; diamondCutFacet: DiamondCutFacet}> {
+): Promise<{diamond: Deployment; diamondCutFacet: Deployment}> {
   const DiamondCutFacet = new DiamondCutFacet__factory(admin);
   const diamondCutFacet = await DiamondCutFacet.deploy();
   await diamondCutFacet.deployed();
@@ -75,7 +84,16 @@ async function deployDiamond(
     hre
   );
 
-  return {diamond, diamondCutFacet};
+  return {
+    diamond: {
+      address: diamond.address,
+      contractName: getContractName(Diamond),
+    },
+    diamondCutFacet: {
+      address: diamondCutFacet.address,
+      contractName: getContractName(DiamondCutFacet),
+    },
+  };
 }
 
 /**
@@ -86,7 +104,7 @@ async function deployDiamond(
 async function deployDiamondInit(
   admin: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
-): Promise<DiamondInit> {
+): Promise<Deployment> {
   const DiamondInit = new DiamondInit__factory(admin);
   const diamondInit = await DiamondInit.deploy();
   await diamondInit.deployed();
@@ -94,5 +112,8 @@ async function deployDiamondInit(
 
   await updateAddresses({accounts: {facets: {diamondInitFacet: diamondInit.address}}}, hre);
 
-  return diamondInit;
+  return {
+    address: diamondInit.address,
+    contractName: getContractName(DiamondInit),
+  };
 }
