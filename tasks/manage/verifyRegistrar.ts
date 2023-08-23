@@ -13,7 +13,7 @@ task("manage:verifyRegistrar", "Will verify the Registrar implementation contrac
       let registrarConfig = await registrar.queryConfig();
       logger.out(`Registrar owner: ${registrarConfig.proxyAdmin}`);
 
-      await verify(hre, {address: addresses.registrar.implementation});
+      await verify(hre, {address: addresses.registrar.implementation, contractName: "Registrar"});
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }

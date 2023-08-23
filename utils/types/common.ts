@@ -12,7 +12,7 @@ export type ContractFunctionParams<F extends (...args: any) => any> = Head<Param
 
 export type Deployment = {
   address: string;
-  contractName?: string;
+  contractName: string;
   constructorArguments?: readonly any[];
   contract?: string;
 };

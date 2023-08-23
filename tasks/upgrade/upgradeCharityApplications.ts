@@ -3,6 +3,7 @@ import {CharityApplications__factory, ITransparentUpgradeableProxy__factory} fro
 import {
   confirmAction,
   getAddresses,
+  getContractName,
   getSigners,
   isLocalNetwork,
   logger,
@@ -62,7 +63,10 @@ task("upgrade:CharityApplications", "Will upgrade the implementation of CharityA
       );
 
       if (!taskArgs.skipVerify && !isLocalNetwork(hre)) {
-        await verify(hre, {address: charityApplications.address});
+        await verify(hre, {
+          address: charityApplications.address,
+          contractName: getContractName(charityApplicationsFactory),
+        });
       }
     } catch (error) {
       logger.out(error, logger.Level.Error);
