@@ -5,7 +5,7 @@ import hre from "hardhat";
 import {
   DEFAULT_ACTION_DATA,
   DEFAULT_NETWORK_INFO,
-  DEFAULT_STRATEGY_SELECTOR,
+  DEFAULT_STRATEGY_ID,
   packActionData,
 } from "test/utils";
 import {
@@ -903,7 +903,7 @@ describe("Router", function () {
       let expectedPayload = packActionData(
         {
           destinationChain: originatingChain,
-          strategyId: DEFAULT_STRATEGY_SELECTOR,
+          strategyId: DEFAULT_STRATEGY_ID,
           selector: liquidVault.interface.getSighash("redeem"),
           accountIds: [1],
           token: token.address,
@@ -1052,7 +1052,7 @@ describe("Router", function () {
       let expectedPayload = packActionData(
         {
           destinationChain: originatingChain,
-          strategyId: DEFAULT_STRATEGY_SELECTOR,
+          strategyId: DEFAULT_STRATEGY_ID,
           selector: liquidVault.interface.getSighash("redeemAll"),
           accountIds: [1],
           token: token.address,

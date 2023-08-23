@@ -20,7 +20,7 @@ abstract contract IVault {
 
   struct VaultConfig {
     VaultType vaultType;
-    bytes4 strategySelector;
+    bytes4 strategyId;
     address strategy;
     address registrar;
     address baseToken;
@@ -70,20 +70,6 @@ abstract contract IVault {
     uint256 amount;
     VaultActionStatus status;
   }
-
-  /*////////////////////////////////////////////////
-                        EVENTS
-  */ ////////////////////////////////////////////////
-
-  /// @notice Event emited on each Deposit call
-  /// @dev Upon deposit, emit this event. Index the account and staking contract for analytics
-  event Deposit(uint32 endowId, address vault, uint256 amount, uint256 sharesReceived);
-
-  /// @notice Event emited on each Redemption call
-  /// @dev Upon redemption, emit this event. Index the account and staking contract for analytics
-  event Redeem(uint32 endowId, address vault, uint256 shares, uint256 amountRedeemed);
-
-  event VaultConfigUpdated(address vault, VaultConfig config);
 
   /*////////////////////////////////////////////////
                         ERRORS

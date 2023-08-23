@@ -2,7 +2,7 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
 import {BigNumber} from "ethers";
 import hre from "hardhat";
-import {DEFAULT_STRATEGY_SELECTOR, deployDummyERC20, deployDummyFUSDC, wait} from "test/utils";
+import {DEFAULT_STRATEGY_ID, deployDummyERC20, deployDummyFUSDC, wait} from "test/utils";
 import {
   DummyERC20,
   DummyFUSDC,
@@ -22,16 +22,16 @@ describe("FluxStrategy", function () {
     baseToken,
     yieldToken,
     admin,
-    strategySelector = DEFAULT_STRATEGY_SELECTOR,
+    strategyId = DEFAULT_STRATEGY_ID,
   }: {
     baseToken: string;
     yieldToken: string;
     admin: string;
-    strategySelector?: string;
+    strategyId?: string;
   }): Promise<FluxStrategy> {
     let Flux = new FluxStrategy__factory(owner);
     let stratInitConfig: IStrategy.StrategyConfigStruct = {
-      strategySelector: strategySelector,
+      strategyId: strategyId,
       baseToken: baseToken,
       yieldToken: yieldToken,
       admin: admin,
@@ -63,7 +63,7 @@ describe("FluxStrategy", function () {
       let config = await flux.getStrategyConfig();
       expect(config.baseToken).to.equal(user.address);
       expect(config.yieldToken).to.equal(collector.address);
-      expect(config.strategySelector).to.equal(DEFAULT_STRATEGY_SELECTOR);
+      expect(config.strategyId).to.equal(DEFAULT_STRATEGY_ID);
       expect(config.admin).to.equal(owner.address);
     });
   });
@@ -107,7 +107,7 @@ describe("FluxStrategy", function () {
         flux.connect(user).setStrategyConfig({
           baseToken: ethers.constants.AddressZero,
           yieldToken: ethers.constants.AddressZero,
-          strategySelector: "0xffffffff",
+          strategyId: "0xffffffff",
           admin: user.address,
         })
       ).to.be.revertedWithCustomError(flux, "AdminOnly");
@@ -117,14 +117,14 @@ describe("FluxStrategy", function () {
         flux.setStrategyConfig({
           baseToken: ethers.constants.AddressZero,
           yieldToken: ethers.constants.AddressZero,
-          strategySelector: "0xffffffff",
+          strategyId: "0xffffffff",
           admin: user.address,
         })
       ).to.emit(flux, "ConfigChanged");
       let config = await flux.getStrategyConfig();
       expect(config.baseToken).to.equal(ethers.constants.AddressZero);
       expect(config.yieldToken).to.equal(ethers.constants.AddressZero);
-      expect(config.strategySelector).to.equal("0xffffffff");
+      expect(config.strategyId).to.equal("0xffffffff");
       expect(config.admin).to.equal(user.address);
     });
   });

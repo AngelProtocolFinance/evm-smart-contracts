@@ -73,6 +73,7 @@ task(
         usdcAddress: addresses.tokens.usdc,
         wMaticAddress: addresses.tokens.wmatic,
         yes: true,
+        vaultEmitter: addresses.vaultEmitter.proxy,
       });
 
       const routerDeployment = await deployRouter(registrarDeployment.address, hre);

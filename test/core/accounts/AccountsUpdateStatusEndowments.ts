@@ -6,7 +6,7 @@ import hre from "hardhat";
 import {
   DEFAULT_CHARITY_ENDOWMENT,
   DEFAULT_REGISTRAR_CONFIG,
-  DEFAULT_STRATEGY_SELECTOR,
+  DEFAULT_STRATEGY_ID,
   wait,
 } from "test/utils";
 import {
@@ -249,19 +249,14 @@ describe("AccountsUpdateStatusEndowments", function () {
   describe("upon forceSetStrategyInactive", async function () {
     it("reverts if the caller is not the endowment owner", async function () {
       await expect(
-        facet.connect(accOwner).forceSetStrategyInactive(accountId, DEFAULT_STRATEGY_SELECTOR)
+        facet.connect(accOwner).forceSetStrategyInactive(accountId, DEFAULT_STRATEGY_ID)
       ).to.be.revertedWith("Unauthorized");
     });
 
     it("sets the active state to false for the specified strategy", async function () {
-      await wait(state.setActiveStrategyEndowmentState(accountId, DEFAULT_STRATEGY_SELECTOR, true));
-      await facet
-        .connect(endowOwner)
-        .forceSetStrategyInactive(accountId, DEFAULT_STRATEGY_SELECTOR);
-      let activeState = await state.getActiveStrategyEndowmentState(
-        accountId,
-        DEFAULT_STRATEGY_SELECTOR
-      );
+      await wait(state.setActiveStrategyEndowmentState(accountId, DEFAULT_STRATEGY_ID, true));
+      await facet.connect(endowOwner).forceSetStrategyInactive(accountId, DEFAULT_STRATEGY_ID);
+      let activeState = await state.getActiveStrategyEndowmentState(accountId, DEFAULT_STRATEGY_ID);
       expect(activeState).to.be.false;
     });
   });

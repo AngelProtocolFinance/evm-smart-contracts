@@ -12,7 +12,7 @@ import {
   DEFAULT_REDEEM_ALL_REQUEST,
   DEFAULT_REDEEM_REQUEST,
   DEFAULT_STRATEGY_PARAMS,
-  DEFAULT_STRATEGY_SELECTOR,
+  DEFAULT_STRATEGY_ID,
   convertVaultActionStructToArray,
   packActionData,
   wait,
@@ -174,9 +174,7 @@ describe("AccountsStrategy", function () {
 
   describe("upon strategyInvest", function () {
     beforeEach(async () => {
-      await wait(
-        state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, false)
-      );
+      await wait(state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_ID, false));
     });
 
     describe("reverts when", function () {
@@ -269,7 +267,7 @@ describe("AccountsStrategy", function () {
 
         const vaultActionData: IVaultStrategy.VaultActionDataStruct = {
           destinationChain: "",
-          strategyId: DEFAULT_STRATEGY_SELECTOR,
+          strategyId: DEFAULT_STRATEGY_ID,
           selector: DEFAULT_METHOD_SELECTOR,
           accountIds: [ACCOUNT_ID],
           token: token.address,
@@ -298,7 +296,7 @@ describe("AccountsStrategy", function () {
         const payload = packActionData(
           {
             destinationChain: NET_NAME_THIS,
-            strategyId: DEFAULT_STRATEGY_SELECTOR,
+            strategyId: DEFAULT_STRATEGY_ID,
             selector: vault.interface.getSighash("deposit"),
             accountIds: [ACCOUNT_ID],
             token: token.address,
@@ -321,7 +319,7 @@ describe("AccountsStrategy", function () {
         expect(liqBal).to.equal(INITIAL_LIQ_BAL - LIQ_AMT);
         const strategyActive = await state.getActiveStrategyEndowmentState(
           ACCOUNT_ID,
-          DEFAULT_STRATEGY_SELECTOR
+          DEFAULT_STRATEGY_ID
         );
         expect(strategyActive).to.be.true;
       });
@@ -341,7 +339,7 @@ describe("AccountsStrategy", function () {
 
           const vaultActionData: IVaultStrategy.VaultActionDataStruct = {
             destinationChain: "",
-            strategyId: DEFAULT_STRATEGY_SELECTOR,
+            strategyId: DEFAULT_STRATEGY_ID,
             selector: DEFAULT_METHOD_SELECTOR,
             accountIds: [ACCOUNT_ID],
             token: token.address,
@@ -399,7 +397,7 @@ describe("AccountsStrategy", function () {
           const payload = packActionData(
             {
               destinationChain: NET_NAME_THAT,
-              strategyId: DEFAULT_STRATEGY_SELECTOR,
+              strategyId: DEFAULT_STRATEGY_ID,
               selector: vault.interface.getSighash("deposit"),
               accountIds: [ACCOUNT_ID],
               token: token.address,
@@ -437,7 +435,7 @@ describe("AccountsStrategy", function () {
           expect(liqBal).to.equal(INITIAL_LIQ_BAL - LIQ_AMT);
           const strategyActive = await state.getActiveStrategyEndowmentState(
             ACCOUNT_ID,
-            DEFAULT_STRATEGY_SELECTOR
+            DEFAULT_STRATEGY_ID
           );
           expect(strategyActive).to.be.true;
         });
@@ -509,7 +507,7 @@ describe("AccountsStrategy", function () {
           const payload = packActionData(
             {
               destinationChain: NET_NAME_THAT,
-              strategyId: DEFAULT_STRATEGY_SELECTOR,
+              strategyId: DEFAULT_STRATEGY_ID,
               selector: vault.interface.getSighash("deposit"),
               accountIds: [ACCOUNT_ID],
               token: token.address,
@@ -547,7 +545,7 @@ describe("AccountsStrategy", function () {
           expect(liqBal).to.equal(caseData.expectedLiqBal);
           const strategyActive = await state.getActiveStrategyEndowmentState(
             ACCOUNT_ID,
-            DEFAULT_STRATEGY_SELECTOR
+            DEFAULT_STRATEGY_ID
           );
           expect(strategyActive).to.be.true;
         });
@@ -589,9 +587,7 @@ describe("AccountsStrategy", function () {
 
   describe("upon strategyRedeem", function () {
     beforeEach(async () => {
-      await wait(
-        state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true)
-      );
+      await wait(state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_ID, true));
     });
 
     describe("reverts when", function () {
@@ -676,7 +672,7 @@ describe("AccountsStrategy", function () {
 
           const vaultActionData: IVaultStrategy.VaultActionDataStruct = {
             destinationChain: "",
-            strategyId: DEFAULT_STRATEGY_SELECTOR,
+            strategyId: DEFAULT_STRATEGY_ID,
             selector: DEFAULT_METHOD_SELECTOR,
             accountIds: [ACCOUNT_ID],
             token: token.address,
@@ -700,7 +696,7 @@ describe("AccountsStrategy", function () {
           const payload = packActionData(
             {
               destinationChain: NET_NAME_THIS,
-              strategyId: DEFAULT_STRATEGY_SELECTOR,
+              strategyId: DEFAULT_STRATEGY_ID,
               selector: vault.interface.getSighash("redeem"),
               accountIds: [ACCOUNT_ID],
               token: token.address,
@@ -721,7 +717,7 @@ describe("AccountsStrategy", function () {
           expect(liqBal).to.equal(INITIAL_LIQ_BAL + LIQ_AMT);
           const strategyActive = await state.getActiveStrategyEndowmentState(
             ACCOUNT_ID,
-            DEFAULT_STRATEGY_SELECTOR
+            DEFAULT_STRATEGY_ID
           );
           expect(strategyActive).to.equal(vaultStatus === VaultActionStatus.SUCCESS);
         });
@@ -735,7 +731,7 @@ describe("AccountsStrategy", function () {
         it(`reverts when the response is: ${VaultActionStatus[vaultStatus]}`, async function () {
           const vaultActionData: IVaultStrategy.VaultActionDataStruct = {
             destinationChain: "",
-            strategyId: DEFAULT_STRATEGY_SELECTOR,
+            strategyId: DEFAULT_STRATEGY_ID,
             selector: DEFAULT_METHOD_SELECTOR,
             accountIds: [ACCOUNT_ID],
             token: token.address,
@@ -777,7 +773,7 @@ describe("AccountsStrategy", function () {
           const payload = packActionData(
             {
               destinationChain: NET_NAME_THAT,
-              strategyId: DEFAULT_STRATEGY_SELECTOR,
+              strategyId: DEFAULT_STRATEGY_ID,
               selector: vault.interface.getSighash("redeem"),
               accountIds: [ACCOUNT_ID],
               token: token.address,
@@ -814,7 +810,7 @@ describe("AccountsStrategy", function () {
           expect(liqBal).to.equal(INITIAL_LIQ_BAL);
           const strategyActive = await state.getActiveStrategyEndowmentState(
             ACCOUNT_ID,
-            DEFAULT_STRATEGY_SELECTOR
+            DEFAULT_STRATEGY_ID
           );
           expect(strategyActive).to.be.true;
         });
@@ -881,7 +877,7 @@ describe("AccountsStrategy", function () {
           const payload = packActionData(
             {
               destinationChain: NET_NAME_THAT,
-              strategyId: DEFAULT_STRATEGY_SELECTOR,
+              strategyId: DEFAULT_STRATEGY_ID,
               selector: vault.interface.getSighash("redeem"),
               accountIds: [ACCOUNT_ID],
               token: token.address,
@@ -911,7 +907,7 @@ describe("AccountsStrategy", function () {
           expect(liqBal).to.equal(caseData.expectedLiqBal);
           const strategyActive = await state.getActiveStrategyEndowmentState(
             ACCOUNT_ID,
-            DEFAULT_STRATEGY_SELECTOR
+            DEFAULT_STRATEGY_ID
           );
           expect(strategyActive).to.be.true;
         });
@@ -953,9 +949,7 @@ describe("AccountsStrategy", function () {
 
   describe("upon strategyRedeemAll", function () {
     beforeEach(async () => {
-      await wait(
-        state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true)
-      );
+      await wait(state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_ID, true));
     });
 
     describe("reverts when", function () {
@@ -1022,7 +1016,7 @@ describe("AccountsStrategy", function () {
 
             const vaultActionData: IVaultStrategy.VaultActionDataStruct = {
               destinationChain: "",
-              strategyId: DEFAULT_STRATEGY_SELECTOR,
+              strategyId: DEFAULT_STRATEGY_ID,
               selector: DEFAULT_METHOD_SELECTOR,
               accountIds: [ACCOUNT_ID],
               token: token.address,
@@ -1046,7 +1040,7 @@ describe("AccountsStrategy", function () {
             const payload = packActionData(
               {
                 destinationChain: NET_NAME_THIS,
-                strategyId: DEFAULT_STRATEGY_SELECTOR,
+                strategyId: DEFAULT_STRATEGY_ID,
                 selector: vault.interface.getSighash("redeemAll"),
                 accountIds: [ACCOUNT_ID],
                 token: token.address,
@@ -1070,7 +1064,7 @@ describe("AccountsStrategy", function () {
             expect(liqBal).to.equal(INITIAL_LIQ_BAL + LIQ_AMT);
             const strategyActive = await state.getActiveStrategyEndowmentState(
               ACCOUNT_ID,
-              DEFAULT_STRATEGY_SELECTOR
+              DEFAULT_STRATEGY_ID
             );
             expect(strategyActive).to.be.false;
           });
@@ -1085,7 +1079,7 @@ describe("AccountsStrategy", function () {
         it(`reverts when response is ${VaultActionStatus[vaultActionStatus]}`, async function () {
           const vaultActionData: IVaultStrategy.VaultActionDataStruct = {
             destinationChain: "",
-            strategyId: DEFAULT_STRATEGY_SELECTOR,
+            strategyId: DEFAULT_STRATEGY_ID,
             selector: DEFAULT_METHOD_SELECTOR,
             accountIds: [ACCOUNT_ID],
             token: token.address,
@@ -1104,7 +1098,7 @@ describe("AccountsStrategy", function () {
           expect(liqBal).to.equal(INITIAL_LIQ_BAL);
           const strategyActive = await state.getActiveStrategyEndowmentState(
             ACCOUNT_ID,
-            DEFAULT_STRATEGY_SELECTOR
+            DEFAULT_STRATEGY_ID
           );
           expect(strategyActive).to.be.true;
         });
@@ -1138,7 +1132,7 @@ describe("AccountsStrategy", function () {
           const payload = packActionData(
             {
               destinationChain: NET_NAME_THAT,
-              strategyId: DEFAULT_STRATEGY_SELECTOR,
+              strategyId: DEFAULT_STRATEGY_ID,
               selector: vault.interface.getSighash("redeemAll"),
               accountIds: [ACCOUNT_ID],
               token: token.address,
@@ -1173,7 +1167,7 @@ describe("AccountsStrategy", function () {
           expect(liqBal).to.equal(INITIAL_LIQ_BAL);
           const strategyActive = await state.getActiveStrategyEndowmentState(
             ACCOUNT_ID,
-            DEFAULT_STRATEGY_SELECTOR
+            DEFAULT_STRATEGY_ID
           );
           expect(strategyActive).to.be.true;
         });
@@ -1338,7 +1332,7 @@ describe("AccountsStrategy", function () {
           const payload = packActionData(
             {
               destinationChain: NET_NAME_THAT,
-              strategyId: DEFAULT_STRATEGY_SELECTOR,
+              strategyId: DEFAULT_STRATEGY_ID,
               selector: vault.interface.getSighash("redeemAll"),
               accountIds: [ACCOUNT_ID],
               token: token.address,
@@ -1368,7 +1362,7 @@ describe("AccountsStrategy", function () {
           expect(liqBal).to.equal(caseData.expectedLiqBal);
           const strategyActive = await state.getActiveStrategyEndowmentState(
             ACCOUNT_ID,
-            DEFAULT_STRATEGY_SELECTOR
+            DEFAULT_STRATEGY_ID
           );
           expect(strategyActive).to.be.true;
         });
@@ -1413,9 +1407,7 @@ describe("AccountsStrategy", function () {
       gateway.validateContractCall.returns(true);
       gateway.validateContractCallAndMint.returns(true);
 
-      await wait(
-        state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true)
-      );
+      await wait(state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_ID, true));
     });
 
     describe("into _execute", () => {
@@ -1425,7 +1417,7 @@ describe("AccountsStrategy", function () {
         const payload = packActionData(
           {
             destinationChain: NET_NAME_THAT,
-            strategyId: DEFAULT_STRATEGY_SELECTOR,
+            strategyId: DEFAULT_STRATEGY_ID,
             selector: vault.interface.getSighash("deposit"),
             accountIds: [ACCOUNT_ID],
             token: token.address,
@@ -1449,7 +1441,7 @@ describe("AccountsStrategy", function () {
       it("reverts if the call didn't originate from the expected chain", async function () {
         const action: IVaultStrategy.VaultActionDataStruct = {
           destinationChain: NET_NAME_THAT,
-          strategyId: DEFAULT_STRATEGY_SELECTOR,
+          strategyId: DEFAULT_STRATEGY_ID,
           selector: vault.interface.getSighash("deposit"),
           accountIds: [ACCOUNT_ID],
           token: token.address,
@@ -1476,7 +1468,7 @@ describe("AccountsStrategy", function () {
       it("reverts if the call didn't originate from the chain's router", async function () {
         const action: IVaultStrategy.VaultActionDataStruct = {
           destinationChain: NET_NAME_THAT,
-          strategyId: DEFAULT_STRATEGY_SELECTOR,
+          strategyId: DEFAULT_STRATEGY_ID,
           selector: vault.interface.getSighash("deposit"),
           accountIds: [ACCOUNT_ID],
           token: token.address,
@@ -1498,7 +1490,7 @@ describe("AccountsStrategy", function () {
       it("successfully handles status == FAIL_TOKENS_FALLBACK", async function () {
         const action: IVaultStrategy.VaultActionDataStruct = {
           destinationChain: NET_NAME_THAT,
-          strategyId: DEFAULT_STRATEGY_SELECTOR,
+          strategyId: DEFAULT_STRATEGY_ID,
           selector: vault.interface.getSighash("deposit"),
           accountIds: [ACCOUNT_ID],
           token: token.address,
@@ -1532,7 +1524,7 @@ describe("AccountsStrategy", function () {
         it(`reverts for response status: ${VaultActionStatus[vaultActionStatus]}`, async function () {
           const action: IVaultStrategy.VaultActionDataStruct = {
             destinationChain: NET_NAME_THAT,
-            strategyId: DEFAULT_STRATEGY_SELECTOR,
+            strategyId: DEFAULT_STRATEGY_ID,
             selector: vault.interface.getSighash("deposit"),
             accountIds: [ACCOUNT_ID],
             token: token.address,
@@ -1563,7 +1555,7 @@ describe("AccountsStrategy", function () {
         const payload = packActionData(
           {
             destinationChain: NET_NAME_THAT,
-            strategyId: DEFAULT_STRATEGY_SELECTOR,
+            strategyId: DEFAULT_STRATEGY_ID,
             selector: vault.interface.getSighash("deposit"),
             accountIds: [ACCOUNT_ID],
             token: token.address,
@@ -1588,7 +1580,7 @@ describe("AccountsStrategy", function () {
       it("reverts if the call didn't originate from the expected chain", async function () {
         const action: IVaultStrategy.VaultActionDataStruct = {
           destinationChain: NET_NAME_THAT,
-          strategyId: DEFAULT_STRATEGY_SELECTOR,
+          strategyId: DEFAULT_STRATEGY_ID,
           selector: vault.interface.getSighash("deposit"),
           accountIds: [ACCOUNT_ID],
           token: token.address,
@@ -1617,7 +1609,7 @@ describe("AccountsStrategy", function () {
       it("reverts if the call didn't originate from the expected chain", async function () {
         const action: IVaultStrategy.VaultActionDataStruct = {
           destinationChain: NET_NAME_THAT,
-          strategyId: DEFAULT_STRATEGY_SELECTOR,
+          strategyId: DEFAULT_STRATEGY_ID,
           selector: vault.interface.getSighash("deposit"),
           accountIds: [ACCOUNT_ID],
           token: token.address,
@@ -1644,7 +1636,7 @@ describe("AccountsStrategy", function () {
       it("reverts if the call didn't originate from the chain's router", async function () {
         const action: IVaultStrategy.VaultActionDataStruct = {
           destinationChain: NET_NAME_THAT,
-          strategyId: DEFAULT_STRATEGY_SELECTOR,
+          strategyId: DEFAULT_STRATEGY_ID,
           selector: vault.interface.getSighash("deposit"),
           accountIds: [ACCOUNT_ID],
           token: token.address,
@@ -1673,7 +1665,7 @@ describe("AccountsStrategy", function () {
       it("succeeds: deposit && FAIL_TOKENS_RETURNED", async function () {
         const action: IVaultStrategy.VaultActionDataStruct = {
           destinationChain: NET_NAME_THAT,
-          strategyId: DEFAULT_STRATEGY_SELECTOR,
+          strategyId: DEFAULT_STRATEGY_ID,
           selector: vault.interface.getSighash("deposit"),
           accountIds: [ACCOUNT_ID],
           token: token.address,
@@ -1697,7 +1689,7 @@ describe("AccountsStrategy", function () {
         expect(liqBal).to.equal(INITIAL_LIQ_BAL + LIQ_AMT);
         const strategyActive = await state.getActiveStrategyEndowmentState(
           ACCOUNT_ID,
-          DEFAULT_STRATEGY_SELECTOR
+          DEFAULT_STRATEGY_ID
         );
         expect(strategyActive).to.be.true;
       });
@@ -1712,7 +1704,7 @@ describe("AccountsStrategy", function () {
         it(`succeeds: ${vaultFunction} && ${VaultActionStatus[vaultStatus]}`, async function () {
           const action: IVaultStrategy.VaultActionDataStruct = {
             destinationChain: NET_NAME_THAT,
-            strategyId: DEFAULT_STRATEGY_SELECTOR,
+            strategyId: DEFAULT_STRATEGY_ID,
             selector: vault.interface.getSighash(vaultFunction),
             accountIds: [ACCOUNT_ID],
             token: token.address,
@@ -1747,7 +1739,7 @@ describe("AccountsStrategy", function () {
           expect(liqBal).to.equal(INITIAL_LIQ_BAL + LIQ_AMT);
           const strategyActive = await state.getActiveStrategyEndowmentState(
             ACCOUNT_ID,
-            DEFAULT_STRATEGY_SELECTOR
+            DEFAULT_STRATEGY_ID
           );
           expect(strategyActive).to.equal(vaultStatus !== VaultActionStatus.POSITION_EXITED);
         });
@@ -1800,7 +1792,7 @@ describe("AccountsStrategy", function () {
         it(`into _refundFallback succeeds: ${vaultFunction} && ${VaultActionStatus[vaultStatus]}`, async function () {
           const action: IVaultStrategy.VaultActionDataStruct = {
             destinationChain: NET_NAME_THAT,
-            strategyId: DEFAULT_STRATEGY_SELECTOR,
+            strategyId: DEFAULT_STRATEGY_ID,
             selector: vault.interface.getSighash(vaultFunction),
             accountIds: [ACCOUNT_ID],
             token: token.address,
@@ -1832,7 +1824,7 @@ describe("AccountsStrategy", function () {
 
           const strategyActive = await state.getActiveStrategyEndowmentState(
             ACCOUNT_ID,
-            DEFAULT_STRATEGY_SELECTOR
+            DEFAULT_STRATEGY_ID
           );
           expect(strategyActive).to.be.true;
 

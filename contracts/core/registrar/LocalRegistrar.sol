@@ -109,6 +109,11 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
     return lrs.uniswapRouter;
   }
 
+  function getVaultEmitterAddress() public view returns (address) {
+    LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
+    return lrs.vaultEmitter;
+  }
+
   /**
    * @dev Query the network connection in registrar
    * @param networkName The chain name to query
@@ -227,6 +232,14 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
     LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
     lrs.uniswapRouter = _uniswapRouter;
     lrs.uniswapFactory = _uniswapFactory;
+  }
+
+  function setVaultEmitterAddresses(address _vaultEmitter) external onlyOwner {
+    if (!Validator.addressChecker(_vaultEmitter)) {
+      revert InvalidAddress("_vaultEmitter");
+    }
+    LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
+    lrs.vaultEmitter = _vaultEmitter;
   }
 
   /**

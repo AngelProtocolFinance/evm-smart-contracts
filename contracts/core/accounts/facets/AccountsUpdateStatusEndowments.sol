@@ -111,11 +111,11 @@ contract AccountsUpdateStatusEndowments is
    * and then set the strategy active accordingly. In the event that a strategy is erroneously active,
    * we need a hook for an endow owner to close out.
    * @param id The ID of the endowment to be closed.
-   * @param strategySelector The `stuck state` strategy
+   * @param strategyId The `stuck state` strategy
    */
-  function forceSetStrategyInactive(uint32 id, bytes4 strategySelector) public {
+  function forceSetStrategyInactive(uint32 id, bytes4 strategyId) public {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     require(msg.sender == state.Endowments[id].owner, "Unauthorized");
-    IterableMappingStrategy.set(state.ActiveStrategies[id], strategySelector, false);
+    IterableMappingStrategy.set(state.ActiveStrategies[id], strategyId, false);
   }
 }
