@@ -4,7 +4,7 @@ This repository contains smart contracts for Angel Protocol to be deployed on Po
 
 Angel Protocol provides tools to fundraise, coordinate, and invest capital. It connects donors & investors with non-profits, social enterprises, and other changemakers around the world.
 
-[Auto-generated Documentation](https://doc-site-angel.vercel.app/)
+[Documentation](https://docs.angelimpact.io/)
 
 ## GETTING STARTED
 
