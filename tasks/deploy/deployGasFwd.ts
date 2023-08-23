@@ -18,10 +18,6 @@ task("deploy:GasFwd", "Will deploy the GasFwd implementation and factory")
         hre
       );
 
-      if (!gasFwdDeployment) {
-        return;
-      }
-
       await hre.run("manage:registrar:updateConfig", {
         gasFwdFactory: gasFwdDeployment.factory.address,
         yes: true,

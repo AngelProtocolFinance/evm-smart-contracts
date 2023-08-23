@@ -3,12 +3,13 @@ import {Deployment, logger} from ".";
 
 export async function verify(hre: HardhatRuntimeEnvironment, deployment: Deployment) {
   try {
-    logger.out(`Verifying ${deployment.contractName ?? "contract"} at: ${deployment.address}...`);
-    await hre.tenderly.verify({
+    logger.out(`Verifying ${deployment.contractName} at: ${deployment.address}...`);
+    const tenderlyVerif = hre.tenderly.verify({
       name: deployment.contractName,
       address: deployment.address,
     });
-    await hre.run("verify:verify", deployment);
+    const etherscanVerif = hre.run("verify:verify", deployment);
+    await Promise.allSettled([tenderlyVerif, etherscanVerif]);
   } catch (error) {
     logger.out(error, logger.Level.Warn);
   }

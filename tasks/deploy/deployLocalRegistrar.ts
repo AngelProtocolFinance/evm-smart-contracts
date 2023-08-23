@@ -1,18 +1,9 @@
 import {deployLocalRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task} from "hardhat/config";
-import {
-  confirmAction,
-  getAddresses,
-  getChainId,
-  getNetworkNameFromChainId,
-  getSigners,
-  isLocalNetwork,
-  logger,
-  verify,
-} from "utils";
-import {updateRegistrarNetworkConnections} from "../helpers";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
+import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
+import {updateRegistrarNetworkConnections} from "../helpers";
 
 type TaskArgs = {
   skipVerify: boolean;
@@ -37,7 +28,7 @@ task("deploy:LocalRegistrarAndRouter", "Will deploy the Local Registrar contract
 
       const owner = taskArgs.owner || addresses.multiSig.apTeam.proxy;
 
-      const localRegistrarDeployment = await deployLocalRegistrar(
+      const localRegistrar = await deployLocalRegistrar(
         {
           owner: owner,
           deployer,
@@ -46,34 +37,32 @@ task("deploy:LocalRegistrarAndRouter", "Will deploy the Local Registrar contract
         hre
       );
 
-      if (!localRegistrarDeployment) {
+      if (!localRegistrar) {
         return;
       }
 
-      const routerDeployment = await deployRouter(localRegistrarDeployment.address, hre);
-
-      if (!routerDeployment) {
-        return;
-      }
+      const router = await deployRouter(localRegistrar.proxy.address, hre);
 
       let network = await hre.ethers.provider.getNetwork();
       const networkInfo: LocalRegistrarLib.NetworkInfoStruct = {
         chainId: network.chainId,
-        router: routerDeployment.address,
+        router: router.proxy.address,
         axelarGateway: addresses.axelar.gateway,
         gasReceiver: addresses.axelar.gasService,
         refundAddr: addresses.multiSig.apTeam.proxy,
       };
       await updateRegistrarNetworkConnections(
-        localRegistrarDeployment.address,
+        localRegistrar.proxy.address,
         owner,
         networkInfo,
         hre
       );
 
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
-        await verify(hre, localRegistrarDeployment);
-        await verify(hre, routerDeployment);
+        await verify(hre, localRegistrar.implementation);
+        await verify(hre, localRegistrar.proxy);
+        await verify(hre, router.implementation);
+        await verify(hre, router.proxy);
       }
     } catch (error) {
       logger.out(error, logger.Level.Error);

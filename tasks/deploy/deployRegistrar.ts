@@ -40,7 +40,7 @@ task(
       const apTeamMultiSig = taskArgs.apTeamMultisig || addresses.multiSig.apTeam.proxy;
       const oldRouterAddress = taskArgs.router || addresses.router.proxy;
 
-      const registrarDeployment = await deployRegistrar(
+      const registrar = await deployRegistrar(
         {
           axelarGateway: addresses.axelar.gateway,
           axelarGasService: addresses.axelar.gasService,
@@ -53,10 +53,6 @@ task(
         },
         hre
       );
-
-      if (!registrarDeployment) {
-        return;
-      }
 
       await hre.run("manage:registrar:updateConfig", {
         accountsContract: addresses.accounts.diamond,
@@ -80,35 +76,35 @@ task(
         yes: true,
       });
 
-      const routerDeployment = await deployRouter(registrarDeployment.address, hre);
+      const router = await deployRouter(registrar.proxy.address, hre);
 
       // Registrar NetworkInfo's Router address must be updated for the current network
-      if (routerDeployment) {
-        await updateRegistrarNetworkConnections(
-          registrarDeployment.address,
-          apTeamMultiSig,
-          {router: routerDeployment.address},
-          hre
-        );
-      }
+      await updateRegistrarNetworkConnections(
+        registrar.proxy.address,
+        apTeamMultiSig,
+        {router: router.proxy.address},
+        hre
+      );
 
       await hre.run("manage:accounts:updateConfig", {
-        registrarContract: registrarDeployment.address,
+        registrarContract: registrar.proxy.address,
         yes: true,
       });
       await hre.run("manage:IndexFund:updateConfig", {
-        registrarContract: registrarDeployment.address,
+        registrarContract: registrar.proxy.address,
         yes: true,
       });
       await hre.run("manage:GasFwdFactory:updateRegistrar", {
-        newRegistrar: registrarDeployment.address,
+        newRegistrar: registrar.proxy.address,
         yes: true,
       });
 
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
-        await verify(hre, registrarDeployment);
-        if (routerDeployment) {
-          await verify(hre, routerDeployment);
+        await verify(hre, registrar.implementation);
+        await verify(hre, registrar.proxy);
+        if (router) {
+          await verify(hre, router.implementation);
+          await verify(hre, router.proxy);
         }
       }
     } catch (error) {

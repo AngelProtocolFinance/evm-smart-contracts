@@ -24,18 +24,17 @@ task("deploy:SideChain", "Will deploy complete side-chain infrastructure")
 
       const apTeamMultisig = await deployAPTeamMultiSig(hre);
 
-      if (!apTeamMultisig) {
-        return;
-      }
-
       await hre.run("deploy:LocalRegistrarAndRouter", {
         skipVerify: verify_contracts,
         yes: true,
-        owner: apTeamMultisig.address,
+        owner: apTeamMultisig.proxy.address,
       });
 
       if (verify_contracts) {
-        const deployments: Array<Deployment | undefined> = [apTeamMultisig];
+        const deployments: Array<Deployment | undefined> = [
+          apTeamMultisig.implementation,
+          apTeamMultisig.proxy,
+        ];
 
         for (const deployment of deployments) {
           if (deployment) {

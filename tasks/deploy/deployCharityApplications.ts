@@ -33,17 +33,14 @@ task("deploy:CharityApplications", "Will deploy CharityApplication contract")
         hre
       );
 
-      if (!charityApplications) {
-        return;
-      }
-
       await hre.run("manage:registrar:updateConfig", {
-        charityApplications: charityApplications.address,
+        charityApplications: charityApplications.proxy.address,
         yes: true,
       });
 
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
-        await verify(hre, charityApplications);
+        await verify(hre, charityApplications.implementation);
+        await verify(hre, charityApplications.proxy);
       }
     } catch (error) {
       logger.out(error, logger.Level.Error);
