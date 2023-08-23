@@ -54,7 +54,6 @@ contract AccountsQueryEndowments is IAccountsQueryEndowments, IterableMappingAdd
         logo: endowment.logo,
         image: endowment.image,
         maturityTime: endowment.maturityTime,
-        rebalance: endowment.rebalance,
         proposalLink: endowment.proposalLink,
         multisig: endowment.multisig,
         dao: endowment.dao,

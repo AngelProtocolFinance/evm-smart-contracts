@@ -26,7 +26,6 @@ library AccountStorage {
     string logo;
     string image;
     uint256 maturityTime; // datetime int of endowment maturity
-    LocalRegistrarLib.RebalanceParams rebalance; // parameters to guide rebalancing & harvesting of gains from locked/liquid accounts
     uint256 proposalLink; // @dev links back the Applications Team Multisig Proposal that created an endowment (if a Charity)
     address multisig;
     address dao;

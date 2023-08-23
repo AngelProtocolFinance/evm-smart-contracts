@@ -121,7 +121,6 @@ describe("AccountsQueryEndowments", function () {
       expect(endowmentDetails.name).to.equal(DEFAULT_CHARITY_ENDOWMENT.name);
       expect(endowmentDetails.parent).to.equal(DEFAULT_CHARITY_ENDOWMENT.parent);
       expect(endowmentDetails.proposalLink).to.equal(DEFAULT_CHARITY_ENDOWMENT.proposalLink);
-      expect(endowmentDetails.rebalance).to.equalRebalance(DEFAULT_CHARITY_ENDOWMENT.rebalance);
       expect(endowmentDetails.referralId).to.equal(DEFAULT_CHARITY_ENDOWMENT.referralId);
       expect(endowmentDetails.sdgs).to.have.same.deep.members(
         DEFAULT_CHARITY_ENDOWMENT.sdgs.map((x) => BigNumber.from(x))

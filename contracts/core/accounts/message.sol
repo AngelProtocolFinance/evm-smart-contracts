@@ -2,7 +2,6 @@
 pragma solidity ^0.8.19;
 
 import {LibAccounts} from "./lib/LibAccounts.sol";
-import {LocalRegistrarLib} from "../registrar/lib/LocalRegistrarLib.sol";
 
 library AccountMessages {
   struct CreateEndowmentRequest {
@@ -52,29 +51,6 @@ library AccountMessages {
     uint256[] sdgs;
     string logo;
     string image;
-    LocalRegistrarLib.RebalanceParams rebalance;
-  }
-
-  struct Strategy {
-    string vault; // Vault SC Address
-    uint256 percentage; // percentage of funds to invest
-  }
-
-  struct UpdateProfileRequest {
-    uint32 id;
-    string overview;
-    string url;
-    string registrationNumber;
-    string countryOfOrigin;
-    string streetAddress;
-    string contactEmail;
-    string facebook;
-    string twitter;
-    string linkedin;
-    uint16 numberOfEmployees;
-    string averageAnnualBudget;
-    string annualRevenue;
-    string charityNavigatorRating;
   }
 
   ///TODO: response struct should be below this
@@ -101,7 +77,6 @@ library AccountMessages {
     string logo;
     string image;
     uint256 maturityTime;
-    LocalRegistrarLib.RebalanceParams rebalance;
     uint256 proposalLink;
     address multisig;
     address dao;

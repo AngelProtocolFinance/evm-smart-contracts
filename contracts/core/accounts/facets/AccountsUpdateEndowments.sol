@@ -24,7 +24,7 @@ contract AccountsUpdateEndowments is
 {
   /**
     @notice Updates the endowment details.
-    @dev This function allows the Endowment owner to update the endowment details like owner & rebalance and allows them or their Delegate(s) to update name, sdgs, logo, and image.
+    @dev This function allows the Endowment owner to update the endowment details and allows them or their Delegate(s) to update fields.
     @param details UpdateEndowmentDetailsRequest struct containing the updated endowment details.
     */
   function updateEndowmentDetails(
@@ -96,28 +96,15 @@ contract AccountsUpdateEndowments is
 
     // there are several fields that are restricted to changing only by the Endowment Owner
     if (msg.sender == tempEndowment.owner) {
-      // Field `owner` MUST be updated *last*, as otherwise no other endowment field would be updateable due to following:
-      // 1. Current owner (multisig) sends request to update endowment owner to DAO address and let's say it
-      // also wants to update `image`
-      // 2. Field `image` has no delegate and is unlocked, so only `owner` can update it
-      // 3. Owner update check passes and is updated to DAO address
-      // 4. Contract gets to updating `image`, but first needs to check whether the field can be updated
-      // 5. It sees that the current sender (previous owner, Multisig) is NOT the current owner of the endowment
-      //    (as it was updated in the previous step to DAO address)
-      // 6. Check for `image` fails and the update is skipped
+      // Field `owner` MUST be updated *last*, as otherwise other endowment fields could rendered un-updateable
       if (
         details.owner != address(0) &&
         (details.owner == tempEndowment.dao || details.owner == tempEndowment.multisig)
       ) {
         tempEndowment.owner = details.owner;
       }
-
-      if (tempEndowment.endowType != LibAccounts.EndowmentType.Charity) {
-        tempEndowment.rebalance = details.rebalance;
-      }
     }
 
-    state.Endowments[details.id] = tempEndowment;
     emit EndowmentUpdated(details.id);
   }
 
@@ -356,7 +343,6 @@ contract AccountsUpdateEndowments is
     } else {
       revert("Invalid setting input");
     }
-    state.Endowments[id] = tempEndowment;
     emit EndowmentUpdated(id);
   }
 

@@ -82,14 +82,6 @@ describe("AccountsUpdateEndowments", function () {
         sdgs: [2, 1],
         logo: "logo",
         image: "image",
-        rebalance: {
-          basis: 100,
-          rebalanceLiquidProfits: false,
-          lockedRebalanceToLiquid: 75,
-          interestDistribution: 20,
-          lockedPrincipleToLiquid: false,
-          principleDistribution: 0,
-        },
       };
       normalEndowReq = {
         id: normalEndowId,
@@ -98,14 +90,6 @@ describe("AccountsUpdateEndowments", function () {
         sdgs: [4, 3],
         logo: "logo2",
         image: "image2",
-        rebalance: {
-          basis: 100,
-          rebalanceLiquidProfits: true,
-          lockedRebalanceToLiquid: 60,
-          interestDistribution: 19,
-          lockedPrincipleToLiquid: true,
-          principleDistribution: 1,
-        },
       };
     });
 
@@ -185,7 +169,7 @@ describe("AccountsUpdateEndowments", function () {
       it("changes nothing in charity settings if settings are locked", async () => {
         const oldEndow = await updateAllSettings(charityReq.id, {locked: true}, state);
 
-        // using delegate signer to avoid updating owner and rebalance data
+        // using delegate signer to avoid updating owner data
         // (which uses different logic from other fields)
         await expect(facet.connect(delegate).updateEndowmentDetails(charityReq))
           .to.emit(facet, "EndowmentUpdated")
@@ -197,7 +181,7 @@ describe("AccountsUpdateEndowments", function () {
       it("changes nothing in normal endowment settings if settings are locked", async () => {
         const oldEndow = await updateAllSettings(normalEndowReq.id, {locked: true}, state);
 
-        // using delegate signer to avoid updating owner and rebalance data
+        // using delegate signer to avoid updating owner data
         // (which uses different logic from other fields)
         await expect(facet.connect(delegate).updateEndowmentDetails(normalEndowReq))
           .to.emit(facet, "EndowmentUpdated")
@@ -250,7 +234,6 @@ describe("AccountsUpdateEndowments", function () {
         expect(updated.logo).to.equal(oldEndow.logo);
         expect(updated.name).to.equal(oldEndow.name);
         expect(updated.owner).to.equal(oldEndow.owner);
-        expect(updated.rebalance).to.equalRebalance(oldEndow.rebalance);
         expect(updated.sdgs.map((x) => x.toNumber())).to.have.same.ordered.members(oldEndow.sdgs);
       }
     });
@@ -272,7 +255,6 @@ describe("AccountsUpdateEndowments", function () {
       expect(updated.logo).to.equal(charityReq.logo);
       expect(updated.name).to.equal(charityReq.name);
       expect(updated.owner).to.equal(oldCharity.owner);
-      expect(updated.rebalance).to.equalRebalance(oldCharity.rebalance);
       expect(updated.sdgs.map((x) => x.toNumber())).to.have.same.ordered.members(
         [...charityReq.sdgs].sort()
       );
@@ -295,11 +277,10 @@ describe("AccountsUpdateEndowments", function () {
       expect(updated.logo).to.equal(normalEndowReq.logo);
       expect(updated.name).to.equal(normalEndowReq.name);
       expect(updated.owner).to.equal(oldNormalEndow.owner);
-      expect(updated.rebalance).to.equalRebalance(oldNormalEndow.rebalance);
       expect(updated.sdgs.map((x) => x.toNumber())).to.have.same.members(normalEndowReq.sdgs);
     });
 
-    it("updates all charity settings except rebalance", async () => {
+    it("updates all charity settings", async () => {
       await expect(facet.updateEndowmentDetails(charityReq))
         .to.emit(facet, "EndowmentUpdated")
         .withArgs(charityReq.id);
@@ -310,13 +291,12 @@ describe("AccountsUpdateEndowments", function () {
       expect(updated.logo).to.equal(charityReq.logo);
       expect(updated.name).to.equal(charityReq.name);
       expect(updated.owner).to.equal(charityReq.owner);
-      expect(updated.rebalance).to.equalRebalance(oldCharity.rebalance);
       expect(updated.sdgs.map((x) => x.toNumber())).to.have.same.ordered.members(
         [...charityReq.sdgs].sort()
       );
     });
 
-    it("updates all normal endowment settings including rebalance", async () => {
+    it("updates all normal endowment settings", async () => {
       await expect(facet.updateEndowmentDetails(normalEndowReq))
         .to.emit(facet, "EndowmentUpdated")
         .withArgs(normalEndowReq.id);
@@ -327,7 +307,6 @@ describe("AccountsUpdateEndowments", function () {
       expect(updated.logo).to.equal(normalEndowReq.logo);
       expect(updated.name).to.equal(normalEndowReq.name);
       expect(updated.owner).to.equal(normalEndowReq.owner);
-      expect(updated.rebalance).to.equalRebalance(normalEndowReq.rebalance);
       expect(updated.sdgs.map((x) => x.toNumber())).to.have.same.members(normalEndowReq.sdgs);
     });
 
