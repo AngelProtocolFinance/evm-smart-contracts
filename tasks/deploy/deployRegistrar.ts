@@ -54,10 +54,6 @@ task(
         hre
       );
 
-      if (!registrar) {
-        return;
-      }
-
       await hre.run("manage:registrar:updateConfig", {
         accountsContract: addresses.accounts.diamond,
         collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare,
@@ -83,14 +79,12 @@ task(
       const router = await deployRouter(registrar.proxy.address, hre);
 
       // Registrar NetworkInfo's Router address must be updated for the current network
-      if (router) {
-        await updateRegistrarNetworkConnections(
-          registrar.proxy.address,
-          apTeamMultiSig,
-          {router: router.proxy.address},
-          hre
-        );
-      }
+      await updateRegistrarNetworkConnections(
+        registrar.proxy.address,
+        apTeamMultiSig,
+        {router: router.proxy.address},
+        hre
+      );
 
       await hre.run("manage:accounts:updateConfig", {
         registrarContract: registrar.proxy.address,

@@ -14,10 +14,6 @@ task("deploy:APTeamMultiSig", "Will deploy APTeamMultiSig contract")
 
       const deployments = await deployAPTeamMultiSig(hre);
 
-      if (!deployments) {
-        return;
-      }
-
       await hre.run("manage:registrar:transferOwnership", {
         to: deployments.proxy.address,
         yes: true,

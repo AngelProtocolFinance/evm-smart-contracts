@@ -24,10 +24,6 @@ task("deploy:SideChain", "Will deploy complete side-chain infrastructure")
 
       const apTeamMultisig = await deployAPTeamMultiSig(hre);
 
-      if (!apTeamMultisig) {
-        return;
-      }
-
       await hre.run("deploy:LocalRegistrarAndRouter", {
         skipVerify: verify_contracts,
         yes: true,

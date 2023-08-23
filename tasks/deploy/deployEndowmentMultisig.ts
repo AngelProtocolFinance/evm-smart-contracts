@@ -28,10 +28,6 @@ task("deploy:EndowmentMultiSig", "Will deploy EndowmentMultiSig contract")
 
       const deployData = await deployEndowmentMultiSig(registrarAddress, hre);
 
-      if (!deployData) {
-        return;
-      }
-
       await hre.run("manage:registrar:updateConfig", {
         multisigFactory: deployData.factory.address,
         multisigEmitter: deployData.emitter.proxy.address,

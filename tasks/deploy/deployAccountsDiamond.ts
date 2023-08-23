@@ -31,26 +31,22 @@ task("deploy:accounts", "It will deploy accounts diamond contracts")
       const apTeam = taskArgs.apTeamMultisig || addresses.multiSig.apTeam.proxy;
       const registrar = taskArgs.registrar || addresses.registrar.proxy;
 
-      const deployData = await deployAccountsDiamond(apTeam, registrar, hre);
-
-      if (!deployData) {
-        return;
-      }
+      const {diamond, facets} = await deployAccountsDiamond(apTeam, registrar, hre);
 
       await hre.run("manage:registrar:updateConfig", {
-        accountsContract: deployData.diamond.address,
+        accountsContract: diamond.address,
         yes: true,
       });
       await hre.run("manage:CharityApplications:updateConfig", {
-        accountsDiamond: deployData.diamond.address,
+        accountsDiamond: diamond.address,
         yes: true,
       });
 
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
-        for (const deployment of deployData.facets) {
+        for (const deployment of facets) {
           await verify(hre, deployment);
         }
-        await verify(hre, deployData.diamond);
+        await verify(hre, diamond);
       }
     } catch (error) {
       logger.out(`Diamond deployment failed, reason: ${error}`, logger.Level.Error);

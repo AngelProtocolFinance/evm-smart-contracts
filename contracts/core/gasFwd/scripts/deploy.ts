@@ -11,45 +11,41 @@ type Data = {
 export async function deployGasFwd(
   {admin, registrar}: Data,
   hre: HardhatRuntimeEnvironment
-): Promise<{factory: Deployment; implementation: Deployment} | undefined> {
+): Promise<{factory: Deployment; implementation: Deployment}> {
   logger.out("Deploying Gas Forwarder...");
 
-  try {
-    logger.out("Deploying GasFwd implementation...");
-    const GF = new GasFwd__factory(admin);
-    const gf = await GF.deploy();
-    await gf.deployed();
-    logger.out(`Address: ${gf.address}`);
+  logger.out("Deploying GasFwd implementation...");
+  const GF = new GasFwd__factory(admin);
+  const gf = await GF.deploy();
+  await gf.deployed();
+  logger.out(`Address: ${gf.address}`);
 
-    const addresses = await getAddresses(hre);
-    let registrarAddress = registrar ? registrar : addresses.registrar.proxy;
+  const addresses = await getAddresses(hre);
+  let registrarAddress = registrar ? registrar : addresses.registrar.proxy;
 
-    logger.out("Deploying factory...");
-    const GFF = new GasFwdFactory__factory(admin);
-    const constructorArguments: Parameters<GasFwdFactory__factory["deploy"]> = [
-      gf.address,
-      admin.address,
-      registrarAddress,
-    ];
-    const gff = await GFF.deploy(...constructorArguments);
-    await gff.deployed();
-    logger.out(`Address: ${gff.address}`);
+  logger.out("Deploying factory...");
+  const GFF = new GasFwdFactory__factory(admin);
+  const constructorArguments: Parameters<GasFwdFactory__factory["deploy"]> = [
+    gf.address,
+    admin.address,
+    registrarAddress,
+  ];
+  const gff = await GFF.deploy(...constructorArguments);
+  await gff.deployed();
+  logger.out(`Address: ${gff.address}`);
 
-    await updateAddresses(
-      {
-        gasFwd: {
-          implementation: gf.address,
-          factory: gff.address,
-        },
+  await updateAddresses(
+    {
+      gasFwd: {
+        implementation: gf.address,
+        factory: gff.address,
       },
-      hre
-    );
+    },
+    hre
+  );
 
-    return {
-      implementation: {address: gf.address, contractName: getContractName(GF)},
-      factory: {address: gff.address, contractName: getContractName(GFF), constructorArguments},
-    };
-  } catch (error) {
-    logger.out(error, logger.Level.Error);
-  }
+  return {
+    implementation: {address: gf.address, contractName: getContractName(GF)},
+    factory: {address: gff.address, contractName: getContractName(GFF), constructorArguments},
+  };
 }

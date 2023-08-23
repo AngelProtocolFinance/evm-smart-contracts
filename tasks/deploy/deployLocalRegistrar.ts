@@ -43,10 +43,6 @@ task("deploy:LocalRegistrarAndRouter", "Will deploy the Local Registrar contract
 
       const router = await deployRouter(localRegistrar.proxy.address, hre);
 
-      if (!router) {
-        return;
-      }
-
       let network = await hre.ethers.provider.getNetwork();
       const networkInfo: LocalRegistrarLib.NetworkInfoStruct = {
         chainId: network.chainId,

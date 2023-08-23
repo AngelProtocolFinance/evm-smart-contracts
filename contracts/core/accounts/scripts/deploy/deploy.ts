@@ -1,68 +1,43 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {
-  Diamond,
-  DiamondCutFacet,
-  DiamondCutFacet__factory,
-  DiamondInit,
-  DiamondInit__factory,
-  Diamond__factory,
-} from "typechain-types";
-import {
-  Deployment,
-  getContractName,
-  getSigners,
-  logger,
-  updateAddresses,
-  validateAddress,
-} from "utils";
-
+import {DiamondCutFacet__factory, DiamondInit__factory, Diamond__factory} from "typechain-types";
+import {Deployment, getContractName, getSigners, logger, updateAddresses} from "utils";
 import cutDiamond from "./cutDiamond";
 import deployFacets from "./deployFacets";
 
 export async function deployAccountsDiamond(
-  owner = "",
-  registrar = "",
+  owner: string,
+  registrar: string,
   hre: HardhatRuntimeEnvironment
-): Promise<
-  | {
-      diamond: Deployment;
-      facets: Array<Deployment>;
-    }
-  | undefined
-> {
+): Promise<{
+  diamond: Deployment;
+  facets: Array<Deployment>;
+}> {
   logger.out("Deploying and setting up Accounts Diamond and all its facets...");
 
   const {proxyAdmin} = await getSigners(hre);
 
-  try {
-    validateAddress(owner, "owner");
-    validateAddress(registrar, "registrar");
+  const {diamond, diamondCutFacet} = await deployDiamond(proxyAdmin, hre);
 
-    const {diamond, diamondCutFacet} = await deployDiamond(proxyAdmin, hre);
+  const diamondInit = await deployDiamondInit(proxyAdmin, hre);
 
-    const diamondInit = await deployDiamondInit(proxyAdmin, hre);
+  const cuts = await deployFacets(proxyAdmin, hre);
 
-    const cuts = await deployFacets(proxyAdmin, hre);
+  await cutDiamond(diamond.address, diamondInit.address, proxyAdmin, owner, registrar, cuts, hre);
 
-    await cutDiamond(diamond.address, diamondInit.address, proxyAdmin, owner, registrar, cuts, hre);
-
-    return {
-      diamond: {
-        address: diamond.address,
-        contractName: "Accounts Diamond",
-        constructorArguments: [proxyAdmin.address, diamondCutFacet.address],
-      },
-      facets: cuts
-        .map<Deployment>(({cut, facetName}) => ({
-          address: cut.facetAddress.toString(),
-          contractName: facetName,
-        }))
-        .concat(diamondCutFacet, diamondInit),
-    };
-  } catch (error) {
-    logger.out(error, logger.Level.Error);
-  }
+  return {
+    diamond: {
+      address: diamond.address,
+      contractName: "Accounts Diamond",
+      constructorArguments: [proxyAdmin.address, diamondCutFacet.address],
+    },
+    facets: cuts
+      .map<Deployment>(({cut, facetName}) => ({
+        address: cut.facetAddress.toString(),
+        contractName: facetName,
+      }))
+      .concat(diamondCutFacet, diamondInit),
+  };
 }
 
 async function deployDiamond(

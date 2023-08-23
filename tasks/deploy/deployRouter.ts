@@ -35,10 +35,6 @@ task("deploy:Router", "Will deploy Router contract")
 
       const deployment = await deployRouter(registrar, hre);
 
-      if (!deployment) {
-        return;
-      }
-
       // Registrar NetworkInfo's Router address must be updated for the current network
       await updateRegistrarNetworkConnections(
         registrar,

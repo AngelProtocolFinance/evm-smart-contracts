@@ -33,10 +33,6 @@ task("deploy:CharityApplications", "Will deploy CharityApplication contract")
         hre
       );
 
-      if (!charityApplications) {
-        return;
-      }
-
       await hre.run("manage:registrar:updateConfig", {
         charityApplications: charityApplications.proxy.address,
         yes: true,

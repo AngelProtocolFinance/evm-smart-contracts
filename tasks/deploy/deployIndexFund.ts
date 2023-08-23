@@ -34,10 +34,6 @@ task("deploy:IndexFund", "Will deploy IndexFund contract")
 
       const deployment = await deployIndexFund(registrar, owner, hre);
 
-      if (!deployment) {
-        return;
-      }
-
       await hre.run("manage:registrar:updateConfig", {
         indexFundContract: deployment.proxy.address,
         yes: true,
