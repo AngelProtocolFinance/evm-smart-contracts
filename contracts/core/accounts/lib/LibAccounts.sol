@@ -60,11 +60,6 @@ library LibAccounts {
     uint256 expires; // datetime int of delegation expiry
   }
 
-  enum DelegateAction {
-    Set,
-    Revoke
-  }
-
   struct SettingsPermission {
     bool locked;
     Delegate delegate;

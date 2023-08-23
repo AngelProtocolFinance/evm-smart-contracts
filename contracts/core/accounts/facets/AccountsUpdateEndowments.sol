@@ -122,34 +122,49 @@ contract AccountsUpdateEndowments is
   }
 
   /**
-    @notice Updates the delegate for a specific endowment setting
-    @dev This function allows authorized users to update the delegate for a specific endowment setting
+    @notice Sets the delegate for a specific endowment setting
     @param id The ID of the endowment
     @param setting The setting for which to update the delegate
-    @param action The action to perform (set/revoke)
     @param delegateAddress The address of the delegate to add/revoke
     @param delegateExpiry The timestamp at which the delegate's permission expires
+    */
+  function setDelegate(
+    uint32 id,
+    ControllerSettingOption setting,
+    address delegateAddress,
+    uint256 delegateExpiry
+  ) public nonReentrant {
+    LibAccounts.Delegate memory delegate = LibAccounts.Delegate({
+      addr: delegateAddress,
+      expires: delegateExpiry
+    });
+    updateDelegate(id, setting, delegate);
+  }
+
+  /**
+    @notice Revokes the delegate for a specific endowment setting
+    @param id The ID of the endowment
+    @param setting The setting for which to update the delegate
+    */
+  function revokeDelegate(uint32 id, ControllerSettingOption setting) public nonReentrant {
+    LibAccounts.Delegate memory delegate = LibAccounts.Delegate({addr: address(0), expires: 0});
+    updateDelegate(id, setting, delegate);
+  }
+
+  /**
+    @notice Updates the delegate for a specific endowment setting
+    @param id The ID of the endowment
+    @param setting The setting for which to update the delegate
+    @param delegate The address & expiry of the delegate being updated
     */
   function updateDelegate(
     uint32 id,
     ControllerSettingOption setting,
-    LibAccounts.DelegateAction action,
-    address delegateAddress,
-    uint256 delegateExpiry
-  ) public nonReentrant {
+    LibAccounts.Delegate memory delegate
+  ) internal {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     AccountStorage.Endowment storage tempEndowment = state.Endowments[id];
-
     require(!state.States[id].closingEndowment, "UpdatesAfterClosed");
-
-    LibAccounts.Delegate memory newDelegate;
-    if (action == LibAccounts.DelegateAction.Set) {
-      newDelegate = LibAccounts.Delegate({addr: delegateAddress, expires: delegateExpiry});
-    } else if (action == LibAccounts.DelegateAction.Revoke) {
-      newDelegate = LibAccounts.Delegate({addr: address(0), expires: 0});
-    } else {
-      revert("Invalid action passed");
-    }
 
     if (setting == ControllerSettingOption.LockedInvestmentManagement) {
       require(
@@ -161,7 +176,7 @@ contract AccountsUpdateEndowments is
         ),
         "Unauthorized"
       );
-      tempEndowment.settingsController.lockedInvestmentManagement.delegate = newDelegate;
+      tempEndowment.settingsController.lockedInvestmentManagement.delegate = delegate;
     } else if (setting == ControllerSettingOption.LiquidInvestmentManagement) {
       require(
         Validator.canChange(
@@ -172,7 +187,7 @@ contract AccountsUpdateEndowments is
         ),
         "Unauthorized"
       );
-      tempEndowment.settingsController.liquidInvestmentManagement.delegate = newDelegate;
+      tempEndowment.settingsController.liquidInvestmentManagement.delegate = delegate;
     } else if (setting == ControllerSettingOption.AcceptedTokens) {
       require(
         Validator.canChange(
@@ -183,7 +198,7 @@ contract AccountsUpdateEndowments is
         ),
         "Unauthorized"
       );
-      tempEndowment.settingsController.acceptedTokens.delegate = newDelegate;
+      tempEndowment.settingsController.acceptedTokens.delegate = delegate;
     } else if (setting == ControllerSettingOption.AllowlistedBeneficiaries) {
       require(
         Validator.canChange(
@@ -194,7 +209,7 @@ contract AccountsUpdateEndowments is
         ),
         "Unauthorized"
       );
-      tempEndowment.settingsController.allowlistedBeneficiaries.delegate = newDelegate;
+      tempEndowment.settingsController.allowlistedBeneficiaries.delegate = delegate;
     } else if (setting == ControllerSettingOption.AllowlistedContributors) {
       require(
         Validator.canChange(
@@ -205,7 +220,7 @@ contract AccountsUpdateEndowments is
         ),
         "Unauthorized"
       );
-      tempEndowment.settingsController.allowlistedContributors.delegate = newDelegate;
+      tempEndowment.settingsController.allowlistedContributors.delegate = delegate;
     } else if (setting == ControllerSettingOption.MaturityAllowlist) {
       require(
         Validator.canChange(
@@ -216,7 +231,7 @@ contract AccountsUpdateEndowments is
         ),
         "Unauthorized"
       );
-      tempEndowment.settingsController.maturityAllowlist.delegate = newDelegate;
+      tempEndowment.settingsController.maturityAllowlist.delegate = delegate;
     } else if (setting == ControllerSettingOption.MaturityTime) {
       require(
         Validator.canChange(
@@ -227,7 +242,7 @@ contract AccountsUpdateEndowments is
         ),
         "Unauthorized"
       );
-      tempEndowment.settingsController.maturityTime.delegate = newDelegate;
+      tempEndowment.settingsController.maturityTime.delegate = delegate;
     } else if (setting == ControllerSettingOption.WithdrawFee) {
       require(
         Validator.canChange(
@@ -238,7 +253,7 @@ contract AccountsUpdateEndowments is
         ),
         "Unauthorized"
       );
-      tempEndowment.settingsController.withdrawFee.delegate = newDelegate;
+      tempEndowment.settingsController.withdrawFee.delegate = delegate;
     } else if (setting == ControllerSettingOption.EarlyLockedWithdrawFee) {
       require(
         Validator.canChange(
@@ -249,7 +264,7 @@ contract AccountsUpdateEndowments is
         ),
         "Unauthorized"
       );
-      tempEndowment.settingsController.earlyLockedWithdrawFee.delegate = newDelegate;
+      tempEndowment.settingsController.earlyLockedWithdrawFee.delegate = delegate;
     } else if (setting == ControllerSettingOption.DepositFee) {
       require(
         Validator.canChange(
@@ -260,7 +275,7 @@ contract AccountsUpdateEndowments is
         ),
         "Unauthorized"
       );
-      tempEndowment.settingsController.depositFee.delegate = newDelegate;
+      tempEndowment.settingsController.depositFee.delegate = delegate;
     } else if (setting == ControllerSettingOption.BalanceFee) {
       require(
         Validator.canChange(
@@ -271,7 +286,7 @@ contract AccountsUpdateEndowments is
         ),
         "Unauthorized"
       );
-      tempEndowment.settingsController.balanceFee.delegate = newDelegate;
+      tempEndowment.settingsController.balanceFee.delegate = delegate;
     } else if (setting == ControllerSettingOption.Name) {
       require(
         Validator.canChange(
@@ -282,7 +297,7 @@ contract AccountsUpdateEndowments is
         ),
         "Unauthorized"
       );
-      tempEndowment.settingsController.name.delegate = newDelegate;
+      tempEndowment.settingsController.name.delegate = delegate;
     } else if (setting == ControllerSettingOption.Image) {
       require(
         Validator.canChange(
@@ -293,7 +308,7 @@ contract AccountsUpdateEndowments is
         ),
         "Unauthorized"
       );
-      tempEndowment.settingsController.image.delegate = newDelegate;
+      tempEndowment.settingsController.image.delegate = delegate;
     } else if (setting == ControllerSettingOption.Logo) {
       require(
         Validator.canChange(
@@ -304,7 +319,7 @@ contract AccountsUpdateEndowments is
         ),
         "Unauthorized"
       );
-      tempEndowment.settingsController.logo.delegate = newDelegate;
+      tempEndowment.settingsController.logo.delegate = delegate;
     } else if (setting == ControllerSettingOption.Sdgs) {
       require(
         Validator.canChange(
@@ -315,7 +330,7 @@ contract AccountsUpdateEndowments is
         ),
         "Unauthorized"
       );
-      tempEndowment.settingsController.sdgs.delegate = newDelegate;
+      tempEndowment.settingsController.sdgs.delegate = delegate;
     } else if (setting == ControllerSettingOption.SplitToLiquid) {
       require(
         Validator.canChange(
@@ -326,7 +341,7 @@ contract AccountsUpdateEndowments is
         ),
         "Unauthorized"
       );
-      tempEndowment.settingsController.splitToLiquid.delegate = newDelegate;
+      tempEndowment.settingsController.splitToLiquid.delegate = delegate;
     } else if (setting == ControllerSettingOption.IgnoreUserSplits) {
       require(
         Validator.canChange(
@@ -337,7 +352,7 @@ contract AccountsUpdateEndowments is
         ),
         "Unauthorized"
       );
-      tempEndowment.settingsController.ignoreUserSplits.delegate = newDelegate;
+      tempEndowment.settingsController.ignoreUserSplits.delegate = delegate;
     } else {
       revert("Invalid setting input");
     }
