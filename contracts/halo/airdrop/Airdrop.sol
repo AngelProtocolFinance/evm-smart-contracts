@@ -4,8 +4,6 @@ pragma solidity ^0.8.16;
 import {AirdropMessage} from "./message.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "./storage.sol";
-
-import {ERC20Upgrade} from "../ERC20Upgrade.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";

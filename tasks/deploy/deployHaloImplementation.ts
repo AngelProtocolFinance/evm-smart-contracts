@@ -7,8 +7,6 @@ import {Airdrop} from "./halo/airdrop";
 import {Collector} from "./halo/collector";
 import {Community} from "./halo/community";
 import {distributor} from "./halo/distributor";
-import {deployGov} from "./halo/gov";
-import {GovHodler} from "./halo/gov-hodler";
 import {Staking} from "./halo/staking";
 import {Vesting} from "./halo/vesting";
 
@@ -93,7 +91,6 @@ export async function deployHaloImplementation(
     const distributorAddress = await distributor(
       proxyAdmin.address,
       {
-        timelockContract: gov.TimeLock,
         haloToken: halo,
         allowlist: [apTeam2.address, apTeam3.address],
         spendLimit: distributorSpendLimit,
@@ -103,15 +100,6 @@ export async function deployHaloImplementation(
     var response = {
       Halo: halo,
       Gov: gov,
-      GovHodler: await GovHodler(
-        proxyAdmin.address,
-        {
-          owner: GovHodlerOwner,
-          haloToken: halo,
-          timelockContract: gov.TimeLock,
-        },
-        hre
-      ),
       Airdrop: await Airdrop(
         proxyAdmin.address,
         {

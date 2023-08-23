@@ -9,11 +9,6 @@ import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorVotesQ
 import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorTimelockControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-/**
- *@title Gov
- * @dev Gov contract
- * The `Gov` contract allows for proposals to be made, executed, or cancelled with certain quorum requirements, voting periods, and a timelock mechanism to enforce the execution or cancellation of proposals.
- */
 contract Gov is
   Initializable,
   GovernorUpgradeable,
@@ -24,24 +19,20 @@ contract Gov is
   GovernorTimelockControlUpgradeable
 {
   /// @custom:oz-upgrades-unsafe-allow constructor
+  constructor() {
+    _disableInitializers();
+  }
 
-  // bool initialized = false;
   function initialize(
-    IVotesUpgradeable token,
-    TimelockControllerUpgradeable timelock,
-    uint256 initialVotingDelay,
-    uint256 initialVotingPeriod,
-    uint256 initialProposalThreshold,
-    uint256 quorumNumeratorValue
+    IVotesUpgradeable _token,
+    TimelockControllerUpgradeable _timelock
   ) public initializer {
-    // require(!initialized, "alreadyInitialized");
-    // initialized = true;
-    __Governor_init("HaloDAO");
-    __GovernorSettings_init(initialVotingDelay, initialVotingPeriod, initialProposalThreshold);
+    __Governor_init("Gov");
+    __GovernorSettings_init(17280 /* 1 day */, 120960 /* 1 week */, 0);
     __GovernorCountingSimple_init();
-    __GovernorVotes_init(token);
-    __GovernorVotesQuorumFraction_init(quorumNumeratorValue); // this is the % of people's approval required to pass the proposal
-    __GovernorTimelockControl_init(timelock);
+    __GovernorVotes_init(_token);
+    __GovernorVotesQuorumFraction_init(4);
+    __GovernorTimelockControl_init(_timelock);
   }
 
   // The following functions are overrides required by Solidity.

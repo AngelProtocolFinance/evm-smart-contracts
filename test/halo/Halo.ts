@@ -9,7 +9,6 @@ describe("Halo token", function () {
   let Halo: Halo__factory;
 
   let deployer: SignerWithAddress;
-  let proxyAdmin: SignerWithAddress;
   let user: SignerWithAddress;
 
   describe("upon Deployment", async function () {
@@ -19,22 +18,26 @@ describe("Halo token", function () {
     beforeEach(async function () {
       const signers = await getSigners(hre);
       deployer = signers.deployer;
-      proxyAdmin = signers.proxyAdmin;
       user = signers.apTeam1;
 
-      Halo = (await hre.ethers.getContractFactory("Halo", proxyAdmin)) as Halo__factory;
-      halo = await Halo.deploy(user.address, INITIALSUPPLY);
+      Halo = (await hre.ethers.getContractFactory("HALO", deployer)) as Halo__factory;
+      halo = await Halo.deploy();
       await halo.deployed();
     });
 
     it("Sends the specified amount to the specified recipient", async function () {
-      expect(await halo.balanceOf(user.address)).to.equal(INITIALSUPPLY);
+      expect(await halo.balanceOf(deployer.address)).to.equal(INITIALSUPPLY);
     });
     it("Does not mint tokens for the deployer implicitly", async function () {
-      expect(await halo.balanceOf(deployer.address)).to.equal(0);
+      expect(await halo.balanceOf(user.address)).to.equal(0);
     });
-    it("creates tokens only for the recipient", async function () {
+    it("Creates initial tokens only for the contract deployer", async function () {
       expect(await halo.totalSupply()).to.equal(INITIALSUPPLY);
+    });
+    it("Token holder can burn tokens", async function () {
+      const burnAmount = BigNumber.from(100000);
+      expect(await halo.burn(burnAmount)).to.emit(halo, "Burn");
+      expect(await halo.totalSupply()).to.equal(INITIALSUPPLY.sub(burnAmount));
     });
   });
 });
