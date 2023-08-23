@@ -1,13 +1,6 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {ProxyContract__factory, Router__factory} from "typechain-types";
-import {
-  ContractFunctionParams,
-  Deployment,
-  getContractName,
-  getSigners,
-  logger,
-  updateAddresses,
-} from "utils";
+import {Deployment, getContractName, getSigners, logger, updateAddresses} from "utils";
 
 export async function deployRouter(
   registrar: string,
@@ -30,13 +23,8 @@ export async function deployRouter(
   // deploy proxy
   logger.out("Deploying proxy...");
   const initData = router.interface.encodeFunctionData("initialize", [registrar]);
-  const constructorArguments: ContractFunctionParams<ProxyContract__factory["deploy"]> = [
-    router.address,
-    proxyAdmin.address,
-    initData,
-  ];
   const routerProxyFactory = new ProxyContract__factory(proxyAdmin);
-  const routerProxy = await routerProxyFactory.deploy(...constructorArguments);
+  const routerProxy = await routerProxyFactory.deploy(router.address, proxyAdmin.address, initData);
   await routerProxy.deployed();
   logger.out(`Address: ${routerProxy.address}.`);
 
