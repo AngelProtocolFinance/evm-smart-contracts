@@ -66,8 +66,8 @@ Specific tests can be called by adding the path to the relevant test:
 
 ## Running tasks
 
-We've made use of the hardhat task functionality to allow easy manipulation of contracts
-in the `tasks/` directory, you can find the available tasks. Each should have a thoughtful help text if invoked like:
+We've made use of the hardhat task functionality to allow easy manipulation of contracts.
+In the `tasks/` directory, you can find the available tasks. Each should have a thoughtful help text if invoked like:
 
 `yarn hardhat deploy:registrarAndRouter --help`
 
