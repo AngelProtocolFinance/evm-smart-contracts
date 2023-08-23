@@ -12,27 +12,28 @@ task("deploy:APTeamMultiSig", "Will deploy APTeamMultiSig contract")
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      const deployment = await deployAPTeamMultiSig(hre);
+      const deployments = await deployAPTeamMultiSig(hre);
 
-      if (!deployment) {
+      if (!deployments) {
         return;
       }
 
       await hre.run("manage:registrar:transferOwnership", {
-        to: deployment.address,
+        to: deployments.proxy.address,
         yes: true,
       });
       await hre.run("manage:AccountsDiamond:updateOwner", {
-        to: deployment.address,
+        to: deployments.proxy.address,
         yes: true,
       });
       await hre.run("manage:IndexFund:transferOwnership", {
-        to: deployment.address,
+        to: deployments.proxy.address,
         yes: true,
       });
 
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
-        await verify(hre, deployment);
+        await verify(hre, deployments.implementation);
+        await verify(hre, deployments.proxy);
       }
     } catch (error) {
       logger.out(error, logger.Level.Error);

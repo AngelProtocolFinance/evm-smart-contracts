@@ -1,18 +1,15 @@
 import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {APTeamMultiSig__factory, ProxyContract__factory} from "typechain-types";
-import {
-  ContractFunctionParams,
-  Deployment,
-  getContractName,
-  getSigners,
-  logger,
-  updateAddresses,
-} from "utils";
+import {Deployment, getContractName, getSigners, logger, updateAddresses} from "utils";
 
-export async function deployAPTeamMultiSig(
-  hre: HardhatRuntimeEnvironment
-): Promise<Deployment | undefined> {
+export async function deployAPTeamMultiSig(hre: HardhatRuntimeEnvironment): Promise<
+  | {
+      implementation: Deployment;
+      proxy: Deployment;
+    }
+  | undefined
+> {
   logger.out("Deploying APTeamMultiSig...");
 
   const {apTeamMultisigOwners, proxyAdmin} = await getSigners(hre);
@@ -33,13 +30,12 @@ export async function deployAPTeamMultiSig(
       config.AP_TEAM_MULTISIG_DATA.requireExecution,
       config.AP_TEAM_MULTISIG_DATA.transactionExpiry,
     ]);
-    const constructorArguments: ContractFunctionParams<ProxyContract__factory["deploy"]> = [
+    const proxyFactory = new ProxyContract__factory(proxyAdmin);
+    const apTeamMultiSigProxy = await proxyFactory.deploy(
       apTeamMultiSig.address,
       proxyAdmin.address,
-      apTeamMultiSigData,
-    ];
-    const proxyFactory = new ProxyContract__factory(proxyAdmin);
-    const apTeamMultiSigProxy = await proxyFactory.deploy(...constructorArguments);
+      apTeamMultiSigData
+    );
     await apTeamMultiSigProxy.deployed();
     logger.out(`Address: ${apTeamMultiSigProxy.address}.`);
 
@@ -57,8 +53,14 @@ export async function deployAPTeamMultiSig(
     );
 
     return {
-      address: apTeamMultiSigProxy.address,
-      contractName: getContractName(apTeamMultiSigFactory),
+      implementation: {
+        address: apTeamMultiSig.address,
+        contractName: getContractName(apTeamMultiSigFactory),
+      },
+      proxy: {
+        address: apTeamMultiSigProxy.address,
+        contractName: getContractName(proxyFactory),
+      },
     };
   } catch (error) {
     logger.out(error, logger.Level.Error);

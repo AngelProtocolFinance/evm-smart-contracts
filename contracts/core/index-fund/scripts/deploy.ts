@@ -14,7 +14,13 @@ export async function deployIndexFund(
   registrar = "",
   owner = "",
   hre: HardhatRuntimeEnvironment
-): Promise<Deployment | undefined> {
+): Promise<
+  | {
+      implementation: Deployment;
+      proxy: Deployment;
+    }
+  | undefined
+> {
   logger.out("Deploying IndexFund...");
 
   const {deployer, proxyAdmin} = await getSigners(hre);
@@ -63,7 +69,10 @@ export async function deployIndexFund(
       hre
     );
 
-    return {address: indexFundProxy.address, contractName: getContractName(indexFundFactory)};
+    return {
+      implementation: {address: indexFund.address, contractName: getContractName(indexFundFactory)},
+      proxy: {address: indexFundProxy.address, contractName: getContractName(proxyFactory)},
+    };
   } catch (error) {
     logger.out(error, logger.Level.Error);
   }

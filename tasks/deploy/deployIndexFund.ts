@@ -39,12 +39,13 @@ task("deploy:IndexFund", "Will deploy IndexFund contract")
       }
 
       await hre.run("manage:registrar:updateConfig", {
-        indexFundContract: deployment.address,
+        indexFundContract: deployment.proxy.address,
         yes: true,
       });
 
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
-        await verify(hre, deployment);
+        await verify(hre, deployment.implementation);
+        await verify(hre, deployment.proxy);
       }
     } catch (error) {
       logger.out(error, logger.Level.Error);

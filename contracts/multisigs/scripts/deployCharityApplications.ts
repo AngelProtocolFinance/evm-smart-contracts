@@ -14,7 +14,13 @@ export async function deployCharityApplications(
   accountsDiamond = "",
   seedAsset = "",
   hre: HardhatRuntimeEnvironment
-): Promise<Deployment | undefined> {
+): Promise<
+  | {
+      implementation: Deployment;
+      proxy: Deployment;
+    }
+  | undefined
+> {
   const {apTeamMultisigOwners, proxyAdmin} = await getSigners(hre);
 
   try {
@@ -66,8 +72,14 @@ export async function deployCharityApplications(
     );
 
     return {
-      address: charityApplicationsProxy.address,
-      contractName: getContractName(charityApplicationsFactory),
+      implementation: {
+        address: charityApplications.address,
+        contractName: getContractName(charityApplicationsFactory),
+      },
+      proxy: {
+        address: charityApplicationsProxy.address,
+        contractName: getContractName(proxyFactory),
+      },
     };
   } catch (error) {
     logger.out(error, logger.Level.Error);

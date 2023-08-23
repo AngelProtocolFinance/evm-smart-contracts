@@ -19,7 +19,10 @@ export async function deployEndowmentMultiSig(
   hre: HardhatRuntimeEnvironment
 ): Promise<
   | {
-      emitter: Deployment;
+      emitter: {
+        implementation: Deployment;
+        proxy: Deployment;
+      };
       factory: Deployment;
       implementation: Deployment;
     }
@@ -89,8 +92,14 @@ export async function deployEndowmentMultiSig(
 
     return {
       emitter: {
-        address: emitterProxy.address,
-        contractName: getContractName(emitterFactory),
+        implementation: {
+          address: emitter.address,
+          contractName: getContractName(emitterFactory),
+        },
+        proxy: {
+          address: emitterProxy.address,
+          contractName: getContractName(proxyFactory),
+        },
       },
       factory: {
         address: EndowmentMultiSigFactory.address,

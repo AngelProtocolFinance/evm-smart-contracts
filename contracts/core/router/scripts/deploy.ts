@@ -13,7 +13,13 @@ import {
 export async function deployRouter(
   registrar = "",
   hre: HardhatRuntimeEnvironment
-): Promise<Deployment | undefined> {
+): Promise<
+  | {
+      implementation: Deployment;
+      proxy: Deployment;
+    }
+  | undefined
+> {
   logger.out("Deploying Router...");
 
   const {proxyAdmin} = await getSigners(hre);
@@ -47,7 +53,10 @@ export async function deployRouter(
       hre
     );
 
-    return {address: routerProxy.address, contractName: getContractName(routerFactory)};
+    return {
+      implementation: {address: router.address, contractName: getContractName(routerFactory)},
+      proxy: {address: routerProxy.address, contractName: getContractName(routerProxyFactory)},
+    };
   } catch (error) {
     logger.out(error, logger.Level.Error);
   }

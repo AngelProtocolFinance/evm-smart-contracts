@@ -2,9 +2,13 @@ import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {ProxyContract__factory, VaultEmitter__factory} from "typechain-types";
 import {Deployment, getContractName, getSigners, logger, updateAddresses} from "utils";
 
-export async function deployVaultEmitter(
-  hre: HardhatRuntimeEnvironment
-): Promise<Deployment | undefined> {
+export async function deployVaultEmitter(hre: HardhatRuntimeEnvironment): Promise<
+  | {
+      implementation: Deployment;
+      proxy: Deployment;
+    }
+  | undefined
+> {
   const {proxyAdmin} = await getSigners(hre);
 
   try {
@@ -37,8 +41,14 @@ export async function deployVaultEmitter(
     );
 
     return {
-      address: proxy.address,
-      contractName: getContractName(Emitter),
+      implementation: {
+        address: emitter.address,
+        contractName: getContractName(Emitter),
+      },
+      proxy: {
+        address: proxy.address,
+        contractName: getContractName(Proxy),
+      },
     };
   } catch (error) {
     logger.out(error, logger.Level.Error);

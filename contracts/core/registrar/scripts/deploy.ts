@@ -33,7 +33,13 @@ export async function deployRegistrar(
     apTeamMultisig = "",
   }: RegistrarDeployData,
   hre: HardhatRuntimeEnvironment
-): Promise<Deployment | undefined> {
+): Promise<
+  | {
+      implementation: Deployment;
+      proxy: Deployment;
+    }
+  | undefined
+> {
   logger.out("Deploying Registrar...");
 
   try {
@@ -90,7 +96,10 @@ export async function deployRegistrar(
       hre
     );
 
-    return {address: proxy.address, contractName: getContractName(factory)};
+    return {
+      implementation: {address: registrar.address, contractName: getContractName(factory)},
+      proxy: {address: proxy.address, contractName: getContractName(proxyFactory)},
+    };
   } catch (error) {
     logger.out(error, logger.Level.Error);
   }
@@ -105,7 +114,13 @@ type LocalRegistrarDeployData = {
 export async function deployLocalRegistrar(
   {owner = "", deployer, proxyAdmin}: LocalRegistrarDeployData,
   hre: HardhatRuntimeEnvironment
-): Promise<Deployment | undefined> {
+): Promise<
+  | {
+      implementation: Deployment;
+      proxy: Deployment;
+    }
+  | undefined
+> {
   logger.out("Deploying Local Registrar...");
 
   try {
@@ -145,7 +160,10 @@ export async function deployLocalRegistrar(
       hre
     );
 
-    return {address: proxy.address, contractName: getContractName(factory)};
+    return {
+      implementation: {address: localRegistrar.address, contractName: getContractName(factory)},
+      proxy: {address: proxy.address, contractName: getContractName(proxyFactory)},
+    };
   } catch (error) {
     logger.out(error, logger.Level.Error);
   }

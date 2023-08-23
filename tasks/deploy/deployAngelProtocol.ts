@@ -52,28 +52,28 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
           axelarGateway: thirdPartyAddresses.axelarGateway.address,
           axelarGasService: thirdPartyAddresses.axelarGasService.address,
           router: ADDRESS_ZERO,
-          owner: apTeamMultisig?.address,
+          owner: apTeamMultisig?.proxy.address,
           deployer,
           proxyAdmin,
           treasury: treasury.address,
-          apTeamMultisig: apTeamMultisig?.address,
+          apTeamMultisig: apTeamMultisig?.proxy.address,
         },
         hre
       );
 
       // Router deployment will require updating Registrar config's "router" address
-      const router = await deployRouter(registrar?.address, hre);
+      const router = await deployRouter(registrar?.proxy.address, hre);
 
       const accounts = await deployAccountsDiamond(
-        apTeamMultisig?.address,
-        registrar?.address,
+        apTeamMultisig?.proxy.address,
+        registrar?.proxy.address,
         hre
       );
 
       const gasFwd = await deployGasFwd(
         {
           admin: proxyAdmin,
-          registrar: registrar?.address,
+          registrar: registrar?.proxy.address,
         },
         hre
       );
@@ -86,22 +86,26 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
         hre
       );
 
-      const indexFund = await deployIndexFund(registrar?.address, apTeamMultisig?.address, hre);
+      const indexFund = await deployIndexFund(
+        registrar?.proxy.address,
+        apTeamMultisig?.proxy.address,
+        hre
+      );
 
-      const endowmentMultiSig = await deployEndowmentMultiSig(registrar?.address, hre);
+      const endowmentMultiSig = await deployEndowmentMultiSig(registrar?.proxy.address, hre);
 
       const vaultEmitter = await deployVaultEmitter(hre);
 
       await hre.run("manage:registrar:updateConfig", {
         accountsContract: accounts?.diamond.address, //Address
         collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare, //uint256
-        indexFundContract: indexFund?.address, //address
+        indexFundContract: indexFund?.proxy.address, //address
         treasury: treasury.address,
         uniswapRouter: thirdPartyAddresses.uniswap.swapRouter.address, //address
         uniswapFactory: thirdPartyAddresses.uniswap.factory.address, //address
         multisigFactory: endowmentMultiSig?.factory.address, //address
-        multisigEmitter: endowmentMultiSig?.emitter.address, //address
-        charityApplications: charityApplications?.address, //address
+        multisigEmitter: endowmentMultiSig?.emitter.proxy.address, //address
+        charityApplications: charityApplications?.proxy.address, //address
         proxyAdmin: proxyAdmin.address, //address
         usdcAddress: thirdPartyAddresses.usdcToken.address,
         wMaticAddress: thirdPartyAddresses.wmaticToken.address,
@@ -109,35 +113,42 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
         yes: true,
       });
       await hre.run("manage:registrar:setVaultEmitterAddress", {
-        vaultEmitter: vaultEmitter?.address,
+        vaultEmitter: vaultEmitter?.proxy.address,
         yes: true,
       });
 
       // Registrar NetworkInfo's Router address must be updated for the current network
       if (router) {
         await updateRegistrarNetworkConnections(
-          registrar?.address,
-          apTeamMultisig?.address,
-          {router: router.address},
+          registrar?.proxy.address,
+          apTeamMultisig?.proxy.address,
+          {router: router.proxy.address},
           hre
         );
       }
 
       if (verify_contracts) {
         const deployments: Array<Deployment | undefined> = [
-          apTeamMultisig,
-          registrar,
-          router,
+          apTeamMultisig?.implementation,
+          apTeamMultisig?.proxy,
+          registrar?.implementation,
+          registrar?.proxy,
+          router?.implementation,
+          router?.proxy,
           accounts?.diamond,
           ...(accounts?.facets || []),
-          charityApplications,
-          indexFund,
-          endowmentMultiSig?.emitter,
+          charityApplications?.implementation,
+          charityApplications?.proxy,
+          indexFund?.implementation,
+          indexFund?.proxy,
+          endowmentMultiSig?.emitter.implementation,
+          endowmentMultiSig?.emitter.proxy,
           endowmentMultiSig?.factory,
           endowmentMultiSig?.implementation,
           gasFwd?.factory,
           gasFwd?.implementation,
-          vaultEmitter,
+          vaultEmitter?.implementation,
+          vaultEmitter?.proxy,
         ];
 
         for (const deployment of deployments) {

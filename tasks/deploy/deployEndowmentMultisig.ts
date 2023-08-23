@@ -34,12 +34,13 @@ task("deploy:EndowmentMultiSig", "Will deploy EndowmentMultiSig contract")
 
       await hre.run("manage:registrar:updateConfig", {
         multisigFactory: deployData.factory.address,
-        multisigEmitter: deployData.emitter.address,
+        multisigEmitter: deployData.emitter.proxy.address,
         yes: true,
       });
 
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
-        await verify(hre, deployData.emitter);
+        await verify(hre, deployData.emitter.implementation);
+        await verify(hre, deployData.emitter.proxy);
         await verify(hre, deployData.factory);
         await verify(hre, deployData.implementation);
       }
