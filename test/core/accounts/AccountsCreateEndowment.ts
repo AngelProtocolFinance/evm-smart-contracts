@@ -121,15 +121,6 @@ describe("AccountsCreateEndowment", function () {
     registrarFake = await smock.fake<Registrar>(new Registrar__factory(), {
       address: genWallet().address,
     });
-    const rebParams: Partial<LocalRegistrarLib.RebalanceParamsStructOutput> = {
-      basis: 100,
-      rebalanceLiquidProfits: false,
-      lockedRebalanceToLiquid: 75,
-      interestDistribution: 20,
-      lockedPrincipleToLiquid: false,
-      principleDistribution: 0,
-    };
-    registrarFake.getRebalanceParams.returns(rebParams);
     const config: RegistrarStorage.ConfigStruct = {
       ...DEFAULT_REGISTRAR_CONFIG,
       charityApplications: charityApplications.address,
@@ -337,7 +328,6 @@ describe("AccountsCreateEndowment", function () {
     expect(result.name).to.equal(request.name);
     expect(result.parent).to.equal(request.parent);
     expect(result.proposalLink).to.equal(request.proposalLink);
-    expect(result.rebalance).to.equalRebalance(await registrarFake.getRebalanceParams());
     expect(result.referralId).to.equal(request.referralId);
     expect(result.sdgs).to.have.same.deep.members(request.sdgs.map((x) => BigNumber.from(x)));
     expect(result.settingsController.acceptedTokens).to.equalSettingsPermission(
@@ -436,7 +426,6 @@ describe("AccountsCreateEndowment", function () {
     expect(result.name).to.equal(request.name);
     expect(result.parent).to.equal(request.parent);
     expect(result.proposalLink).to.equal(request.proposalLink);
-    expect(result.rebalance).to.equalRebalance(await registrarFake.getRebalanceParams());
     expect(result.referralId).to.equal(request.referralId);
     expect(result.sdgs).to.have.same.deep.members(request.sdgs.map((x) => BigNumber.from(x)));
     expect(result.settingsController.acceptedTokens).to.equalSettingsPermission(

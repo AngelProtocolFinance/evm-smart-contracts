@@ -86,7 +86,6 @@ contract AccountsCreateEndowment is
       logo: details.logo,
       image: details.image,
       maturityTime: details.maturityTime,
-      rebalance: IRegistrar(registrarAddress).getRebalanceParams(),
       proposalLink: details.proposalLink,
       multisig: owner,
       dao: address(0),
