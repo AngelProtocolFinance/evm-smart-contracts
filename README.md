@@ -4,8 +4,6 @@ This repository contains smart contracts for Angel Protocol to be deployed on Po
 
 Angel Protocol provides tools to fundraise, coordinate, and invest capital. It connects donors & investors with non-profits, social enterprises, and other changemakers around the world.
 
-[Coverage Report](https://angel-protocol-coverage-report.vercel.app/)
-
 [Auto-generated Documentation](https://doc-site-angel.vercel.app/)
 
 ## GETTING STARTED
@@ -39,62 +37,46 @@ cp .env.template .env
 
 Contract compilation creates local files (artifacts, typings and ABI JSONs) necessary for interfacing. Compile with:
 
-`npx hardhat compile`
+`yarn compile`
 
 _Note: Most calls to hardhat check for requisite artifacts and will auto-compile if need be or if changes between source and artifacts are detected._
 
-The default behavior is for Hardhat to use a chain in memory at runtime. For persistent state, run a local node `npx hardhat node` or use a testnet.
+To compile `clean` use: 
+
+`yarn compile --clean`
+
+The default behavior is for Hardhat to use a chain in memory at runtime. For persistent state, run a local node `yarn hardhat node` or use a testnet.
 The network can be pointed to using the `--network` CLI flag.
 
-To deploy a contract, call its relevant deployment task. Many tasks leverage data contained in the file `config/index.ts` and `contract-address.json`. Make sure these files are current before deploying:
+To deploy a contract, call its relevant deployment task. Many tasks leverage data contained in the file `contract-address.json` to point at existing contracts on specific networks. As an example, to deploy the entirety of the Primary Chain contract set, call:
 
-`npx hardhat deploy:AngelProtocol --network localhost`
+`yarn hardhat deploy:AngelProtocol --network localhost`
+
+## Running tests
 
 To run the Chai test suite, invoke:
 
-`npx hardhat test`
+`yarn test`
+
+_Note: The full set of tests can take upwards of 30m to run_
 
 Specific tests can be called by adding the path to the relevant test:
 
-`npx hardhat test tests/Registrar.ts`
+`yarn hardhat test tests/core/registrar/LocalRegistrar.ts`
 
 ## Running tasks
 
 We've made use of the hardhat task functionality to allow easy manipulation of contracts
 in the `tasks/` directory, you can find the available tasks. Each should have a thoughtful help text if invoked like:
 
-`npx hardhat deploy:registrarAndRouter --help`
+`yarn hardhat deploy:registrarAndRouter --help`
 
-## Information
+To override default arguments, call `--help` against a task to see which args are optional and can be overridden. 
 
-Configuration information can be found in the `hardhat.config.ts` file. Deployment configuration can be defined in the files present in the `config` folder.
+## Tenderly Verification
 
-Solidity Compile Version: `0.8.16`
-
-## Run options
-
-To compile contracts
-
-```sh
-npx hardhat compile
-```
-
-To run tests
-
-```sh
-npx hardhat test
-```
-
-To run coverage
-
-```sh
-npx hardhat coverage
-```
-
-## Deployment steps
-
-1. (Optional) mention the network you want your contracts to deploy into `.env` in `NETWORK` variable. Options are `[polygon, mumbai, goerli, hardhat]`
-2. You will need three accounts (wallets & private keys) under the `AP_TEAM_<#>_<WALLET | KEY>` variables in the `.env`.
-4. Run `yarn compile` before deployment to ensure you're deploying correct artifacts.
-5. Run `yarn deploy` to deploy the contracts
-6. Additional tasks are also created to break the deployment process into sub task. All the task are listed under the `/tasks` folder.
+To enable tenderly verification (which is called when deploying tasks with verification enabled), follow these steps: 
+1. Request the project credentials from the repo admin
+2. Install the tenderly CLI tool by following the instructions here (dependent on OS): https://github.com/Tenderly/tenderly-cli
+3. Call `tenderly login --authentication-method access-key --access-key {your_access_key} --force` where the `access_key` matches the one provided by the repo admin. 
+4. Call `mkdir deployments && tenderly init` to finish initializing the CLI 
