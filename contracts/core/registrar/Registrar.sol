@@ -8,8 +8,7 @@ import {RegistrarStorage, Storage} from "./storage.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {LocalRegistrar} from "./LocalRegistrar.sol";
 import {LocalRegistrarLib} from "./lib/LocalRegistrarLib.sol";
-
-uint256 constant COLLECTOR_DEFAULT_SHARE = 50;
+import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
 /**
  * @title Registrar Contract
@@ -144,6 +143,19 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
    */
   function updateTokenPriceFeed(address token, address priceFeed) public onlyOwner {
     require(priceFeed != address(0), "Must pass valid price feed contract address");
+    (
+      uint80 roundId,
+      int256 answer,
+      ,
+      uint256 updatedAt,
+      uint80 answeredInRound
+    ) = AggregatorV3Interface(priceFeed).latestRoundData();
+    require(
+      answer > 0 &&
+        answeredInRound >= roundId &&
+        updatedAt >= (block.timestamp - LibAccounts.ACCEPTABLE_PRICE_DELAY),
+      "Invalid price feed answer"
+    );
     state.PriceFeeds[token] = priceFeed;
   }
 

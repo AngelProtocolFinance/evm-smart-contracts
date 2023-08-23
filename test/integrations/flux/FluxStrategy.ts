@@ -147,6 +147,9 @@ describe("FluxStrategy", function () {
       await expect(flux.pause()).to.not.be.reverted;
       await expect(flux.deposit(1)).to.revertedWith("Pausable: paused");
     });
+    it("reverts if the amount is zero", async function () {
+      await expect(flux.deposit(0)).to.be.revertedWithCustomError(flux, "ZeroAmount");
+    });
     it("reverts if the baseToken transfer fails", async function () {
       await wait(baseToken.mint(owner.address, 1));
       await wait(baseToken.setTransferAllowed(false));
@@ -213,6 +216,9 @@ describe("FluxStrategy", function () {
     it("reverts when paused", async function () {
       await expect(flux.pause()).to.not.be.reverted;
       await expect(flux.withdraw(1)).to.revertedWith("Pausable: paused");
+    });
+    it("reverts if the amount is zero", async function () {
+      await expect(flux.withdraw(0)).to.be.revertedWithCustomError(flux, "ZeroAmount");
     });
     it("reverts if the yieldToken transfer fails", async function () {
       await wait(yieldToken.approve(flux.address, 1));
