@@ -3,6 +3,7 @@ import {EndowmentMultiSig__factory, EndowmentMultiSigFactory__factory} from "typ
 import {
   confirmAction,
   getAddresses,
+  getContractName,
   getSigners,
   isLocalNetwork,
   logger,
@@ -62,7 +63,7 @@ task(
       await updateAddresses({multiSig: {endowment: {implementation: contract.address}}}, hre);
 
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
-        await verify(hre, {address: contract.address});
+        await verify(hre, {address: contract.address, contractName: getContractName(factory)});
       }
     } catch (error) {
       logger.out(`EndowmentMultiSig upgrade failed, reason: ${error}`, logger.Level.Error);

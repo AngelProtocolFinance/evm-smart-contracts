@@ -234,7 +234,7 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
     lrs.uniswapFactory = _uniswapFactory;
   }
 
-  function setVaultEmitterAddresses(address _vaultEmitter) external onlyOwner {
+  function setVaultEmitterAddress(address _vaultEmitter) external onlyOwner {
     if (!Validator.addressChecker(_vaultEmitter)) {
       revert InvalidAddress("_vaultEmitter");
     }

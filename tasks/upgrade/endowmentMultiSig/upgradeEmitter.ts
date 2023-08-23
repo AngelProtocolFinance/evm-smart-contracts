@@ -6,6 +6,7 @@ import {
 import {
   confirmAction,
   getAddresses,
+  getContractName,
   getSigners,
   isLocalNetwork,
   logger,
@@ -69,7 +70,7 @@ task(
       );
 
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
-        await verify(hre, {address: emitter.address});
+        await verify(hre, {address: emitter.address, contractName: getContractName(Emitter)});
       }
     } catch (error) {
       logger.out(`EndowmentMultiSigEmitter upgrade failed, reason: ${error}`, logger.Level.Error);

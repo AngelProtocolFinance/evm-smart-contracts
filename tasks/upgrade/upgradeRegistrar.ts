@@ -3,6 +3,7 @@ import {Registrar__factory, ITransparentUpgradeableProxy__factory} from "typecha
 import {
   confirmAction,
   getAddresses,
+  getContractName,
   getSigners,
   isLocalNetwork,
   logger,
@@ -53,6 +54,7 @@ task("upgrade:registrar", "Will upgrade the Registrar (use only on the primary c
         await verify(hre, {
           address: registrar.address,
           contract: "contracts/core/registrar/Registrar.sol:Registrar",
+          contractName: getContractName(Registrar),
         });
       }
     } catch (error) {
