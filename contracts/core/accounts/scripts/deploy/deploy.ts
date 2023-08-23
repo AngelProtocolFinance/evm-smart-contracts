@@ -26,11 +26,7 @@ export async function deployAccountsDiamond(
   await cutDiamond(diamond.address, diamondInit.address, proxyAdmin, owner, registrar, cuts, hre);
 
   return {
-    diamond: {
-      address: diamond.address,
-      contractName: "Accounts Diamond",
-      constructorArguments: [proxyAdmin.address, diamondCutFacet.address],
-    },
+    diamond,
     facets: cuts
       .map<Deployment>(({cut, facetName}) => ({
         address: cut.facetAddress.toString(),
@@ -49,8 +45,12 @@ async function deployDiamond(
   await diamondCutFacet.deployed();
   logger.out(`DiamondCutFacet deployed at: ${diamondCutFacet.address}`);
 
+  const constructorArguments: Parameters<Diamond__factory["deploy"]> = [
+    admin.address,
+    diamondCutFacet.address,
+  ];
   const Diamond = new Diamond__factory(admin);
-  const diamond = await Diamond.deploy(admin.address, diamondCutFacet.address);
+  const diamond = await Diamond.deploy(...constructorArguments);
   await diamond.deployed();
   logger.out(`Diamond deployed at: ${diamond.address}`);
 
@@ -63,6 +63,7 @@ async function deployDiamond(
     diamond: {
       address: diamond.address,
       contractName: getContractName(Diamond),
+      constructorArguments,
     },
     diamondCutFacet: {
       address: diamondCutFacet.address,
