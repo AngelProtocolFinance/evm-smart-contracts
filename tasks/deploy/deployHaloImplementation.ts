@@ -22,8 +22,6 @@ task("deploy:HaloImplementation", "Will deploy HaloImplementation contract")
     }
   });
 
-const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
-
 const deployERC20 = async (verify_contracts: boolean, hre: HardhatRuntimeEnvironment) => {
   try {
     const {ethers, run, network} = hre;
@@ -80,13 +78,6 @@ export async function deployHaloImplementation(
     let gov = await deployGov(halo, verify_contracts, hre);
 
     let halo_code = await ethers.getContractAt("ERC20Upgrade", halo);
-
-    await halo_code.mint(
-      proxyAdmin.address,
-      ethers.utils.parseEther("100000000000000000000000000")
-    );
-
-    await halo_code.transferOwnership(gov.GovProxy); // TODO: uncomment this before deploying to prod. Keep this commented while testing
 
     const distributorAddress = await distributor(
       proxyAdmin.address,
