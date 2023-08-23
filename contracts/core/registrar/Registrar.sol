@@ -10,8 +10,6 @@ import {LocalRegistrar} from "./LocalRegistrar.sol";
 import {LocalRegistrarLib} from "./lib/LocalRegistrarLib.sol";
 import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
-uint256 constant COLLECTOR_DEFAULT_SHARE = 50;
-
 /**
  * @title Registrar Contract
  * @dev Contract for Registrar
