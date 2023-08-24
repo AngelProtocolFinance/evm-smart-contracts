@@ -6,46 +6,38 @@ import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "./storage.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
  *@title Airdrop
  * @dev Airdrop contract
  * The `Airdrop` contract manages the airdrop process of a token.
  */
-contract Airdrop is Storage, Initializable, ReentrancyGuard {
-  event ConfigUpdated();
-  event MerkleRootRegistered(uint256 stage, bytes32 merkleRoot);
+contract Airdrop is Storage, Initializable, ReentrancyGuard, Ownable {
+  using SafeERC20 for IERC20;
+
   event AirdropClaimed(uint256 stage, address sender, uint256 amount);
-  event AirdropInitialized(address owner, address haloToken);
+  event AirdropInitialized(address haloToken);
+  event MerkleRootRegistered(uint256 stage, bytes32 merkleRoot);
 
   /**
    * @dev Initialize contract
    * @param details AirdropMessage.InstantiateMsg used to initialize contract
    */
   function initialize(AirdropMessage.InstantiateMsg memory details) public initializer {
-    state.config = AirdropStorage.Config({owner: details.owner, haloToken: details.haloToken});
+    require(details.haloToken != address(0), "Zero address passed");
+    state.haloToken = details.haloToken;
     state.latestStage = 0;
-    emit AirdropInitialized(details.owner, details.haloToken);
-  }
-
-  /**
-   * @dev Update config for airdrop contract
-   * @param owner address
-   */
-  function updateConfig(address owner) public nonReentrant {
-    require(state.config.owner == msg.sender, "only owner can update config");
-    require(owner != address(0), "Invalid address");
-    state.config.owner = owner;
-    emit ConfigUpdated();
+    emit AirdropInitialized(details.haloToken);
   }
 
   /**
    * @dev It allows the owner to register a merkle root for the airdrop. Only the owner can call this function.
    * @param merkleRoot bytes32
    */
-  function registerMerkleRoot(bytes32 merkleRoot) public nonReentrant {
-    require(state.config.owner == msg.sender, "only owner can register merkle root");
+  function registerMerkleRoot(bytes32 merkleRoot) public nonReentrant onlyOwner {
     state.MerkleRoots[state.latestStage] = merkleRoot;
     state.latestStage += 1;
     emit MerkleRootRegistered(state.latestStage - 1, merkleRoot);
@@ -57,7 +49,7 @@ contract Airdrop is Storage, Initializable, ReentrancyGuard {
    * @param merkleProof bytes32[]
    */
   function claim(uint256 amount, bytes32[] calldata merkleProof) public nonReentrant {
-    require(!state.isClaimed[state.latestStage][msg.sender], "already claimed");
+    require(!state.Claims[state.latestStage][msg.sender], "already claimed");
     bytes32 node = keccak256(abi.encodePacked(msg.sender, amount));
     bool isValidProof = MerkleProof.verifyCalldata(
       merkleProof,
@@ -66,22 +58,9 @@ contract Airdrop is Storage, Initializable, ReentrancyGuard {
     );
     require(isValidProof, "Invalid proof.");
 
-    state.isClaimed[state.latestStage][msg.sender] = true;
-    state.claimed[state.latestStage].push(msg.sender);
-
-    require(
-      IERC20Upgradeable(state.config.haloToken).transfer(msg.sender, amount),
-      "Transfer failed."
-    );
+    IERC20(state.haloToken).safeTransfer(msg.sender, amount);
+    state.Claims[state.latestStage][msg.sender] = true;
     emit AirdropClaimed(state.latestStage, msg.sender, amount);
-  }
-
-  /**
-   * @notice Query the config of airdrop
-   */
-  function queryConfig() public view returns (AirdropMessage.ConfigResponse memory) {
-    return
-      AirdropMessage.ConfigResponse({owner: state.config.owner, haloToken: state.config.haloToken});
   }
 
   /**
@@ -105,6 +84,6 @@ contract Airdrop is Storage, Initializable, ReentrancyGuard {
    * @notice Query a boolean indicating whether the specified address has claimed their airdrop for the specified stage.
    */
   function queryIsClaimed(uint256 stage, address addr) public view returns (bool) {
-    return state.isClaimed[stage][addr];
+    return state.Claims[stage][addr];
   }
 }

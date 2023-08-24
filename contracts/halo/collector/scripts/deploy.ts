@@ -1,40 +1,53 @@
-// This is a script for deploying your contracts. You can adapt it to deploy
-// yours, or create new ones.
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import path from "path";
+import {getSigners, logger, updateAddresses, verify} from "utils";
 
 import {CollectorMessage} from "typechain-types/contracts/halo/collector/Collector";
 
-const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
-
-export async function Collector(
-  proxyAdmin = ADDRESS_ZERO,
+export async function deployCollector(
   CollectorDataInput: CollectorMessage.InstantiateMsgStruct,
+  verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
   try {
     const {ethers, run, network} = hre;
+    const {proxyAdmin} = await getSigners(hre);
     const Collector = await ethers.getContractFactory("Collector");
     const CollectorInstance = await Collector.deploy();
     await CollectorInstance.deployed();
-
-    console.log("Collector implementation address:", CollectorInstance.address);
+    logger.out(`Collector implementation address: ${CollectorInstance.address}"`);
 
     const ProxyContract = await ethers.getContractFactory("ProxyContract");
-
     const CollectorData = CollectorInstance.interface.encodeFunctionData("initialize", [
       CollectorDataInput,
     ]);
-
     const CollectorProxy = await ProxyContract.deploy(
       CollectorInstance.address,
-      proxyAdmin,
+      proxyAdmin.address,
       CollectorData
     );
-
     await CollectorProxy.deployed();
+    logger.out(`Collector Address (Proxy): ${CollectorProxy.address}"`);
 
-    console.log("Collector Address (Proxy):", CollectorProxy.address);
+    // update address file & verify contracts
+    await updateAddresses(
+      {
+        halo: {
+          collector: {
+            proxy: CollectorProxy.address,
+            implementation: CollectorInstance.address,
+          },
+        },
+      },
+      hre
+    );
+
+    if (verify_contracts) {
+      await verify(hre, {address: CollectorInstance.address});
+      await verify(hre, {
+        address: CollectorProxy.address,
+        constructorArguments: [CollectorInstance.address, proxyAdmin.address, CollectorData],
+      });
+    }
 
     return Promise.resolve(CollectorProxy.address);
   } catch (error) {

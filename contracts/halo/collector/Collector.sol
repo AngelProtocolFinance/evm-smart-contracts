@@ -3,12 +3,23 @@ pragma solidity ^0.8.16;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
-import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {CollectorMessage} from "./message.sol";
 import {IRegistrar} from "../../core/registrar/interfaces/IRegistrar.sol";
 import {RegistrarStorage} from "../../core/registrar/storage.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./storage.sol";
+import {LibAccounts} from "../../core/accounts/lib/LibAccounts.sol";
+import {FixedPointMathLib} from "../../lib/FixedPointMathLib.sol";
+import {ISwapRouter} from "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
+import {IUniswapV3Factory} from "@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol";
+import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+
+// NOTE: Consider expanding to allow swept amounts to be distributed out to some number of addresses, each 
+//        due N percent of the total. Add/Remove distributee address/percentages [in a storage mapping].
 
 /**
  *@title Collector
@@ -18,20 +29,15 @@ import "./storage.sol";
  * 3) It also has a sweep function to swap asset tokens to HALO tokens and distribute the result HALO tokens to the gov contract.
  * 4) Lastly, there is a queryConfig function to return the configuration details.
  */
-contract Collector is Storage, Initializable {
+contract Collector is Storage, Initializable, ReentrancyGuard, Ownable  {
+  using SafeERC20 for IERC20;
+  using FixedPointMathLib for uint256;
+
   /*///////////////////////////////////////////////
                     EVENTS
     */ ///////////////////////////////////////////////
   event ConfigUpdated();
-  event CollectorSweeped(address tokenSwept, uint256 amountSwept, uint256 haloOut);
-
-  IERC20Upgradeable token;
-  ISwapRouter public immutable swapRouter;
-  uint256 constant SWEEP_REPLY_ID = 1;
-
-  constructor(ISwapRouter _swapRouter) {
-    swapRouter = _swapRouter;
-  }
+  event CollectorSwept(address tokenSwept, uint256 amountSwept, uint256 haloOut);
 
   /**
    * @dev Initialize contract
@@ -39,35 +45,22 @@ contract Collector is Storage, Initializable {
    */
   function initialize(CollectorMessage.InstantiateMsg memory details) public initializer {
     state.config = CollectorStorage.Config({
-      owner: msg.sender,
       registrarContract: details.registrarContract,
       rewardFactor: details.rewardFactor,
-      timelockContract: details.timelockContract,
-      distributorContract: details.distributorContract,
-      haloToken: details.haloToken
+      slippage: details.slippage
     });
-    token = IERC20Upgradeable(details.haloToken);
   }
 
   /**
    * @dev Update config for collector contract
    * @param rewardFactor uint256
-   * @param timelockContract address
    * @param registrarContract address
    */
-  function updateConfig(
-    uint256 rewardFactor,
-    address timelockContract,
-    address registrarContract
-  ) public returns (bool) {
-    require(msg.sender == state.config.owner, "Unauthorized");
-    require(timelockContract != address(0), "Invalid timelockContract address given");
-    require(state.config.rewardFactor <= 100, "Invalid reward factor input given");
+  function updateConfig(uint256 rewardFactor, address registrarContract) public onlyOwner {
+    require(state.config.rewardFactor <= LibAccounts.FEE_BASIS, "Invalid reward factor input given");
     state.config.registrarContract = registrarContract;
     state.config.rewardFactor = rewardFactor;
-    state.config.timelockContract = timelockContract;
     emit ConfigUpdated();
-    return true;
   }
 
   /**
@@ -75,41 +68,144 @@ contract Collector is Storage, Initializable {
    * @param sweepToken address of the token to be swept
    */
   function sweep(address sweepToken) public {
-    uint256 sweepAmount = 0;
-    // swap token to HALO token
-    uint256 amountOut = 0; // TO DO: Need to properly wire up for swaps
+    require(sweepToken != address(0), "Invalid sweep token passed");
+
+    uint256 sweepAmount = IERC20(sweepToken).balanceOf(address(this));
+    require(sweepAmount > 0, "Nothing to sweep");
+
+    RegistrarStorage.Config memory registrarConfig = IRegistrar(state.config.registrarContract)
+          .queryConfig();
+
+    // Check that both in & out tokens have chainlink price feed contract set for them in Registrar
+    address priceFeedIn = IRegistrar(state.config.registrarContract).queryTokenPriceFeed(sweepToken);
+    address priceFeedOut = IRegistrar(state.config.registrarContract).queryTokenPriceFeed(registrarConfig.haloToken);
+    require(
+      (priceFeedIn != address(0) && priceFeedOut != address(0)),
+      "Chainlink Oracle Price Feed contracts are required for all tokens swapping to/from"
+    );
+
+    IERC20(sweepToken).safeApprove(address(registrarConfig.uniswapRouter), sweepAmount);
+
+    // swap token into HALO
+    uint256 amountOut = swap(
+      sweepToken,
+      sweepAmount,
+      priceFeedIn,
+      registrarConfig.haloToken,
+      priceFeedOut,
+      state.config.slippage,
+      registrarConfig.uniswapRouter,
+      registrarConfig.uniswapFactory
+    );
 
     // distribute HALO token to gov contract
-    uint256 distributeAmount = (amountOut * state.config.rewardFactor) / 100;
+    uint256 distributeAmount = amountOut.mulDivDown(state.config.rewardFactor, LibAccounts.FEE_BASIS);
     if (distributeAmount > 0) {
-      RegistrarStorage.Config memory registrar_config = IRegistrar(state.config.registrarContract)
-        .queryConfig();
-
-      require(token.transfer(registrar_config.govContract, distributeAmount), "Transfer failed");
+      IERC20(registrarConfig.haloToken).safeTransfer(registrarConfig.govContract, distributeAmount);
+      // distribute tax remainder to AP treasury
       if ((amountOut - distributeAmount) > 0) {
-        require(
-          token.transfer(state.config.distributorContract, amountOut - distributeAmount),
-          "Transfer failed"
-        );
+        IERC20(registrarConfig.haloToken).safeTransfer(registrarConfig.treasury, amountOut - distributeAmount);
       }
-      emit CollectorSweeped(sweepToken, sweepAmount, amountOut);
-    } else {
-      revert("No HALO available to distribute after sweep");
     }
+
+    emit CollectorSwept(sweepToken, sweepAmount, amountOut);
   }
 
-  /**
+   /**
    * @notice Query the config of Collector
    */
   function queryConfig() public view returns (CollectorMessage.ConfigResponse memory) {
     return
       CollectorMessage.ConfigResponse({
-        owner: state.config.owner,
         registrarContract: state.config.registrarContract,
         rewardFactor: state.config.rewardFactor,
-        timelockContract: state.config.timelockContract,
-        distributorContract: state.config.distributorContract,
-        haloToken: state.config.haloToken
+        slippage: state.config.slippage
       });
   }
-}
+
+  /*///////////////////////////////////////////////
+                    INTERNAL FUNCTIONS
+    */ ///////////////////////////////////////////////
+
+  /**
+   * @dev This function fetches the latest token price from a Price Feed from Chainlink Oracles.
+   * @param tokenFeed address
+   * @return answer Returns the oracle answer of current price as an int
+   */
+  function getLatestPriceData(address tokenFeed) internal view returns (uint256) {
+    (
+      uint80 roundId,
+      int256 answer,
+      ,
+      uint256 updatedAt,
+      uint80 answeredInRound
+    ) = AggregatorV3Interface(tokenFeed).latestRoundData();
+    require(
+      answer > 0 &&
+        answeredInRound >= roundId &&
+        updatedAt >= (block.timestamp - LibAccounts.ACCEPTABLE_PRICE_DELAY),
+      "Invalid price feed answer"
+    );
+    return uint256(answer);
+  }
+
+  /**
+   * @dev This function swaps the given amount of tokenA for tokenB and transfers it to the specified recipient address.
+   * @param tokenIn address
+   * @param amountIn uint256
+   * @param priceFeedIn address
+   * @param tokenOut address
+   * @param priceFeedOut address
+   * @param slippage uint256
+   * @param uniswapRouter address
+   * @param uniswapFactory address
+   * @return amountOut Returns the amount of token received fom pool after swapping to specific address
+   */
+  function swap(
+    address tokenIn,
+    uint256 amountIn,
+    address priceFeedIn,
+    address tokenOut,
+    address priceFeedOut,
+    uint256 slippage,
+    address uniswapRouter,
+    address uniswapFactory
+  ) internal returns (uint256 amountOut) {
+    uint256 priceRatio = getLatestPriceData(priceFeedOut).mulDivDown(
+      LibAccounts.BIG_NUMBA_BASIS,
+      getLatestPriceData(priceFeedIn)
+    );
+    uint256 estAmountOut = amountIn.mulDivDown(priceRatio, LibAccounts.BIG_NUMBA_BASIS);
+    uint256 minAmountOut = estAmountOut -
+      (estAmountOut.mulDivDown(slippage, LibAccounts.FEE_BASIS));
+
+    // find the lowest fee pool available, if any, to swap tokens
+    IUniswapV3Factory factory = IUniswapV3Factory(uniswapFactory);
+    uint24 poolFee;
+    // UniSwap V3 Pools support fees of 0.05%(500 bps), 0.3%(3000 bps), or 1%(10000 bps)
+    // 3000 is the default tier today, so we start with that to hopefully save some gas
+    if (factory.getPool(tokenIn, tokenOut, 3000) != address(0)) {
+      poolFee = 3000;
+    } else if (factory.getPool(tokenIn, tokenOut, 500) != address(0)) {
+      poolFee = 500;
+    } else if (factory.getPool(tokenIn, tokenOut, 10000) != address(0)) {
+      poolFee = 10000;
+    }
+    require(poolFee > 0, "No pool found to swap");
+
+    ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({
+      tokenIn: tokenIn,
+      tokenOut: tokenOut,
+      fee: poolFee,
+      recipient: address(this),
+      deadline: block.timestamp,
+      amountIn: amountIn,
+      amountOutMinimum: minAmountOut,
+      sqrtPriceLimitX96: 0 // ensures that we swap our exact input amount
+    });
+    // execute the swap on the router
+    amountOut = ISwapRouter(uniswapRouter).exactInputSingle(params);
+
+    require(amountOut >= minAmountOut, "Output funds less than the minimum output");
+  }
+ }

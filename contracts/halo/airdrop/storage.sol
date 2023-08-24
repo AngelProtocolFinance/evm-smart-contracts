@@ -2,16 +2,11 @@
 pragma solidity ^0.8.16;
 
 library AirdropStorage {
-  struct Config {
-    address owner;
-    address haloToken;
-  }
   struct State {
-    Config config;
-    uint256 latestStage;
     mapping(uint256 => bytes32) MerkleRoots;
-    mapping(uint256 => mapping(address => bool)) isClaimed;
-    mapping(uint256 => address[]) claimed;
+    mapping(uint256 => mapping(address => bool)) Claims;
+    address haloToken;
+    uint256 latestStage;
   }
 }
 

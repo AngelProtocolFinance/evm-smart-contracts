@@ -4,8 +4,10 @@ pragma solidity ^0.8.16;
 import "./storage.sol";
 import {CommunityMessage} from "./message.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 /**
  *@title Community
@@ -14,7 +16,9 @@ import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20
  * It provides functions to initialize the contract, update its configuration, transfer tokens,
  * and retrieve the rent configuration.
  */
-contract Community is Storage, Initializable, ReentrancyGuard {
+contract Community is Storage, Initializable, ReentrancyGuard, Ownable {
+  using SafeERC20 for IERC20;
+
   event ConfigUpdated();
   event HaloSpent(address recipient, uint amount);
 
@@ -24,7 +28,6 @@ contract Community is Storage, Initializable, ReentrancyGuard {
    */
   function initialize(CommunityMessage.InstantiateMsg memory details) public initializer {
     state.config = CommunityStorage.Config({
-      timelockContract: details.timelockContract,
       spendLimit: details.spendLimit,
       haloToken: details.haloToken
     });
@@ -34,12 +37,8 @@ contract Community is Storage, Initializable, ReentrancyGuard {
   /**
    * @dev Update config for community contract
    * @param spendLimit uint
-   * @param timelockContract address
    */
-  function updateConfig(uint spendLimit, address timelockContract) public nonReentrant {
-    require(state.config.timelockContract == msg.sender, "Unauthorized");
-
-    state.config.timelockContract = timelockContract;
+  function updateConfig(uint spendLimit) public nonReentrant onlyOwner {
     state.config.spendLimit = spendLimit;
     emit ConfigUpdated();
   }
@@ -49,18 +48,13 @@ contract Community is Storage, Initializable, ReentrancyGuard {
    * @param recipient address
    * @param amount uint
    */
-  function spend(address recipient, uint amount) public nonReentrant {
-    require(state.config.timelockContract == msg.sender, "Unauthorized");
-
+  function spend(address recipient, uint amount) public nonReentrant onlyOwner {
     require(state.config.spendLimit >= amount, "Cannot spend more than spend limit");
     require(
-      amount <= IERC20Upgradeable(state.config.haloToken).balanceOf(address(this)),
+      amount <= IERC20(state.config.haloToken).balanceOf(address(this)),
       "Not enough balance"
     );
-    require(
-      IERC20Upgradeable(state.config.haloToken).transfer(recipient, amount),
-      "Transfer failed"
-    );
+    IERC20(state.config.haloToken).safeTransfer(recipient, amount);
     emit HaloSpent(recipient, amount);
   }
 
@@ -70,7 +64,6 @@ contract Community is Storage, Initializable, ReentrancyGuard {
   function queryConfig() public view returns (CommunityMessage.ConfigResponse memory) {
     return
       CommunityMessage.ConfigResponse({
-        timelockContract: state.config.timelockContract,
         spendLimit: state.config.spendLimit,
         haloToken: state.config.haloToken
       });

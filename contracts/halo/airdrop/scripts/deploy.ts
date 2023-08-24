@@ -1,40 +1,53 @@
-// This is a script for deploying your contracts. You can adapt it to deploy
-// yours, or create new ones.
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import path from "path";
+import {getSigners, logger, updateAddresses, verify} from "utils";
 
 import {AirdropMessage} from "typechain-types/contracts/halo/airdrop/Airdrop";
 
-const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
-
-export async function Airdrop(
-  proxyAdmin = ADDRESS_ZERO,
+export async function deployAirdrop(
   AirdropDataInput: AirdropMessage.InstantiateMsgStruct,
+  verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
   try {
     const {ethers, run, network} = hre;
+    const {proxyAdmin} = await getSigners(hre);
     const Airdrop = await ethers.getContractFactory("Airdrop");
     const AirdropInstance = await Airdrop.deploy();
     await AirdropInstance.deployed();
-
-    console.log("Airdrop implementation address:", AirdropInstance.address);
+    logger.out(`Airdrop implementation address: ${AirdropInstance.address}"`);
 
     const ProxyContract = await ethers.getContractFactory("ProxyContract");
-
     const AirdropData = AirdropInstance.interface.encodeFunctionData("initialize", [
       AirdropDataInput,
     ]);
-
     const AirdropProxy = await ProxyContract.deploy(
       AirdropInstance.address,
-      proxyAdmin,
+      proxyAdmin.address,
       AirdropData
     );
-
     await AirdropProxy.deployed();
+    logger.out(`Airdrop Address (Proxy): ${AirdropProxy.address}"`);
 
-    console.log("Airdrop Address (Proxy):", AirdropProxy.address);
+    // update address file & verify contracts
+    await updateAddresses(
+      {
+        halo: {
+          airdrop: {
+            proxy: AirdropProxy.address,
+            implementation: AirdropInstance.address,
+          },
+        },
+      },
+      hre
+    );
+
+    if (verify_contracts) {
+      await verify(hre, {address: AirdropInstance.address});
+      await verify(hre, {
+        address: AirdropProxy.address,
+        constructorArguments: [AirdropInstance.address, proxyAdmin.address, AirdropData],
+      });
+    }
 
     return Promise.resolve(AirdropProxy.address);
   } catch (error) {

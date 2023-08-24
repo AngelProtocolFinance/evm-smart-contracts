@@ -1,40 +1,53 @@
-// This is a script for deploying your contracts. You can adapt it to deploy
-// yours, or create new ones.
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import path from "path";
+import {getSigners, logger, updateAddresses, verify} from "utils";
 
 import {CommunityMessage} from "typechain-types/contracts/halo/community/Community";
 
-const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
-
-export async function Community(
-  proxyAdmin = ADDRESS_ZERO,
+export async function deployCommunity(
   CommunityDataInput: CommunityMessage.InstantiateMsgStruct,
+  verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
   try {
     const {ethers, run, network} = hre;
+    const {proxyAdmin} = await getSigners(hre);
     const Community = await ethers.getContractFactory("Community");
     const CommunityInstance = await Community.deploy();
     await CommunityInstance.deployed();
-
-    console.log("Community implementation address:", CommunityInstance.address);
+    logger.out(`Community implementation address: ${CommunityInstance.address}"`);
 
     const ProxyContract = await ethers.getContractFactory("ProxyContract");
-
     const CommunityData = CommunityInstance.interface.encodeFunctionData("initialize", [
       CommunityDataInput,
     ]);
-
     const CommunityProxy = await ProxyContract.deploy(
       CommunityInstance.address,
-      proxyAdmin,
+      proxyAdmin.address,
       CommunityData
     );
-
     await CommunityProxy.deployed();
+    logger.out(`Community Address (Proxy): ${CommunityProxy.address}"`);
 
-    console.log("Community Address (Proxy):", CommunityProxy.address);
+    // update address file & verify contracts
+    await updateAddresses(
+      {
+        halo: {
+          community: {
+            proxy: CommunityProxy.address,
+            implementation: CommunityInstance.address,
+          },
+        },
+      },
+      hre
+    );
+
+    if (verify_contracts) {
+      await verify(hre, {address: CommunityInstance.address});
+      await verify(hre, {
+        address: CommunityProxy.address,
+        constructorArguments: [CommunityInstance.address, proxyAdmin.address, CommunityData],
+      });
+    }
 
     return Promise.resolve(CommunityProxy.address);
   } catch (error) {

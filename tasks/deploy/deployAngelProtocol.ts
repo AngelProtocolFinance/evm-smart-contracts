@@ -17,9 +17,6 @@ import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {deployAPTeamMultiSig, deployCharityApplications} from "contracts/multisigs/scripts/deploy";
 import {deployEndowmentMultiSig} from "contracts/multisigs/endowment-multisig/scripts/deploy";
-// import {deployEmitters} from "contracts/normalized_endowment/scripts/deployEmitter";
-// import {deployImplementation} from "contracts/normalized_endowment/scripts/deployImplementation";
-
 import {deployGasFwd} from "contracts/core/gasFwd/scripts/deploy";
 import {getOrDeployThirdPartyContracts, updateRegistrarNetworkConnections} from "../helpers";
 

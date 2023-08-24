@@ -2,6 +2,7 @@
 pragma solidity ^0.8.16;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {Pausable} from "@openzeppelin/contracts/security/Pausable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
@@ -43,6 +44,8 @@ interface IStakingHalo {
  * The `Staking` contract enables users to stake their Halo token in exchange for rewards in form of additional tokens.
  */
 contract Staking is Initializable, ERC20, Pausable, ReentrancyGuard, Ownable {
+  using SafeERC20 for IERC20;
+
   event HaloStaked(address caller, address targetUser, uint256 amount, uint256 total, bytes data);
   event HaloUnstaked(address user, uint256 amount, uint256 total, bytes data);
   event InterestRateUpdated(uint256 interestRate);
@@ -63,7 +66,7 @@ contract Staking is Initializable, ERC20, Pausable, ReentrancyGuard, Ownable {
   mapping(address => uint256) public stakeNumber;
   mapping(address => uint256) public totalStakedFor;
 
-  constructor() ERC20("Staked Halo Token", "SHT") {}
+  constructor() ERC20("Staked HALO Token", "sHALO") {}
 
   struct InstantiateMsg {
     address haloToken;
@@ -102,7 +105,8 @@ contract Staking is Initializable, ERC20, Pausable, ReentrancyGuard, Ownable {
     uint256 amount,
     bytes memory data
   ) public whenNotPaused nonReentrant returns (uint256) {
-    require(IERC20(haloToken).transferFrom(msg.sender, address(this), amount), "Transfer failed");
+    IERC20(haloToken).safeTransferFrom(msg.sender, address(this), amount);
+
     stakeNumber[msg.sender]++;
     stakeInfos[msg.sender][stakeNumber[msg.sender]] = StakeInfo({
       started: true,
@@ -133,7 +137,8 @@ contract Staking is Initializable, ERC20, Pausable, ReentrancyGuard, Ownable {
     uint256 amount,
     bytes memory data
   ) public nonReentrant whenNotPaused returns (uint256) {
-    require(IERC20(haloToken).transferFrom(msg.sender, address(this), amount), "Transfer failed");
+    IERC20(haloToken).safeTransferFrom(msg.sender, address(this), amount);
+
     stakeNumber[user]++;
     stakeInfos[user][stakeNumber[user]] = StakeInfo({
       started: true,
@@ -145,7 +150,6 @@ contract Staking is Initializable, ERC20, Pausable, ReentrancyGuard, Ownable {
     totalStakedFor[user] += amount;
     totalStaked += amount;
     _mint(user, amount);
-    // emit Staked event
 
     emit HaloStaked(msg.sender, user, amount, totalStakedFor[user], data);
 
@@ -166,7 +170,8 @@ contract Staking is Initializable, ERC20, Pausable, ReentrancyGuard, Ownable {
       "Invalid amount"
     );
     stakeInfos[msg.sender][stakeId].claimed += amount;
-
+    // TODO: staking should be treated as a vault token would in that staked tokens are shares of
+    //       total revenues (swept protocol fees collected). This is a simple amount x rate. :(
     uint256 totalTokens = amount + ((amount * interestRate) / 100);
 
     require(
@@ -174,7 +179,7 @@ contract Staking is Initializable, ERC20, Pausable, ReentrancyGuard, Ownable {
       "Insufficient halo token balance in staking contract"
     );
 
-    require(IERC20(haloToken).transfer(msg.sender, totalTokens), "Transfer failed");
+    IERC20(haloToken).safeTransfer(msg.sender, totalTokens);
 
     // burn staking tokens
     _burn(msg.sender, amount);
