@@ -74,8 +74,8 @@ const config: HardhatUserConfig = {
     },
   },
   tenderly: {
-    username: "angel-protocol",
-    project: "angel-protocol-evm",
+    username: "angelprotocol",
+    project: "ap",
     privateVerification: true,
   },
 };
