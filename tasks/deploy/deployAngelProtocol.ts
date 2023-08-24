@@ -24,13 +24,10 @@ import {deployGasFwd} from "contracts/core/gasFwd/scripts/deploy";
 import {deployVaultEmitter} from "contracts/core/vault/scripts/deployVaultEmitter";
 import {getOrDeployThirdPartyContracts, updateRegistrarNetworkConnections} from "../helpers";
 
-type TaskArgs = {prod: boolean; skipVerify: boolean; yes: boolean};
-
 task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
-  .addFlag("prod", "Run in production mode.")
   .addFlag("skipVerify", "Skip contract verification")
   .addFlag("yes", "Automatic yes to prompt.")
-  .setAction(async (taskArgs: TaskArgs, hre) => {
+  .setAction(async (taskArgs: {skipVerify: boolean; yes: boolean}, hre) => {
     try {
       const isConfirmed =
         taskArgs.yes || (await confirmAction("Deploying all Angel Protocol contracts..."));
@@ -40,7 +37,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
 
       const verify_contracts = !isLocalNetwork(hre) && !taskArgs.skipVerify;
 
-      const {apTeamMultisigOwners, deployer, proxyAdmin, treasury} = await getSigners(hre);
+      const {deployer, proxyAdmin, treasury} = await getSigners(hre);
 
       await resetAddresses(hre);
 
@@ -48,11 +45,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
 
       const thirdPartyAddresses = await getOrDeployThirdPartyContracts(proxyAdmin, hre);
 
-      const apTeamMultisig = await deployAPTeamMultiSig(
-        apTeamMultisigOwners.map((x) => x.address),
-        proxyAdmin,
-        hre
-      );
+      const apTeamMultisig = await deployAPTeamMultiSig(hre);
 
       const registrar = await deployRegistrar(
         {
