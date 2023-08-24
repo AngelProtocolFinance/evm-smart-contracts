@@ -5,19 +5,20 @@ import {Deployment, getContractName, getSigners, logger, updateAddresses} from "
 
 export async function deployCharityApplications(
   accountsDiamond: string,
+  admin: string,
   seedAsset: string,
   hre: HardhatRuntimeEnvironment
 ): Promise<{
   implementation: Deployment;
   proxy: Deployment;
 }> {
-  const {apTeamMultisigOwners, proxyAdmin} = await getSigners(hre);
+  const {apTeamMultisigOwners, deployer} = await getSigners(hre);
 
   logger.out("Deploying CharityApplications...");
 
   // deploy implementation
   logger.out("Deploying implementation...");
-  const charityApplicationsFactory = new CharityApplications__factory(proxyAdmin);
+  const charityApplicationsFactory = new CharityApplications__factory(deployer);
   const charityApplications = await charityApplicationsFactory.deploy();
   await charityApplications.deployed();
   logger.out(`Address: ${charityApplications.address}`);
@@ -35,10 +36,10 @@ export async function deployCharityApplications(
     seedAsset,
     config.CHARITY_APPLICATIONS_DATA.seedAmount,
   ]);
-  const proxyFactory = new ProxyContract__factory(proxyAdmin);
+  const proxyFactory = new ProxyContract__factory(deployer);
   const charityApplicationsProxy = await proxyFactory.deploy(
     charityApplications.address,
-    proxyAdmin.address,
+    admin,
     initData
   );
   await charityApplicationsProxy.deployed();

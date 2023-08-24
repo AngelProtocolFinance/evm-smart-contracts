@@ -10,6 +10,11 @@ const config: Config = {
     requireExecution: false,
     transactionExpiry: 100000,
   },
+  PROXY_ADMIN_MULTISIG_DATA: {
+    threshold: 1,
+    requireExecution: false,
+    transactionExpiry: 0,
+  },
   REGISTRAR_DATA: {
     taxRate: 1,
     acceptedTokens: {

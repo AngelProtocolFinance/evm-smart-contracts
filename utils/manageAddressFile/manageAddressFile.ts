@@ -22,6 +22,7 @@ export async function resetAddresses(
   const cleaned: AddressObj = {
     ...createEmptyAddressObj(),
     axelar: currentAddressObj.axelar,
+    proxyAdmin: currentAddressObj.proxyAdmin,
     tokens: {...currentAddressObj.tokens, halo: "", reserveToken: ""},
     uniswap: currentAddressObj.uniswap,
   };

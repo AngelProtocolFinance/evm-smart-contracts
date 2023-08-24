@@ -15,15 +15,15 @@ export async function deployAccountsDiamond(
 }> {
   logger.out("Deploying and setting up Accounts Diamond and all its facets...");
 
-  const {proxyAdmin} = await getSigners(hre);
+  const {deployer} = await getSigners(hre);
 
-  const {diamond, diamondCutFacet} = await deployDiamond(proxyAdmin, hre);
+  const {diamond, diamondCutFacet} = await deployDiamond(deployer, hre);
 
-  const diamondInit = await deployDiamondInit(proxyAdmin, hre);
+  const diamondInit = await deployDiamondInit(deployer, hre);
 
-  const cuts = await deployFacets(proxyAdmin, hre);
+  const cuts = await deployFacets(deployer, hre);
 
-  await cutDiamond(diamond.address, diamondInit.address, proxyAdmin, owner, registrar, cuts, hre);
+  await cutDiamond(diamond.address, diamondInit.address, deployer, owner, registrar, cuts, hre);
 
   return {
     diamond,

@@ -6,6 +6,7 @@ import {Deployment, getContractName, getSigners, logger, updateAddresses} from "
 export async function deployIndexFund(
   registrar: string,
   owner: string,
+  admin: string,
   hre: HardhatRuntimeEnvironment
 ): Promise<{
   implementation: Deployment;
@@ -13,11 +14,11 @@ export async function deployIndexFund(
 }> {
   logger.out("Deploying IndexFund...");
 
-  const {deployer, proxyAdmin} = await getSigners(hre);
+  const {deployer} = await getSigners(hre);
 
   // deploy implementation
   logger.out("Deploying implementation...");
-  const indexFundFactory = new IndexFund__factory(proxyAdmin);
+  const indexFundFactory = new IndexFund__factory(deployer);
   const indexFund = await indexFundFactory.deploy();
   await indexFund.deployed();
   logger.out(`Address: ${indexFund.address}`);
@@ -30,7 +31,7 @@ export async function deployIndexFund(
     config.INDEX_FUND_DATA.fundingGoal,
   ]);
   const proxyFactory = new ProxyContract__factory(deployer);
-  const indexFundProxy = await proxyFactory.deploy(indexFund.address, proxyAdmin.address, initData);
+  const indexFundProxy = await proxyFactory.deploy(indexFund.address, admin, initData);
   await indexFundProxy.deployed();
   logger.out(`Address: ${indexFundProxy.address}`);
 

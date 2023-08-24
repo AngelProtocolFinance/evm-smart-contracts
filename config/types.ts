@@ -7,6 +7,11 @@ export type Config = {
     requireExecution: boolean;
     transactionExpiry: number;
   };
+  PROXY_ADMIN_MULTISIG_DATA: {
+    threshold: number;
+    requireExecution: boolean;
+    transactionExpiry: number;
+  };
   REGISTRAR_DATA: {
     taxRate: number;
     acceptedTokens: {

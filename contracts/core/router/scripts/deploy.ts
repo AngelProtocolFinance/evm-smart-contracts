@@ -4,6 +4,7 @@ import {Deployment, getContractName, getSigners, logger, updateAddresses} from "
 
 export async function deployRouter(
   registrar: string,
+  proxyAdmin: string,
   hre: HardhatRuntimeEnvironment
 ): Promise<{
   implementation: Deployment;
@@ -11,11 +12,11 @@ export async function deployRouter(
 }> {
   logger.out("Deploying Router...");
 
-  const {proxyAdmin} = await getSigners(hre);
+  const {deployer} = await getSigners(hre);
 
   // deploy implementation
   logger.out("Deploying implementation...");
-  const routerFactory = new Router__factory(proxyAdmin);
+  const routerFactory = new Router__factory(deployer);
   const router = await routerFactory.deploy();
   await router.deployed();
   logger.out(`Address: ${router.address}.`);
@@ -23,8 +24,8 @@ export async function deployRouter(
   // deploy proxy
   logger.out("Deploying proxy...");
   const initData = router.interface.encodeFunctionData("initialize", [registrar]);
-  const routerProxyFactory = new ProxyContract__factory(proxyAdmin);
-  const routerProxy = await routerProxyFactory.deploy(router.address, proxyAdmin.address, initData);
+  const routerProxyFactory = new ProxyContract__factory(deployer);
+  const routerProxy = await routerProxyFactory.deploy(router.address, proxyAdmin, initData);
   await routerProxy.deployed();
   logger.out(`Address: ${routerProxy.address}.`);
 

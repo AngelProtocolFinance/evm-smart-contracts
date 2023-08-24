@@ -108,6 +108,7 @@ export type AddressObj = {
       implementation: string;
     };
   };
+  proxyAdmin: string;
   registrar: {
     implementation: string;
     proxy: string;
