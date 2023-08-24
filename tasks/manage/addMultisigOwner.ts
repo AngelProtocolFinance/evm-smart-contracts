@@ -23,8 +23,9 @@ task("manage:addMultisigOwner", "Will add the specified address to the multisig 
 
       logger.out("Adding new owner:");
       logger.out(taskArguments.owner);
-      const {data} = await multisig.populateTransaction.addOwners([taskArguments.owner]);
-      const addOwnerData = hre.ethers.utils.toUtf8Bytes(data!);
+      const addOwnerData = multisig.interface.encodeFunctionData("addOwners", [
+        [taskArguments.owner],
+      ]);
 
       const tx = await multisig.submitTransaction(
         multisig.address, //destination,
@@ -35,12 +36,11 @@ task("manage:addMultisigOwner", "Will add the specified address to the multisig 
       logger.out(`Tx hash: ${tx.hash}`);
       await tx.wait();
 
-      logger.out("Owner addition successful.");
       if (await multisig.isOwner(taskArguments.owner)) {
-        logger.out(`Account with address ${taskArguments.owner} is one of the owners.`);
+        logger.out(`Account with address ${taskArguments.owner} is now one of the owners.`);
+      } else {
+        throw new Error("Adding new owner failed");
       }
-
-      throw new Error("Adding new owner failed");
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }
