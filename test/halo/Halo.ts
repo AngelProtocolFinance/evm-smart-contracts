@@ -20,7 +20,7 @@ describe("Halo token", function () {
       deployer = signers.deployer;
       user = signers.apTeam1;
 
-      Halo = (await hre.ethers.getContractFactory("HALO", deployer)) as Halo__factory;
+      Halo = (await hre.ethers.getContractFactory("Halo", deployer)) as Halo__factory;
       halo = await Halo.deploy();
       await halo.deployed();
     });
