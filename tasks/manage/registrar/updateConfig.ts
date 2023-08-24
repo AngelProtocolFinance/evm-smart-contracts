@@ -7,6 +7,7 @@ type TaskArgs = Partial<RegistrarMessages.UpdateConfigRequestStruct> & {
   yes: boolean;
 };
 
+// TODO: update param descriptions
 task("manage:registrar:updateConfig", "Will update Accounts Diamond config")
   .addOptionalParam(
     "accountsContract",

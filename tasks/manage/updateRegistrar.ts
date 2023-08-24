@@ -21,7 +21,7 @@ task(
   )
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
-      const {proxyAdmin, apTeam1, treasury} = await getSigners(hre);
+      const {proxyAdmin, treasury} = await getSigners(hre);
 
       const addresses = await getAddresses(hre);
 
@@ -46,6 +46,10 @@ task(
 
       await hre.run("manage:registrar:updateConfig", {
         ...newConfig,
+        yes: true,
+      });
+      await hre.run("manage:registrar:setVaultEmitterAddress", {
+        vaultEmitter: addresses.vaultEmitter.proxy,
         yes: true,
       });
 

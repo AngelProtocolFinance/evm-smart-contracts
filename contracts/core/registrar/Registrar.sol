@@ -133,6 +133,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
     if (Validator.addressChecker(details.gasFwdFactory)) {
       state.config.gasFwdFactory = details.gasFwdFactory;
     }
+
     emit ConfigUpdated();
   }
 

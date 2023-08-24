@@ -6,6 +6,7 @@ import "./setRebalParams";
 import "./setStratApproval";
 import "./setStratParams";
 import "./setTokenAccepted";
+import "./setVaultEmitterAddress";
 import "./setVaultOperatorStatus";
 import "./transferOwnership";
 import "./updateConfig";

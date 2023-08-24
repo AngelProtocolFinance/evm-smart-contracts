@@ -47,7 +47,7 @@ task("Deploy:dummyIntegration", "Will deploy a set of vaults and a dummy strateg
 
       let Strategy = new GoerliDummy__factory(deployer);
       let strategy = await Strategy.deploy({
-        strategySelector: config.id,
+        strategyId: config.id,
         baseToken: addresses.tokens.usdc,
         yieldToken: yieldToken.address,
         admin: admin,
@@ -59,7 +59,7 @@ task("Deploy:dummyIntegration", "Will deploy a set of vaults and a dummy strateg
 
       let lockedConfig = {
         vaultType: VaultType.LOCKED,
-        strategySelector: config.id,
+        strategyId: config.id,
         strategy: strategy.address,
         registrar: addresses.registrar.proxy,
         baseToken: addresses.tokens.usdc,
@@ -68,12 +68,12 @@ task("Deploy:dummyIntegration", "Will deploy a set of vaults and a dummy strateg
         apTokenSymbol: "LockTV",
         admin: admin,
       };
-      let lockVault = await Vault.deploy(lockedConfig);
+      let lockVault = await Vault.deploy(lockedConfig, addresses.vaultEmitter.proxy);
       logger.pad(30, "Locked Vault deployed to", lockVault.address);
 
       let liquidConfig = {
         vaultType: VaultType.LIQUID,
-        strategySelector: config.id,
+        strategyId: config.id,
         strategy: strategy.address,
         registrar: addresses.registrar.proxy,
         baseToken: addresses.tokens.usdc,
@@ -82,7 +82,7 @@ task("Deploy:dummyIntegration", "Will deploy a set of vaults and a dummy strateg
         apTokenSymbol: "LiqTV",
         admin: admin,
       };
-      let liqVault = await Vault.deploy(liquidConfig);
+      let liqVault = await Vault.deploy(liquidConfig, addresses.vaultEmitter.proxy);
       logger.pad(30, "Liquid Vault deployed to", liqVault.address);
 
       const data: StrategyObject = {

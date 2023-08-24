@@ -128,4 +128,8 @@ export type AddressObj = {
     factory: string;
     swapRouter: string;
   };
+  vaultEmitter: {
+    implementation: string;
+    proxy: string;
+  };
 };

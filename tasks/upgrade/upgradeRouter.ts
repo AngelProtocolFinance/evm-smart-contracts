@@ -3,6 +3,7 @@ import {Router__factory, ITransparentUpgradeableProxy__factory} from "typechain-
 import {
   confirmAction,
   getAddresses,
+  getContractName,
   getSigners,
   isLocalNetwork,
   logger,
@@ -53,6 +54,7 @@ task("upgrade:router", "Will upgrade the Router")
         await verify(hre, {
           address: router.address,
           contract: "contracts/core/router/Router.sol:Router",
+          contractName: getContractName(Router),
         });
       }
     } catch (error) {

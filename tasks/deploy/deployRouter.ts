@@ -35,20 +35,17 @@ task("deploy:Router", "Will deploy Router contract")
 
       const deployment = await deployRouter(registrar, hre);
 
-      if (!deployment) {
-        return;
-      }
-
       // Registrar NetworkInfo's Router address must be updated for the current network
       await updateRegistrarNetworkConnections(
         registrar,
         apTeamMultiSig,
-        {router: deployment.address},
+        {router: deployment.proxy.address},
         hre
       );
 
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
-        await verify(hre, deployment);
+        await verify(hre, deployment.implementation);
+        await verify(hre, deployment.proxy);
       }
     } catch (error) {
       logger.out(error, logger.Level.Error);

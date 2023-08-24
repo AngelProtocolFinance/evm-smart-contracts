@@ -9,7 +9,7 @@ import {IAccountsStrategy} from "../../accounts/interfaces/IAccountsStrategy.sol
 interface ILocalRegistrar {
   /*////////////////////////////////////////////////
                         EVENTS
-    */ ////////////////////////////////////////////////
+  */ ///////////////////////////////////////////////
   event RebalanceParamsUpdated();
   event AccountsContractStorageUpdated(string _chainName, string _accountsContractAddress);
   event TokenAcceptanceUpdated(address _tokenAddr, bool _isAccepted);
@@ -28,6 +28,11 @@ interface ILocalRegistrar {
   event FeeSettingsUpdated(LibAccounts.FeeTypes _feeType, uint256 _bpsRate, address _payoutAddress);
   event NetworkConnectionPosted(uint256 chainId);
   event NetworkConnectionRemoved(uint256 chainId);
+
+  /*////////////////////////////////////////////////
+                        ERRORS
+  */ ///////////////////////////////////////////////
+  error InvalidAddress(string param);
 
   /*////////////////////////////////////////////////
                     EXTERNAL METHODS

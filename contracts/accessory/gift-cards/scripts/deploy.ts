@@ -1,5 +1,5 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {getSigners, logger, updateAddresses, verify} from "utils";
+import {getContractName, getSigners, logger, updateAddresses, verify} from "utils";
 
 import {GiftCardsMessage} from "typechain-types/contracts/accessory/gift-cards/GiftCards";
 
@@ -40,10 +40,10 @@ export async function deployGiftCard(
     );
 
     if (verify_contracts) {
-      await verify(hre, {address: GiftCardsInstance.address});
       await verify(hre, {
         address: GiftCardsProxy.address,
         constructorArguments: [GiftCardsInstance.address, proxyAdmin.address, GiftCardsData],
+        contractName: getContractName(GiftCards),
       });
     }
 

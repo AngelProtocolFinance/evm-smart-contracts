@@ -3,6 +3,7 @@ import {APTeamMultiSig__factory, ITransparentUpgradeableProxy__factory} from "ty
 import {
   confirmAction,
   getAddresses,
+  getContractName,
   getSigners,
   isLocalNetwork,
   logger,
@@ -57,6 +58,7 @@ task("upgrade:APTeamMultiSig", "Will upgrade the APTeamMultiSig")
         await verify(hre, {
           address: apTeamMultiSig.address,
           contract: "contracts/multisigs/APTeamMultiSig.sol:APTeamMultiSig",
+          contractName: getContractName(apTeamFactory),
         });
       }
     } catch (error) {

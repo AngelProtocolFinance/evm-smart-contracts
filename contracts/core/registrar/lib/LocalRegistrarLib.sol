@@ -59,6 +59,7 @@ library LocalRegistrarLib {
     mapping(string => NetworkInfo) NetworkConnections;
     address uniswapRouter;
     address uniswapFactory;
+    address vaultEmitter;
     RebalanceParams rebalanceParams;
   }
 

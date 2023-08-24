@@ -7,7 +7,7 @@ import {StrategyApprovalState, getSigners} from "utils";
 import {
   deployDummyStrategy,
   deployDummyERC20,
-  DEFAULT_STRATEGY_SELECTOR,
+  DEFAULT_STRATEGY_ID,
   DEFAULT_VAULT_NAME,
   DEFAULT_VAULT_SYMBOL,
   DEFAULT_NETWORK,
@@ -21,6 +21,8 @@ import {
   DummyERC20,
   DummyStrategy,
   IVault,
+  IVaultEmitter,
+  IVaultEmitter__factory,
   LocalRegistrar,
   LocalRegistrar__factory,
 } from "typechain-types";
@@ -31,37 +33,41 @@ use(smock.matchers);
 describe("Vault", function () {
   const {ethers} = hre;
   let registrarFake: FakeContract<LocalRegistrar>;
+  let vaultEmitterFake: FakeContract<IVaultEmitter>;
 
   let owner: SignerWithAddress;
   let user: SignerWithAddress;
   let admin: SignerWithAddress;
   let collector: SignerWithAddress;
 
-  async function deployVault({
-    baseToken,
-    yieldToken,
-    admin,
-    vaultType = 0,
-    strategySelector = DEFAULT_STRATEGY_SELECTOR,
-    strategy = ethers.constants.AddressZero,
-    registrar = ethers.constants.AddressZero,
-    apTokenName = "TestVault",
-    apTokenSymbol = "TV",
-  }: {
-    baseToken: string;
-    yieldToken: string;
-    admin: string;
-    vaultType?: number;
-    strategySelector?: string;
-    strategy?: string;
-    registrar?: string;
-    apTokenName?: string;
-    apTokenSymbol?: string;
-  }): Promise<APVault_V1> {
+  async function deployVault(
+    {
+      baseToken,
+      yieldToken,
+      admin,
+      vaultType = 0,
+      strategyId = DEFAULT_STRATEGY_ID,
+      strategy = ethers.constants.AddressZero,
+      registrar = ethers.constants.AddressZero,
+      apTokenName = "TestVault",
+      apTokenSymbol = "TV",
+    }: {
+      baseToken: string;
+      yieldToken: string;
+      admin: string;
+      vaultType?: number;
+      strategyId?: string;
+      strategy?: string;
+      registrar?: string;
+      apTokenName?: string;
+      apTokenSymbol?: string;
+    },
+    vaultEmitter: string
+  ): Promise<APVault_V1> {
     let Vault = new APVault_V1__factory(owner);
     let vaultInitConfig: IVault.VaultConfigStruct = {
       vaultType: vaultType,
-      strategySelector: strategySelector,
+      strategyId: strategyId,
       strategy: strategy,
       registrar: registrar,
       baseToken: baseToken,
@@ -70,7 +76,7 @@ describe("Vault", function () {
       apTokenSymbol: apTokenSymbol,
       admin: admin,
     };
-    const vault = await Vault.deploy(vaultInitConfig);
+    const vault = await Vault.deploy(vaultInitConfig, vaultEmitter);
     await vault.deployed();
     return vault;
   }
@@ -81,6 +87,8 @@ describe("Vault", function () {
     admin = proxyAdmin;
     user = apTeam1;
     collector = apTeam2;
+
+    vaultEmitterFake = await smock.fake<IVaultEmitter>(IVaultEmitter__factory.createInterface());
   });
 
   describe("Upon deployment", function () {
@@ -90,11 +98,14 @@ describe("Vault", function () {
       token = await deployDummyERC20(owner);
     });
     beforeEach(async function () {
-      vault = await deployVault({
-        admin: owner.address,
-        baseToken: token.address,
-        yieldToken: token.address,
-      });
+      vault = await deployVault(
+        {
+          admin: owner.address,
+          baseToken: token.address,
+          yieldToken: token.address,
+        },
+        vaultEmitterFake.address
+      );
     });
     it("Should successfully deploy the vault", async function () {
       expect(await vault.address);
@@ -106,11 +117,14 @@ describe("Vault", function () {
     });
     it("Should revert if the provided tokens are invalid", async function () {
       await expect(
-        deployVault({
-          admin: owner.address,
-          baseToken: ethers.constants.AddressZero,
-          yieldToken: ethers.constants.AddressZero,
-        })
+        deployVault(
+          {
+            admin: owner.address,
+            baseToken: ethers.constants.AddressZero,
+            yieldToken: ethers.constants.AddressZero,
+          },
+          vaultEmitterFake.address
+        )
       ).to.be.reverted;
     });
   });
@@ -122,16 +136,19 @@ describe("Vault", function () {
       token = await deployDummyERC20(owner);
     });
     beforeEach(async function () {
-      vault = await deployVault({
-        admin: owner.address,
-        baseToken: token.address,
-        yieldToken: token.address,
-      });
+      vault = await deployVault(
+        {
+          admin: owner.address,
+          baseToken: token.address,
+          yieldToken: token.address,
+        },
+        vaultEmitterFake.address
+      );
     });
     it("should set the config as specified on deployment", async function () {
       let config = await vault.getVaultConfig();
       expect(config.vaultType).to.equal(0);
-      expect(config.strategySelector).to.equal(DEFAULT_STRATEGY_SELECTOR);
+      expect(config.strategyId).to.equal(DEFAULT_STRATEGY_ID);
       expect(config.strategy).to.equal(ethers.constants.AddressZero);
       expect(config.registrar).to.equal(ethers.constants.AddressZero);
       expect(config.baseToken).to.equal(token.address);
@@ -143,7 +160,7 @@ describe("Vault", function () {
     it("should accept new config values", async function () {
       let newConfig = {
         vaultType: 1,
-        strategySelector: "0x87654321",
+        strategyId: "0x87654321",
         strategy: user.address,
         registrar: user.address,
         baseToken: token.address,
@@ -155,7 +172,7 @@ describe("Vault", function () {
       await vault.setVaultConfig(newConfig);
       let queriedConfig = await vault.getVaultConfig();
       expect(queriedConfig.vaultType).to.equal(newConfig.vaultType);
-      expect(queriedConfig.strategySelector).to.equal(newConfig.strategySelector);
+      expect(queriedConfig.strategyId).to.equal(newConfig.strategyId);
       expect(queriedConfig.strategy).to.equal(newConfig.strategy);
       expect(queriedConfig.registrar).to.equal(newConfig.registrar);
       expect(queriedConfig.baseToken).to.equal(newConfig.baseToken);
@@ -167,7 +184,7 @@ describe("Vault", function () {
     it("should revert when a non-admin calls the set method", async function () {
       let newConfig = {
         vaultType: 1,
-        strategySelector: "0x87654321",
+        strategyId: "0x87654321",
         strategy: user.address,
         registrar: user.address,
         baseToken: token.address,
@@ -200,17 +217,18 @@ describe("Vault", function () {
     beforeEach(async function () {
       registrarFake = await smock.fake<LocalRegistrar>(new LocalRegistrar__factory());
       registrarFake.getVaultOperatorApproved.whenCalledWith(owner.address).returns(true);
-      vault = await deployVault({
-        vaultType: 1, // Liquid
-        admin: owner.address,
-        baseToken: baseToken.address,
-        yieldToken: yieldToken.address,
-        strategy: strategy.address,
-        registrar: registrarFake.address,
-      });
-      registrarFake.getStrategyApprovalState
-        .whenCalledWith(DEFAULT_STRATEGY_SELECTOR)
-        .returns(true);
+      vault = await deployVault(
+        {
+          vaultType: 1, // Liquid
+          admin: owner.address,
+          baseToken: baseToken.address,
+          yieldToken: yieldToken.address,
+          strategy: strategy.address,
+          registrar: registrarFake.address,
+        },
+        vaultEmitterFake.address
+      );
+      registrarFake.getStrategyApprovalState.whenCalledWith(DEFAULT_STRATEGY_ID).returns(true);
       registrarFake.thisChain.returns(DEFAULT_NETWORK);
       registrarFake.queryNetworkConnection.whenCalledWith(DEFAULT_NETWORK).returns({
         ...DEFAULT_NETWORK_INFO,
@@ -314,14 +332,17 @@ describe("Vault", function () {
         yieldToken: yieldToken.address,
         admin: owner.address,
       });
-      vault = await deployVault({
-        vaultType: 0, // Locked
-        admin: owner.address,
-        baseToken: baseToken.address,
-        yieldToken: yieldToken.address,
-        strategy: strategy.address,
-        registrar: registrarFake.address,
-      });
+      vault = await deployVault(
+        {
+          vaultType: 0, // Locked
+          admin: owner.address,
+          baseToken: baseToken.address,
+          yieldToken: yieldToken.address,
+          strategy: strategy.address,
+          registrar: registrarFake.address,
+        },
+        vaultEmitterFake.address
+      );
       await wait(baseToken.mint(vault.address, DEPOSIT));
       await wait(yieldToken.mint(strategy.address, DEPOSIT * EX_RATE));
       await wait(strategy.setDummyAmt(DEPOSIT * EX_RATE));
@@ -425,14 +446,17 @@ describe("Vault", function () {
         yieldToken: yieldToken.address,
         admin: owner.address,
       });
-      vault = await deployVault({
-        vaultType: 0, // Locked
-        admin: owner.address,
-        baseToken: baseToken.address,
-        yieldToken: yieldToken.address,
-        strategy: strategy.address,
-        registrar: registrarFake.address,
-      });
+      vault = await deployVault(
+        {
+          vaultType: 0, // Locked
+          admin: owner.address,
+          baseToken: baseToken.address,
+          yieldToken: yieldToken.address,
+          strategy: strategy.address,
+          registrar: registrarFake.address,
+        },
+        vaultEmitterFake.address
+      );
       await wait(baseToken.mint(vault.address, DEPOSIT));
       await wait(yieldToken.mint(strategy.address, DEPOSIT * EX_RATE));
       await wait(strategy.setDummyAmt(DEPOSIT * EX_RATE));
@@ -512,14 +536,17 @@ describe("Vault", function () {
           yieldToken: yieldToken.address,
           admin: owner.address,
         });
-        vault = await deployVault({
-          vaultType: 1, // Locked
-          admin: owner.address,
-          baseToken: baseToken.address,
-          yieldToken: yieldToken.address,
-          strategy: strategy.address,
-          registrar: registrarFake.address,
-        });
+        vault = await deployVault(
+          {
+            vaultType: 1, // Locked
+            admin: owner.address,
+            baseToken: baseToken.address,
+            yieldToken: yieldToken.address,
+            strategy: strategy.address,
+            registrar: registrarFake.address,
+          },
+          vaultEmitterFake.address
+        );
         await wait(baseToken.mint(vault.address, DEPOSIT));
         await wait(yieldToken.mint(strategy.address, DEPOSIT * EX_RATE));
         await wait(strategy.setDummyAmt(DEPOSIT * EX_RATE));
@@ -598,22 +625,28 @@ describe("Vault", function () {
           yieldToken: yieldToken.address,
           admin: owner.address,
         });
-        liquidVault = await deployVault({
-          vaultType: 1, // Locked
-          admin: owner.address,
-          baseToken: baseToken.address,
-          yieldToken: yieldToken.address,
-          strategy: liquidStrategy.address,
-          registrar: registrarFake.address,
-        });
-        lockedVault = await deployVault({
-          vaultType: 0, // Locked
-          admin: owner.address,
-          baseToken: baseToken.address,
-          yieldToken: yieldToken.address,
-          strategy: strategy.address,
-          registrar: registrarFake.address,
-        });
+        liquidVault = await deployVault(
+          {
+            vaultType: 1, // Locked
+            admin: owner.address,
+            baseToken: baseToken.address,
+            yieldToken: yieldToken.address,
+            strategy: liquidStrategy.address,
+            registrar: registrarFake.address,
+          },
+          vaultEmitterFake.address
+        );
+        lockedVault = await deployVault(
+          {
+            vaultType: 0, // Locked
+            admin: owner.address,
+            baseToken: baseToken.address,
+            yieldToken: yieldToken.address,
+            strategy: strategy.address,
+            registrar: registrarFake.address,
+          },
+          vaultEmitterFake.address
+        );
         await wait(baseToken.mint(lockedVault.address, DEPOSIT));
         await wait(yieldToken.mint(strategy.address, DEPOSIT * EX_RATE));
         await wait(yieldToken.mint(liquidStrategy.address, DEPOSIT * EX_RATE));

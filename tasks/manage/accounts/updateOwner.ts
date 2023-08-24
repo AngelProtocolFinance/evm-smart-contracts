@@ -51,10 +51,10 @@ task("manage:AccountsDiamond:updateOwner", "Will update the owner of the Account
       );
       const tx = await apTeamMultiSig.submitTransaction(addresses.accounts.diamond, 0, data, "0x");
       logger.out(`Tx hash: ${tx.hash}`);
+      await tx.wait();
 
       const updatedOwner = (await accountsQueryEndowments.queryConfig()).owner;
       logger.out(`New owner: ${updatedOwner}`);
-      await tx.wait();
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }

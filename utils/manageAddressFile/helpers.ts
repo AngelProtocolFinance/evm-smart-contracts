@@ -196,5 +196,9 @@ export function createEmptyAddressObj(): AddressObj {
       factory: "",
       swapRouter: "",
     },
+    vaultEmitter: {
+      implementation: "",
+      proxy: "",
+    },
   };
 }
