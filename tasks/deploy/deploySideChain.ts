@@ -16,13 +16,17 @@ task("deploy:SideChain", "Will deploy complete side-chain infrastructure")
 
       const verify_contracts = !isLocalNetwork(hre) && !taskArgs.skipVerify;
 
-      const {deployer} = await getSigners(hre);
+      const {apTeamMultisigOwners, proxyAdmin} = await getSigners(hre);
 
       await resetAddresses(hre);
 
-      logger.out(`Deploying the contracts with the account: ${deployer.address}`);
+      logger.out(`Deploying the contracts with the account: ${proxyAdmin.address}`);
 
-      const apTeamMultisig = await deployAPTeamMultiSig(hre);
+      const apTeamMultisig = await deployAPTeamMultiSig(
+        apTeamMultisigOwners.map((x) => x.address),
+        proxyAdmin,
+        hre
+      );
 
       await hre.run("deploy:LocalRegistrarAndRouter", {
         skipVerify: verify_contracts,

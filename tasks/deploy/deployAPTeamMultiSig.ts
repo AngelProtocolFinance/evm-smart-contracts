@@ -1,6 +1,6 @@
 import {deployAPTeamMultiSig} from "contracts/multisigs/scripts/deploy";
 import {task} from "hardhat/config";
-import {confirmAction, isLocalNetwork, logger, verify} from "utils";
+import {confirmAction, getSigners, isLocalNetwork, logger, verify} from "utils";
 
 task("deploy:APTeamMultiSig", "Will deploy APTeamMultiSig contract")
   .addFlag("skipVerify", "Skip contract verification")
@@ -12,24 +12,30 @@ task("deploy:APTeamMultiSig", "Will deploy APTeamMultiSig contract")
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      const deployments = await deployAPTeamMultiSig(hre);
+      const {apTeamMultisigOwners, proxyAdmin} = await getSigners(hre);
+
+      const apTeamMultiSig = await deployAPTeamMultiSig(
+        apTeamMultisigOwners.map((x) => x.address),
+        proxyAdmin,
+        hre
+      );
 
       await hre.run("manage:registrar:transferOwnership", {
-        to: deployments.proxy.address,
+        to: apTeamMultiSig.proxy.address,
         yes: true,
       });
       await hre.run("manage:AccountsDiamond:updateOwner", {
-        to: deployments.proxy.address,
+        to: apTeamMultiSig.proxy.address,
         yes: true,
       });
       await hre.run("manage:IndexFund:transferOwnership", {
-        to: deployments.proxy.address,
+        to: apTeamMultiSig.proxy.address,
         yes: true,
       });
 
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
-        await verify(hre, deployments.implementation);
-        await verify(hre, deployments.proxy);
+        await verify(hre, apTeamMultiSig.implementation);
+        await verify(hre, apTeamMultiSig.proxy);
       }
     } catch (error) {
       logger.out(error, logger.Level.Error);
