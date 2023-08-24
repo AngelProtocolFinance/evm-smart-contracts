@@ -1,6 +1,6 @@
 import {task} from "hardhat/config";
 import {MultiSigGeneric__factory} from "typechain-types";
-import {getSigners, logger} from "utils";
+import {getEvents, getSigners, logger} from "utils";
 
 type TaskArgs = {multisig: string; owner: string};
 
@@ -23,8 +23,9 @@ task("manage:addMultisigOwner", "Will add the specified address to the multisig 
 
       logger.out("Adding new owner:");
       logger.out(taskArguments.owner);
-      const {data} = await multisig.populateTransaction.addOwners([taskArguments.owner]);
-      const addOwnerData = hre.ethers.utils.toUtf8Bytes(data!);
+      const addOwnerData = multisig.interface.encodeFunctionData("addOwners", [
+        [taskArguments.owner],
+      ]);
 
       const tx = await multisig.submitTransaction(
         multisig.address, //destination,
@@ -33,14 +34,32 @@ task("manage:addMultisigOwner", "Will add the specified address to the multisig 
         "0x"
       );
       logger.out(`Tx hash: ${tx.hash}`);
-      await tx.wait();
+      const receipt = await tx.wait();
 
-      logger.out("Owner addition successful.");
-      if (await multisig.isOwner(taskArguments.owner)) {
-        logger.out(`Account with address ${taskArguments.owner} is one of the owners.`);
+      const transactionSubmittedEvent = getEvents(
+        receipt.events,
+        multisig,
+        multisig.filters.TransactionSubmitted()
+      ).at(0);
+      if (!transactionSubmittedEvent) {
+        throw new Error("Unexpected: TransactionSubmitted not emitted.");
       }
 
-      throw new Error("Adding new owner failed");
+      const transactionId = transactionSubmittedEvent.args.transactionId;
+
+      if ((await multisig.transactions(transactionId)).executed) {
+        if (await multisig.isOwner(taskArguments.owner)) {
+          logger.out(`Account with address ${taskArguments.owner} is now one of the owners.`);
+        } else {
+          throw new Error("Unexpected: adding new owner failed");
+        }
+      } else if (await multisig.isConfirmed(transactionId)) {
+        logger.out(`Transaction with ID "${transactionId}" confirmed, awaiting execution.`);
+      } else {
+        logger.out(
+          `Transaction with ID "${transactionId}" submitted, awaiting confirmation by other owners.`
+        );
+      }
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }
