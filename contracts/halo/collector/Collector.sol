@@ -18,7 +18,7 @@ import {ISwapRouter} from "@uniswap/v3-periphery/contracts/interfaces/ISwapRoute
 import {IUniswapV3Factory} from "@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol";
 import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
-// NOTE: Consider expanding to allow swept amounts to be distributed out to some number of addresses, each 
+// NOTE: Consider expanding to allow swept amounts to be distributed out to some number of addresses, each
 //        due N percent of the total. Add/Remove distributee address/percentages [in a storage mapping].
 
 /**
@@ -29,7 +29,7 @@ import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/interfaces/Ag
  * 3) It also has a sweep function to swap asset tokens to HALO tokens and distribute the result HALO tokens to the gov contract.
  * 4) Lastly, there is a queryConfig function to return the configuration details.
  */
-contract Collector is Storage, Initializable, ReentrancyGuard, Ownable  {
+contract Collector is Storage, Initializable, ReentrancyGuard, Ownable {
   using SafeERC20 for IERC20;
   using FixedPointMathLib for uint256;
 
@@ -57,7 +57,10 @@ contract Collector is Storage, Initializable, ReentrancyGuard, Ownable  {
    * @param registrarContract address
    */
   function updateConfig(uint256 rewardFactor, address registrarContract) public onlyOwner {
-    require(state.config.rewardFactor <= LibAccounts.FEE_BASIS, "Invalid reward factor input given");
+    require(
+      state.config.rewardFactor <= LibAccounts.FEE_BASIS,
+      "Invalid reward factor input given"
+    );
     state.config.registrarContract = registrarContract;
     state.config.rewardFactor = rewardFactor;
     emit ConfigUpdated();
@@ -74,11 +77,15 @@ contract Collector is Storage, Initializable, ReentrancyGuard, Ownable  {
     require(sweepAmount > 0, "Nothing to sweep");
 
     RegistrarStorage.Config memory registrarConfig = IRegistrar(state.config.registrarContract)
-          .queryConfig();
+      .queryConfig();
 
     // Check that both in & out tokens have chainlink price feed contract set for them in Registrar
-    address priceFeedIn = IRegistrar(state.config.registrarContract).queryTokenPriceFeed(sweepToken);
-    address priceFeedOut = IRegistrar(state.config.registrarContract).queryTokenPriceFeed(registrarConfig.haloToken);
+    address priceFeedIn = IRegistrar(state.config.registrarContract).queryTokenPriceFeed(
+      sweepToken
+    );
+    address priceFeedOut = IRegistrar(state.config.registrarContract).queryTokenPriceFeed(
+      registrarConfig.haloToken
+    );
     require(
       (priceFeedIn != address(0) && priceFeedOut != address(0)),
       "Chainlink Oracle Price Feed contracts are required for all tokens swapping to/from"
@@ -99,19 +106,25 @@ contract Collector is Storage, Initializable, ReentrancyGuard, Ownable  {
     );
 
     // distribute HALO token to gov contract
-    uint256 distributeAmount = amountOut.mulDivDown(state.config.rewardFactor, LibAccounts.FEE_BASIS);
+    uint256 distributeAmount = amountOut.mulDivDown(
+      state.config.rewardFactor,
+      LibAccounts.FEE_BASIS
+    );
     if (distributeAmount > 0) {
       IERC20(registrarConfig.haloToken).safeTransfer(registrarConfig.govContract, distributeAmount);
       // distribute tax remainder to AP treasury
       if ((amountOut - distributeAmount) > 0) {
-        IERC20(registrarConfig.haloToken).safeTransfer(registrarConfig.treasury, amountOut - distributeAmount);
+        IERC20(registrarConfig.haloToken).safeTransfer(
+          registrarConfig.treasury,
+          amountOut - distributeAmount
+        );
       }
     }
 
     emit CollectorSwept(sweepToken, sweepAmount, amountOut);
   }
 
-   /**
+  /**
    * @notice Query the config of Collector
    */
   function queryConfig() public view returns (CollectorMessage.ConfigResponse memory) {
@@ -208,4 +221,4 @@ contract Collector is Storage, Initializable, ReentrancyGuard, Ownable  {
 
     require(amountOut >= minAmountOut, "Output funds less than the minimum output");
   }
- }
+}

@@ -17,14 +17,8 @@ export async function deployGov(
     logger.out(`Gov implementation address: ${GovInstance.address}"`);
 
     const ProxyContract = await ethers.getContractFactory("ProxyContract");
-    const GovData = GovInstance.interface.encodeFunctionData("initialize", [
-      GovDataInput,
-    ]);
-    const GovProxy = await ProxyContract.deploy(
-      GovInstance.address,
-      proxyAdmin.address,
-      GovData
-    );
+    const GovData = GovInstance.interface.encodeFunctionData("initialize", [GovDataInput]);
+    const GovProxy = await ProxyContract.deploy(GovInstance.address, proxyAdmin.address, GovData);
     await GovProxy.deployed();
     logger.out(`Gov Address (Proxy): ${GovProxy.address}"`);
 

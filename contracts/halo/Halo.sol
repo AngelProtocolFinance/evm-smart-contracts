@@ -43,9 +43,9 @@ contract Halo is ERC20, ERC20Burnable, ERC20Snapshot, ERC20Votes, Ownable {
   }
 
   /**
-    * @dev Clock used for flagging checkpoints. Overridding to implement timestamp based checkpoints (and voting).
-    */
+   * @dev Clock used for flagging checkpoints. Overridding to implement timestamp based checkpoints (and voting).
+   */
   function clock() public view override(ERC20Votes) returns (uint48) {
-      return SafeCast.toUint48(block.timestamp);
+    return SafeCast.toUint48(block.timestamp);
   }
 }
