@@ -48,7 +48,7 @@ abstract contract ICharityApplications {
     uint256 _seedSplitToLiquid,
     address _seedAsset,
     uint256 _seedAmount
-  ) public virtual;
+  ) external virtual;
 
   function proposeApplication(
     AccountMessages.CreateEndowmentRequest memory application,

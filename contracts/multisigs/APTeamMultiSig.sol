@@ -14,7 +14,7 @@ contract APTeamMultiSig is MultiSigGeneric {
     uint256 _approvalsRequired,
     bool _requireExecution,
     uint256 _transactionExpiry
-  ) public {
+  ) external {
     super.initialize(owners, _approvalsRequired, _requireExecution, _transactionExpiry);
   }
 }
