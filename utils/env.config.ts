@@ -2,10 +2,9 @@
 import {config as dotenvConfig} from "dotenv";
 import {resolve} from "path";
 import {HardhatNetworkAccountsUserConfig, HardhatNetworkAccountUserConfig} from "hardhat/types";
+import { Signer, EnvConfig } from "./types";
 
 dotenvConfig({path: resolve(__dirname, "../.env")});
-
-type Signer = {key: string; address: string};
 
 const AP_TEAM_1: Signer = {
   key: extractString("AP_TEAM_1_KEY"),
@@ -38,9 +37,6 @@ const GANACHE_PRIVATE_KEY = extractString("GANACHE_PRIVATE_KEY");
 const GANACHE_RPC_URL = extractString("GANACHE_RPC_URL");
 const MAINNET_RPC_URL = extractString("MAINNET_URL");
 const MUMBAI_RPC_URL = extractString("MUMBAI_RPC_URL");
-const NETWORK = extractString("NETWORK");
-const OPTIMIZER_FLAG = extractString("OPTIMIZER_FLAG");
-const OPTIMIZER_RUNS = extractNumber("OPTIMIZER_RUNS");
 const POLYGON_RPC_URL = extractString("POLYGON_RPC_URL");
 const POLYSCAN_API_KEY = extractString("POLYSCAN_API_KEY");
 const VERIFY_CONTRACTS = extractString("VERIFY_CONTRACTS");
@@ -75,41 +71,39 @@ export function getHardhatAccounts(accountList: string[]): HardhatNetworkAccount
   return hardhatAccounts;
 }
 
-export var envConfigDev = {
-  AP_TEAM_1,
-  AP_TEAM_2,
-  AP_TEAM_3,
-  DEPLOYER,
-  PROXY_ADMIN_DEV,
+export const envConfigDev: EnvConfig = {
   ETHERSCAN_API_KEY,
   GANACHE_PRIVATE_KEY,
   GANACHE_RPC_URL,
   GOERLI_RPC_URL,
   MAINNET_RPC_URL,
   MUMBAI_RPC_URL,
-  NETWORK,
-  OPTIMIZER_FLAG,
-  OPTIMIZER_RUNS,
   POLYGON_RPC_URL,
   POLYSCAN_API_KEY,
   VERIFY_CONTRACTS,
+  ACCOUNTS: [
+    AP_TEAM_1.key,
+    AP_TEAM_2.key,
+    AP_TEAM_3.key,
+    DEPLOYER.key,
+    PROXY_ADMIN_DEV.key,
+  ]
 };
 
-export var envConfigProd = {
-  AP_TEAM_1,
-  AP_TEAM_2,
-  AP_TEAM_3,
-  DEPLOYER,
+export const envConfigProd: EnvConfig = {
   ETHERSCAN_API_KEY,
   GANACHE_PRIVATE_KEY,
   GANACHE_RPC_URL,
   GOERLI_RPC_URL,
   MAINNET_RPC_URL,
   MUMBAI_RPC_URL,
-  NETWORK,
-  OPTIMIZER_FLAG,
-  OPTIMIZER_RUNS,
   POLYGON_RPC_URL,
   POLYSCAN_API_KEY,
   VERIFY_CONTRACTS,
+  ACCOUNTS: [
+    AP_TEAM_1.key,
+    AP_TEAM_2.key,
+    AP_TEAM_3.key,
+    DEPLOYER.key,
+  ]
 };

@@ -10,20 +10,7 @@ require("tsconfig-paths/register"); // must use `require`, otherwise TS complain
 import "./tasks";
 import * as tdly from "@tenderly/hardhat-tenderly";
 
-var prodAccounts = [
-  envConfigProd.DEPLOYER.key,
-  envConfigProd.AP_TEAM_1.key,
-  envConfigProd.AP_TEAM_2.key,
-  envConfigProd.AP_TEAM_3.key,
-];
-var devAccounts = [
-  envConfigDev.DEPLOYER.key,
-  envConfigDev.PROXY_ADMIN_DEV.key,
-  envConfigDev.AP_TEAM_1.key,
-  envConfigDev.AP_TEAM_2.key,
-  envConfigDev.AP_TEAM_3.key,
-];
-var hardhatAccounts: HardhatNetworkAccountsUserConfig = getHardhatAccounts(devAccounts);
+var hardhatAccounts: HardhatNetworkAccountsUserConfig = getHardhatAccounts(envConfigDev.ACCOUNTS);
 
 tdly.setup({
   automaticVerifications: false,
@@ -49,20 +36,19 @@ const config: HardhatUserConfig = {
   networks: {
     mainnet: {
       url: envConfigProd.MAINNET_RPC_URL,
-      accounts: prodAccounts,
+      accounts: envConfigProd.ACCOUNTS,
     },
     goerli: {
       url: envConfigDev.GOERLI_RPC_URL,
-      accounts: devAccounts,
+      accounts: envConfigDev.ACCOUNTS,
     },
     mumbai: {
       url: envConfigDev.MUMBAI_RPC_URL,
-      accounts: devAccounts,
-      // gasPrice: 50_000_000_000 //50Gwei
+      accounts: envConfigDev.ACCOUNTS,
     },
     polygon: {
       url: envConfigProd.POLYGON_RPC_URL,
-      accounts: prodAccounts,
+      accounts: envConfigProd.ACCOUNTS,
     },
     hardhat: {
       accounts: hardhatAccounts,
