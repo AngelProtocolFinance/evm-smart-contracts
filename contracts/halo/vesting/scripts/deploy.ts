@@ -1,10 +1,10 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {getContractName, getSigners, isLocalNetwork, logger, updateAddresses, verify} from "utils";
 
-import {VestingMessage} from "typechain-types/contracts/halo/vesting/Vesting";
+import {VestingMessages} from "typechain-types/contracts/halo/vesting/Vesting";
 
 export async function deployVesting(
-  VestingDataInput: VestingMessage.InstantiateMsgStruct,
+  VestingDataInput: VestingMessages.InstantiateMsgStruct,
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {

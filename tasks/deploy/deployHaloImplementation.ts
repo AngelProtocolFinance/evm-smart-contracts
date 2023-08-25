@@ -81,7 +81,15 @@ export async function deployHaloImplementation(
         verify_contracts,
         hre
       ),
-      Vesting: await deployVesting({haloToken: halo}, verify_contracts, hre),
+      Vesting: await deployVesting(
+        {
+          vestingDuration: 63072000, // 2 years (in seconds)
+          vestingSlope: 100, // 2 decimals
+          haloToken: halo,
+        },
+        verify_contracts,
+        hre
+      ),
       Staking: await deployStaking(
         {
           haloToken: halo,
