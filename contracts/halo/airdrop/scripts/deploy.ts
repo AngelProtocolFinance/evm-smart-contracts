@@ -1,5 +1,5 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {getSigners, logger, updateAddresses, verify} from "utils";
+import {getContractName, getSigners, isLocalNetwork, logger, updateAddresses, verify} from "utils";
 
 import {AirdropMessage} from "typechain-types/contracts/halo/airdrop/Airdrop";
 
@@ -41,11 +41,11 @@ export async function deployAirdrop(
       hre
     );
 
-    if (verify_contracts) {
-      await verify(hre, {address: AirdropInstance.address});
+    if (!isLocalNetwork(hre) && verify_contracts) {
+      await verify(hre, {contractName: getContractName(Airdrop), address: AirdropInstance.address});
       await verify(hre, {
+        contractName: getContractName(ProxyContract),
         address: AirdropProxy.address,
-        constructorArguments: [AirdropInstance.address, proxyAdmin.address, AirdropData],
       });
     }
 

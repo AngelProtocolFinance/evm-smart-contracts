@@ -1,5 +1,5 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {getSigners, logger, updateAddresses, verify} from "utils";
+import {getContractName, getSigners, isLocalNetwork, logger, updateAddresses, verify} from "utils";
 
 import {CollectorMessage} from "typechain-types/contracts/halo/collector/Collector";
 
@@ -41,11 +41,14 @@ export async function deployCollector(
       hre
     );
 
-    if (verify_contracts) {
-      await verify(hre, {address: CollectorInstance.address});
+    if (!isLocalNetwork(hre) && verify_contracts) {
       await verify(hre, {
+        contractName: getContractName(Collector),
+        address: CollectorInstance.address,
+      });
+      await verify(hre, {
+        contractName: getContractName(ProxyContract),
         address: CollectorProxy.address,
-        constructorArguments: [CollectorInstance.address, proxyAdmin.address, CollectorData],
       });
     }
 

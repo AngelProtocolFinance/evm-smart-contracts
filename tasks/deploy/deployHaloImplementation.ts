@@ -1,6 +1,6 @@
 import {task} from "hardhat/config";
 import config from "config";
-import {getAddresses, isLocalNetwork, logger, getSigners, verify} from "utils";
+import {getContractName, getAddresses, isLocalNetwork, logger, getSigners, verify} from "utils";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {Halo__factory} from "typechain-types";
 
@@ -40,7 +40,7 @@ const deployHalo = async (verify_contracts: boolean, hre: HardhatRuntimeEnvironm
     await Halo.deployed();
 
     if (verify_contracts) {
-      await verify(hre, {address: Halo.address});
+      await verify(hre, {contractName: getContractName(factory), address: Halo.address});
     }
     console.log("Halo Address (ERC20):", Halo.address);
 

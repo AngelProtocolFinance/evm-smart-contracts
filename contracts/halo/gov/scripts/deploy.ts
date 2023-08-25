@@ -1,9 +1,9 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {getSigners, logger, updateAddresses, verify} from "utils";
+import {getContractName, getSigners, isLocalNetwork, logger, updateAddresses, verify} from "utils";
 
 export async function deployGov(
-  haloToken: address,
-  timelock: address,
+  haloToken: string,
+  timelock: string,
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
@@ -34,12 +34,9 @@ export async function deployGov(
       hre
     );
 
-    if (verify_contracts) {
-      await verify(hre, {address: GovInstance.address});
-      await verify(hre, {
-        address: GovProxy.address,
-        constructorArguments: [GovInstance.address, proxyAdmin.address, GovData],
-      });
+    if (!isLocalNetwork(hre) && verify_contracts) {
+      await verify(hre, {contractName: getContractName(Gov), address: GovInstance.address});
+      await verify(hre, {contractName: getContractName(ProxyContract), address: GovProxy.address});
     }
 
     return Promise.resolve(GovProxy.address);

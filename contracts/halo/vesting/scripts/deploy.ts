@@ -1,5 +1,5 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {getSigners, logger, updateAddresses, verify} from "utils";
+import {getContractName, getSigners, isLocalNetwork, logger, updateAddresses, verify} from "utils";
 
 import {VestingMessage} from "typechain-types/contracts/halo/vesting/Vesting";
 
@@ -41,11 +41,11 @@ export async function deployVesting(
       hre
     );
 
-    if (verify_contracts) {
-      await verify(hre, {address: VestingInstance.address});
+    if (!isLocalNetwork(hre) && verify_contracts) {
+      await verify(hre, {contractName: getContractName(Vesting), address: VestingInstance.address});
       await verify(hre, {
+        contractName: getContractName(ProxyContract),
         address: VestingProxy.address,
-        constructorArguments: [VestingInstance.address, proxyAdmin.address, VestingData],
       });
     }
 

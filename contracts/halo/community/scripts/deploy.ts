@@ -1,5 +1,5 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {getSigners, logger, updateAddresses, verify} from "utils";
+import {getContractName, getSigners, isLocalNetwork, logger, updateAddresses, verify} from "utils";
 
 import {CommunityMessage} from "typechain-types/contracts/halo/community/Community";
 
@@ -41,11 +41,14 @@ export async function deployCommunity(
       hre
     );
 
-    if (verify_contracts) {
-      await verify(hre, {address: CommunityInstance.address});
+    if (!isLocalNetwork(hre) && verify_contracts) {
       await verify(hre, {
+        contractName: getContractName(Community),
+        address: CommunityInstance.address,
+      });
+      await verify(hre, {
+        contractName: getContractName(ProxyContract),
         address: CommunityProxy.address,
-        constructorArguments: [CommunityInstance.address, proxyAdmin.address, CommunityData],
       });
     }
 
