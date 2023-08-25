@@ -61,7 +61,7 @@ task(
         proxyAdminSigner
       );
       const proxyAdminMultisig = ProxyAdmin__factory.connect(
-        addresses.proxyAdmin,
+        addresses.multiSig.proxyAdmin,
         proxyAdminSigner
       );
       const payload = endowmentMultiSigFactory.interface.encodeFunctionData(

@@ -47,7 +47,7 @@ task(
           router: oldRouterAddress,
           owner: apTeamMultiSig,
           deployer,
-          proxyAdmin: addresses.proxyAdmin,
+          proxyAdmin: addresses.multiSig.proxyAdmin,
           treasury: treasury.address,
           apTeamMultisig: apTeamMultiSig,
         },
@@ -65,7 +65,7 @@ task(
         multisigFactory: addresses.multiSig.endowment.factory,
         multisigEmitter: addresses.multiSig.endowment.emitter.proxy,
         charityApplications: addresses.multiSig.charityApplications.proxy,
-        proxyAdmin: addresses.proxyAdmin,
+        proxyAdmin: addresses.multiSig.proxyAdmin,
         usdcAddress: addresses.tokens.usdc,
         wMaticAddress: addresses.tokens.wmatic,
         yes: true,
@@ -76,7 +76,7 @@ task(
         yes: true,
       });
 
-      const router = await deployRouter(registrar.proxy.address, addresses.proxyAdmin, hre);
+      const router = await deployRouter(registrar.proxy.address, addresses.multiSig.proxyAdmin, hre);
 
       // Registrar NetworkInfo's Router address must be updated for the current network
       await updateRegistrarNetworkConnections(

@@ -32,7 +32,7 @@ task("deploy:LocalRegistrarAndRouter", "Will deploy the Local Registrar contract
         {
           owner: owner,
           deployer: deployer,
-          proxyAdmin: addresses.proxyAdmin,
+          proxyAdmin: addresses.multiSig.proxyAdmin,
         },
         hre
       );
@@ -41,7 +41,7 @@ task("deploy:LocalRegistrarAndRouter", "Will deploy the Local Registrar contract
         return;
       }
 
-      const router = await deployRouter(localRegistrar.proxy.address, addresses.proxyAdmin, hre);
+      const router = await deployRouter(localRegistrar.proxy.address, addresses.multiSig.proxyAdmin, hre);
 
       let network = await hre.ethers.provider.getNetwork();
       const networkInfo: LocalRegistrarLib.NetworkInfoStruct = {

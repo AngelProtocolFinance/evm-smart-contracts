@@ -42,7 +42,7 @@ task("upgrade:registrar", "Will upgrade the Registrar (use only on the primary c
         deployer
       );
       const proxyAdminMultisig = ProxyAdmin__factory.connect(
-        addresses.proxyAdmin,
+        addresses.multiSig.proxyAdmin,
         proxyAdminSigner
       );
       const payload = registrarProxy.interface.encodeFunctionData("upgradeTo", [registrar.address]);

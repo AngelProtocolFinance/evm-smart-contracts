@@ -55,7 +55,7 @@ task(
         deployer
       );
       const proxyAdminMultisig = ProxyAdmin__factory.connect(
-        addresses.proxyAdmin,
+        addresses.multiSig.proxyAdmin,
         proxyAdminSigner
       );
       const payload = proxy.interface.encodeFunctionData("upgradeTo", [emitter.address]);

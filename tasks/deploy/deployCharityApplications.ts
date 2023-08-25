@@ -29,7 +29,7 @@ task("deploy:CharityApplications", "Will deploy CharityApplication contract")
 
       const charityApplications = await deployCharityApplications(
         accountsDiamond,
-        addresses.proxyAdmin,
+        addresses.multiSig.proxyAdmin,
         addresses.tokens.seedAsset,
         hre
       );

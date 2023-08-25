@@ -7,7 +7,7 @@ import {AddressObj} from "./types";
 /**
  * Removes contract address for the current network from the appropriate file.
  */
-export async function resetAddresses(
+export async function resetContractddresses(
   hre: HardhatRuntimeEnvironment,
   filePath = DEFAULT_CONTRACT_ADDRESS_FILE_PATH
 ) {
@@ -22,8 +22,26 @@ export async function resetAddresses(
   const cleaned: AddressObj = {
     ...createEmptyAddressObj(),
     axelar: currentAddressObj.axelar,
-    proxyAdmin: currentAddressObj.proxyAdmin,
-    tokens: {...currentAddressObj.tokens, halo: "", reserveToken: ""},
+    multiSig: {
+      charityApplications: {
+        implementation: "",
+        proxy: "",
+      },
+      apTeam: {
+        implementation: "",
+        proxy: "",
+      },
+      endowment: {
+        emitter: {
+          implementation: "",
+          proxy: "",
+        },
+        factory: "",
+        implementation: "",
+      },
+      proxyAdmin: currentAddressObj.multiSig.proxyAdmin,
+    },
+    tokens: { ...currentAddressObj.tokens, halo: "", reserveToken: "" },
     uniswap: currentAddressObj.uniswap,
   };
 

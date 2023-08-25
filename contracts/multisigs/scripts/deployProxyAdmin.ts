@@ -27,7 +27,7 @@ export async function deployProxyAdminMultisig(
   logger.out(`Address: ${proxyAdmin.address}.`);
 
   // update address file & verify contracts
-  await updateAddresses({proxyAdmin: proxyAdmin.address}, hre);
+  await updateAddresses({multiSig: {proxyAdmin: proxyAdmin.address}}, hre);
 
   return {
     address: proxyAdmin.address,

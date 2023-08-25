@@ -42,7 +42,7 @@ task("upgrade:router", "Will upgrade the Router")
         deployer
       );
       const proxyAdminMultisig = ProxyAdmin__factory.connect(
-        addresses.proxyAdmin,
+        addresses.multiSig.proxyAdmin,
         proxyAdminSigner
       );
       const payload = routerProxy.interface.encodeFunctionData("upgradeTo", [router.address]);

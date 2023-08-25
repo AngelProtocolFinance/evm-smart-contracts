@@ -38,7 +38,7 @@ task(
         multisigFactory: addresses.multiSig.endowment.factory,
         multisigEmitter: addresses.multiSig.endowment.emitter.proxy,
         charityApplications: addresses.multiSig.charityApplications.proxy,
-        proxyAdmin: addresses.proxyAdmin,
+        proxyAdmin: addresses.multiSig.proxyAdmin,
         usdcAddress: addresses.tokens.usdc,
         wMaticAddress: addresses.tokens.wmatic,
         gasFwdFactory: addresses.gasFwd.factory,

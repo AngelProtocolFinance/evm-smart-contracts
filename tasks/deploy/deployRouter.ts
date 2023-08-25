@@ -33,7 +33,7 @@ task("deploy:Router", "Will deploy Router contract")
       const apTeamMultiSig = taskArgs.apTeamMultisig || addresses.multiSig.apTeam.proxy;
       const registrar = taskArgs.registrar || addresses.registrar.proxy;
 
-      const deployment = await deployRouter(registrar, addresses.proxyAdmin, hre);
+      const deployment = await deployRouter(registrar, addresses.multiSig.proxyAdmin, hre);
 
       // Registrar NetworkInfo's Router address must be updated for the current network
       await updateRegistrarNetworkConnections(

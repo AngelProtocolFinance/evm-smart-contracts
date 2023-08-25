@@ -51,7 +51,7 @@ task("upgrade:CharityApplications", "Will upgrade the implementation of CharityA
         deployer
       );
       const proxyAdminMultisig = ProxyAdmin__factory.connect(
-        addresses.proxyAdmin,
+        addresses.multiSig.proxyAdmin,
         proxyAdminSigner
       );
       const payload = charityApplicationsProxy.interface.encodeFunctionData("upgradeTo", [

@@ -9,7 +9,7 @@ import {
   connectSignerFromPkey,
   isLocalNetwork,
   logger,
-  resetAddresses,
+  resetContractddresses,
   verify,
 } from "utils";
 
@@ -57,14 +57,16 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
         throw new Error("Must provide a pkey for proxyAdmin signer on this network");
       }
 
-      await resetAddresses(hre);
+      // Get previously deployed contracts 
       const currentAddresses = await getAddresses(hre);
+      // Reset the contract-address.json for all contracts that will be deployed here 
+      await resetContractddresses(hre);
 
       logger.out(`Deploying the contracts with the account: ${deployer.address}`);
 
       const proxyAdminMultisig: Deployment = taskArgs.newProxyAdmin
         ? await deployProxyAdminMultisig(proxyAdminSigner, hre)
-        : {address: currentAddresses.proxyAdmin, contractName: "ProxyAdmin"};
+        : {address: currentAddresses.multiSig.proxyAdmin, contractName: "ProxyAdmin"};
 
       const thirdPartyAddresses = await getOrDeployThirdPartyContracts(deployer, hre);
 

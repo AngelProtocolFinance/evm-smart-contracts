@@ -44,7 +44,7 @@ task("upgrade:APTeamMultiSig", "Will upgrade the APTeamMultiSig")
         deployer
       );
       const proxyAdminMultisig = ProxyAdmin__factory.connect(
-        addresses.proxyAdmin,
+        addresses.multiSig.proxyAdmin,
         proxyAdminSigner
       );
       const payload = apTeamProxy.interface.encodeFunctionData("upgradeTo", [
