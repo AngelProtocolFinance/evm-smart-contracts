@@ -19,7 +19,7 @@ describe("Halo token", function () {
     beforeEach(async function () {
       const signers = await getSigners(hre);
       deployer = signers.deployer;
-      proxyAdmin = signers.proxyAdmin;
+      proxyAdmin = signers.proxyAdminSigner;
       user = signers.apTeam1;
 
       Halo = (await hre.ethers.getContractFactory("Halo", proxyAdmin)) as Halo__factory;

@@ -1,7 +1,7 @@
 import {task} from "hardhat/config";
 import {Deployment, confirmAction, isLocalNetwork, logger, verify} from "utils";
 import {getSigners, resetAddresses} from "utils";
-import {deployAPTeamMultiSig} from "contracts/multisigs/scripts/deploy";
+import {deployAPTeamMultiSig, deployProxyAdmin} from "contracts/multisigs/scripts/deploy";
 
 task("deploy:SideChain", "Will deploy complete side-chain infrastructure")
   .addFlag("skipVerify", "Skip contract verification")
@@ -16,13 +16,15 @@ task("deploy:SideChain", "Will deploy complete side-chain infrastructure")
 
       const verify_contracts = !isLocalNetwork(hre) && !taskArgs.skipVerify;
 
-      const {deployer} = await getSigners(hre);
+      const {deployer, proxyAdminSigner} = await getSigners(hre);
 
       await resetAddresses(hre);
 
       logger.out(`Deploying the contracts with the account: ${deployer.address}`);
 
-      const apTeamMultisig = await deployAPTeamMultiSig(hre);
+      const proxyAdminMultisig = await deployProxyAdmin(hre);
+
+      const apTeamMultisig = await deployAPTeamMultiSig(proxyAdminMultisig.address, hre);
 
       await hre.run("deploy:LocalRegistrarAndRouter", {
         skipVerify: verify_contracts,
@@ -32,6 +34,7 @@ task("deploy:SideChain", "Will deploy complete side-chain infrastructure")
 
       if (verify_contracts) {
         const deployments: Array<Deployment | undefined> = [
+          proxyAdminMultisig,
           apTeamMultisig.implementation,
           apTeamMultisig.proxy,
         ];

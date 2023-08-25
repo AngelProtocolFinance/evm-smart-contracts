@@ -83,9 +83,9 @@ describe("AccountsStrategy", function () {
   let endowDetails: AccountStorage.EndowmentStruct;
 
   before(async function () {
-    const {deployer, proxyAdmin, apTeam1} = await getSigners(hre);
+    const {deployer, proxyAdminSigner, apTeam1} = await getSigners(hre);
     owner = deployer;
-    admin = proxyAdmin;
+    admin = proxyAdminSigner;
     user = apTeam1;
 
     gasService = await smock.fake<IAxelarGasService>(IAxelarGasService__factory.createInterface());

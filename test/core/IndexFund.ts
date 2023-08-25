@@ -67,7 +67,7 @@ describe("IndexFund", function () {
   before(async function () {
     const signers = await getSigners(hre);
     owner = signers.deployer;
-    proxyAdmin = signers.proxyAdmin;
+    proxyAdmin = signers.proxyAdminSigner;
     user = signers.apTeam1;
     registrar = await smock.fake<Registrar>(new Registrar__factory());
 

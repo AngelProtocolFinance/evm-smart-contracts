@@ -34,7 +34,7 @@ const PROXY_ADMIN_DEV: Signer = {
 
 const PROXY_ADMIN_PROD: Signer = {
   key: extractString("PROXY_ADMIN_PROD_KEY"),
-  address: extractString("PROXY_ADMIN__PROD_ADDRESS"),
+  address: extractString("PROXY_ADMIN_PROD_ADDRESS"),
 };
 
 const ETHERSCAN_API_KEY = extractString("ETHERSCAN_API_KEY");
