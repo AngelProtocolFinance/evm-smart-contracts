@@ -6,9 +6,9 @@ import {Deployment, getContractName, getSigners, logger, updateAddresses} from "
 export async function deployProxyAdmin(hre: HardhatRuntimeEnvironment): Promise<Deployment> {
   logger.out("Deploying ProxyAdmin multisig...");
 
-  const {deployer} = await getSigners(hre);
+  const {deployer, proxyAdminSigner} = await getSigners(hre);
   const constructorArguments: Parameters<ProxyAdmin__factory["deploy"]> = [
-    [deployer.address],
+    [proxyAdminSigner.address],
     config.PROXY_ADMIN_MULTISIG_DATA.threshold,
     config.PROXY_ADMIN_MULTISIG_DATA.requireExecution,
     config.PROXY_ADMIN_MULTISIG_DATA.transactionExpiry,
