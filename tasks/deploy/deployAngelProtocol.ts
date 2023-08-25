@@ -65,12 +65,12 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
       logger.out(`Deploying the contracts with the account: ${deployer.address}`);
 
       const proxyAdminMultisig: Deployment = taskArgs.newProxyAdmin
-        ? await deployProxyAdminMultisig(proxyAdminSigner, hre)
+        ? await deployProxyAdminMultisig(proxyAdminSigner, deployer, hre)
         : {address: currentAddresses.multiSig.proxyAdmin, contractName: "ProxyAdmin"};
 
       const thirdPartyAddresses = await getOrDeployThirdPartyContracts(deployer, hre);
 
-      const apTeamMultisig = await deployAPTeamMultiSig(proxyAdminMultisig.address, hre);
+      const apTeamMultisig = await deployAPTeamMultiSig(proxyAdminMultisig.address, deployer, hre);
 
       const registrar = await deployRegistrar(
         {
@@ -87,11 +87,12 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
       );
 
       // Router deployment will require updating Registrar config's "router" address
-      const router = await deployRouter(registrar.proxy.address, proxyAdminMultisig.address, hre);
+      const router = await deployRouter(registrar.proxy.address, proxyAdminMultisig.address, deployer, hre);
 
       const accounts = await deployAccountsDiamond(
         proxyAdminMultisig.address,
         registrar.proxy.address,
+        deployer,
         hre
       );
 
@@ -111,6 +112,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
         accounts.diamond.address,
         proxyAdminMultisig.address,
         thirdPartyAddresses.seedAsset.address,
+        deployer,
         hre
       );
 
@@ -124,10 +126,11 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
       const endowmentMultiSig = await deployEndowmentMultiSig(
         registrar.proxy.address,
         proxyAdminMultisig.address,
+        deployer,
         hre
       );
 
-      const vaultEmitter = await deployVaultEmitter(proxyAdminMultisig.address, hre);
+      const vaultEmitter = await deployVaultEmitter(proxyAdminMultisig.address, deployer, hre);
 
       await hre.run("manage:registrar:updateConfig", {
         accountsContract: accounts.diamond.address, //Address

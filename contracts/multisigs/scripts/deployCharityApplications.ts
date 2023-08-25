@@ -1,4 +1,5 @@
 import config from "config";
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {CharityApplications__factory, ProxyContract__factory} from "typechain-types";
 import {Deployment, getContractName, getSigners, logger, updateAddresses} from "utils";
@@ -7,12 +8,13 @@ export async function deployCharityApplications(
   accountsDiamond: string,
   admin: string,
   seedAsset: string,
+  deployer: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
 ): Promise<{
   implementation: Deployment;
   proxy: Deployment;
 }> {
-  const {apTeamMultisigOwners, deployer} = await getSigners(hre);
+  const {apTeamMultisigOwners} = await getSigners(hre);
 
   logger.out("Deploying CharityApplications...");
 

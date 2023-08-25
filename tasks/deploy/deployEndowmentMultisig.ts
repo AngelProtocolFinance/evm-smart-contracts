@@ -1,6 +1,6 @@
 import {deployEndowmentMultiSig} from "contracts/multisigs/endowment-multisig/scripts/deploy";
 import {task} from "hardhat/config";
-import {confirmAction, isLocalNetwork, getAddresses, logger, verify} from "utils";
+import {confirmAction, isLocalNetwork, getAddresses, logger, verify, getSigners} from "utils";
 
 type TaskArgs = {
   registrar?: string;
@@ -18,6 +18,7 @@ task("deploy:EndowmentMultiSig", "Will deploy EndowmentMultiSig contract")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       const addresses = await getAddresses(hre);
+      const {deployer} = await getSigners(hre);
 
       const registrarAddress = taskArgs.registrar || addresses.registrar.proxy;
 
@@ -26,7 +27,7 @@ task("deploy:EndowmentMultiSig", "Will deploy EndowmentMultiSig contract")
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      const deployData = await deployEndowmentMultiSig(registrarAddress, addresses.multiSig.proxyAdmin, hre);
+      const deployData = await deployEndowmentMultiSig(registrarAddress, addresses.multiSig.proxyAdmin, deployer, hre);
 
       await hre.run("manage:registrar:updateConfig", {
         multisigFactory: deployData.factory.address,

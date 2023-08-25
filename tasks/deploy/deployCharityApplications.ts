@@ -1,6 +1,6 @@
 import {deployCharityApplications} from "contracts/multisigs/scripts/deployCharityApplications";
 import {task} from "hardhat/config";
-import {confirmAction, getAddresses, isLocalNetwork, logger, verify} from "utils";
+import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
 
 type TaskArgs = {
   accountsDiamond?: string;
@@ -24,6 +24,7 @@ task("deploy:CharityApplications", "Will deploy CharityApplication contract")
       }
 
       const addresses = await getAddresses(hre);
+      const {deployer} = await getSigners(hre);
 
       const accountsDiamond = taskArgs.accountsDiamond || addresses.accounts.diamond;
 
@@ -31,6 +32,7 @@ task("deploy:CharityApplications", "Will deploy CharityApplication contract")
         accountsDiamond,
         addresses.multiSig.proxyAdmin,
         addresses.tokens.seedAsset,
+        deployer,
         hre
       );
 

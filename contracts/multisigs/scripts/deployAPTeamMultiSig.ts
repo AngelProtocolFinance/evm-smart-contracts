@@ -1,10 +1,12 @@
 import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {APTeamMultiSig__factory, ProxyContract__factory} from "typechain-types";
 import {Deployment, getContractName, getSigners, logger, updateAddresses} from "utils";
 
 export async function deployAPTeamMultiSig(
   admin: string,
+  deployer: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
 ): Promise<{
   implementation: Deployment;
@@ -12,7 +14,7 @@ export async function deployAPTeamMultiSig(
 }> {
   logger.out("Deploying APTeamMultiSig...");
 
-  const {apTeamMultisigOwners, deployer} = await getSigners(hre);
+  const {apTeamMultisigOwners} = await getSigners(hre);
 
   // deploy implementation
   logger.out("Deploying implementation...");

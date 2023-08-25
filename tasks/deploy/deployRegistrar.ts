@@ -76,7 +76,7 @@ task(
         yes: true,
       });
 
-      const router = await deployRouter(registrar.proxy.address, addresses.multiSig.proxyAdmin, hre);
+      const router = await deployRouter(registrar.proxy.address, addresses.multiSig.proxyAdmin, deployer, hre);
 
       // Registrar NetworkInfo's Router address must be updated for the current network
       await updateRegistrarNetworkConnections(

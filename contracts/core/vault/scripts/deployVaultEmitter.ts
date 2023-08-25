@@ -1,17 +1,17 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {ProxyContract__factory, VaultEmitter__factory} from "typechain-types";
-import {Deployment, getContractName, getSigners, logger, updateAddresses} from "utils";
+import {Deployment, getContractName, logger, updateAddresses} from "utils";
 
 export async function deployVaultEmitter(
   admin: string,
+  deployer: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
 ): Promise<{
   implementation: Deployment;
   proxy: Deployment;
 }> {
   logger.out("Deploying VaultEmitter...");
-
-  const {deployer} = await getSigners(hre);
 
   logger.out("Deploying implementation...");
   const Emitter = new VaultEmitter__factory(deployer);

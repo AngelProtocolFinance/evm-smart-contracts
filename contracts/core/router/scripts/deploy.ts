@@ -1,18 +1,18 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {ProxyContract__factory, Router__factory} from "typechain-types";
-import {Deployment, getContractName, getSigners, logger, updateAddresses} from "utils";
+import {Deployment, getContractName, logger, updateAddresses} from "utils";
 
 export async function deployRouter(
   registrar: string,
   proxyAdmin: string,
+  deployer: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
 ): Promise<{
   implementation: Deployment;
   proxy: Deployment;
 }> {
   logger.out("Deploying Router...");
-
-  const {deployer} = await getSigners(hre);
 
   // deploy implementation
   logger.out("Deploying implementation...");

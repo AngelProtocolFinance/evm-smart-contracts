@@ -1,6 +1,6 @@
 import {deployAPTeamMultiSig} from "contracts/multisigs/scripts/deploy";
 import {task} from "hardhat/config";
-import {confirmAction, getAddresses, isLocalNetwork, logger, verify} from "utils";
+import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
 
 task("deploy:APTeamMultiSig", "Will deploy APTeamMultiSig contract")
   .addFlag("skipVerify", "Skip contract verification")
@@ -13,12 +13,13 @@ task("deploy:APTeamMultiSig", "Will deploy APTeamMultiSig contract")
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
+      const {deployer} = await getSigners(hre);
       let deployments;
       if (taskArgs.admin) {
-        deployments = await deployAPTeamMultiSig(taskArgs.admin, hre);
+        deployments = await deployAPTeamMultiSig(taskArgs.admin, deployer, hre);
       } else {
         const addresses = await getAddresses(hre);
-        deployments = await deployAPTeamMultiSig(addresses.multiSig.proxyAdmin, hre);
+        deployments = await deployAPTeamMultiSig(addresses.multiSig.proxyAdmin, deployer, hre);
       }
 
       await hre.run("manage:registrar:transferOwnership", {

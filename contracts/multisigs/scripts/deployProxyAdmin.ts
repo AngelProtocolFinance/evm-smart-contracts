@@ -2,15 +2,14 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {ProxyAdmin__factory} from "typechain-types";
-import {Deployment, getContractName, getSigners, logger, updateAddresses} from "utils";
+import {Deployment, getContractName, logger, updateAddresses} from "utils";
 
 export async function deployProxyAdminMultisig(
   admin: SignerWithAddress,
+  deployer: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
 ) : Promise<Deployment> {
   logger.out("Deploying ProxyAdmin multisig...");
-
-  const {deployer} = await getSigners(hre);
 
   const constructorArguments: Parameters<ProxyAdmin__factory["deploy"]> = [
     [admin.address],

@@ -29,9 +29,9 @@ task("deploy:SideChain", "Will deploy complete side-chain infrastructure")
 
       logger.out(`Deploying the contracts with the account: ${deployer.address}`);
 
-      const proxyAdminMultisig = await deployProxyAdminMultisig(proxyAdminSigner, hre);
+      const proxyAdminMultisig = await deployProxyAdminMultisig(proxyAdminSigner, deployer, hre);
 
-      const apTeamMultisig = await deployAPTeamMultiSig(proxyAdminMultisig.address, hre);
+      const apTeamMultisig = await deployAPTeamMultiSig(proxyAdminMultisig.address, deployer, hre);
 
       await hre.run("deploy:LocalRegistrarAndRouter", {
         skipVerify: verify_contracts,

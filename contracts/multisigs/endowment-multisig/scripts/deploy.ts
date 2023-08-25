@@ -1,15 +1,17 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {
   EndowmentMultiSigEmitter__factory,
   EndowmentMultiSigFactory__factory,
   EndowmentMultiSig__factory,
   ProxyContract__factory,
 } from "typechain-types";
-import {Deployment, getContractName, getSigners, logger, updateAddresses} from "utils";
+import {Deployment, getContractName, logger, updateAddresses} from "utils";
 
 export async function deployEndowmentMultiSig(
   registrar: string,
   admin: string,
+  deployer: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
 ): Promise<{
   emitter: {
@@ -20,8 +22,6 @@ export async function deployEndowmentMultiSig(
   implementation: Deployment;
 }> {
   logger.out("Deploying EndowmentMultiSig contracts...");
-
-  const {deployer} = await getSigners(hre);
 
   // deploy implementation contract
   logger.out("Deploying EndowmentMultiSig implementation...");

@@ -1,21 +1,20 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {DiamondCutFacet__factory, DiamondInit__factory, Diamond__factory} from "typechain-types";
-import {Deployment, getContractName, getSigners, logger, updateAddresses} from "utils";
+import {Deployment, getContractName, logger, updateAddresses} from "utils";
 import cutDiamond from "./cutDiamond";
 import deployFacets from "./deployFacets";
 
 export async function deployAccountsDiamond(
   owner: string,
   registrar: string,
+  deployer: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
 ): Promise<{
   diamond: Deployment;
   facets: Array<Deployment>;
 }> {
   logger.out("Deploying and setting up Accounts Diamond and all its facets...");
-
-  const {deployer} = await getSigners(hre);
 
   const {diamond, diamondCutFacet} = await deployDiamond(deployer, hre);
 

@@ -1,6 +1,6 @@
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task} from "hardhat/config";
-import {confirmAction, getAddresses, isLocalNetwork, logger, verify} from "utils";
+import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
 import {updateRegistrarNetworkConnections} from "../helpers";
 
 type TaskArgs = {
@@ -29,11 +29,12 @@ task("deploy:Router", "Will deploy Router contract")
       }
 
       const addresses = await getAddresses(hre);
+      const {deployer} = await getSigners(hre);
 
       const apTeamMultiSig = taskArgs.apTeamMultisig || addresses.multiSig.apTeam.proxy;
       const registrar = taskArgs.registrar || addresses.registrar.proxy;
 
-      const deployment = await deployRouter(registrar, addresses.multiSig.proxyAdmin, hre);
+      const deployment = await deployRouter(registrar, addresses.multiSig.proxyAdmin, deployer, hre);
 
       // Registrar NetworkInfo's Router address must be updated for the current network
       await updateRegistrarNetworkConnections(
