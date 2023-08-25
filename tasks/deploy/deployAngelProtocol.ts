@@ -49,7 +49,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
 
       const thirdPartyAddresses = await getOrDeployThirdPartyContracts(deployer, hre);
 
-      const apTeamMultisig = await deployAPTeamMultiSig(hre);
+      const apTeamMultisig = await deployAPTeamMultiSig(proxyAdmin.address, hre);
 
       const registrar = await deployRegistrar(
         {
@@ -78,6 +78,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
         {
           deployer: deployer,
           admin: proxyAdmin.address,
+          factoryOwner: apTeamMultisig.proxy.address,
           registrar: registrar.proxy.address,
         },
         hre

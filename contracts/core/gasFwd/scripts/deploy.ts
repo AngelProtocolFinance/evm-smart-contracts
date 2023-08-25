@@ -1,16 +1,18 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
+import { waitForDebugger } from "inspector";
 import {GasFwdFactory__factory, GasFwd__factory} from "typechain-types";
 import {Deployment, getAddresses, getContractName, logger, updateAddresses} from "utils";
 
 type Data = {
   deployer: SignerWithAddress;
   admin: string;
+  factoryOwner: string;
   registrar?: string;
 };
 
 export async function deployGasFwd(
-  {deployer, admin, registrar}: Data,
+  {deployer, admin, factoryOwner, registrar}: Data,
   hre: HardhatRuntimeEnvironment
 ): Promise<{factory: Deployment; implementation: Deployment}> {
   logger.out("Deploying Gas Forwarder...");
@@ -34,6 +36,8 @@ export async function deployGasFwd(
   const gff = await GFF.deploy(...constructorArguments);
   await gff.deployed();
   logger.out(`Address: ${gff.address}`);
+
+  await gff.transferOwnership(factoryOwner)
 
   await updateAddresses(
     {
