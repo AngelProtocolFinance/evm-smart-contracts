@@ -26,8 +26,6 @@ import {
 import {deployGasFwd} from "contracts/core/gasFwd/scripts/deploy";
 import {deployVaultEmitter} from "contracts/core/vault/scripts/deployVaultEmitter";
 import {getOrDeployThirdPartyContracts, updateRegistrarNetworkConnections} from "../helpers";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { Wallet } from "ethers";
 
 type TaskArgs = {
   skipVerify: boolean; 
@@ -40,7 +38,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
   .addFlag("skipVerify", "Skip contract verification")
   .addFlag("yes", "Automatic yes to prompt.")
   .addFlag("newProxyAdmin", "Whether or not to deploy a new proxyAdmin multisig")
-  .addOptionalParam("proxyAdminPkey", "The pkey for the prod proxy amdin multisig", "")
+  .addOptionalParam("proxyAdminPkey", "The pkey for the prod proxy amdin multisig")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       const isConfirmed =
@@ -55,7 +53,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
       if(!proxyAdminSigner && taskArgs.proxyAdminPkey) {
         proxyAdminSigner = await connectSignerFromPkey(taskArgs.proxyAdminPkey, hre);
       }
-      else {
+      else if(!proxyAdminSigner) {
         throw new Error("Must provide a pkey for proxyAdmin signer on this network");
       }
 

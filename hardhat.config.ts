@@ -12,7 +12,6 @@ import * as tdly from "@tenderly/hardhat-tenderly";
 
 var prodAccounts = [
   envConfigProd.DEPLOYER.key,
-  envConfigProd.PROXY_ADMIN_PROD.key,
   envConfigProd.AP_TEAM_1.key,
   envConfigProd.AP_TEAM_2.key,
   envConfigProd.AP_TEAM_3.key,

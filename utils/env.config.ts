@@ -32,11 +32,6 @@ const PROXY_ADMIN_DEV: Signer = {
   address: extractString("PROXY_ADMIN_DEV_ADDRESS"),
 };
 
-const PROXY_ADMIN_PROD: Signer = {
-  key: extractString("PROXY_ADMIN_PROD_KEY"),
-  address: extractString("PROXY_ADMIN_PROD_ADDRESS"),
-};
-
 const ETHERSCAN_API_KEY = extractString("ETHERSCAN_API_KEY");
 const GOERLI_RPC_URL = extractString("GOERLI_RPC_URL");
 const GANACHE_PRIVATE_KEY = extractString("GANACHE_PRIVATE_KEY");
@@ -105,7 +100,6 @@ export var envConfigProd = {
   AP_TEAM_2,
   AP_TEAM_3,
   DEPLOYER,
-  PROXY_ADMIN_PROD,
   ETHERSCAN_API_KEY,
   GANACHE_PRIVATE_KEY,
   GANACHE_RPC_URL,
