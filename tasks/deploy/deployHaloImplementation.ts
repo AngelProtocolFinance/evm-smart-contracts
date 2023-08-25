@@ -2,6 +2,7 @@ import {task} from "hardhat/config";
 import config from "config";
 import {getAddresses, isLocalNetwork, logger, getSigners, verify} from "utils";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
+import {Halo__factory} from "typechain-types";
 
 import {deployAirdrop} from "contracts/halo/airdrop/scripts/deploy";
 import {deployCollector} from "contracts/halo/collector/scripts/deploy";
@@ -32,18 +33,18 @@ task("deploy:HaloImplementation", "Will deploy HaloImplementation contract")
 const deployHalo = async (verify_contracts: boolean, hre: HardhatRuntimeEnvironment) => {
   try {
     const {ethers, run, network} = hre;
-    const {proxyAdmin} = await getSigners(hre);
+    const {deployer} = await getSigners(hre);
 
-    const ERC20 = await ethers.getContractFactory("ERC20");
-    const ERC20Instance = await ERC20.deploy();
-    await ERC20Instance.deployed();
+    const factory = new Halo__factory(deployer);
+    const Halo = await factory.deploy();
+    await Halo.deployed();
 
     if (verify_contracts) {
-      await verify(hre, {address: ERC20Instance.address});
+      await verify(hre, {address: Halo.address});
     }
-    console.log("Halo Address (ERC20):", ERC20Instance.address);
+    console.log("Halo Address (ERC20):", Halo.address);
 
-    return Promise.resolve(ERC20Instance.address);
+    return Promise.resolve(Halo.address);
   } catch (error) {
     return Promise.reject(error);
   }
@@ -60,8 +61,8 @@ export async function deployHaloImplementation(
     const {ethers, run, network} = hre;
     const {proxyAdmin, airdropOwner, apTeam1} = await getSigners(hre);
 
-    const halo = registrarContract; // await deployHalo(verify_contracts, hre);
-    const gov = registrarContract; //await deployGov({ _token: halo, _timelock: apTeam1.address }, verify_contracts, hre);
+    const halo = await deployHalo(verify_contracts, hre);
+    const gov = await deployGov(halo, apTeam1.address, verify_contracts, hre);
     var response = {
       Halo: halo,
       Gov: gov,

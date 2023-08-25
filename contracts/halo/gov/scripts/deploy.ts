@@ -1,10 +1,9 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {getSigners, logger, updateAddresses, verify} from "utils";
 
-import {GovMessage} from "typechain-types/contracts/halo/gov/Gov";
-
 export async function deployGov(
-  GovDataInput: GovMessage.InstantiateMsgStruct,
+  haloToken: address,
+  timelock: address,
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
@@ -17,7 +16,7 @@ export async function deployGov(
     logger.out(`Gov implementation address: ${GovInstance.address}"`);
 
     const ProxyContract = await ethers.getContractFactory("ProxyContract");
-    const GovData = GovInstance.interface.encodeFunctionData("initialize", [GovDataInput]);
+    const GovData = GovInstance.interface.encodeFunctionData("initialize", [haloToken, timelock]);
     const GovProxy = await ProxyContract.deploy(GovInstance.address, proxyAdmin.address, GovData);
     await GovProxy.deployed();
     logger.out(`Gov Address (Proxy): ${GovProxy.address}"`);
