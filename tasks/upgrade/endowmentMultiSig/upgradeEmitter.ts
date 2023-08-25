@@ -8,7 +8,7 @@ import {
   confirmAction,
   getAddresses,
   getContractName,
-  getEvents,
+  connectSignerFromPkey,
   getSigners,
   isLocalNetwork,
   logger,
@@ -20,6 +20,7 @@ type TaskArgs = {
   factory?: string;
   skipVerify: boolean;
   yes: boolean;
+  proxyAdminPkey?: string;
 };
 
 task(
@@ -28,6 +29,7 @@ task(
 )
   .addFlag("skipVerify", "Skip contract verification")
   .addFlag("yes", "Automatic yes to prompt.")
+  .addOptionalParam("proxyAdminPkey", "The pkey for the prod proxy amdin multisig")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       logger.divider();
@@ -38,7 +40,13 @@ task(
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      const {deployer, proxyAdminSigner} = await getSigners(hre);
+      let {deployer, proxyAdminSigner} = await getSigners(hre);
+      if(!proxyAdminSigner && taskArgs.proxyAdminPkey) {
+        proxyAdminSigner = await connectSignerFromPkey(taskArgs.proxyAdminPkey, hre);
+      }
+      else if(!proxyAdminSigner) {
+        throw new Error("Must provide a pkey for proxyAdmin signer on this network");
+      }
 
       const addresses = await getAddresses(hre);
 

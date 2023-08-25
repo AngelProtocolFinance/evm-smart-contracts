@@ -43,7 +43,7 @@ describe("AccountsQueryEndowments", function () {
   before(async function () {
     const signers = await getSigners(hre);
     owner = signers.apTeam1;
-    proxyAdmin = signers.proxyAdminSigner;
+    proxyAdmin = signers.proxyAdminSigner!;
     tokenAddress = signers.deployer.address;
 
     const Facet = new AccountsQueryEndowments__factory(owner);

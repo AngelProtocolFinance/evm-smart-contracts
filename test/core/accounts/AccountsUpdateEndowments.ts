@@ -42,7 +42,7 @@ describe("AccountsUpdateEndowments", function () {
   before(async function () {
     const signers = await getSigners(hre);
     accOwner = signers.apTeam1;
-    proxyAdmin = signers.proxyAdminSigner;
+    proxyAdmin = signers.proxyAdminSigner!;
     endowOwner = signers.deployer;
     delegate = signers.apTeam2;
 

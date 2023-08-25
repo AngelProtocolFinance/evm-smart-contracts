@@ -23,7 +23,7 @@ describe("AccountsUpdate", function () {
   before(async function () {
     const signers = await getSigners(hre);
     owner = signers.apTeam1;
-    proxyAdmin = signers.proxyAdminSigner;
+    proxyAdmin = signers.proxyAdminSigner!;
     user = signers.deployer;
 
     newRegistrar = signers.airdropOwner.address;

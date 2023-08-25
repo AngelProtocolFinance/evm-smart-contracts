@@ -9,7 +9,7 @@ import {
   connectSignerFromPkey,
   isLocalNetwork,
   logger,
-  resetContractddresses,
+  resetContractAddresses,
   verify,
 } from "utils";
 
@@ -59,8 +59,8 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
 
       // Get previously deployed contracts 
       const currentAddresses = await getAddresses(hre);
-      // Reset the contract-address.json for all contracts that will be deployed here 
-      await resetContractddresses(hre);
+      // Reset the contract address object for all contracts that will be deployed here 
+      await resetContractAddresses(hre);
 
       logger.out(`Deploying the contracts with the account: ${deployer.address}`);
 

@@ -6,6 +6,7 @@ import {
 } from "typechain-types";
 import {
   confirmAction,
+  connectSignerFromPkey,
   getAddresses,
   getContractName,
   getSigners,
@@ -18,7 +19,8 @@ import {
 task("upgrade:registrar", "Will upgrade the Registrar (use only on the primary chain)")
   .addFlag("skipVerify", "Skip contract verification")
   .addFlag("yes", "Automatic yes to prompt.")
-  .setAction(async (taskArgs: {skipVerify: boolean; yes: boolean}, hre) => {
+  .addOptionalParam("proxyAdminPkey", "The pkey for the prod proxy amdin multisig")
+  .setAction(async (taskArgs: {skipVerify: boolean; yes: boolean, proxyAdminPkey?: string}, hre) => {
     try {
       const isConfirmed =
         taskArgs.yes || (await confirmAction("Upgrading Registrar implementation..."));
@@ -26,8 +28,13 @@ task("upgrade:registrar", "Will upgrade the Registrar (use only on the primary c
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      const {deployer, proxyAdminSigner} = await getSigners(hre);
-
+      let {deployer, proxyAdminSigner} = await getSigners(hre);
+      if(!proxyAdminSigner && taskArgs.proxyAdminPkey) {
+        proxyAdminSigner = await connectSignerFromPkey(taskArgs.proxyAdminPkey, hre);
+      }
+      else if(!proxyAdminSigner) {
+        throw new Error("Must provide a pkey for proxyAdmin signer on this network");
+      }
       const addresses = await getAddresses(hre);
 
       logger.out("Deploying a new Registrar implementation...");

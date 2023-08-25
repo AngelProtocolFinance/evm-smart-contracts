@@ -38,7 +38,7 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
   before(async function () {
     const signers = await getSigners(hre);
     owner = signers.apTeam1;
-    proxyAdmin = signers.proxyAdminSigner;
+    proxyAdmin = signers.proxyAdminSigner!;
     endowOwner = signers.deployer;
 
     charity = {

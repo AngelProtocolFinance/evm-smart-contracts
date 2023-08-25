@@ -32,7 +32,7 @@ describe("AccountsAllowance", function () {
   before(async function () {
     const signers = await getSigners(hre);
     accOwner = signers.deployer;
-    proxyAdmin = signers.proxyAdminSigner;
+    proxyAdmin = signers.proxyAdminSigner!;
     endowOwner = signers.apTeam1;
     user = signers.apTeam2;
   });

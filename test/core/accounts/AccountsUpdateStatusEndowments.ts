@@ -61,7 +61,7 @@ describe("AccountsUpdateStatusEndowments", function () {
   before(async function () {
     const signers = await getSigners(hre);
     accOwner = signers.apTeam1;
-    proxyAdmin = signers.proxyAdminSigner;
+    proxyAdmin = signers.proxyAdminSigner!;
     endowOwner = signers.deployer;
     treasuryAddress = signers.apTeam2.address;
 

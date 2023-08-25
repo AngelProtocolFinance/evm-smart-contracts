@@ -7,7 +7,7 @@ import {AddressObj} from "./types";
 /**
  * Removes contract address for the current network from the appropriate file.
  */
-export async function resetContractddresses(
+export async function resetContractAddresses(
   hre: HardhatRuntimeEnvironment,
   filePath = DEFAULT_CONTRACT_ADDRESS_FILE_PATH
 ) {

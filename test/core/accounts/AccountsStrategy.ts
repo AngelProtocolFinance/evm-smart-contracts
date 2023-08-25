@@ -85,7 +85,7 @@ describe("AccountsStrategy", function () {
   before(async function () {
     const {deployer, proxyAdminSigner, apTeam1} = await getSigners(hre);
     owner = deployer;
-    admin = proxyAdminSigner;
+    admin = proxyAdminSigner!;
     user = apTeam1;
 
     gasService = await smock.fake<IAxelarGasService>(IAxelarGasService__factory.createInterface());

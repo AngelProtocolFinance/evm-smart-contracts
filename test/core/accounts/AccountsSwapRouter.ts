@@ -47,7 +47,7 @@ describe("AccountsSwapRouter", function () {
   before(async function () {
     const signers = await getSigners(hre);
     owner = signers.apTeam1;
-    proxyAdmin = signers.proxyAdminSigner;
+    proxyAdmin = signers.proxyAdminSigner!;
     user = signers.deployer;
 
     let Facet = new AccountsSwapRouter__factory(owner);

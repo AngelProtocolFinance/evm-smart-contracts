@@ -1,6 +1,6 @@
 import {FacetCutAction} from "contracts/core/accounts/scripts/libraries/diamond";
 import {task} from "hardhat/config";
-import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
+import {confirmAction, connectSignerFromPkey, getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
 import {ALL_FACET_NAMES} from "./constants";
 import createFacetCuts from "./createFacetCuts";
 import cutDiamond from "./cutDiamond";
@@ -11,6 +11,7 @@ type TaskArgs = {
   facets: string[];
   skipVerify: boolean;
   yes: boolean;
+  proxyAdminPkey?: string;
 };
 
 // Sample syntax: npx hardhat upgrade:facets --yes --network mumbai "AccountsStrategy"
@@ -27,6 +28,7 @@ task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountSto
   )
   .addFlag("skipVerify", "Skip contract verification")
   .addFlag("yes", "Automatic yes to prompt.")
+  .addOptionalParam("proxyAdminPkey", "The pkey for the prod proxy amdin multisig")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       if (taskArgs.facets.length === 0) {
@@ -42,7 +44,13 @@ task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountSto
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      const {deployer, proxyAdminSigner} = await getSigners(hre);
+      let {deployer, proxyAdminSigner} = await getSigners(hre);
+      if(!proxyAdminSigner && taskArgs.proxyAdminPkey) {
+        proxyAdminSigner = await connectSignerFromPkey(taskArgs.proxyAdminPkey, hre);
+      }
+      else if(!proxyAdminSigner) {
+        throw new Error("Must provide a pkey for proxyAdmin signer on this network");
+      }
 
       const addresses = await getAddresses(hre);
 

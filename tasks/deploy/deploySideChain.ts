@@ -1,12 +1,13 @@
 import {task} from "hardhat/config";
 import {Deployment, confirmAction, isLocalNetwork, logger, verify} from "utils";
-import {getSigners, resetAddresses} from "utils";
-import {deployAPTeamMultiSig, deployProxyAdmin} from "contracts/multisigs/scripts/deploy";
+import {connectSignerFromPkey, getSigners, resetContractAddresses} from "utils";
+import {deployAPTeamMultiSig, deployProxyAdminMultisig} from "contracts/multisigs/scripts/deploy";
 
 task("deploy:SideChain", "Will deploy complete side-chain infrastructure")
   .addFlag("skipVerify", "Skip contract verification")
   .addFlag("yes", "Automatic yes to prompt.")
-  .setAction(async (taskArgs: {skipVerify: boolean; yes: boolean}, hre) => {
+  .addOptionalParam("proxyAdminPkey", "The pkey for the prod proxy amdin multisig")
+  .setAction(async (taskArgs: {skipVerify: boolean; yes: boolean, proxyAdminPkey?: string}, hre) => {
     try {
       const isConfirmed =
         taskArgs.yes || (await confirmAction("Deploying all side chain contracts..."));
@@ -15,14 +16,20 @@ task("deploy:SideChain", "Will deploy complete side-chain infrastructure")
       }
 
       const verify_contracts = !isLocalNetwork(hre) && !taskArgs.skipVerify;
+      
+      let {deployer, proxyAdminSigner} = await getSigners(hre);
+      if(!proxyAdminSigner && taskArgs.proxyAdminPkey) {
+        proxyAdminSigner = await connectSignerFromPkey(taskArgs.proxyAdminPkey, hre);
+      }
+      else if(!proxyAdminSigner) {
+        throw new Error("Must provide a pkey for proxyAdmin signer on this network");
+      }
 
-      const {deployer, proxyAdminSigner} = await getSigners(hre);
-
-      await resetAddresses(hre);
+      await resetContractAddresses(hre);
 
       logger.out(`Deploying the contracts with the account: ${deployer.address}`);
 
-      const proxyAdminMultisig = await deployProxyAdmin(hre);
+      const proxyAdminMultisig = await deployProxyAdminMultisig(proxyAdminSigner, hre);
 
       const apTeamMultisig = await deployAPTeamMultiSig(proxyAdminMultisig.address, hre);
 

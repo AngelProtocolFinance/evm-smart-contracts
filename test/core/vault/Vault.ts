@@ -84,7 +84,7 @@ describe("Vault", function () {
   before(async function () {
     const {deployer, proxyAdminSigner, apTeam1, apTeam2} = await getSigners(hre);
     owner = deployer;
-    admin = proxyAdminSigner;
+    admin = proxyAdminSigner!;
     user = apTeam1;
     collector = apTeam2;
 
