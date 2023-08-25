@@ -1,5 +1,9 @@
 import {task} from "hardhat/config";
-import {CharityApplications__factory, ITransparentUpgradeableProxy__factory, ProxyAdmin__factory} from "typechain-types";
+import {
+  CharityApplications__factory,
+  ITransparentUpgradeableProxy__factory,
+  ProxyAdmin__factory,
+} from "typechain-types";
 import {
   confirmAction,
   getAddresses,
@@ -50,8 +54,15 @@ task("upgrade:CharityApplications", "Will upgrade the implementation of CharityA
         addresses.proxyAdmin,
         proxyAdminSigner
       );
-      const payload = charityApplicationsProxy.interface.encodeFunctionData("upgradeTo", [charityApplications.address]);
-      const tx = await proxyAdminMultisig.submitTransaction(charityApplicationsProxy.address, 0, payload, "0x");
+      const payload = charityApplicationsProxy.interface.encodeFunctionData("upgradeTo", [
+        charityApplications.address,
+      ]);
+      const tx = await proxyAdminMultisig.submitTransaction(
+        charityApplicationsProxy.address,
+        0,
+        payload,
+        "0x"
+      );
       logger.out(`Tx hash: ${tx.hash}`);
       await tx.wait();
 

@@ -1,7 +1,7 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {getContractName, getSigners, logger, updateAddresses, verify} from "utils";
 import {GiftCardsMessage} from "typechain-types/contracts/accessory/gift-cards/GiftCards";
-import { GiftCards__factory, ProxyContract__factory } from "typechain-types";
+import {GiftCards__factory, ProxyContract__factory} from "typechain-types";
 
 export async function deployGiftCard(
   GiftCardsDataInput: GiftCardsMessage.InstantiateMsgStruct,

@@ -1,5 +1,9 @@
 import {task} from "hardhat/config";
-import {APTeamMultiSig__factory, ITransparentUpgradeableProxy__factory, ProxyAdmin__factory} from "typechain-types";
+import {
+  APTeamMultiSig__factory,
+  ITransparentUpgradeableProxy__factory,
+  ProxyAdmin__factory,
+} from "typechain-types";
 import {
   confirmAction,
   getAddresses,
@@ -43,7 +47,9 @@ task("upgrade:APTeamMultiSig", "Will upgrade the APTeamMultiSig")
         addresses.proxyAdmin,
         proxyAdminSigner
       );
-      const payload = apTeamProxy.interface.encodeFunctionData("upgradeTo", [apTeamMultiSig.address]);
+      const payload = apTeamProxy.interface.encodeFunctionData("upgradeTo", [
+        apTeamMultiSig.address,
+      ]);
       const tx = await proxyAdminMultisig.submitTransaction(apTeamProxy.address, 0, payload, "0x");
       logger.out(`Tx hash: ${tx.hash}`);
       await tx.wait();

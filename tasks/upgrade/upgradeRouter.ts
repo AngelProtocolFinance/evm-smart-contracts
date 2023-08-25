@@ -1,5 +1,9 @@
 import {task} from "hardhat/config";
-import {Router__factory, ITransparentUpgradeableProxy__factory, ProxyAdmin__factory} from "typechain-types";
+import {
+  Router__factory,
+  ITransparentUpgradeableProxy__factory,
+  ProxyAdmin__factory,
+} from "typechain-types";
 import {
   confirmAction,
   getAddresses,

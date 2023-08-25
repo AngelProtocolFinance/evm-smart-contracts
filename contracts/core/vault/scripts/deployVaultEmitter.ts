@@ -2,7 +2,10 @@ import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {ProxyContract__factory, VaultEmitter__factory} from "typechain-types";
 import {Deployment, getContractName, getSigners, logger, updateAddresses} from "utils";
 
-export async function deployVaultEmitter(admin: string, hre: HardhatRuntimeEnvironment): Promise<{
+export async function deployVaultEmitter(
+  admin: string,
+  hre: HardhatRuntimeEnvironment
+): Promise<{
   implementation: Deployment;
   proxy: Deployment;
 }> {

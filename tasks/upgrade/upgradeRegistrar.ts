@@ -1,5 +1,9 @@
 import {task} from "hardhat/config";
-import {Registrar__factory, ITransparentUpgradeableProxy__factory, ProxyAdmin__factory} from "typechain-types";
+import {
+  Registrar__factory,
+  ITransparentUpgradeableProxy__factory,
+  ProxyAdmin__factory,
+} from "typechain-types";
 import {
   confirmAction,
   getAddresses,
@@ -42,7 +46,12 @@ task("upgrade:registrar", "Will upgrade the Registrar (use only on the primary c
         proxyAdminSigner
       );
       const payload = registrarProxy.interface.encodeFunctionData("upgradeTo", [registrar.address]);
-      const tx = await proxyAdminMultisig.submitTransaction(registrarProxy.address, 0, payload, "0x");
+      const tx = await proxyAdminMultisig.submitTransaction(
+        registrarProxy.address,
+        0,
+        payload,
+        "0x"
+      );
       logger.out(`Tx hash: ${tx.hash}`);
       await tx.wait();
 

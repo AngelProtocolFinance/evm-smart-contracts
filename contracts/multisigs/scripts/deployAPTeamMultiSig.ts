@@ -3,7 +3,10 @@ import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {APTeamMultiSig__factory, ProxyContract__factory} from "typechain-types";
 import {Deployment, getContractName, getSigners, logger, updateAddresses} from "utils";
 
-export async function deployAPTeamMultiSig(admin: string, hre: HardhatRuntimeEnvironment): Promise<{
+export async function deployAPTeamMultiSig(
+  admin: string,
+  hre: HardhatRuntimeEnvironment
+): Promise<{
   implementation: Deployment;
   proxy: Deployment;
 }> {

@@ -1,6 +1,6 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import { waitForDebugger } from "inspector";
+import {waitForDebugger} from "inspector";
 import {GasFwdFactory__factory, GasFwd__factory} from "typechain-types";
 import {Deployment, getAddresses, getContractName, logger, updateAddresses} from "utils";
 
@@ -37,7 +37,7 @@ export async function deployGasFwd(
   await gff.deployed();
   logger.out(`Address: ${gff.address}`);
 
-  await gff.transferOwnership(factoryOwner)
+  await gff.transferOwnership(factoryOwner);
 
   await updateAddresses(
     {

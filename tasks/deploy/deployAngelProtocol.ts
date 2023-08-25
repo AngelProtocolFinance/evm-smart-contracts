@@ -17,7 +17,11 @@ import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
 import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {deployEndowmentMultiSig} from "contracts/multisigs/endowment-multisig/scripts/deploy";
-import {deployAPTeamMultiSig, deployProxyAdmin, deployCharityApplications} from "contracts/multisigs/scripts/deploy";
+import {
+  deployAPTeamMultiSig,
+  deployProxyAdmin,
+  deployCharityApplications,
+} from "contracts/multisigs/scripts/deploy";
 import {deployGasFwd} from "contracts/core/gasFwd/scripts/deploy";
 import {deployVaultEmitter} from "contracts/core/vault/scripts/deployVaultEmitter";
 import {getOrDeployThirdPartyContracts, updateRegistrarNetworkConnections} from "../helpers";
@@ -26,7 +30,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
   .addFlag("skipVerify", "Skip contract verification")
   .addFlag("yes", "Automatic yes to prompt.")
   .addFlag("newProxyAdmin", "Whether or not to deploy a new proxyAdmin multisig")
-  .setAction(async (taskArgs: {skipVerify: boolean; yes: boolean, newProxyAdmin: boolean}, hre) => {
+  .setAction(async (taskArgs: {skipVerify: boolean; yes: boolean; newProxyAdmin: boolean}, hre) => {
     try {
       const isConfirmed =
         taskArgs.yes || (await confirmAction("Deploying all Angel Protocol contracts..."));
@@ -43,9 +47,9 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
 
       logger.out(`Deploying the contracts with the account: ${deployer.address}`);
 
-      const proxyAdmin: Deployment = taskArgs.newProxyAdmin? 
-        await deployProxyAdmin(hre) :
-        {address: currentAddresses.proxyAdmin, contractName: "ProxyAdmin"};
+      const proxyAdmin: Deployment = taskArgs.newProxyAdmin
+        ? await deployProxyAdmin(hre)
+        : {address: currentAddresses.proxyAdmin, contractName: "ProxyAdmin"};
 
       const thirdPartyAddresses = await getOrDeployThirdPartyContracts(deployer, hre);
 
@@ -101,8 +105,8 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
       );
 
       const endowmentMultiSig = await deployEndowmentMultiSig(
-        registrar.proxy.address, 
-        proxyAdmin.address, 
+        registrar.proxy.address,
+        proxyAdmin.address,
         hre
       );
 

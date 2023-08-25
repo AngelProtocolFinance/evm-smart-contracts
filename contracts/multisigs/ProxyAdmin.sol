@@ -9,12 +9,7 @@ import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {Utils} from "../lib/utils.sol";
 
-contract ProxyAdmin is
-  StorageMultiSig,
-  IMultiSigGeneric,
-  ERC165,
-  ReentrancyGuard
-{
+contract ProxyAdmin is StorageMultiSig, IMultiSigGeneric, ERC165, ReentrancyGuard {
   /// @dev Contract constructor sets initial owners and required number of confirmations.
   /// @param owners List of initial owners.
   /// @param _approvalsRequired Number of required confirmations.

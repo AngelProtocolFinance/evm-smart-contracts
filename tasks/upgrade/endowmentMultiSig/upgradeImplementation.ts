@@ -1,5 +1,9 @@
 import {task} from "hardhat/config";
-import {EndowmentMultiSig__factory, EndowmentMultiSigFactory__factory, ProxyAdmin__factory} from "typechain-types";
+import {
+  EndowmentMultiSig__factory,
+  EndowmentMultiSigFactory__factory,
+  ProxyAdmin__factory,
+} from "typechain-types";
 import {
   confirmAction,
   getAddresses,
@@ -60,8 +64,16 @@ task(
         addresses.proxyAdmin,
         proxyAdminSigner
       );
-      const payload = endowmentMultiSigFactory.interface.encodeFunctionData("updateImplementation", [contract.address])
-      const tx = await proxyAdminMultisig.submitTransaction(EndowmentMultiSigFactoryAddress, 0, payload, "0x");
+      const payload = endowmentMultiSigFactory.interface.encodeFunctionData(
+        "updateImplementation",
+        [contract.address]
+      );
+      const tx = await proxyAdminMultisig.submitTransaction(
+        EndowmentMultiSigFactoryAddress,
+        0,
+        payload,
+        "0x"
+      );
       logger.out(`Tx hash: ${tx.hash}`);
       await tx.wait();
 

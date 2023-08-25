@@ -8,7 +8,7 @@ import {FacetCut} from "./types";
 export default async function cutDiamond(
   diamondAddress: string,
   diamondOwner: string,
-  signer: SignerWithAddress, 
+  signer: SignerWithAddress,
   facetCuts: FacetCut[],
   hre: HardhatRuntimeEnvironment
 ) {
@@ -17,13 +17,12 @@ export default async function cutDiamond(
   const diamondInit = DiamondInit__factory.connect(diamondAddress, signer);
   const proxyAdminMultisig = ProxyAdmin__factory.connect(diamondOwner, signer);
   const cuts = facetCuts.map((x) => x.cut);
-  const payload = diamondCut.interface.encodeFunctionData("diamondCut", [cuts, diamondInit.address, "0x"])
-  const tx = await proxyAdminMultisig.submitTransaction(
-    diamondAddress, 
-    0,
-    payload,
-    "0x"
-  );
+  const payload = diamondCut.interface.encodeFunctionData("diamondCut", [
+    cuts,
+    diamondInit.address,
+    "0x",
+  ]);
+  const tx = await proxyAdminMultisig.submitTransaction(diamondAddress, 0, payload, "0x");
   const receipt = await hre.ethers.provider.waitForTransaction(tx.hash);
 
   if (!receipt.status) {

@@ -2,7 +2,7 @@ import {task} from "hardhat/config";
 import {
   EndowmentMultiSigEmitter__factory,
   TransparentUpgradeableProxy__factory,
-  ProxyAdmin__factory
+  ProxyAdmin__factory,
 } from "typechain-types";
 import {
   confirmAction,
@@ -58,7 +58,7 @@ task(
         addresses.proxyAdmin,
         proxyAdminSigner
       );
-      const payload = proxy.interface.encodeFunctionData("upgradeTo", [emitter.address])
+      const payload = proxy.interface.encodeFunctionData("upgradeTo", [emitter.address]);
       const tx = await proxyAdminMultisig.submitTransaction(proxy.address, 0, payload, "0x");
       logger.out(`Tx hash: ${tx.hash}`);
       await tx.wait();

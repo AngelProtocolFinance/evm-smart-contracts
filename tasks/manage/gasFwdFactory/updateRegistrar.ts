@@ -22,7 +22,10 @@ task(
       const newRegistrar = taskArgs.newRegistrar || addresses.registrar.proxy;
 
       logger.out("Querying current GasFwdFactory registrar...");
-      const gasFwdFactory = GasFwdFactory__factory.connect(addresses.gasFwd.factory, apTeamMultisigOwners[0]);
+      const gasFwdFactory = GasFwdFactory__factory.connect(
+        addresses.gasFwd.factory,
+        apTeamMultisigOwners[0]
+      );
       const curRegistrar = await gasFwdFactory.registrar();
       if (curRegistrar === newRegistrar) {
         return logger.out(`"${newRegistrar}" is already set as the registrar address.`);

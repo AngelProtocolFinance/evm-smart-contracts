@@ -12,7 +12,7 @@ export async function deployProxyAdmin(hre: HardhatRuntimeEnvironment): Promise<
     config.PROXY_ADMIN_MULTISIG_DATA.threshold,
     config.PROXY_ADMIN_MULTISIG_DATA.requireExecution,
     config.PROXY_ADMIN_MULTISIG_DATA.transactionExpiry,
-  ]
+  ];
 
   // deploy implementation
   logger.out("Deploying implementation...");
@@ -22,14 +22,11 @@ export async function deployProxyAdmin(hre: HardhatRuntimeEnvironment): Promise<
   logger.out(`Address: ${proxyAdmin.address}.`);
 
   // update address file & verify contracts
-  await updateAddresses(
-    {proxyAdmin: proxyAdmin.address},
-    hre
-  );
+  await updateAddresses({proxyAdmin: proxyAdmin.address}, hre);
 
   return {
     address: proxyAdmin.address,
     contractName: getContractName(proxyAdminFactory),
-    constructorArguments: constructorArguments
+    constructorArguments: constructorArguments,
   };
 }

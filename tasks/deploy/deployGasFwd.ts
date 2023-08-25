@@ -14,7 +14,12 @@ task("deploy:GasFwd", "Will deploy the GasFwd implementation and factory")
       const {deployer} = await getSigners(hre);
 
       const gasFwdDeployment = await deployGasFwd(
-        {deployer: deployer, admin: addresses.proxyAdmin, registrar: addresses.registrar.proxy},
+        {
+          deployer: deployer,
+          admin: addresses.proxyAdmin,
+          factoryOwner: addresses.multiSig.apTeam.proxy,
+          registrar: addresses.registrar.proxy,
+        },
         hre
       );
 
