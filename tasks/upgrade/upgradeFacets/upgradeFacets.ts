@@ -42,17 +42,17 @@ task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountSto
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      const {proxyAdmin} = await getSigners(hre);
+      const {deployer, proxyAdminSigner} = await getSigners(hre);
 
       const addresses = await getAddresses(hre);
 
       const accountsDiamond = taskArgs.accountsDiamond || addresses.accounts.diamond;
 
-      const facets = await deployFacets(facetsToUpgrade, proxyAdmin, hre);
+      const facets = await deployFacets(facetsToUpgrade, deployer, hre);
 
-      const facetCuts = await createFacetCuts(facets, accountsDiamond, proxyAdmin);
+      const facetCuts = await createFacetCuts(facets, accountsDiamond, deployer);
 
-      await cutDiamond(accountsDiamond, proxyAdmin, facetCuts, hre);
+      await cutDiamond(accountsDiamond, addresses.proxyAdmin, proxyAdminSigner, facetCuts, hre);
 
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
         const facetsToVerify = facetCuts.filter((cut) => cut.cut.action !== FacetCutAction.Remove);

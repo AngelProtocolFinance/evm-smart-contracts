@@ -27,9 +27,14 @@ const DEPLOYER: Signer = {
   address: extractString("DEPLOYER_ADDRESS"),
 };
 
-const PROXY_ADMIN: Signer = {
-  key: extractString("PROXY_ADMIN_KEY"),
-  address: extractString("PROXY_ADMIN_ADDRESS"),
+const PROXY_ADMIN_DEV: Signer = {
+  key: extractString("PROXY_ADMIN_DEV_KEY"),
+  address: extractString("PROXY_ADMIN_DEV_ADDRESS"),
+};
+
+const PROXY_ADMIN_PROD: Signer = {
+  key: extractString("PROXY_ADMIN_PROD_KEY"),
+  address: extractString("PROXY_ADMIN__PROD_ADDRESS"),
 };
 
 const ETHERSCAN_API_KEY = extractString("ETHERSCAN_API_KEY");
@@ -75,12 +80,32 @@ export function getHardhatAccounts(accountList: string[]): HardhatNetworkAccount
   return hardhatAccounts;
 }
 
-export var envConfig = {
+export var envConfigDev = {
   AP_TEAM_1,
   AP_TEAM_2,
   AP_TEAM_3,
   DEPLOYER,
-  PROXY_ADMIN,
+  PROXY_ADMIN_DEV,
+  ETHERSCAN_API_KEY,
+  GANACHE_PRIVATE_KEY,
+  GANACHE_RPC_URL,
+  GOERLI_RPC_URL,
+  MAINNET_RPC_URL,
+  MUMBAI_RPC_URL,
+  NETWORK,
+  OPTIMIZER_FLAG,
+  OPTIMIZER_RUNS,
+  POLYGON_RPC_URL,
+  POLYSCAN_API_KEY,
+  VERIFY_CONTRACTS,
+};
+
+export var envConfigProd = {
+  AP_TEAM_1,
+  AP_TEAM_2,
+  AP_TEAM_3,
+  DEPLOYER,
+  PROXY_ADMIN_PROD,
   ETHERSCAN_API_KEY,
   GANACHE_PRIVATE_KEY,
   GANACHE_RPC_URL,

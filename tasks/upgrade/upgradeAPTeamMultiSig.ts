@@ -1,5 +1,5 @@
 import {task} from "hardhat/config";
-import {APTeamMultiSig__factory, ITransparentUpgradeableProxy__factory} from "typechain-types";
+import {APTeamMultiSig__factory, ITransparentUpgradeableProxy__factory, ProxyAdmin__factory} from "typechain-types";
 import {
   confirmAction,
   getAddresses,
@@ -23,13 +23,13 @@ task("upgrade:APTeamMultiSig", "Will upgrade the APTeamMultiSig")
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      const {proxyAdmin} = await getSigners(hre);
+      const {deployer, proxyAdminSigner} = await getSigners(hre);
 
       const addresses = await getAddresses(hre);
 
       // Update APTeamMultiSig
       logger.out("Deploying APTeamMultiSig...");
-      const apTeamFactory = new APTeamMultiSig__factory(proxyAdmin);
+      const apTeamFactory = new APTeamMultiSig__factory(deployer);
       const apTeamMultiSig = await apTeamFactory.deploy();
       await apTeamMultiSig.deployed();
       logger.out(`Address: ${apTeamMultiSig.address}`);
@@ -37,9 +37,14 @@ task("upgrade:APTeamMultiSig", "Will upgrade the APTeamMultiSig")
       logger.out("Upgrading APTeamMultiSig proxy implementation...");
       const apTeamProxy = ITransparentUpgradeableProxy__factory.connect(
         addresses.multiSig.apTeam.proxy,
-        proxyAdmin
+        deployer
       );
-      const tx = await apTeamProxy.upgradeTo(apTeamMultiSig.address);
+      const proxyAdminMultisig = ProxyAdmin__factory.connect(
+        addresses.proxyAdmin,
+        proxyAdminSigner
+      );
+      const payload = apTeamProxy.interface.encodeFunctionData("upgradeTo", [apTeamMultiSig.address]);
+      const tx = await proxyAdminMultisig.submitTransaction(apTeamProxy.address, 0, payload, "0x");
       logger.out(`Tx hash: ${tx.hash}`);
       await tx.wait();
 

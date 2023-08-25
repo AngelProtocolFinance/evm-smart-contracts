@@ -11,10 +11,10 @@ task("deploy:GasFwd", "Will deploy the GasFwd implementation and factory")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       const addresses = await getAddresses(hre);
-      const {proxyAdmin} = await getSigners(hre);
+      const {deployer} = await getSigners(hre);
 
       const gasFwdDeployment = await deployGasFwd(
-        {admin: proxyAdmin, registrar: addresses.registrar.proxy},
+        {deployer: deployer, admin: addresses.proxyAdmin, registrar: addresses.registrar.proxy},
         hre
       );
 

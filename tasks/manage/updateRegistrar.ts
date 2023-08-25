@@ -21,7 +21,7 @@ task(
   )
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
-      const {proxyAdmin, treasury} = await getSigners(hre);
+      const {treasury} = await getSigners(hre);
 
       const addresses = await getAddresses(hre);
 
@@ -38,7 +38,7 @@ task(
         multisigFactory: addresses.multiSig.endowment.factory,
         multisigEmitter: addresses.multiSig.endowment.emitter.proxy,
         charityApplications: addresses.multiSig.charityApplications.proxy,
-        proxyAdmin: proxyAdmin.address,
+        proxyAdmin: addresses.proxyAdmin,
         usdcAddress: addresses.tokens.usdc,
         wMaticAddress: addresses.tokens.wmatic,
         gasFwdFactory: addresses.gasFwd.factory,

@@ -1,5 +1,5 @@
 import {task} from "hardhat/config";
-import {Router__factory, ITransparentUpgradeableProxy__factory} from "typechain-types";
+import {Router__factory, ITransparentUpgradeableProxy__factory, ProxyAdmin__factory} from "typechain-types";
 import {
   confirmAction,
   getAddresses,
@@ -22,7 +22,7 @@ task("upgrade:router", "Will upgrade the Router")
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      const {deployer, proxyAdmin} = await getSigners(hre);
+      const {deployer, proxyAdminSigner} = await getSigners(hre);
 
       const addresses = await getAddresses(hre);
 
@@ -35,9 +35,14 @@ task("upgrade:router", "Will upgrade the Router")
       logger.out("Upgrading Router proxy implementation...");
       const routerProxy = ITransparentUpgradeableProxy__factory.connect(
         addresses.router.proxy,
-        proxyAdmin
+        deployer
       );
-      const tx = await routerProxy.upgradeTo(router.address);
+      const proxyAdminMultisig = ProxyAdmin__factory.connect(
+        addresses.proxyAdmin,
+        proxyAdminSigner
+      );
+      const payload = routerProxy.interface.encodeFunctionData("upgradeTo", [router.address]);
+      const tx = await proxyAdminMultisig.submitTransaction(routerProxy.address, 0, payload, "0x");
       logger.out(`Tx hash: ${tx.hash}`);
       await tx.wait();
 

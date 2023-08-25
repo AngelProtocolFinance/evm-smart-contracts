@@ -23,7 +23,7 @@ task("deploy:LocalRegistrarAndRouter", "Will deploy the Local Registrar contract
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      const {proxyAdmin, deployer} = await getSigners(hre);
+      const {deployer} = await getSigners(hre);
       const addresses = await getAddresses(hre);
 
       const owner = taskArgs.owner || addresses.multiSig.apTeam.proxy;
@@ -31,8 +31,8 @@ task("deploy:LocalRegistrarAndRouter", "Will deploy the Local Registrar contract
       const localRegistrar = await deployLocalRegistrar(
         {
           owner: owner,
-          deployer,
-          proxyAdmin,
+          deployer: deployer,
+          proxyAdmin: addresses.proxyAdmin,
         },
         hre
       );
@@ -41,7 +41,7 @@ task("deploy:LocalRegistrarAndRouter", "Will deploy the Local Registrar contract
         return;
       }
 
-      const router = await deployRouter(localRegistrar.proxy.address, hre);
+      const router = await deployRouter(localRegistrar.proxy.address, addresses.proxyAdmin, hre);
 
       let network = await hre.ethers.provider.getNetwork();
       const networkInfo: LocalRegistrarLib.NetworkInfoStruct = {

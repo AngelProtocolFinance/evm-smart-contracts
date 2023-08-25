@@ -1,12 +1,14 @@
 import {task} from "hardhat/config";
 import {
   EndowmentMultiSigEmitter__factory,
-  ITransparentUpgradeableProxy__factory,
+  TransparentUpgradeableProxy__factory,
+  ProxyAdmin__factory
 } from "typechain-types";
 import {
   confirmAction,
   getAddresses,
   getContractName,
+  getEvents,
   getSigners,
   isLocalNetwork,
   logger,
@@ -36,23 +38,28 @@ task(
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      const {proxyAdmin} = await getSigners(hre);
+      const {deployer, proxyAdminSigner} = await getSigners(hre);
 
       const addresses = await getAddresses(hre);
 
       logger.out("Deploying implementation...");
-      const Emitter = new EndowmentMultiSigEmitter__factory(proxyAdmin);
+      const Emitter = new EndowmentMultiSigEmitter__factory(deployer);
       const emitter = await Emitter.deploy();
       logger.out(`Tx hash: ${emitter.deployTransaction.hash}`);
       await emitter.deployed();
       logger.out(`Address: ${emitter.address}`);
 
       logger.out("Upgrading proxy...");
-      const proxy = ITransparentUpgradeableProxy__factory.connect(
+      const proxy = TransparentUpgradeableProxy__factory.connect(
         addresses.multiSig.endowment.emitter.proxy,
-        proxyAdmin
+        deployer
       );
-      const tx = await proxy.upgradeTo(emitter.address);
+      const proxyAdminMultisig = ProxyAdmin__factory.connect(
+        addresses.proxyAdmin,
+        proxyAdminSigner
+      );
+      const payload = proxy.interface.encodeFunctionData("upgradeTo", [emitter.address])
+      const tx = await proxyAdminMultisig.submitTransaction(proxy.address, 0, payload, "0x");
       logger.out(`Tx hash: ${tx.hash}`);
       await tx.wait();
 

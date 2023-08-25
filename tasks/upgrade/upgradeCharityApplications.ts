@@ -1,5 +1,5 @@
-import {task, types} from "hardhat/config";
-import {CharityApplications__factory, ITransparentUpgradeableProxy__factory} from "typechain-types";
+import {task} from "hardhat/config";
+import {CharityApplications__factory, ITransparentUpgradeableProxy__factory, ProxyAdmin__factory} from "typechain-types";
 import {
   confirmAction,
   getAddresses,
@@ -30,25 +30,30 @@ task("upgrade:CharityApplications", "Will upgrade the implementation of CharityA
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      const {proxyAdmin} = await getSigners(hre);
+      const {deployer, proxyAdminSigner} = await getSigners(hre);
       const addresses = await getAddresses(hre);
 
       // deploy implementation
       logger.out("Deploying CharityApplications...");
-      const charityApplicationsFactory = new CharityApplications__factory(proxyAdmin);
+      const charityApplicationsFactory = new CharityApplications__factory(deployer);
       const charityApplications = await charityApplicationsFactory.deploy();
       await charityApplications.deployed();
       logger.out(`Address: ${charityApplications.address}`);
 
       // upgrade proxy
       logger.out("Upgrading proxy...");
-      const apTeamProxy = ITransparentUpgradeableProxy__factory.connect(
+      const charityApplicationsProxy = ITransparentUpgradeableProxy__factory.connect(
         addresses.multiSig.charityApplications.proxy,
-        proxyAdmin
+        deployer
       );
-      const tx1 = await apTeamProxy.upgradeTo(charityApplications.address);
-      logger.out(`Tx hash: ${tx1.hash}`);
-      await tx1.wait();
+      const proxyAdminMultisig = ProxyAdmin__factory.connect(
+        addresses.proxyAdmin,
+        proxyAdminSigner
+      );
+      const payload = charityApplicationsProxy.interface.encodeFunctionData("upgradeTo", [charityApplications.address]);
+      const tx = await proxyAdminMultisig.submitTransaction(charityApplicationsProxy.address, 0, payload, "0x");
+      logger.out(`Tx hash: ${tx.hash}`);
+      await tx.wait();
 
       // update address & verify
       await updateAddresses(

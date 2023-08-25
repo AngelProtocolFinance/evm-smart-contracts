@@ -1,5 +1,5 @@
 import {task} from "hardhat/config";
-import {Registrar__factory, ITransparentUpgradeableProxy__factory} from "typechain-types";
+import {Registrar__factory, ITransparentUpgradeableProxy__factory, ProxyAdmin__factory} from "typechain-types";
 import {
   confirmAction,
   getAddresses,
@@ -22,7 +22,7 @@ task("upgrade:registrar", "Will upgrade the Registrar (use only on the primary c
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      const {deployer, proxyAdmin} = await getSigners(hre);
+      const {deployer, proxyAdminSigner} = await getSigners(hre);
 
       const addresses = await getAddresses(hre);
 
@@ -35,9 +35,14 @@ task("upgrade:registrar", "Will upgrade the Registrar (use only on the primary c
       logger.out("Upgrading Registrar proxy implementation...");
       const registrarProxy = ITransparentUpgradeableProxy__factory.connect(
         addresses.registrar.proxy,
-        proxyAdmin
+        deployer
       );
-      const tx = await registrarProxy.upgradeTo(registrar.address);
+      const proxyAdminMultisig = ProxyAdmin__factory.connect(
+        addresses.proxyAdmin,
+        proxyAdminSigner
+      );
+      const payload = registrarProxy.interface.encodeFunctionData("upgradeTo", [registrar.address]);
+      const tx = await proxyAdminMultisig.submitTransaction(registrarProxy.address, 0, payload, "0x");
       logger.out(`Tx hash: ${tx.hash}`);
       await tx.wait();
 

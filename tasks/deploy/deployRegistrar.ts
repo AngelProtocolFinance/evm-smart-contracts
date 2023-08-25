@@ -34,7 +34,7 @@ task(
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      const {treasury, proxyAdmin, deployer} = await getSigners(hre);
+      const {treasury, deployer} = await getSigners(hre);
       const addresses = await getAddresses(hre);
 
       const apTeamMultiSig = taskArgs.apTeamMultisig || addresses.multiSig.apTeam.proxy;
@@ -47,7 +47,7 @@ task(
           router: oldRouterAddress,
           owner: apTeamMultiSig,
           deployer,
-          proxyAdmin,
+          proxyAdmin: addresses.proxyAdmin,
           treasury: treasury.address,
           apTeamMultisig: apTeamMultiSig,
         },
@@ -65,7 +65,7 @@ task(
         multisigFactory: addresses.multiSig.endowment.factory,
         multisigEmitter: addresses.multiSig.endowment.emitter.proxy,
         charityApplications: addresses.multiSig.charityApplications.proxy,
-        proxyAdmin: proxyAdmin.address,
+        proxyAdmin: addresses.proxyAdmin,
         usdcAddress: addresses.tokens.usdc,
         wMaticAddress: addresses.tokens.wmatic,
         yes: true,
@@ -76,7 +76,7 @@ task(
         yes: true,
       });
 
-      const router = await deployRouter(registrar.proxy.address, hre);
+      const router = await deployRouter(registrar.proxy.address, addresses.proxyAdmin, hre);
 
       // Registrar NetworkInfo's Router address must be updated for the current network
       await updateRegistrarNetworkConnections(
