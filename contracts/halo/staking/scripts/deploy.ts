@@ -1,10 +1,10 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {getSigners, logger, updateAddresses, verify} from "utils";
+import {getContractName, getSigners, isLocalNetwork, logger, updateAddresses, verify} from "utils";
 
-import {StakingMessage} from "typechain-types/contracts/halo/staking/Staking";
+import {StakingMessages} from "typechain-types/contracts/halo/staking/Staking";
 
 export async function deployStaking(
-  StakingDataInput: StakingMessage.InstantiateMsgStruct,
+  StakingDataInput: StakingMessages.InstantiateMsgStruct,
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
@@ -41,11 +41,11 @@ export async function deployStaking(
       hre
     );
 
-    if (verify_contracts) {
-      await verify(hre, {address: StakingInstance.address});
+    if (!isLocalNetwork(hre) && verify_contracts) {
+      await verify(hre, {contractName: getContractName(Staking), address: StakingInstance.address});
       await verify(hre, {
+        contractName: getContractName(ProxyContract),
         address: StakingProxy.address,
-        constructorArguments: [StakingInstance.address, proxyAdmin.address, StakingData],
       });
     }
 

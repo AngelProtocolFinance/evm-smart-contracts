@@ -85,6 +85,7 @@ export async function deployHaloImplementation(
       Staking: await deployStaking(
         {
           haloToken: halo,
+          stakePeriod: 1814400, // 21 days in seconds
           interestRate: 10,
         },
         verify_contracts,
