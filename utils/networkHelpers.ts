@@ -27,6 +27,12 @@ export async function getChainId(hre: HardhatRuntimeEnvironment): Promise<number
   return chainId;
 }
 
+export async function isProdNetwork(hre: HardhatRuntimeEnvironment): Promise<boolean> {
+  const thisChainId = await getChainId(hre);
+  if(PROD_NETWORKS.includes(thisChainId)) return true;
+  return false; 
+}
+
 // There are errors/mismatches in the axelar sdk jsons, so we just implement a lightweight
 // version here and use this instead.
 const AxelarNetworks = new TwoWayMap({
@@ -36,3 +42,5 @@ const AxelarNetworks = new TwoWayMap({
   31337: "localhost",
   80001: "Polygon",
 });
+
+export const PROD_NETWORKS = [1, 137]; // Ethereum, Polygon
