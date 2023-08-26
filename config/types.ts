@@ -30,7 +30,7 @@ export type Config = {
     requireExecution: boolean;
     transactionExpiry: number;
     seedSplitToLiquid: number;
-    gasAmount: number;
+    gasAmount: BigNumber;
     seedAmount: number;
   };
   DONATION_MATCH_CHARITY_DATA: {
@@ -49,4 +49,9 @@ export type Config = {
     CommunitySpendLimit: number;
     distributorSpendLimit: number;
   };
+  PROD_CONFIG: {
+    APTeamMultiSigOwners: string[];
+    CharityApplicationsOwners: string[];
+    Treasury: string;
+  }
 };

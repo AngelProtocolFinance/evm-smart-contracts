@@ -14,7 +14,10 @@ export async function deployCharityApplications(
   implementation: Deployment;
   proxy: Deployment;
 }> {
-  const {apTeamMultisigOwners} = await getSigners(hre);
+  const {charityApplicationsOwners} = await getSigners(hre);
+  const owners = charityApplicationsOwners ? 
+    charityApplicationsOwners.map((x) => x.address) : 
+    config.PROD_CONFIG.CharityApplicationsOwners;
 
   logger.out("Deploying CharityApplications...");
 
@@ -28,7 +31,7 @@ export async function deployCharityApplications(
   // deploy proxy
   logger.out("Deploying proxy...");
   const initData = charityApplications.interface.encodeFunctionData("initializeApplications", [
-    apTeamMultisigOwners.map((x) => x.address),
+    owners,
     config.CHARITY_APPLICATIONS_DATA.threshold,
     config.CHARITY_APPLICATIONS_DATA.requireExecution,
     config.CHARITY_APPLICATIONS_DATA.transactionExpiry,

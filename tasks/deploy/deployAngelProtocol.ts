@@ -50,6 +50,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
       const verify_contracts = !isLocalNetwork(hre) && !taskArgs.skipVerify;
 
       let {deployer, proxyAdminSigner, treasury} = await getSigners(hre);
+      let treasuryAddress = treasury? treasury.address : config.PROD_CONFIG.Treasury;
       if(!proxyAdminSigner && taskArgs.proxyAdminPkey) {
         proxyAdminSigner = await connectSignerFromPkey(taskArgs.proxyAdminPkey, hre);
       }
@@ -80,7 +81,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
           owner: apTeamMultisig.proxy.address,
           deployer,
           proxyAdmin: proxyAdminMultisig.address,
-          treasury: treasury.address,
+          treasury: treasuryAddress,
           apTeamMultisig: apTeamMultisig.proxy.address,
         },
         hre
@@ -136,7 +137,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
         accountsContract: accounts.diamond.address, //Address
         collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare, //uint256
         indexFundContract: indexFund.proxy.address, //address
-        treasury: treasury.address,
+        treasury: treasuryAddress,
         uniswapRouter: thirdPartyAddresses.uniswap.swapRouter.address, //address
         uniswapFactory: thirdPartyAddresses.uniswap.factory.address, //address
         multisigFactory: endowmentMultiSig.factory.address, //address

@@ -14,7 +14,10 @@ export async function deployAPTeamMultiSig(
 }> {
   logger.out("Deploying APTeamMultiSig...");
 
-  const {apTeamMultisigOwners} = await getSigners(hre);
+  const { apTeamMultisigOwners } = await getSigners(hre);
+  const owners = apTeamMultisigOwners ? 
+    apTeamMultisigOwners.map((x) => x.address) : 
+    config.PROD_CONFIG.APTeamMultiSigOwners;
 
   // deploy implementation
   logger.out("Deploying implementation...");
@@ -26,7 +29,7 @@ export async function deployAPTeamMultiSig(
   // deploy proxy
   logger.out("Deploying proxy...");
   const apTeamMultiSigData = apTeamMultiSig.interface.encodeFunctionData("initializeAPTeam", [
-    apTeamMultisigOwners.map((x) => x.address),
+    owners,
     config.AP_TEAM_MULTISIG_DATA.threshold,
     config.AP_TEAM_MULTISIG_DATA.requireExecution,
     config.AP_TEAM_MULTISIG_DATA.transactionExpiry,
