@@ -1,6 +1,6 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import { isProdNetwork } from "./networkHelpers";
+import {isProdNetwork} from "./networkHelpers";
 import {Wallet} from "ethers";
 
 type Result = {
@@ -16,8 +16,6 @@ type Result = {
   treasury?: SignerWithAddress;
 };
 
-
-
 export async function getSigners(hre: HardhatRuntimeEnvironment): Promise<Result> {
   if (await isProdNetwork(hre)) {
     const [deployer, apTeam1, apTeam2, apTeam3] = await hre.ethers.getSigners();
@@ -26,9 +24,8 @@ export async function getSigners(hre: HardhatRuntimeEnvironment): Promise<Result
       apTeam1,
       apTeam2,
       apTeam3,
-    }; 
-  }
-  else {
+    };
+  } else {
     const [deployer, proxyAdminSigner, apTeam1, apTeam2, apTeam3] = await hre.ethers.getSigners();
 
     return {
@@ -46,7 +43,10 @@ export async function getSigners(hre: HardhatRuntimeEnvironment): Promise<Result
   }
 }
 
-export async function connectSignerFromPkey(pkey: string, hre: HardhatRuntimeEnvironment) : Promise<SignerWithAddress> {
+export async function connectSignerFromPkey(
+  pkey: string,
+  hre: HardhatRuntimeEnvironment
+): Promise<SignerWithAddress> {
   const provider = hre.ethers.provider;
   const signer_wallet = new Wallet(pkey, provider);
   const signer = signer_wallet.connect(provider);

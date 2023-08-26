@@ -53,5 +53,5 @@ export type Config = {
     APTeamMultiSigOwners: string[];
     CharityApplicationsOwners: string[];
     Treasury: string;
-  }
+  };
 };

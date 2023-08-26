@@ -22,13 +22,13 @@ task(
     cliTypes.array.boolean
   )
   .addOptionalParam(
-    "apTeamSignerPkey", 
+    "apTeamSignerPkey",
     "If running on prod, provide a pkey for a valid APTeam Multisig Owner."
   )
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       const {treasury} = await getSigners(hre);
-      let treasuryAddress = treasury? treasury.address : config.PROD_CONFIG.Treasury;
+      let treasuryAddress = treasury ? treasury.address : config.PROD_CONFIG.Treasury;
 
       const addresses = await getAddresses(hre);
 
@@ -51,7 +51,7 @@ task(
         gasFwdFactory: addresses.gasFwd.factory,
       };
 
-      if(taskArgs.apTeamSignerPkey) {
+      if (taskArgs.apTeamSignerPkey) {
         await hre.run("manage:registrar:updateConfig", {
           ...newConfig,
           apTeamSignerPkey: taskArgs.apTeamSignerPkey,
@@ -80,9 +80,13 @@ task(
           try {
             const tokenAddress = taskArgs.acceptedTokens[i];
             const acceptanceState = taskArgs.acceptanceStates.at(i) ?? true;
-            const signerKey = taskArgs.apTeamSignerPkey
-            if(taskArgs.apTeamSignerPkey){
-              await hre.run("manage:registrar:setTokenAccepted", {tokenAddress, acceptanceState, signerKey});
+            const signerKey = taskArgs.apTeamSignerPkey;
+            if (taskArgs.apTeamSignerPkey) {
+              await hre.run("manage:registrar:setTokenAccepted", {
+                tokenAddress,
+                acceptanceState,
+                signerKey,
+              });
             } else {
               await hre.run("manage:registrar:setTokenAccepted", {tokenAddress, acceptanceState});
             }

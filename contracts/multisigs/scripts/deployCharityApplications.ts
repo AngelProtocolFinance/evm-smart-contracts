@@ -15,9 +15,9 @@ export async function deployCharityApplications(
   proxy: Deployment;
 }> {
   const {charityApplicationsOwners} = await getSigners(hre);
-  const owners = charityApplicationsOwners ? 
-    charityApplicationsOwners.map((x) => x.address) : 
-    config.PROD_CONFIG.CharityApplicationsOwners;
+  const owners = charityApplicationsOwners
+    ? charityApplicationsOwners.map((x) => x.address)
+    : config.PROD_CONFIG.CharityApplicationsOwners;
 
   logger.out("Deploying CharityApplications...");
 

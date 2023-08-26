@@ -1,6 +1,14 @@
 import {FacetCutAction} from "contracts/core/accounts/scripts/libraries/diamond";
 import {task} from "hardhat/config";
-import {confirmAction, connectSignerFromPkey, getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
+import {
+  confirmAction,
+  connectSignerFromPkey,
+  getAddresses,
+  getSigners,
+  isLocalNetwork,
+  logger,
+  verify,
+} from "utils";
 import {ALL_FACET_NAMES} from "./constants";
 import createFacetCuts from "./createFacetCuts";
 import cutDiamond from "./cutDiamond";
@@ -45,10 +53,9 @@ task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountSto
       }
 
       let {deployer, proxyAdminSigner} = await getSigners(hre);
-      if(!proxyAdminSigner && taskArgs.proxyAdminPkey) {
+      if (!proxyAdminSigner && taskArgs.proxyAdminPkey) {
         proxyAdminSigner = await connectSignerFromPkey(taskArgs.proxyAdminPkey, hre);
-      }
-      else if(!proxyAdminSigner) {
+      } else if (!proxyAdminSigner) {
         throw new Error("Must provide a pkey for proxyAdmin signer on this network");
       }
 
@@ -60,7 +67,13 @@ task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountSto
 
       const facetCuts = await createFacetCuts(facets, accountsDiamond, deployer);
 
-      await cutDiamond(accountsDiamond, addresses.multiSig.proxyAdmin, proxyAdminSigner, facetCuts, hre);
+      await cutDiamond(
+        accountsDiamond,
+        addresses.multiSig.proxyAdmin,
+        proxyAdminSigner,
+        facetCuts,
+        hre
+      );
 
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
         const facetsToVerify = facetCuts.filter((cut) => cut.cut.action !== FacetCutAction.Remove);

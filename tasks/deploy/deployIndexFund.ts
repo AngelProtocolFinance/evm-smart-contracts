@@ -32,7 +32,12 @@ task("deploy:IndexFund", "Will deploy IndexFund contract")
       const registrar = taskArgs.registrar || addresses.registrar.proxy;
       const owner = taskArgs.owner || addresses.multiSig.apTeam.proxy;
 
-      const deployment = await deployIndexFund(registrar, owner, addresses.multiSig.proxyAdmin, hre);
+      const deployment = await deployIndexFund(
+        registrar,
+        owner,
+        addresses.multiSig.proxyAdmin,
+        hre
+      );
 
       await hre.run("manage:registrar:updateConfig", {
         indexFundContract: deployment.proxy.address,

@@ -1,5 +1,5 @@
 import {task} from "hardhat/config";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {APTeamMultiSig__factory, IndexFund__factory} from "typechain-types";
 import {confirmAction, connectSignerFromPkey, getAddresses, getSigners, logger} from "utils";
 
@@ -18,23 +18,18 @@ task("manage:IndexFund:transferOwnership", "Will update the owner of the IndexFu
       const {apTeamMultisigOwners} = await getSigners(hre);
 
       let apTeamSigner: SignerWithAddress;
-      if(!apTeamMultisigOwners && taskArgs.apTeamSignerPkey) {
+      if (!apTeamMultisigOwners && taskArgs.apTeamSignerPkey) {
         apTeamSigner = await connectSignerFromPkey(taskArgs.apTeamSignerPkey, hre);
-      }
-      else if(!apTeamMultisigOwners) {
+      } else if (!apTeamMultisigOwners) {
         throw new Error("Must provide a pkey for AP Team signer on this network");
-      }
-      else {
-        apTeamSigner = apTeamMultisigOwners[0]
+      } else {
+        apTeamSigner = apTeamMultisigOwners[0];
       }
 
       const newOwner = taskArgs.to || addresses.multiSig.apTeam.proxy;
 
       logger.out("Querying current IndexFund owner...");
-      const indexFund = IndexFund__factory.connect(
-        addresses.indexFund.proxy,
-        apTeamSigner
-      );
+      const indexFund = IndexFund__factory.connect(addresses.indexFund.proxy, apTeamSigner);
       const curOwner = await indexFund.owner();
       if (curOwner === newOwner) {
         return logger.out(`"${newOwner}" is already the owner.`);

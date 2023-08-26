@@ -1,5 +1,5 @@
 import {task} from "hardhat/config";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
 import {confirmAction, connectSignerFromPkey, getAddresses, getSigners, logger} from "utils";
 
@@ -11,7 +11,7 @@ task("manage:registrar:transferOwnership")
     "Address of the new owner. Ensure at least one of `apTeamMultisigOwners` is the controller of this address. Will default to `contract-address.json > multiSig.apTeam.proxy` if none is provided."
   )
   .addOptionalParam(
-    "apTeamSignerPkey", 
+    "apTeamSignerPkey",
     "If running on prod, provide a pkey for a valid APTeam Multisig Owner."
   )
   .addFlag("yes", "Automatic yes to prompt.")
@@ -21,22 +21,17 @@ task("manage:registrar:transferOwnership")
       logger.out("Connecting to registrar on specified network...");
       const addresses = await getAddresses(hre);
       const {apTeamMultisigOwners} = await getSigners(hre);
-      
+
       let apTeamSigner: SignerWithAddress;
-      if(!apTeamMultisigOwners && taskArgs.apTeamSignerPkey) {
+      if (!apTeamMultisigOwners && taskArgs.apTeamSignerPkey) {
         apTeamSigner = await connectSignerFromPkey(taskArgs.apTeamSignerPkey, hre);
-      }
-      else if(!apTeamMultisigOwners) {
+      } else if (!apTeamMultisigOwners) {
         throw new Error("Must provide a pkey for AP Team signer on this network");
-      }
-      else {
-        apTeamSigner = apTeamMultisigOwners[0]
+      } else {
+        apTeamSigner = apTeamMultisigOwners[0];
       }
 
-      const registrar = Registrar__factory.connect(
-        addresses.registrar.proxy,
-        apTeamSigner
-      );
+      const registrar = Registrar__factory.connect(addresses.registrar.proxy, apTeamSigner);
       logger.out(`Connected to Registrar at: ${registrar.address}`);
 
       const newOwner = taskArgs.to || addresses.multiSig.apTeam.proxy;

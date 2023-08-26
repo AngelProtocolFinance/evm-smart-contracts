@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import {ethers} from "ethers";
 import {Config} from "./types";
-import { BigNumber } from "ethers";
+import {BigNumber} from "ethers";
 dotenv.config({path: __dirname + "/./../.env"});
 
 const config: Config = {
@@ -33,7 +33,7 @@ const config: Config = {
     requireExecution: false,
     transactionExpiry: 345600,
     seedSplitToLiquid: 0,
-    gasAmount: BigNumber.from("180000000000000000"),  // 0.18 Ether
+    gasAmount: BigNumber.from("180000000000000000"), // 0.18 Ether
     seedAmount: 0,
   },
   DONATION_MATCH_CHARITY_DATA: {
@@ -68,7 +68,7 @@ const config: Config = {
       "0x13C9060a611e4277a93ca259068256271fC2d7B4",
     ],
     Treasury: "0x4C6cDdFC00064D73E64B34aE453884de1Bf6D639",
-  }
+  },
 };
 
 export default config;

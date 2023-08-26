@@ -41,7 +41,7 @@ export async function resetContractAddresses(
       },
       proxyAdmin: currentAddressObj.multiSig.proxyAdmin,
     },
-    tokens: { ...currentAddressObj.tokens, halo: "", reserveToken: "" },
+    tokens: {...currentAddressObj.tokens, halo: "", reserveToken: ""},
     uniswap: currentAddressObj.uniswap,
   };
 

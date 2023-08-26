@@ -1,5 +1,5 @@
 import {task, types} from "hardhat/config";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {updateRegistrarNetworkConnections} from "tasks/helpers";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
 import {
@@ -32,7 +32,7 @@ task("manage:registrar:setNetworkInfo", "Set network info for a specified networ
     types.string
   )
   .addOptionalParam(
-    "apTeamSignerPkey", 
+    "apTeamSignerPkey",
     "If running on prod, provide a pkey for a valid APTeam Multisig Owner."
   )
   .setAction(async function (taskArguments: TaskArgs, hre) {
@@ -44,16 +44,13 @@ task("manage:registrar:setNetworkInfo", "Set network info for a specified networ
 
     const {apTeamMultisigOwners} = await getSigners(hre);
     let apTeamSigner: SignerWithAddress;
-    if(!apTeamMultisigOwners && taskArguments.apTeamSignerPkey) {
+    if (!apTeamMultisigOwners && taskArguments.apTeamSignerPkey) {
       apTeamSigner = await connectSignerFromPkey(taskArguments.apTeamSignerPkey, hre);
-    }
-    else if(!apTeamMultisigOwners) {
+    } else if (!apTeamMultisigOwners) {
       throw new Error("Must provide a pkey for AP Team signer on this network");
+    } else {
+      apTeamSigner = apTeamMultisigOwners[0];
     }
-    else {
-      apTeamSigner = apTeamMultisigOwners[0]
-    }
-
 
     const thatNetworkAddresses = getAddressesByNetworkId(
       networkId,

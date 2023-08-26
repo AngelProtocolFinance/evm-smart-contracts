@@ -27,7 +27,12 @@ task("deploy:EndowmentMultiSig", "Will deploy EndowmentMultiSig contract")
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      const deployData = await deployEndowmentMultiSig(registrarAddress, addresses.multiSig.proxyAdmin, deployer, hre);
+      const deployData = await deployEndowmentMultiSig(
+        registrarAddress,
+        addresses.multiSig.proxyAdmin,
+        deployer,
+        hre
+      );
 
       await hre.run("manage:registrar:updateConfig", {
         multisigFactory: deployData.factory.address,

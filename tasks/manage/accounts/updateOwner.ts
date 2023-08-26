@@ -1,5 +1,5 @@
 import {task} from "hardhat/config";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {
   APTeamMultiSig__factory,
   AccountsQueryEndowments__factory,
@@ -7,7 +7,7 @@ import {
 } from "typechain-types";
 import {confirmAction, connectSignerFromPkey, getAddresses, getSigners, logger} from "utils";
 
-type TaskArgs = {to: string; apTeamSignerPkey?:string; yes: boolean};
+type TaskArgs = {to: string; apTeamSignerPkey?: string; yes: boolean};
 
 task("manage:AccountsDiamond:updateOwner", "Will update the owner of the Accounts Diamond")
   .addOptionalParam(
@@ -15,7 +15,7 @@ task("manage:AccountsDiamond:updateOwner", "Will update the owner of the Account
     "Address of the new owner. Ensure at least one of `apTeamMultisigOwners` is the controller of this address. Will default to `contract-address.json > multiSig.apTeam.proxy` if none is provided."
   )
   .addOptionalParam(
-    "apTeamSignerPkey", 
+    "apTeamSignerPkey",
     "If running on prod, provide a pkey for a valid APTeam Multisig Owner."
   )
   .addFlag("yes", "Automatic yes to prompt.")
@@ -26,14 +26,12 @@ task("manage:AccountsDiamond:updateOwner", "Will update the owner of the Account
       const {apTeamMultisigOwners} = await getSigners(hre);
 
       let apTeamSigner: SignerWithAddress;
-      if(!apTeamMultisigOwners && taskArgs.apTeamSignerPkey) {
+      if (!apTeamMultisigOwners && taskArgs.apTeamSignerPkey) {
         apTeamSigner = await connectSignerFromPkey(taskArgs.apTeamSignerPkey, hre);
-      }
-      else if(!apTeamMultisigOwners) {
+      } else if (!apTeamMultisigOwners) {
         throw new Error("Must provide a pkey for AP Team signer on this network");
-      }
-      else {
-        apTeamSigner = apTeamMultisigOwners[0]
+      } else {
+        apTeamSigner = apTeamMultisigOwners[0];
       }
 
       const newOwner = taskArgs.to || addresses.multiSig.apTeam.proxy;

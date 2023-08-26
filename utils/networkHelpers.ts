@@ -29,8 +29,8 @@ export async function getChainId(hre: HardhatRuntimeEnvironment): Promise<number
 
 export async function isProdNetwork(hre: HardhatRuntimeEnvironment): Promise<boolean> {
   const thisChainId = await getChainId(hre);
-  if(PROD_NETWORKS.includes(thisChainId)) return true;
-  return false; 
+  if (PROD_NETWORKS.includes(thisChainId)) return true;
+  return false;
 }
 
 // There are errors/mismatches in the axelar sdk jsons, so we just implement a lightweight

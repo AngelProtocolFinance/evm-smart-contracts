@@ -46,10 +46,9 @@ task(
       }
 
       let {deployer, proxyAdminSigner} = await getSigners(hre);
-      if(!proxyAdminSigner && taskArgs.proxyAdminPkey) {
+      if (!proxyAdminSigner && taskArgs.proxyAdminPkey) {
         proxyAdminSigner = await connectSignerFromPkey(taskArgs.proxyAdminPkey, hre);
-      }
-      else if(!proxyAdminSigner) {
+      } else if (!proxyAdminSigner) {
         throw new Error("Must provide a pkey for proxyAdmin signer on this network");
       }
 

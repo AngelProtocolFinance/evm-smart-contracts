@@ -1,5 +1,5 @@
 import {task} from "hardhat/config";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {
   APTeamMultiSig__factory,
   AccountsQueryEndowments__factory,
@@ -19,7 +19,7 @@ task("manage:accounts:updateConfig", "Will update Accounts Diamond config")
     "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
   )
   .addOptionalParam(
-    "apTeamSignerPkey", 
+    "apTeamSignerPkey",
     "If running on prod, provide a pkey for a valid APTeam Multisig Owner."
   )
   .addFlag("yes", "Automatic yes to prompt.")
@@ -32,14 +32,12 @@ task("manage:accounts:updateConfig", "Will update Accounts Diamond config")
       const {apTeamMultisigOwners} = await getSigners(hre);
 
       let apTeamSigner: SignerWithAddress;
-      if(!apTeamMultisigOwners && taskArgs.apTeamSignerPkey) {
+      if (!apTeamMultisigOwners && taskArgs.apTeamSignerPkey) {
         apTeamSigner = await connectSignerFromPkey(taskArgs.apTeamSignerPkey, hre);
-      }
-      else if(!apTeamMultisigOwners) {
+      } else if (!apTeamMultisigOwners) {
         throw new Error("Must provide a pkey for AP Team signer on this network");
-      }
-      else {
-        apTeamSigner = apTeamMultisigOwners[0]
+      } else {
+        apTeamSigner = apTeamMultisigOwners[0];
       }
 
       logger.out("Querying current config...");

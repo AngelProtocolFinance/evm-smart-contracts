@@ -1,9 +1,16 @@
 import {task, types} from "hardhat/config";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
-import {FeeTypes, connectSignerFromPkey, getAddresses, getEnumKeys, getSigners, logger} from "utils";
+import {
+  FeeTypes,
+  connectSignerFromPkey,
+  getAddresses,
+  getEnumKeys,
+  getSigners,
+  logger,
+} from "utils";
 
-type TaskArgs = {feeType: number; payoutAddress: string; bps: number; apTeamSignerPkey?: string;};
+type TaskArgs = {feeType: number; payoutAddress: string; bps: number; apTeamSignerPkey?: string};
 
 task("manage:registrar:setFeeSettings")
   .addParam(
@@ -16,7 +23,7 @@ task("manage:registrar:setFeeSettings")
   )
   .addParam("payoutAddress", "Address of fee recipient", "", types.string)
   .addOptionalParam(
-    "apTeamSignerPkey", 
+    "apTeamSignerPkey",
     "If running on prod, provide a pkey for a valid APTeam Multisig Owner."
   )
   .addParam("bps", "basis points to be applied for this fee", 0, types.int)
@@ -29,14 +36,12 @@ task("manage:registrar:setFeeSettings")
     const {apTeamMultisigOwners} = await getSigners(hre);
 
     let apTeamSigner: SignerWithAddress;
-    if(!apTeamMultisigOwners && taskArguments.apTeamSignerPkey) {
+    if (!apTeamMultisigOwners && taskArguments.apTeamSignerPkey) {
       apTeamSigner = await connectSignerFromPkey(taskArguments.apTeamSignerPkey, hre);
-    }
-    else if(!apTeamMultisigOwners) {
+    } else if (!apTeamMultisigOwners) {
       throw new Error("Must provide a pkey for AP Team signer on this network");
-    }
-    else {
-      apTeamSigner = apTeamMultisigOwners[0]
+    } else {
+      apTeamSigner = apTeamMultisigOwners[0];
     }
 
     const registrar = Registrar__factory.connect(registrarAddress, apTeamSigner);

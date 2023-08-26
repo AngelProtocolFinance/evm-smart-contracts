@@ -1,5 +1,5 @@
 import {task, types} from "hardhat/config";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {Registrar__factory, APTeamMultiSig__factory} from "typechain-types";
 import {connectSignerFromPkey, getAddresses, getSigners, logger} from "utils";
 
@@ -9,7 +9,7 @@ task("manage:registrar:setTokenAccepted")
   .addParam("tokenAddress", "Address of the token", "", types.string)
   .addParam("acceptanceState", "Boolean for acceptance state", false, types.boolean)
   .addOptionalParam(
-    "apTeamSignerPkey", 
+    "apTeamSignerPkey",
     "If running on prod, provide a pkey for a valid APTeam Multisig Owner."
   )
   .setAction(async function (taskArguments: TaskArgs, hre) {
@@ -20,14 +20,12 @@ task("manage:registrar:setTokenAccepted")
     const {apTeamMultisigOwners} = await getSigners(hre);
 
     let apTeamSigner: SignerWithAddress;
-    if(!apTeamMultisigOwners && taskArguments.apTeamSignerPkey) {
+    if (!apTeamMultisigOwners && taskArguments.apTeamSignerPkey) {
       apTeamSigner = await connectSignerFromPkey(taskArguments.apTeamSignerPkey, hre);
-    }
-    else if(!apTeamMultisigOwners) {
+    } else if (!apTeamMultisigOwners) {
       throw new Error("Must provide a pkey for AP Team signer on this network");
-    }
-    else {
-      apTeamSigner = apTeamMultisigOwners[0]
+    } else {
+      apTeamSigner = apTeamMultisigOwners[0];
     }
 
     const registrar = Registrar__factory.connect(registrarAddress, apTeamSigner);

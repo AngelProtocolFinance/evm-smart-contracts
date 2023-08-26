@@ -2,7 +2,7 @@
 import {config as dotenvConfig} from "dotenv";
 import {resolve} from "path";
 import {HardhatNetworkAccountsUserConfig, HardhatNetworkAccountUserConfig} from "hardhat/types";
-import { Signer, EnvConfig } from "./types";
+import {Signer, EnvConfig} from "./types";
 
 dotenvConfig({path: resolve(__dirname, "../.env")});
 
@@ -81,13 +81,7 @@ export const envConfigDev: EnvConfig = {
   POLYGON_RPC_URL,
   POLYSCAN_API_KEY,
   VERIFY_CONTRACTS,
-  ACCOUNTS: [
-    AP_TEAM_1.key,
-    AP_TEAM_2.key,
-    AP_TEAM_3.key,
-    DEPLOYER.key,
-    PROXY_ADMIN_DEV.key,
-  ]
+  ACCOUNTS: [AP_TEAM_1.key, AP_TEAM_2.key, AP_TEAM_3.key, DEPLOYER.key, PROXY_ADMIN_DEV.key],
 };
 
 export const envConfigProd: EnvConfig = {
@@ -100,10 +94,5 @@ export const envConfigProd: EnvConfig = {
   POLYGON_RPC_URL,
   POLYSCAN_API_KEY,
   VERIFY_CONTRACTS,
-  ACCOUNTS: [
-    AP_TEAM_1.key,
-    AP_TEAM_2.key,
-    AP_TEAM_3.key,
-    DEPLOYER.key,
-  ]
+  ACCOUNTS: [AP_TEAM_1.key, AP_TEAM_2.key, AP_TEAM_3.key, DEPLOYER.key],
 };

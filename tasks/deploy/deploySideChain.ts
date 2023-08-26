@@ -7,54 +7,59 @@ task("deploy:SideChain", "Will deploy complete side-chain infrastructure")
   .addFlag("skipVerify", "Skip contract verification")
   .addFlag("yes", "Automatic yes to prompt.")
   .addOptionalParam("proxyAdminPkey", "The pkey for the prod proxy amdin multisig")
-  .setAction(async (taskArgs: {skipVerify: boolean; yes: boolean, proxyAdminPkey?: string}, hre) => {
-    try {
-      const isConfirmed =
-        taskArgs.yes || (await confirmAction("Deploying all side chain contracts..."));
-      if (!isConfirmed) {
-        return logger.out("Confirmation denied.", logger.Level.Warn);
-      }
+  .setAction(
+    async (taskArgs: {skipVerify: boolean; yes: boolean; proxyAdminPkey?: string}, hre) => {
+      try {
+        const isConfirmed =
+          taskArgs.yes || (await confirmAction("Deploying all side chain contracts..."));
+        if (!isConfirmed) {
+          return logger.out("Confirmation denied.", logger.Level.Warn);
+        }
 
-      const verify_contracts = !isLocalNetwork(hre) && !taskArgs.skipVerify;
-      
-      let {deployer, proxyAdminSigner} = await getSigners(hre);
-      if(!proxyAdminSigner && taskArgs.proxyAdminPkey) {
-        proxyAdminSigner = await connectSignerFromPkey(taskArgs.proxyAdminPkey, hre);
-      }
-      else if(!proxyAdminSigner) {
-        throw new Error("Must provide a pkey for proxyAdmin signer on this network");
-      }
+        const verify_contracts = !isLocalNetwork(hre) && !taskArgs.skipVerify;
 
-      await resetContractAddresses(hre);
+        let {deployer, proxyAdminSigner} = await getSigners(hre);
+        if (!proxyAdminSigner && taskArgs.proxyAdminPkey) {
+          proxyAdminSigner = await connectSignerFromPkey(taskArgs.proxyAdminPkey, hre);
+        } else if (!proxyAdminSigner) {
+          throw new Error("Must provide a pkey for proxyAdmin signer on this network");
+        }
 
-      logger.out(`Deploying the contracts with the account: ${deployer.address}`);
+        await resetContractAddresses(hre);
 
-      const proxyAdminMultisig = await deployProxyAdminMultisig(proxyAdminSigner, deployer, hre);
+        logger.out(`Deploying the contracts with the account: ${deployer.address}`);
 
-      const apTeamMultisig = await deployAPTeamMultiSig(proxyAdminMultisig.address, deployer, hre);
+        const proxyAdminMultisig = await deployProxyAdminMultisig(proxyAdminSigner, deployer, hre);
 
-      await hre.run("deploy:LocalRegistrarAndRouter", {
-        skipVerify: verify_contracts,
-        yes: true,
-        owner: apTeamMultisig.proxy.address,
-      });
+        const apTeamMultisig = await deployAPTeamMultiSig(
+          proxyAdminMultisig.address,
+          deployer,
+          hre
+        );
 
-      if (verify_contracts) {
-        const deployments: Array<Deployment | undefined> = [
-          proxyAdminMultisig,
-          apTeamMultisig.implementation,
-          apTeamMultisig.proxy,
-        ];
+        await hre.run("deploy:LocalRegistrarAndRouter", {
+          skipVerify: verify_contracts,
+          yes: true,
+          owner: apTeamMultisig.proxy.address,
+        });
 
-        for (const deployment of deployments) {
-          if (deployment) {
-            await verify(hre, deployment);
+        if (verify_contracts) {
+          const deployments: Array<Deployment | undefined> = [
+            proxyAdminMultisig,
+            apTeamMultisig.implementation,
+            apTeamMultisig.proxy,
+          ];
+
+          for (const deployment of deployments) {
+            if (deployment) {
+              await verify(hre, deployment);
+            }
           }
         }
-      }
 
-      logger.out("Successfully deployed Side Chain contracts.");
-    } catch (error) {
-      logger.out(error, logger.Level.Error);
+        logger.out("Successfully deployed Side Chain contracts.");
+      } catch (error) {
+        logger.out(error, logger.Level.Error);
+      }
     }
-  });
+  );

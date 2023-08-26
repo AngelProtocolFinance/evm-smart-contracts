@@ -1,5 +1,5 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
 import {
@@ -50,10 +50,7 @@ export async function updateRegistrarNetworkConnections(
       "updateNetworkConnections",
       [networkName, {...curNetworkConnection, ...networkInfo}, NetworkConnectionAction.POST]
     );
-    const apTeamMultisigContract = APTeamMultiSig__factory.connect(
-      apTeamMultisig,
-      signer
-    );
+    const apTeamMultisigContract = APTeamMultiSig__factory.connect(apTeamMultisig, signer);
     const tx = await apTeamMultisigContract.submitTransaction(
       registrarContract.address,
       0,

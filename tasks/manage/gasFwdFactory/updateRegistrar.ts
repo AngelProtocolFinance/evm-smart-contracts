@@ -1,5 +1,5 @@
 import {task} from "hardhat/config";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {APTeamMultiSig__factory, GasFwdFactory__factory} from "typechain-types";
 import {confirmAction, connectSignerFromPkey, getAddresses, getSigners, logger} from "utils";
 
@@ -14,7 +14,7 @@ task(
     "Address of the new registrar. Will default to `contract-address.json > registrar.proxy` if none is provided."
   )
   .addOptionalParam(
-    "apTeamSignerPkey", 
+    "apTeamSignerPkey",
     "If running on prod, provide a pkey for a valid APTeam Multisig Owner."
   )
   .addFlag("yes", "Automatic yes to prompt.")
@@ -26,23 +26,18 @@ task(
       const {apTeamMultisigOwners} = await getSigners(hre);
 
       let apTeamSigner: SignerWithAddress;
-      if(!apTeamMultisigOwners && taskArgs.apTeamSignerPkey) {
+      if (!apTeamMultisigOwners && taskArgs.apTeamSignerPkey) {
         apTeamSigner = await connectSignerFromPkey(taskArgs.apTeamSignerPkey, hre);
-      }
-      else if(!apTeamMultisigOwners) {
+      } else if (!apTeamMultisigOwners) {
         throw new Error("Must provide a pkey for AP Team signer on this network");
-      }
-      else {
-        apTeamSigner = apTeamMultisigOwners[0]
+      } else {
+        apTeamSigner = apTeamMultisigOwners[0];
       }
 
       const newRegistrar = taskArgs.newRegistrar || addresses.registrar.proxy;
 
       logger.out("Querying current GasFwdFactory registrar...");
-      const gasFwdFactory = GasFwdFactory__factory.connect(
-        addresses.gasFwd.factory,
-        apTeamSigner
-      );
+      const gasFwdFactory = GasFwdFactory__factory.connect(addresses.gasFwd.factory, apTeamSigner);
       const curRegistrar = await gasFwdFactory.registrar();
       if (curRegistrar === newRegistrar) {
         return logger.out(`"${newRegistrar}" is already set as the registrar address.`);

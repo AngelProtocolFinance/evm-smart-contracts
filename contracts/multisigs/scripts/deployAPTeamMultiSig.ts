@@ -14,10 +14,10 @@ export async function deployAPTeamMultiSig(
 }> {
   logger.out("Deploying APTeamMultiSig...");
 
-  const { apTeamMultisigOwners } = await getSigners(hre);
-  const owners = apTeamMultisigOwners ? 
-    apTeamMultisigOwners.map((x) => x.address) : 
-    config.PROD_CONFIG.APTeamMultiSigOwners;
+  const {apTeamMultisigOwners} = await getSigners(hre);
+  const owners = apTeamMultisigOwners
+    ? apTeamMultisigOwners.map((x) => x.address)
+    : config.PROD_CONFIG.APTeamMultiSigOwners;
 
   // deploy implementation
   logger.out("Deploying implementation...");
