@@ -15,10 +15,10 @@ export async function deployCharityApplications(
   proxy: Deployment;
 }> {
   const {charityApplicationsOwners} = await getSigners(hre);
-  const owners = charityApplicationsOwners
-    ? charityApplicationsOwners.map((x) => x.address)
-    : config.PROD_CONFIG.CharityApplicationsOwners;
-
+  const owners = typeof(charityApplicationsOwners) == "undefined"
+    ?config.PROD_CONFIG.CharityApplicationsOwners
+    : charityApplicationsOwners!.map((x) => x.address);
+     
   logger.out("Deploying CharityApplications...");
 
   // deploy implementation
