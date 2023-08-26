@@ -1,9 +1,11 @@
 import {task, types} from "hardhat/config";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
 import {RegistrarMessages} from "typechain-types/contracts/core/registrar/Registrar";
-import {confirmAction, getAddresses, getSigners, logger, structToObject} from "utils";
+import {confirmAction, connectSignerFromPkey, getAddresses, getSigners, logger, structToObject} from "utils";
 
 type TaskArgs = Partial<RegistrarMessages.UpdateConfigRequestStruct> & {
+  apTeamSignerPkey?: string;
   yes: boolean;
 };
 
@@ -99,6 +101,10 @@ task("manage:registrar:updateConfig", "Will update Accounts Diamond config")
     undefined,
     types.string
   )
+  .addOptionalParam(
+    "apTeamSignerPkey", 
+    "If running on prod, provide a pkey for a valid APTeam Multisig Owner."
+  )
   .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     logger.divider();
@@ -107,6 +113,17 @@ task("manage:registrar:updateConfig", "Will update Accounts Diamond config")
     try {
       const addresses = await getAddresses(hre);
       const {apTeamMultisigOwners} = await getSigners(hre);
+
+      let apTeamSigner: SignerWithAddress;
+      if(!apTeamMultisigOwners && taskArgs.apTeamSignerPkey) {
+        apTeamSigner = await connectSignerFromPkey(taskArgs.apTeamSignerPkey, hre);
+      }
+      else if(!apTeamMultisigOwners) {
+        throw new Error("Must provide a pkey for AP Team signer on this network");
+      }
+      else {
+        apTeamSigner = apTeamMultisigOwners[0]
+      }
 
       const {yes, ...dirtyConfigValues} = taskArgs;
 
@@ -126,7 +143,7 @@ task("manage:registrar:updateConfig", "Will update Accounts Diamond config")
 
       const registrarContract = Registrar__factory.connect(
         addresses.registrar.proxy,
-        apTeamMultisigOwners[0]
+        apTeamSigner
       );
 
       logger.out("Fetching current Registrar's config...");
@@ -142,7 +159,7 @@ task("manage:registrar:updateConfig", "Will update Accounts Diamond config")
       ]);
       const apTeamMultisigContract = APTeamMultiSig__factory.connect(
         addresses.multiSig.apTeam.proxy,
-        apTeamMultisigOwners[0]
+        apTeamSigner
       );
       const tx = await apTeamMultisigContract.submitTransaction(
         addresses.registrar.proxy,

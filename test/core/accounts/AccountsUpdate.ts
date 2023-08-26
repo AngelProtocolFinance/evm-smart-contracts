@@ -26,7 +26,7 @@ describe("AccountsUpdate", function () {
     proxyAdmin = signers.proxyAdminSigner!;
     user = signers.deployer;
 
-    newRegistrar = signers.airdropOwner.address;
+    newRegistrar = signers.apTeam1.address;
     endowment = {...DEFAULT_CHARITY_ENDOWMENT, owner: owner.address};
   });
 

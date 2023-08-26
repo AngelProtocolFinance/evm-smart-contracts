@@ -1,6 +1,7 @@
 import {task, types} from "hardhat/config";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import {CharityApplications__factory} from "typechain-types";
-import {confirmAction, getAddresses, getSigners, logger, structToObject} from "utils";
+import {confirmAction, connectSignerFromPkey, getAddresses, getSigners, logger, structToObject} from "utils";
 
 type TaskArgs = {
   accountsDiamond?: string;
@@ -9,6 +10,7 @@ type TaskArgs = {
   seedAsset?: string;
   seedSplitToLiquid?: number;
   seedAmount?: number;
+  appsSignerPkey?: string;
   yes: boolean;
 };
 
@@ -27,6 +29,10 @@ task("manage:CharityApplications:updateConfig", "Will update CharityApplications
     undefined,
     types.int
   )
+  .addOptionalParam(
+    "appsSignerPkey", 
+    "If running on prod, provide a pkey for a valid APTeam Multisig Owner."
+  )
   .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
@@ -34,10 +40,21 @@ task("manage:CharityApplications:updateConfig", "Will update CharityApplications
 
       const addresses = await getAddresses(hre);
       const {charityApplicationsOwners} = await getSigners(hre);
+      let appsSigner: SignerWithAddress;
+      if(!charityApplicationsOwners && taskArgs.appsSignerPkey) {
+        appsSigner = await connectSignerFromPkey(taskArgs.appsSignerPkey, hre);
+      }
+      else if(!charityApplicationsOwners) {
+        throw new Error("Must provide a pkey for Charity Applications Multisig signer on this network");
+      }
+      else {
+        appsSigner = charityApplicationsOwners[0]
+      }
 
+      
       const charityApplications = CharityApplications__factory.connect(
         addresses.multiSig.charityApplications.proxy,
-        charityApplicationsOwners[0]
+        appsSigner
       );
 
       // fetch current config

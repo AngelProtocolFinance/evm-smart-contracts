@@ -26,12 +26,14 @@ import {
 import {deployGasFwd} from "contracts/core/gasFwd/scripts/deploy";
 import {deployVaultEmitter} from "contracts/core/vault/scripts/deployVaultEmitter";
 import {getOrDeployThirdPartyContracts, updateRegistrarNetworkConnections} from "../helpers";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 type TaskArgs = {
   skipVerify: boolean; 
   yes: boolean; 
   newProxyAdmin: boolean; 
-  proxyAdminPkey?: string
+  proxyAdminPkey?: string;
+  apTeamSignerPkey?: string;
 };
 
 task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
@@ -39,6 +41,10 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
   .addFlag("yes", "Automatic yes to prompt.")
   .addFlag("newProxyAdmin", "Whether or not to deploy a new proxyAdmin multisig")
   .addOptionalParam("proxyAdminPkey", "The pkey for the prod proxy amdin multisig")
+  .addOptionalParam(
+    "apTeamSignerPkey", 
+    "If running on prod, provide a pkey for a valid APTeam Multisig Owner."
+  )
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       const isConfirmed =
@@ -49,13 +55,26 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
 
       const verify_contracts = !isLocalNetwork(hre) && !taskArgs.skipVerify;
 
-      let {deployer, proxyAdminSigner, treasury} = await getSigners(hre);
+      let {deployer, proxyAdminSigner, apTeamMultisigOwners, treasury} = await getSigners(hre);
+
       let treasuryAddress = treasury? treasury.address : config.PROD_CONFIG.Treasury;
+
       if(!proxyAdminSigner && taskArgs.proxyAdminPkey) {
         proxyAdminSigner = await connectSignerFromPkey(taskArgs.proxyAdminPkey, hre);
       }
       else if(!proxyAdminSigner) {
         throw new Error("Must provide a pkey for proxyAdmin signer on this network");
+      }
+
+      let apTeamSigner: SignerWithAddress;
+      if(!apTeamMultisigOwners && taskArgs.apTeamSignerPkey) {
+        apTeamSigner = await connectSignerFromPkey(taskArgs.apTeamSignerPkey, hre);
+      }
+      else if(!apTeamMultisigOwners) {
+        throw new Error("Must provide a pkey for AP Team signer on this network");
+      }
+      else {
+        apTeamSigner = apTeamMultisigOwners[0]
       }
 
       // Get previously deployed contracts 
@@ -159,6 +178,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
         registrar.proxy.address,
         apTeamMultisig.proxy.address,
         {router: router.proxy.address},
+        apTeamSigner,
         hre
       );
 

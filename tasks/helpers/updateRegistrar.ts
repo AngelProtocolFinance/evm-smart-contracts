@@ -1,11 +1,11 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
 import {
   NetworkConnectionAction,
   getAxlNetworkName,
   getNetworkNameFromChainId,
-  getSigners,
   logger,
   structToObject,
   validateAddress,
@@ -15,6 +15,7 @@ export async function updateRegistrarNetworkConnections(
   registrar = "",
   apTeamMultisig = "",
   networkInfo: Partial<LocalRegistrarLib.NetworkInfoStruct>,
+  signer: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
 ) {
   logger.divider();
@@ -34,9 +35,7 @@ export async function updateRegistrarNetworkConnections(
     validateAddress(registrar, "registrar");
     validateAddress(apTeamMultisig, "apTeamMultisig");
 
-    const {apTeamMultisigOwners} = await getSigners(hre);
-
-    const registrarContract = Registrar__factory.connect(registrar, apTeamMultisigOwners[0]);
+    const registrarContract = Registrar__factory.connect(registrar, signer);
 
     logger.out("Fetching current Registrar's network connection data...");
 
@@ -53,7 +52,7 @@ export async function updateRegistrarNetworkConnections(
     );
     const apTeamMultisigContract = APTeamMultiSig__factory.connect(
       apTeamMultisig,
-      apTeamMultisigOwners[0]
+      signer
     );
     const tx = await apTeamMultisigContract.submitTransaction(
       registrarContract.address,

@@ -1,11 +1,13 @@
 import {task} from "hardhat/config";
+import config from "config";
 import {cliTypes} from "tasks/types";
 import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
-import {ADDRESS_ZERO, getAddresses, getSigners, logger} from "utils";
+import {ADDRESS_ZERO, connectSignerFromPkey, getAddresses, getSigners, logger} from "utils";
 
 type TaskArgs = {
   acceptedTokens: string[];
   acceptanceStates: boolean[];
+  apTeamSignerPkey?: string;
 };
 
 task(
@@ -19,16 +21,21 @@ task(
     [],
     cliTypes.array.boolean
   )
+  .addOptionalParam(
+    "apTeamSignerPkey", 
+    "If running on prod, provide a pkey for a valid APTeam Multisig Owner."
+  )
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       const {treasury} = await getSigners(hre);
+      let treasuryAddress = treasury? treasury.address : config.PROD_CONFIG.Treasury;
 
       const addresses = await getAddresses(hre);
 
       let newConfig: RegistrarMessages.UpdateConfigRequestStruct = {
         accountsContract: addresses.accounts.diamond,
         apTeamMultisig: addresses.multiSig.apTeam.proxy,
-        treasury: treasury.address,
+        treasury: treasuryAddress,
         indexFundContract: addresses.indexFund.proxy,
         haloToken: ADDRESS_ZERO,
         govContract: ADDRESS_ZERO,
@@ -44,14 +51,27 @@ task(
         gasFwdFactory: addresses.gasFwd.factory,
       };
 
-      await hre.run("manage:registrar:updateConfig", {
-        ...newConfig,
-        yes: true,
-      });
-      await hre.run("manage:registrar:setVaultEmitterAddress", {
-        vaultEmitter: addresses.vaultEmitter.proxy,
-        yes: true,
-      });
+      if(taskArgs.apTeamSignerPkey) {
+        await hre.run("manage:registrar:updateConfig", {
+          ...newConfig,
+          apTeamSignerPkey: taskArgs.apTeamSignerPkey,
+          yes: true,
+        });
+        await hre.run("manage:registrar:setVaultEmitterAddress", {
+          vaultEmitter: addresses.vaultEmitter.proxy,
+          apTeamSignerPkey: taskArgs.apTeamSignerPkey,
+          yes: true,
+        });
+      } else {
+        await hre.run("manage:registrar:updateConfig", {
+          ...newConfig,
+          yes: true,
+        });
+        await hre.run("manage:registrar:setVaultEmitterAddress", {
+          vaultEmitter: addresses.vaultEmitter.proxy,
+          yes: true,
+        });
+      }
 
       if (taskArgs.acceptedTokens.length > 0) {
         logger.divider();
@@ -60,7 +80,12 @@ task(
           try {
             const tokenAddress = taskArgs.acceptedTokens[i];
             const acceptanceState = taskArgs.acceptanceStates.at(i) ?? true;
-            await hre.run("manage:registrar:setTokenAccepted", {tokenAddress, acceptanceState});
+            const signerKey = taskArgs.apTeamSignerPkey
+            if(taskArgs.apTeamSignerPkey){
+              await hre.run("manage:registrar:setTokenAccepted", {tokenAddress, acceptanceState, signerKey});
+            } else {
+              await hre.run("manage:registrar:setTokenAccepted", {tokenAddress, acceptanceState});
+            }
           } catch (error) {
             logger.out(error, logger.Level.Error);
           }
