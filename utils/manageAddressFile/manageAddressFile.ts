@@ -13,32 +13,19 @@ export async function resetContractAddresses(
 ) {
   const chainId = await getChainId(hre);
 
+  const emptyAddressObj = createEmptyAddressObj();
+
   if (isLocalNetwork(hre)) {
-    return saveFrontendFiles({[chainId]: createEmptyAddressObj()}, filePath);
+    return saveFrontendFiles({[chainId]: emptyAddressObj}, filePath);
   }
 
   const currentAddressObj = getAddressesByNetworkId(chainId, filePath);
 
   const cleaned: AddressObj = {
-    ...createEmptyAddressObj(),
+    ...emptyAddressObj,
     axelar: currentAddressObj.axelar,
     multiSig: {
-      charityApplications: {
-        implementation: "",
-        proxy: "",
-      },
-      apTeam: {
-        implementation: "",
-        proxy: "",
-      },
-      endowment: {
-        emitter: {
-          implementation: "",
-          proxy: "",
-        },
-        factory: "",
-        implementation: "",
-      },
+      ...emptyAddressObj.multiSig,
       proxyAdmin: currentAddressObj.multiSig.proxyAdmin,
     },
     tokens: {...currentAddressObj.tokens, halo: "", reserveToken: ""},
