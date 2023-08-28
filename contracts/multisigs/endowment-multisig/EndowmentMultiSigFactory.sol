@@ -24,21 +24,21 @@ contract EndowmentMultiSigFactory is Ownable {
   mapping(address => address[]) public instantiations;
   mapping(uint256 => address) public endowmentIdToMultisig;
 
-  address IMPLEMENTATION_ADDRESS;
-  address PROXY_ADMIN;
+  address public implementationAddress;
+  address public proxyAdmin;
   IRegistrar registrar;
 
-  constructor(address implementationAddress, address proxyAdmin, address _registrar) {
-    require(implementationAddress != address(0), "Invalid Address");
-    require(proxyAdmin != address(0), "Invalid Address");
+  constructor(address _implementationAddress, address _proxyAdmin, address _registrar) {
+    require(_implementationAddress != address(0), "Invalid Address");
+    require(_proxyAdmin != address(0), "Invalid Address");
     require(_registrar != address(0), "Invalid Address");
 
     registrar = IRegistrar(_registrar);
-    IMPLEMENTATION_ADDRESS = implementationAddress;
-    emit ImplementationUpdated(implementationAddress);
+    implementationAddress = _implementationAddress;
+    emit ImplementationUpdated(_implementationAddress);
 
-    PROXY_ADMIN = proxyAdmin;
-    emit ProxyAdminUpdated(proxyAdmin);
+    proxyAdmin = _proxyAdmin;
+    emit ProxyAdminUpdated(_proxyAdmin);
   }
 
   modifier onlyAccountsContract() {
@@ -59,22 +59,22 @@ contract EndowmentMultiSigFactory is Ownable {
 
   /**
    * @dev Updates the implementation address
-   * @param implementationAddress The address of the new implementation
+   * @param _implementationAddress The address of the new implementation
    */
-  function updateImplementation(address implementationAddress) public onlyOwner {
-    require(implementationAddress != address(0), "Invalid Address");
-    IMPLEMENTATION_ADDRESS = implementationAddress;
-    emit ImplementationUpdated(implementationAddress);
+  function updateImplementation(address _implementationAddress) public onlyOwner {
+    require(_implementationAddress != address(0), "Invalid Address");
+    implementationAddress = _implementationAddress;
+    emit ImplementationUpdated(_implementationAddress);
   }
 
   /**
    * @dev Updates the proxy admin address
-   * @param proxyAdmin The address of the new proxy admin
+   * @param _proxyAdmin The address of the new proxy admin
    */
-  function updateProxyAdmin(address proxyAdmin) public onlyOwner {
-    require(proxyAdmin != address(0), "Invalid Address");
-    PROXY_ADMIN = proxyAdmin;
-    emit ProxyAdminUpdated(proxyAdmin);
+  function updateProxyAdmin(address _proxyAdmin) public onlyOwner {
+    require(_proxyAdmin != address(0), "Invalid Address");
+    proxyAdmin = _proxyAdmin;
+    emit ProxyAdminUpdated(_proxyAdmin);
   }
 
   /** @dev Create a new multisig wallet for an endowment
@@ -100,7 +100,7 @@ contract EndowmentMultiSigFactory is Ownable {
       false,
       transactionExpiry
     );
-    wallet = address(new ProxyContract(IMPLEMENTATION_ADDRESS, PROXY_ADMIN, EndowmentData));
+    wallet = address(new ProxyContract(implementationAddress, proxyAdmin, EndowmentData));
     IEndowmentMultiSigEmitter(emitterAddress).createEndowmentMultisig(
       wallet,
       endowmentId,
