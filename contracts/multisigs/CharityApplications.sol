@@ -57,10 +57,7 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
   }
 
   modifier proposalApprovalsThresholdMet(uint256 proposalId) {
-    require(
-      proposalConfirmations[proposalId].count >= approvalsRequired,
-      "Not enough confirmations to execute"
-    );
+    require(isProposalConfirmed(proposalId), "Not enough confirmations to execute");
     _;
   }
 
@@ -181,7 +178,7 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
     proposalConfirmations[proposalId].count += 1;
     emit ApplicationConfirmed(proposalId, msg.sender);
     // if execution is required, do not auto-execute
-    if (!requireExecution) {
+    if (!requireExecution && isProposalConfirmed(proposalId)) {
       executeProposal(proposalId);
     }
   }
@@ -326,5 +323,12 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
     uint256 proposalId
   ) public view override proposalExists(proposalId) returns (uint256) {
     return proposalConfirmations[proposalId].count;
+  }
+
+  /// @dev Returns the confirmation status of a transaction.
+  /// @param proposalId Proposal ID.
+  /// @return bool Confirmation status.
+  function isProposalConfirmed(uint256 proposalId) public view override returns (bool) {
+    return proposalConfirmations[proposalId].count >= approvalsRequired;
   }
 }
