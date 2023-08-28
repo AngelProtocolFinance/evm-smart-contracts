@@ -24,10 +24,6 @@ export async function resetContractAddresses(
   const cleaned: AddressObj = {
     ...emptyAddressObj,
     axelar: currentAddressObj.axelar,
-    multiSig: {
-      ...emptyAddressObj.multiSig,
-      proxyAdmin: currentAddressObj.multiSig.proxyAdmin,
-    },
     tokens: {...currentAddressObj.tokens, halo: "", reserveToken: ""},
     uniswap: currentAddressObj.uniswap,
   };

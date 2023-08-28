@@ -1,33 +1,30 @@
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import config from "config";
+import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
+import {deployGasFwd} from "contracts/core/gasFwd/scripts/deploy";
+import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
+import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
+import {deployRouter} from "contracts/core/router/scripts/deploy";
+import {deployVaultEmitter} from "contracts/core/vault/scripts/deployVaultEmitter";
+import {deployEndowmentMultiSig} from "contracts/multisigs/endowment-multisig/scripts/deploy";
+import {
+  deployAPTeamMultiSig,
+  deployCharityApplications,
+  deployProxyAdminMultisig,
+} from "contracts/multisigs/scripts/deploy";
 import {task} from "hardhat/config";
 import {
   ADDRESS_ZERO,
   Deployment,
   confirmAction,
-  getAddresses,
-  getSigners,
   connectSignerFromPkey,
+  getSigners,
   isLocalNetwork,
   logger,
   resetContractAddresses,
   verify,
-  getContractName,
 } from "utils";
-
-import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
-import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
-import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
-import {deployRouter} from "contracts/core/router/scripts/deploy";
-import {deployEndowmentMultiSig} from "contracts/multisigs/endowment-multisig/scripts/deploy";
-import {
-  deployAPTeamMultiSig,
-  deployProxyAdminMultisig,
-  deployCharityApplications,
-} from "contracts/multisigs/scripts/deploy";
-import {deployGasFwd} from "contracts/core/gasFwd/scripts/deploy";
-import {deployVaultEmitter} from "contracts/core/vault/scripts/deployVaultEmitter";
 import {getOrDeployThirdPartyContracts, updateRegistrarNetworkConnections} from "../helpers";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 
 type TaskArgs = {
   skipVerify: boolean;
@@ -73,8 +70,6 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
         apTeamSigner = apTeamMultisigOwners[0];
       }
 
-      // Get previously deployed contracts
-      const currentAddresses = await getAddresses(hre);
       // Reset the contract address object for all contracts that will be deployed here
       await resetContractAddresses(hre);
 
