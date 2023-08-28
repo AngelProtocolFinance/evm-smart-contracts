@@ -26,12 +26,12 @@ contract MultiSigGeneric is
   }
 
   modifier ownerDoesNotExist(address _owner) {
-    require(!isOwner[_owner], "Owner address dne");
+    require(!isOwner[_owner], "Already is an owner");
     _;
   }
 
   modifier ownerExists(address _owner) {
-    require(isOwner[_owner], "Owner address already exists");
+    require(isOwner[_owner], "Owner address dne");
     _;
   }
 
