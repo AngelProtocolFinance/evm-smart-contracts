@@ -10,7 +10,7 @@ import {Deployment, getContractName, logger, updateAddresses} from "utils";
 
 export async function deployEndowmentMultiSig(
   registrar: string,
-  admin: string,
+  proxyAdmin: string,
   deployer: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
 ): Promise<{
@@ -34,7 +34,7 @@ export async function deployEndowmentMultiSig(
   logger.out("Deploying EndowmentMultiSigFactory...");
   const factoryCtorArgs: Parameters<typeof EndowmentMultiSigFactoryFactory.deploy> = [
     endowmentMultiSig.address,
-    admin,
+    proxyAdmin,
     registrar,
   ];
   const EndowmentMultiSigFactoryFactory = new EndowmentMultiSigFactory__factory(deployer);
@@ -56,7 +56,7 @@ export async function deployEndowmentMultiSig(
     EndowmentMultiSigFactory.address,
   ]);
   const proxyFactory = new ProxyContract__factory(deployer);
-  const emitterProxy = await proxyFactory.deploy(emitter.address, admin, initData);
+  const emitterProxy = await proxyFactory.deploy(emitter.address, proxyAdmin, initData);
   await emitterProxy.deployed();
   logger.out(`Address: ${emitterProxy.address}`);
 
