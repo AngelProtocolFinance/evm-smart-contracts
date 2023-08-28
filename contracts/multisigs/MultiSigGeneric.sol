@@ -67,10 +67,7 @@ contract MultiSigGeneric is
   }
 
   modifier approvalsThresholdMet(uint256 transactionId) {
-    require(
-      confirmations[transactionId].count >= approvalsRequired,
-      "Not enough confirmations to execute"
-    );
+    require(isConfirmed(transactionId), "Not enough confirmations to execute");
     _;
   }
 
@@ -205,7 +202,7 @@ contract MultiSigGeneric is
     confirmations[transactionId].count += 1;
     emitTransactionConfirmed(msg.sender, transactionId);
     // if execution is not required and confirmation count is met, execute
-    if (!requireExecution && confirmations[transactionId].count >= approvalsRequired) {
+    if (!requireExecution && isConfirmed(transactionId)) {
       executeTransaction(transactionId);
     }
   }
@@ -271,10 +268,9 @@ contract MultiSigGeneric is
 
   /// @dev Returns the confirmation status of a transaction.
   /// @param transactionId Transaction ID.
-  /// @return Confirmation status.
+  /// @return bool Confirmation status.
   function isConfirmed(uint256 transactionId) public view override returns (bool) {
-    if (confirmations[transactionId].count >= approvalsRequired) return true;
-    return false;
+    return confirmations[transactionId].count >= approvalsRequired;
   }
 
   /// @dev Returns number of confirmations of a transaction.
