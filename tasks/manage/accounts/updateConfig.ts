@@ -5,7 +5,14 @@ import {
   AccountsQueryEndowments__factory,
   AccountsUpdate__factory,
 } from "typechain-types";
-import {confirmAction, connectSignerFromPkey, getAddresses, getSigners, logger} from "utils";
+import {
+  confirmAction,
+  connectSignerFromPkey,
+  getAddresses,
+  getSigners,
+  logger,
+  structToObject,
+} from "utils";
 
 type TaskArgs = {
   registrarContract?: string;
@@ -46,7 +53,7 @@ task("manage:accounts:updateConfig", "Will update Accounts Diamond config")
         apTeamSigner
       );
       const curConfig = await accountsQueryEndowments.queryConfig();
-      logger.out(curConfig);
+      logger.out(structToObject(curConfig));
 
       logger.out("Config data to update:");
       logger.out(newConfig);

@@ -12,6 +12,7 @@ export async function deployRouter(
   implementation: Deployment;
   proxy: Deployment;
 }> {
+  logger.divider();
   logger.out("Deploying Router...");
 
   // deploy implementation
