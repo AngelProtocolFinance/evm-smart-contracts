@@ -6,7 +6,7 @@ import {Deployment, getContractName, getSigners, logger, updateAddresses} from "
 
 export async function deployCharityApplications(
   accountsDiamond: string,
-  admin: string,
+  proxyAdmin: string,
   seedAsset: string,
   deployer: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
@@ -14,12 +14,12 @@ export async function deployCharityApplications(
   implementation: Deployment;
   proxy: Deployment;
 }> {
-  const {charityApplicationsOwners} = await getSigners(hre);
-  const owners = typeof(charityApplicationsOwners) == "undefined"
-    ?config.PROD_CONFIG.CharityApplicationsOwners
-    : charityApplicationsOwners!.map((x) => x.address);
-     
   logger.out("Deploying CharityApplications...");
+
+  const {charityApplicationsOwners} = await getSigners(hre);
+  const owners = !charityApplicationsOwners
+    ? config.PROD_CONFIG.CharityApplicationsOwners
+    : charityApplicationsOwners.map((x) => x.address);
 
   // deploy implementation
   logger.out("Deploying implementation...");
@@ -44,7 +44,7 @@ export async function deployCharityApplications(
   const proxyFactory = new ProxyContract__factory(deployer);
   const charityApplicationsProxy = await proxyFactory.deploy(
     charityApplications.address,
-    admin,
+    proxyAdmin,
     initData
   );
   await charityApplicationsProxy.deployed();
