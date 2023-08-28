@@ -27,8 +27,8 @@ const DEPLOYER: Signer = {
 };
 
 const PROXY_ADMIN_DEV: Signer = {
-  key: extractString("PROXY_ADMIN_DEV_KEY"),
-  address: extractString("PROXY_ADMIN_DEV_ADDRESS"),
+  key: extractString("PROXY_ADMIN_KEY"),
+  address: extractString("PROXY_ADMIN_ADDRESS"),
 };
 
 const ETHERSCAN_API_KEY = extractString("ETHERSCAN_API_KEY");
