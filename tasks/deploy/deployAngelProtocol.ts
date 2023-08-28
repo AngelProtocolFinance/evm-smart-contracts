@@ -28,12 +28,10 @@ import {deployGasFwd} from "contracts/core/gasFwd/scripts/deploy";
 import {deployVaultEmitter} from "contracts/core/vault/scripts/deployVaultEmitter";
 import {getOrDeployThirdPartyContracts, updateRegistrarNetworkConnections} from "../helpers";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {ProxyAdminMultiSig__factory} from "typechain-types";
 
 type TaskArgs = {
   skipVerify: boolean;
   yes: boolean;
-  newProxyAdmin: boolean;
   proxyAdminPkey?: string;
   apTeamSignerPkey?: string;
 };
@@ -41,7 +39,6 @@ type TaskArgs = {
 task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
   .addFlag("skipVerify", "Skip contract verification")
   .addFlag("yes", "Automatic yes to prompt.")
-  .addFlag("newProxyAdmin", "Whether or not to deploy a new proxyAdmin multisig")
   .addOptionalParam("proxyAdminPkey", "The pkey for the prod proxy admin multisig")
   .addOptionalParam(
     "apTeamSignerPkey",
@@ -83,12 +80,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
 
       logger.out(`Deploying the contracts with the account: ${deployer.address}`);
 
-      const proxyAdminMultisig: Deployment = taskArgs.newProxyAdmin
-        ? await deployProxyAdminMultisig(proxyAdminSigner, deployer, hre)
-        : {
-            address: currentAddresses.multiSig.proxyAdmin,
-            contractName: getContractName(new ProxyAdminMultiSig__factory()),
-          };
+      const proxyAdminMultisig = await deployProxyAdminMultisig(proxyAdminSigner, deployer, hre);
 
       const thirdPartyAddresses = await getOrDeployThirdPartyContracts(deployer, hre);
 
