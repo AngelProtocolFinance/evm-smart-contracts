@@ -42,6 +42,11 @@ export async function deployEndowmentMultiSig(
   await EndowmentMultiSigFactory.deployed();
   logger.out(`Address: ${EndowmentMultiSigFactory.address}`);
 
+  logger.out(`Transferring ownership to: ${proxyAdmin}...`);
+  const tx = await EndowmentMultiSigFactory.transferOwnership(proxyAdmin);
+  logger.out(`Tx hash: ${tx.hash}`);
+  await tx.wait();
+
   // deploy emitter
   logger.out("Deploying EndowmentMultiSigEmitter...");
 
