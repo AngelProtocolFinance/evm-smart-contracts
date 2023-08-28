@@ -6,7 +6,7 @@ import {
   CharityApplications__factory,
 } from "typechain-types";
 import {AccountMessages} from "typechain-types/contracts/multisigs/CharityApplications";
-import {getAddresses, getSigners, logger, structToObject} from "utils";
+import {getAddresses, getEvents, getSigners, logger, structToObject} from "utils";
 
 type TaskArgs = {endowType: 0 | 1};
 
@@ -14,13 +14,13 @@ task("manage:createEndowment", "Will create a new endowment")
   .addParam("endowType", "0 - charity, 1 - ast, 2 - daf ", 0, types.int)
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
-      const {apTeam1} = await getSigners(hre);
+      const {apTeam2} = await getSigners(hre);
 
       const addresses = await getAddresses(hre);
 
       const queryEndowmentFacet = AccountsQueryEndowments__factory.connect(
         addresses.accounts.diamond,
-        apTeam1
+        apTeam2
       );
 
       const config = await queryEndowmentFacet.queryConfig();
@@ -33,7 +33,7 @@ task("manage:createEndowment", "Will create a new endowment")
       const defaultSettingsPermissionsStruct = {
         locked: false,
         delegate: {
-          addr: apTeam1.address,
+          addr: apTeam2.address,
           expires: 0,
         },
       };
@@ -54,7 +54,7 @@ task("manage:createEndowment", "Will create a new endowment")
         endowType: taskArgs.endowType, // Charity
         logo: "",
         image: "",
-        members: [apTeam1.address],
+        members: [apTeam2.address],
         threshold: 1,
         allowlistedBeneficiaries: [],
         allowlistedContributors: [],
@@ -96,26 +96,22 @@ task("manage:createEndowment", "Will create a new endowment")
         logger.out("Creating a charity applications proposal...");
         const charityApplications = CharityApplications__factory.connect(
           addresses.multiSig.charityApplications.proxy,
-          apTeam1
+          apTeam2
         );
         const tx = await charityApplications.proposeApplication(createEndowmentRequest, "0x");
         logger.out(`Tx hash: ${tx.hash}`);
         const receipt = await tx.wait();
 
-        if (!receipt.events?.length) {
-          throw new Error("Unexpected behaviour: no events emitted.");
+        const applicationProposedEvent = getEvents(
+          receipt.events,
+          charityApplications,
+          charityApplications.filters.ApplicationProposed()
+        ).at(0);
+        if (!applicationProposedEvent) {
+          throw new Error("Unexpected: ApplicationProposed not emitted.");
         }
 
-        const charityProposedEvent = receipt.events[0];
-        if (!charityProposedEvent.args?.length) {
-          throw new Error("Unexpected behaviour: no args in ApplicationProposed event.");
-        }
-        if (!charityProposedEvent.args.at(0)) {
-          throw new Error("Unexpected behaviour: no proposalId in ApplicationProposed args.");
-        }
-
-        const proposalId = charityProposedEvent.args.at(0);
-        logger.out(`Created proposal: ${proposalId}`);
+        const proposalId = applicationProposedEvent.args.proposalId;
 
         const requireExecution = await charityApplications.requireExecution();
         if (requireExecution) {
@@ -127,7 +123,7 @@ task("manage:createEndowment", "Will create a new endowment")
       } else {
         const createEndowFacet = AccountsCreateEndowment__factory.connect(
           addresses.accounts.diamond,
-          apTeam1
+          apTeam2
         );
         let tx = await createEndowFacet.createEndowment(createEndowmentRequest);
         logger.out(`Creating endowment...\nTx hash: ${tx.hash}`);
