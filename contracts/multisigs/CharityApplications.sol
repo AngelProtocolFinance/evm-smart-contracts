@@ -89,7 +89,7 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
     uint256 _seedSplitToLiquid,
     address _seedAsset,
     uint256 _seedAmount
-  ) public override initializer {
+  ) external override initializer {
     require(Validator.addressChecker(_accountsContract), "Invalid Accounts contract");
     require(Validator.addressChecker(_seedAsset), "Invalid seed asset");
     require(
