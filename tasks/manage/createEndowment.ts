@@ -1,4 +1,3 @@
-import {BigNumber} from "ethers";
 import {task, types} from "hardhat/config";
 import {
   AccountsCreateEndowment__factory,
@@ -113,8 +112,15 @@ task("manage:createEndowment", "Will create a new endowment")
 
         const proposalId = applicationProposedEvent.args.proposalId;
 
-        const requireExecution = await charityApplications.requireExecution();
-        if (requireExecution) {
+        const isExecuted = (await charityApplications.proposals(proposalId)).executed;
+        if (!isExecuted) {
+          const isConfirmed = await charityApplications.isProposalConfirmed(proposalId);
+          if (isConfirmed) {
+            logger.out(
+              `Proposal with ID "${proposalId}" submitted, awaiting confirmation by other owners.`
+            );
+            return;
+          }
           logger.out(`Executing the new charity endowment with proposal ID: ${proposalId}...`);
           const tx2 = await charityApplications.executeProposal(proposalId);
           logger.out(`Tx hash: ${tx2.hash}`);
