@@ -32,8 +32,6 @@ task("manage:accounts:updateConfig", "Will update Accounts Diamond config")
   .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
-      const {yes, ...newConfig} = taskArgs;
-
       logger.divider();
       const addresses = await getAddresses(hre);
       const {apTeamMultisigOwners} = await getSigners(hre);
@@ -56,7 +54,7 @@ task("manage:accounts:updateConfig", "Will update Accounts Diamond config")
       logger.out(structToObject(curConfig));
 
       logger.out("Config data to update:");
-      logger.out(newConfig);
+      logger.out({registrarContract: taskArgs.registrarContract});
 
       const isConfirmed = taskArgs.yes || (await confirmAction(`Updating config...`));
       if (!isConfirmed) {
@@ -69,7 +67,7 @@ task("manage:accounts:updateConfig", "Will update Accounts Diamond config")
         apTeamSigner
       );
       const data = accountsUpdate.interface.encodeFunctionData("updateConfig", [
-        newConfig.registrarContract || curConfig.registrarContract,
+        taskArgs.registrarContract || curConfig.registrarContract,
       ]);
       const apTeamMultiSig = APTeamMultiSig__factory.connect(
         curConfig.owner, // ensure connection to current owning APTeamMultiSig contract
