@@ -2,7 +2,7 @@ import {task} from "hardhat/config";
 import {
   APTeamMultiSig__factory,
   ITransparentUpgradeableProxy__factory,
-  ProxyAdmin__factory,
+  ProxyAdminMultiSig__factory,
 } from "typechain-types";
 import {
   confirmAction,
@@ -51,7 +51,7 @@ task("upgrade:APTeamMultiSig", "Will upgrade the APTeamMultiSig")
           addresses.multiSig.apTeam.proxy,
           deployer
         );
-        const proxyAdminMultisig = ProxyAdmin__factory.connect(
+        const proxyAdminMultisig = ProxyAdminMultiSig__factory.connect(
           addresses.multiSig.proxyAdmin,
           proxyAdminSigner
         );

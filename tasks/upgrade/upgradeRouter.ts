@@ -2,7 +2,7 @@ import {task} from "hardhat/config";
 import {
   Router__factory,
   ITransparentUpgradeableProxy__factory,
-  ProxyAdmin__factory,
+  ProxyAdminMultiSig__factory,
 } from "typechain-types";
 import {
   confirmAction,
@@ -48,7 +48,7 @@ task("upgrade:router", "Will upgrade the Router")
           addresses.router.proxy,
           deployer
         );
-        const proxyAdminMultisig = ProxyAdmin__factory.connect(
+        const proxyAdminMultisig = ProxyAdminMultiSig__factory.connect(
           addresses.multiSig.proxyAdmin,
           proxyAdminSigner
         );

@@ -2,7 +2,7 @@ import {task} from "hardhat/config";
 import {
   EndowmentMultiSig__factory,
   EndowmentMultiSigFactory__factory,
-  ProxyAdmin__factory,
+  ProxyAdminMultiSig__factory,
 } from "typechain-types";
 import {
   confirmAction,
@@ -68,7 +68,7 @@ task(
         EndowmentMultiSigFactoryAddress,
         proxyAdminSigner
       );
-      const proxyAdminMultisig = ProxyAdmin__factory.connect(
+      const proxyAdminMultisig = ProxyAdminMultiSig__factory.connect(
         addresses.multiSig.proxyAdmin,
         proxyAdminSigner
       );
