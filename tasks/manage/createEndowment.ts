@@ -138,7 +138,7 @@ task("manage:createEndowment", "Will create a new endowment")
         config.nextAccountId
       );
       logger.out(`Added endowment with ID: ${config.nextAccountId.toNumber()}`);
-      logger.out(structToObject(newEndowmentDetails));
+      logger.out(JSON.stringify(structToObject(newEndowmentDetails), undefined, 2));
       logger.out();
     } catch (error) {
       logger.out(error, logger.Level.Error);
