@@ -1,6 +1,6 @@
 import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
 import {task} from "hardhat/config";
-import {confirmAction, getAddresses, isLocalNetwork, logger, verify} from "utils";
+import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
 
 type TaskArgs = {
   owner?: string;
@@ -27,6 +27,7 @@ task("deploy:IndexFund", "Will deploy IndexFund contract")
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
+      const {deployer} = await getSigners(hre);
       const addresses = await getAddresses(hre);
 
       const registrar = taskArgs.registrar || addresses.registrar.proxy;
@@ -36,6 +37,7 @@ task("deploy:IndexFund", "Will deploy IndexFund contract")
         registrar,
         owner,
         addresses.multiSig.proxyAdmin,
+        deployer,
         hre
       );
 

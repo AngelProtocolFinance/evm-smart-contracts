@@ -148,6 +148,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
         registrar.proxy.address,
         apTeamMultisig.proxy.address,
         proxyAdminMultisig.address,
+        deployer,
         hre
       );
 
