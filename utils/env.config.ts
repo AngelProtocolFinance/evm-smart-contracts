@@ -41,17 +41,6 @@ const POLYGON_RPC_URL = extractString("POLYGON_RPC_URL");
 const POLYSCAN_API_KEY = extractString("POLYSCAN_API_KEY");
 const VERIFY_CONTRACTS = extractString("VERIFY_CONTRACTS");
 
-function extractNumber(name: string): number {
-  const envVar = extractString(name);
-
-  const numVar = Number(envVar);
-  if (isNaN(numVar)) {
-    throw new Error(`Please add ${name} key with a number value to your .env file`);
-  }
-
-  return numVar;
-}
-
 function extractString(name: string): string {
   const envVar = process.env[name];
   if (!envVar) {
@@ -61,13 +50,10 @@ function extractString(name: string): string {
 }
 
 export function getHardhatAccounts(accountList: string[]): HardhatNetworkAccountsUserConfig {
-  let hardhatAccounts: HardhatNetworkAccountUserConfig[] = [];
-  accountList.forEach((element) => {
-    hardhatAccounts.push({
-      privateKey: element,
-      balance: "1000000000000000000000",
-    });
-  });
+  const hardhatAccounts: HardhatNetworkAccountUserConfig[] = accountList.map((element) => ({
+    privateKey: element,
+    balance: "1000000000000000000000",
+  }));
   return hardhatAccounts;
 }
 
@@ -81,7 +67,8 @@ export const envConfigDev: EnvConfig = {
   POLYGON_RPC_URL,
   POLYSCAN_API_KEY,
   VERIFY_CONTRACTS,
-  ACCOUNTS: [AP_TEAM_1.key, AP_TEAM_2.key, AP_TEAM_3.key, DEPLOYER.key, PROXY_ADMIN_DEV.key],
+  // order of account items is important!
+  ACCOUNTS: [DEPLOYER.key, PROXY_ADMIN_DEV.key, AP_TEAM_1.key, AP_TEAM_2.key, AP_TEAM_3.key],
 };
 
 export const envConfigProd: EnvConfig = {
@@ -94,5 +81,5 @@ export const envConfigProd: EnvConfig = {
   POLYGON_RPC_URL,
   POLYSCAN_API_KEY,
   VERIFY_CONTRACTS,
-  ACCOUNTS: [AP_TEAM_1.key, AP_TEAM_2.key, AP_TEAM_3.key, DEPLOYER.key],
+  ACCOUNTS: [DEPLOYER.key, AP_TEAM_1.key, AP_TEAM_2.key, AP_TEAM_3.key],
 };
