@@ -1,14 +1,14 @@
 import {task} from "hardhat/config";
 import {
   EndowmentMultiSigEmitter__factory,
-  TransparentUpgradeableProxy__factory,
+  ITransparentUpgradeableProxy__factory,
   ProxyAdminMultiSig__factory,
 } from "typechain-types";
 import {
   confirmAction,
+  connectSignerFromPkey,
   getAddresses,
   getContractName,
-  connectSignerFromPkey,
   getSigners,
   isLocalNetwork,
   logger,
@@ -61,7 +61,7 @@ task(
         addresses.multiSig.proxyAdmin,
         proxyAdminSigner
       );
-      const emitterProxy = TransparentUpgradeableProxy__factory.connect(
+      const emitterProxy = ITransparentUpgradeableProxy__factory.connect(
         addresses.multiSig.endowment.emitter.proxy,
         deployer
       );
