@@ -4,7 +4,7 @@ import {ProxyContract__factory, VaultEmitter__factory} from "typechain-types";
 import {Deployment, getContractName, logger, updateAddresses} from "utils";
 
 export async function deployVaultEmitter(
-  admin: string,
+  proxyAdmin: string,
   deployer: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
 ): Promise<{
@@ -23,7 +23,7 @@ export async function deployVaultEmitter(
   logger.out("Deploying proxy...");
   const initData = emitter.interface.encodeFunctionData("initialize");
   const Proxy = new ProxyContract__factory(deployer);
-  const proxy = await Proxy.deploy(emitter.address, admin, initData);
+  const proxy = await Proxy.deploy(emitter.address, proxyAdmin, initData);
   logger.out(`Tx hash: ${proxy.deployTransaction.hash}`);
   await proxy.deployed();
   logger.out(`Address: ${proxy.address}`);
