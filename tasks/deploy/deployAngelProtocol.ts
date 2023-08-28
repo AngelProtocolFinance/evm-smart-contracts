@@ -11,6 +11,7 @@ import {
   logger,
   resetContractAddresses,
   verify,
+  getContractName,
 } from "utils";
 
 import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
@@ -27,6 +28,7 @@ import {deployGasFwd} from "contracts/core/gasFwd/scripts/deploy";
 import {deployVaultEmitter} from "contracts/core/vault/scripts/deployVaultEmitter";
 import {getOrDeployThirdPartyContracts, updateRegistrarNetworkConnections} from "../helpers";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {ProxyAdminMultiSig__factory} from "typechain-types";
 
 type TaskArgs = {
   skipVerify: boolean;
@@ -83,7 +85,10 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
 
       const proxyAdminMultisig: Deployment = taskArgs.newProxyAdmin
         ? await deployProxyAdminMultisig(proxyAdminSigner, deployer, hre)
-        : {address: currentAddresses.multiSig.proxyAdmin, contractName: "ProxyAdmin"};
+        : {
+            address: currentAddresses.multiSig.proxyAdmin,
+            contractName: getContractName(new ProxyAdminMultiSig__factory()),
+          };
 
       const thirdPartyAddresses = await getOrDeployThirdPartyContracts(deployer, hre);
 
@@ -114,6 +119,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
       const accounts = await deployAccountsDiamond(
         proxyAdminMultisig.address,
         registrar.proxy.address,
+        proxyAdminMultisig.address,
         deployer,
         hre
       );

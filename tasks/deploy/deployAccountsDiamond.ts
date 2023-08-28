@@ -32,7 +32,13 @@ task("deploy:accounts", "It will deploy accounts diamond contracts")
       const apTeam = taskArgs.apTeamMultisig || addresses.multiSig.apTeam.proxy;
       const registrar = taskArgs.registrar || addresses.registrar.proxy;
 
-      const {diamond, facets} = await deployAccountsDiamond(apTeam, registrar, deployer, hre);
+      const {diamond, facets} = await deployAccountsDiamond(
+        apTeam,
+        registrar,
+        addresses.multiSig.proxyAdmin,
+        deployer,
+        hre
+      );
 
       await hre.run("manage:registrar:updateConfig", {
         accountsContract: diamond.address,
