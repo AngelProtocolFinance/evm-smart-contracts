@@ -42,7 +42,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
   .addFlag("skipVerify", "Skip contract verification")
   .addFlag("yes", "Automatic yes to prompt.")
   .addFlag("newProxyAdmin", "Whether or not to deploy a new proxyAdmin multisig")
-  .addOptionalParam("proxyAdminPkey", "The pkey for the prod proxy amdin multisig")
+  .addOptionalParam("proxyAdminPkey", "The pkey for the prod proxy admin multisig")
   .addOptionalParam(
     "apTeamSignerPkey",
     "If running on prod, provide a pkey for a valid APTeam Multisig Owner."

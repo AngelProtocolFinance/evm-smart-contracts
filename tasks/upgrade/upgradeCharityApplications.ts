@@ -25,7 +25,7 @@ type TaskArgs = {
 task("upgrade:CharityApplications", "Will upgrade the implementation of CharityApplications")
   .addFlag("skipVerify", "Skip contract verification")
   .addFlag("yes", "Automatic yes to prompt.")
-  .addOptionalParam("proxyAdminPkey", "The pkey for the prod proxy amdin multisig")
+  .addOptionalParam("proxyAdminPkey", "The pkey for the prod proxy admin multisig")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       logger.divider();

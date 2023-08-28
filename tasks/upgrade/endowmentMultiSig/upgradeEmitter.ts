@@ -29,7 +29,7 @@ task(
 )
   .addFlag("skipVerify", "Skip contract verification")
   .addFlag("yes", "Automatic yes to prompt.")
-  .addOptionalParam("proxyAdminPkey", "The pkey for the prod proxy amdin multisig")
+  .addOptionalParam("proxyAdminPkey", "The pkey for the prod proxy admin multisig")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       logger.divider();
@@ -57,16 +57,16 @@ task(
       logger.out(`Address: ${emitter.address}`);
 
       logger.out("Upgrading proxy...");
-      const proxy = TransparentUpgradeableProxy__factory.connect(
-        addresses.multiSig.endowment.emitter.proxy,
-        deployer
-      );
       const proxyAdminMultisig = ProxyAdminMultiSig__factory.connect(
         addresses.multiSig.proxyAdmin,
         proxyAdminSigner
       );
-      const payload = proxy.interface.encodeFunctionData("upgradeTo", [emitter.address]);
-      const tx = await proxyAdminMultisig.submitTransaction(proxy.address, 0, payload, "0x");
+      const emitterProxy = TransparentUpgradeableProxy__factory.connect(
+        addresses.multiSig.endowment.emitter.proxy,
+        deployer
+      );
+      const payload = emitterProxy.interface.encodeFunctionData("upgradeTo", [emitter.address]);
+      const tx = await proxyAdminMultisig.submitTransaction(emitterProxy.address, 0, payload, "0x");
       logger.out(`Tx hash: ${tx.hash}`);
       await tx.wait();
 

@@ -19,7 +19,7 @@ import {
 task("upgrade:router", "Will upgrade the Router")
   .addFlag("skipVerify", "Skip contract verification")
   .addFlag("yes", "Automatic yes to prompt.")
-  .addOptionalParam("proxyAdminPkey", "The pkey for the prod proxy amdin multisig")
+  .addOptionalParam("proxyAdminPkey", "The pkey for the prod proxy admin multisig")
   .setAction(
     async (taskArgs: {skipVerify: boolean; yes: boolean; proxyAdminPkey?: string}, hre) => {
       try {
