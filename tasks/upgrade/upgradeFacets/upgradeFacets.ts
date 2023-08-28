@@ -67,13 +67,7 @@ task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountSto
 
       const facetCuts = await createFacetCuts(facets, accountsDiamond, deployer);
 
-      await cutDiamond(
-        accountsDiamond,
-        addresses.multiSig.proxyAdmin,
-        proxyAdminSigner,
-        facetCuts,
-        hre
-      );
+      await cutDiamond(accountsDiamond, addresses.multiSig.proxyAdmin, proxyAdminSigner, facetCuts);
 
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
         const facetsToVerify = facetCuts.filter((cut) => cut.cut.action !== FacetCutAction.Remove);
