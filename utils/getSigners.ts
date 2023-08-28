@@ -1,7 +1,7 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {Wallet} from "ethers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {isProdNetwork} from "./networkHelpers";
-import {Wallet} from "ethers";
 
 type Result = {
   airdropOwner?: SignerWithAddress;
@@ -47,8 +47,6 @@ export async function connectSignerFromPkey(
   pkey: string,
   hre: HardhatRuntimeEnvironment
 ): Promise<SignerWithAddress> {
-  const provider = hre.ethers.provider;
-  const signer_wallet = new Wallet(pkey, provider);
-  const signer = signer_wallet.connect(provider);
+  const signer = new Wallet(pkey, hre.ethers.provider);
   return hre.ethers.getSigner(signer.address);
 }
