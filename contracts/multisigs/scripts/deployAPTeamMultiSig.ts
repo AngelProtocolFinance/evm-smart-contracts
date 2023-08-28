@@ -5,7 +5,7 @@ import {APTeamMultiSig__factory, ProxyContract__factory} from "typechain-types";
 import {Deployment, getContractName, getSigners, logger, updateAddresses} from "utils";
 
 export async function deployAPTeamMultiSig(
-  admin: string,
+  proxyAdmin: string,
   deployer: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
 ): Promise<{
@@ -37,7 +37,7 @@ export async function deployAPTeamMultiSig(
   const proxyFactory = new ProxyContract__factory(deployer);
   const apTeamMultiSigProxy = await proxyFactory.deploy(
     apTeamMultiSig.address,
-    admin,
+    proxyAdmin,
     apTeamMultiSigData
   );
   await apTeamMultiSigProxy.deployed();
