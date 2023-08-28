@@ -13,7 +13,7 @@ const config: Config = {
   PROXY_ADMIN_MULTISIG_DATA: {
     threshold: 1,
     requireExecution: false,
-    transactionExpiry: 0,
+    transactionExpiry: 345600,
   },
   REGISTRAR_DATA: {
     taxRate: 1,
