@@ -104,7 +104,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
       );
 
       const accounts = await deployAccountsDiamond(
-        proxyAdminMultisig.address,
+        apTeamMultisig.proxy.address,
         registrar.proxy.address,
         proxyAdminMultisig.address,
         deployer,

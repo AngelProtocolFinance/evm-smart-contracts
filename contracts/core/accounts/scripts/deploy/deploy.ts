@@ -30,7 +30,7 @@ export async function deployAccountsDiamond(
 
   await cutDiamond(diamond.address, diamondInit.address, deployer, owner, registrar, cuts, hre);
 
-  await setDiamondContractOwner(diamond.address, diamondAdmin, deployer, hre);
+  await setDiamondContractOwner(diamond.address, diamondAdmin, deployer);
 
   return {
     diamond,
@@ -104,8 +104,7 @@ async function deployDiamondInit(
 async function setDiamondContractOwner(
   address: string,
   newOwner: string,
-  curOwner: SignerWithAddress,
-  hre: HardhatRuntimeEnvironment
+  curOwner: SignerWithAddress
 ) {
   logger.out(`Transferring ownership from "${curOwner}" to "${newOwner}"...`);
   const accountsDiamond = IERC173__factory.connect(address, curOwner);
