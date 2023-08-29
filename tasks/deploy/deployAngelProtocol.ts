@@ -114,7 +114,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
       const gasFwd = await deployGasFwd(
         {
           deployer: deployer,
-          admin: proxyAdminMultisig.address,
+          proxyAdmin: proxyAdminMultisig.address,
           factoryOwner: apTeamMultisig.proxy.address,
           registrar: registrar.proxy.address,
         },

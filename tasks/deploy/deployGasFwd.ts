@@ -24,7 +24,7 @@ task("deploy:GasFwd", "Will deploy the GasFwd implementation and factory")
       const gasFwdDeployment = await deployGasFwd(
         {
           deployer: deployer,
-          admin: addresses.multiSig.proxyAdmin,
+          proxyAdmin: addresses.multiSig.proxyAdmin,
           factoryOwner: addresses.multiSig.apTeam.proxy,
           registrar: addresses.registrar.proxy,
         },

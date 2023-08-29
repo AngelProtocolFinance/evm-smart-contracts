@@ -5,13 +5,13 @@ import {Deployment, getAddresses, getContractName, logger, updateAddresses} from
 
 type Data = {
   deployer: SignerWithAddress;
-  admin: string;
+  proxyAdmin: string;
   factoryOwner: string;
   registrar?: string;
 };
 
 export async function deployGasFwd(
-  {deployer, admin, factoryOwner, registrar}: Data,
+  {deployer, proxyAdmin, factoryOwner, registrar}: Data,
   hre: HardhatRuntimeEnvironment
 ): Promise<{factory: Deployment; implementation: Deployment}> {
   logger.out("Deploying Gas Forwarder...");
@@ -29,7 +29,7 @@ export async function deployGasFwd(
   const GFF = new GasFwdFactory__factory(deployer);
   const constructorArguments: Parameters<GasFwdFactory__factory["deploy"]> = [
     gf.address,
-    admin,
+    proxyAdmin,
     registrarAddress,
   ];
   const gff = await GFF.deploy(...constructorArguments);
