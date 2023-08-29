@@ -11,6 +11,7 @@ import {Deployment, getContractName, logger, updateAddresses} from "utils";
 export async function deployEndowmentMultiSig(
   registrar: string,
   proxyAdmin: string,
+  factoryOwner: string,
   deployer: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
 ): Promise<{
@@ -42,8 +43,8 @@ export async function deployEndowmentMultiSig(
   await EndowmentMultiSigFactory.deployed();
   logger.out(`Address: ${EndowmentMultiSigFactory.address}`);
 
-  logger.out(`Transferring ownership to: ${proxyAdmin}...`);
-  const tx = await EndowmentMultiSigFactory.transferOwnership(proxyAdmin);
+  logger.out(`Transferring ownership to: ${factoryOwner}...`);
+  const tx = await EndowmentMultiSigFactory.transferOwnership(factoryOwner);
   logger.out(`Tx hash: ${tx.hash}`);
   await tx.wait();
 

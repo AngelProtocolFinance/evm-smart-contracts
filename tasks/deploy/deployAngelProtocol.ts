@@ -142,6 +142,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
       const endowmentMultiSig = await deployEndowmentMultiSig(
         registrar.proxy.address,
         proxyAdminMultisig.address,
+        apTeamMultisig.proxy.address,
         deployer,
         hre
       );

@@ -30,6 +30,7 @@ task("deploy:EndowmentMultiSig", "Will deploy EndowmentMultiSig contract")
       const deployData = await deployEndowmentMultiSig(
         registrarAddress,
         addresses.multiSig.proxyAdmin,
+        addresses.multiSig.apTeam.proxy,
         deployer,
         hre
       );
