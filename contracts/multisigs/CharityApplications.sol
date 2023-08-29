@@ -328,7 +328,7 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
   /// @dev Returns the confirmation status of a transaction.
   /// @param proposalId Proposal ID.
   /// @return bool Confirmation status.
-  function isProposalConfirmed(uint256 proposalId) public view override returns (bool) {
+  function isProposalConfirmed(uint256 proposalId) public view returns (bool) {
     return proposalConfirmations[proposalId].count >= approvalsRequired;
   }
 }
