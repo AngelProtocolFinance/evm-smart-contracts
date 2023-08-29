@@ -39,7 +39,6 @@ const MAINNET_RPC_URL = extractString("MAINNET_URL");
 const MUMBAI_RPC_URL = extractString("MUMBAI_RPC_URL");
 const POLYGON_RPC_URL = extractString("POLYGON_RPC_URL");
 const POLYSCAN_API_KEY = extractString("POLYSCAN_API_KEY");
-const VERIFY_CONTRACTS = extractString("VERIFY_CONTRACTS");
 
 function extractString(name: string): string {
   const envVar = process.env[name];
@@ -66,7 +65,6 @@ export const envConfigDev: EnvConfig = {
   MUMBAI_RPC_URL,
   POLYGON_RPC_URL,
   POLYSCAN_API_KEY,
-  VERIFY_CONTRACTS,
   // order of account items is important!
   ACCOUNTS: [DEPLOYER.key, PROXY_ADMIN_DEV.key, AP_TEAM_1.key, AP_TEAM_2.key, AP_TEAM_3.key],
 };
@@ -80,6 +78,5 @@ export const envConfigProd: EnvConfig = {
   MUMBAI_RPC_URL,
   POLYGON_RPC_URL,
   POLYSCAN_API_KEY,
-  VERIFY_CONTRACTS,
   ACCOUNTS: [DEPLOYER.key, AP_TEAM_1.key, AP_TEAM_2.key, AP_TEAM_3.key],
 };

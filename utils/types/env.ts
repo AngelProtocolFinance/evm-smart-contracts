@@ -9,6 +9,5 @@ export type EnvConfig = {
   MUMBAI_RPC_URL: string;
   POLYGON_RPC_URL: string;
   POLYSCAN_API_KEY: string;
-  VERIFY_CONTRACTS: string;
   ACCOUNTS: string[];
 };
