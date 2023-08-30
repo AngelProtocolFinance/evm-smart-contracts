@@ -73,7 +73,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
   before(async function () {
     const signers = await getSigners(hre);
     accOwner = signers.apTeam1;
-    proxyAdmin = signers.proxyAdmin;
+    proxyAdmin = signers.proxyAdminSigner!;
     endowOwner = signers.deployer;
     indexFund = signers.apTeam2;
 

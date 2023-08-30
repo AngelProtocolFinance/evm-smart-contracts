@@ -2,10 +2,9 @@
 import {config as dotenvConfig} from "dotenv";
 import {resolve} from "path";
 import {HardhatNetworkAccountsUserConfig, HardhatNetworkAccountUserConfig} from "hardhat/types";
+import {Signer, EnvConfig} from "./types";
 
 dotenvConfig({path: resolve(__dirname, "../.env")});
-
-type Signer = {key: string; address: string};
 
 const AP_TEAM_1: Signer = {
   key: extractString("AP_TEAM_1_KEY"),
@@ -27,7 +26,7 @@ const DEPLOYER: Signer = {
   address: extractString("DEPLOYER_ADDRESS"),
 };
 
-const PROXY_ADMIN: Signer = {
+const PROXY_ADMIN_DEV: Signer = {
   key: extractString("PROXY_ADMIN_KEY"),
   address: extractString("PROXY_ADMIN_ADDRESS"),
 };
@@ -38,23 +37,8 @@ const GANACHE_PRIVATE_KEY = extractString("GANACHE_PRIVATE_KEY");
 const GANACHE_RPC_URL = extractString("GANACHE_RPC_URL");
 const MAINNET_RPC_URL = extractString("MAINNET_URL");
 const MUMBAI_RPC_URL = extractString("MUMBAI_RPC_URL");
-const NETWORK = extractString("NETWORK");
-const OPTIMIZER_FLAG = extractString("OPTIMIZER_FLAG");
-const OPTIMIZER_RUNS = extractNumber("OPTIMIZER_RUNS");
 const POLYGON_RPC_URL = extractString("POLYGON_RPC_URL");
 const POLYSCAN_API_KEY = extractString("POLYSCAN_API_KEY");
-const VERIFY_CONTRACTS = extractString("VERIFY_CONTRACTS");
-
-function extractNumber(name: string): number {
-  const envVar = extractString(name);
-
-  const numVar = Number(envVar);
-  if (isNaN(numVar)) {
-    throw new Error(`Please add ${name} key with a number value to your .env file`);
-  }
-
-  return numVar;
-}
 
 function extractString(name: string): string {
   const envVar = process.env[name];
@@ -65,32 +49,34 @@ function extractString(name: string): string {
 }
 
 export function getHardhatAccounts(accountList: string[]): HardhatNetworkAccountsUserConfig {
-  let hardhatAccounts: HardhatNetworkAccountUserConfig[] = [];
-  accountList.forEach((element) => {
-    hardhatAccounts.push({
-      privateKey: element,
-      balance: "1000000000000000000000",
-    });
-  });
+  const hardhatAccounts: HardhatNetworkAccountUserConfig[] = accountList.map((element) => ({
+    privateKey: element,
+    balance: "1000000000000000000000",
+  }));
   return hardhatAccounts;
 }
 
-export var envConfig = {
-  AP_TEAM_1,
-  AP_TEAM_2,
-  AP_TEAM_3,
-  DEPLOYER,
-  PROXY_ADMIN,
+export const envConfigDev: EnvConfig = {
   ETHERSCAN_API_KEY,
   GANACHE_PRIVATE_KEY,
   GANACHE_RPC_URL,
   GOERLI_RPC_URL,
   MAINNET_RPC_URL,
   MUMBAI_RPC_URL,
-  NETWORK,
-  OPTIMIZER_FLAG,
-  OPTIMIZER_RUNS,
   POLYGON_RPC_URL,
   POLYSCAN_API_KEY,
-  VERIFY_CONTRACTS,
+  // order of account items is important!
+  ACCOUNTS: [DEPLOYER.key, PROXY_ADMIN_DEV.key, AP_TEAM_1.key, AP_TEAM_2.key, AP_TEAM_3.key],
+};
+
+export const envConfigProd: EnvConfig = {
+  ETHERSCAN_API_KEY,
+  GANACHE_PRIVATE_KEY,
+  GANACHE_RPC_URL,
+  GOERLI_RPC_URL,
+  MAINNET_RPC_URL,
+  MUMBAI_RPC_URL,
+  POLYGON_RPC_URL,
+  POLYSCAN_API_KEY,
+  ACCOUNTS: [DEPLOYER.key, AP_TEAM_1.key, AP_TEAM_2.key, AP_TEAM_3.key],
 };

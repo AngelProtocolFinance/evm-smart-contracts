@@ -1,7 +1,15 @@
+import config from "config";
+import {deployAPTeamMultiSig, deployProxyAdminMultisig} from "contracts/multisigs/scripts/deploy";
 import {task} from "hardhat/config";
-import {Deployment, confirmAction, isLocalNetwork, logger, verify} from "utils";
-import {getSigners, resetAddresses} from "utils";
-import {deployAPTeamMultiSig} from "contracts/multisigs/scripts/deploy";
+import {
+  Deployment,
+  confirmAction,
+  getSigners,
+  isLocalNetwork,
+  logger,
+  resetContractAddresses,
+  verify,
+} from "utils";
 
 task("deploy:SideChain", "Will deploy complete side-chain infrastructure")
   .addFlag("skipVerify", "Skip contract verification")
@@ -16,13 +24,23 @@ task("deploy:SideChain", "Will deploy complete side-chain infrastructure")
 
       const verify_contracts = !isLocalNetwork(hre) && !taskArgs.skipVerify;
 
-      const {deployer} = await getSigners(hre);
+      let {deployer, proxyAdminMultisigOwners} = await getSigners(hre);
 
-      await resetAddresses(hre);
+      const proxyAdminMultisigOwnerAddresses = proxyAdminMultisigOwners
+        ? proxyAdminMultisigOwners.map((x) => x.address)
+        : config.PROD_CONFIG.ProxyAdminMultiSigOwners;
+
+      await resetContractAddresses(hre);
 
       logger.out(`Deploying the contracts with the account: ${deployer.address}`);
 
-      const apTeamMultisig = await deployAPTeamMultiSig(hre);
+      const proxyAdminMultisig = await deployProxyAdminMultisig(
+        proxyAdminMultisigOwnerAddresses,
+        deployer,
+        hre
+      );
+
+      const apTeamMultisig = await deployAPTeamMultiSig(proxyAdminMultisig.address, deployer, hre);
 
       await hre.run("deploy:LocalRegistrarAndRouter", {
         skipVerify: verify_contracts,
@@ -31,15 +49,14 @@ task("deploy:SideChain", "Will deploy complete side-chain infrastructure")
       });
 
       if (verify_contracts) {
-        const deployments: Array<Deployment | undefined> = [
+        const deployments: Array<Deployment> = [
+          proxyAdminMultisig,
           apTeamMultisig.implementation,
           apTeamMultisig.proxy,
         ];
 
         for (const deployment of deployments) {
-          if (deployment) {
-            await verify(hre, deployment);
-          }
+          await verify(hre, deployment);
         }
       }
 

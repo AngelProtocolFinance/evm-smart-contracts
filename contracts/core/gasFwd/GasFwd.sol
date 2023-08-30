@@ -5,6 +5,7 @@ import {IGasFwd} from "./IGasFwd.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {Validator} from "../validator.sol";
 
 contract GasFwd is IGasFwd, Initializable {
   error OnlyAccounts();
@@ -16,6 +17,7 @@ contract GasFwd is IGasFwd, Initializable {
   address accounts;
 
   function initialize(address _accounts) public initializer {
+    require(Validator.addressChecker(_accounts), "Invalid Accounts address");
     accounts = _accounts;
   }
 

@@ -107,6 +107,7 @@ export type AddressObj = {
       factory: string;
       implementation: string;
     };
+    proxyAdmin: string;
   };
   registrar: {
     implementation: string;

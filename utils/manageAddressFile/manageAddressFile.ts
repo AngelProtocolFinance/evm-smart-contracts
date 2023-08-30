@@ -7,20 +7,22 @@ import {AddressObj} from "./types";
 /**
  * Removes contract address for the current network from the appropriate file.
  */
-export async function resetAddresses(
+export async function resetContractAddresses(
   hre: HardhatRuntimeEnvironment,
   filePath = DEFAULT_CONTRACT_ADDRESS_FILE_PATH
 ) {
   const chainId = await getChainId(hre);
 
+  const emptyAddressObj = createEmptyAddressObj();
+
   if (isLocalNetwork(hre)) {
-    return saveFrontendFiles({[chainId]: createEmptyAddressObj()}, filePath);
+    return saveFrontendFiles({[chainId]: emptyAddressObj}, filePath);
   }
 
   const currentAddressObj = getAddressesByNetworkId(chainId, filePath);
 
   const cleaned: AddressObj = {
-    ...createEmptyAddressObj(),
+    ...emptyAddressObj,
     axelar: currentAddressObj.axelar,
     tokens: {...currentAddressObj.tokens, halo: "", reserveToken: ""},
     uniswap: currentAddressObj.uniswap,

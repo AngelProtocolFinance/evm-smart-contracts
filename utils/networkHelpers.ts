@@ -1,5 +1,17 @@
-import {HardhatRuntimeEnvironment, Network} from "hardhat/types";
+import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {TwoWayMap} from "./twoWayMap";
+
+const PROD_NETWORKS = [1, 137]; // Ethereum, Polygon
+
+// There are errors/mismatches in the axelar sdk jsons, so we just implement a lightweight
+// version here and use this instead.
+const AxelarNetworks = new TwoWayMap({
+  1: "Ethereum",
+  5: "ethereum-2",
+  137: "Polygon",
+  31337: "localhost",
+  80001: "Polygon",
+});
 
 export function isLocalNetwork(hre: HardhatRuntimeEnvironment) {
   return hre.network.name === "hardhat" || hre.network.name === "localhost";
@@ -27,12 +39,7 @@ export async function getChainId(hre: HardhatRuntimeEnvironment): Promise<number
   return chainId;
 }
 
-// There are errors/mismatches in the axelar sdk jsons, so we just implement a lightweight
-// version here and use this instead.
-const AxelarNetworks = new TwoWayMap({
-  1: "Ethereum",
-  5: "ethereum-2",
-  137: "Polygon",
-  31337: "localhost",
-  80001: "Polygon",
-});
+export async function isProdNetwork(hre: HardhatRuntimeEnvironment): Promise<boolean> {
+  const thisChainId = await getChainId(hre);
+  return PROD_NETWORKS.includes(thisChainId);
+}

@@ -1,7 +1,12 @@
 import {task} from "hardhat/config";
-import {EndowmentMultiSig__factory, EndowmentMultiSigFactory__factory} from "typechain-types";
+import {
+  EndowmentMultiSig__factory,
+  EndowmentMultiSigFactory__factory,
+  ProxyAdminMultiSig__factory,
+} from "typechain-types";
 import {
   confirmAction,
+  connectSignerFromPkey,
   getAddresses,
   getContractName,
   getSigners,
@@ -15,6 +20,7 @@ type TaskArgs = {
   factory?: string;
   skipVerify: boolean;
   yes: boolean;
+  proxyAdminPkey?: string;
 };
 
 task(
@@ -27,6 +33,7 @@ task(
   )
   .addFlag("skipVerify", "Skip contract verification")
   .addFlag("yes", "Automatic yes to prompt.")
+  .addOptionalParam("proxyAdminPkey", "The pkey for the prod proxy admin multisig")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       logger.divider();
@@ -38,7 +45,12 @@ task(
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      const {proxyAdmin} = await getSigners(hre);
+      let {deployer, proxyAdminSigner} = await getSigners(hre);
+      if (!proxyAdminSigner && taskArgs.proxyAdminPkey) {
+        proxyAdminSigner = await connectSignerFromPkey(taskArgs.proxyAdminPkey, hre);
+      } else if (!proxyAdminSigner) {
+        throw new Error("Must provide a pkey for proxyAdmin signer on this network");
+      }
 
       const addresses = await getAddresses(hre);
 
@@ -46,17 +58,30 @@ task(
         taskArgs.factory || addresses.multiSig.endowment.factory;
 
       logger.out("Deploying a new EndowmentMultiSig contract...");
-      const factory = new EndowmentMultiSig__factory(proxyAdmin);
+      const factory = new EndowmentMultiSig__factory(deployer);
       const contract = await factory.deploy();
       await contract.deployed();
       logger.out(`Address: ${contract.address}`);
 
       logger.out("Upgrading EndowmentMultiSigFactory's implementation address...");
-      const EndowmentMultiSigFactory = EndowmentMultiSigFactory__factory.connect(
+      const endowmentMultiSigFactory = EndowmentMultiSigFactory__factory.connect(
         EndowmentMultiSigFactoryAddress,
-        proxyAdmin
+        proxyAdminSigner
       );
-      const tx = await EndowmentMultiSigFactory.updateImplementation(contract.address);
+      const proxyAdminMultisig = ProxyAdminMultiSig__factory.connect(
+        addresses.multiSig.proxyAdmin,
+        proxyAdminSigner
+      );
+      const payload = endowmentMultiSigFactory.interface.encodeFunctionData(
+        "updateImplementation",
+        [contract.address]
+      );
+      const tx = await proxyAdminMultisig.submitTransaction(
+        EndowmentMultiSigFactoryAddress,
+        0,
+        payload,
+        "0x"
+      );
       logger.out(`Tx hash: ${tx.hash}`);
       await tx.wait();
 

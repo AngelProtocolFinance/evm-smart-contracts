@@ -23,10 +23,10 @@ describe("AccountsUpdate", function () {
   before(async function () {
     const signers = await getSigners(hre);
     owner = signers.apTeam1;
-    proxyAdmin = signers.proxyAdmin;
+    proxyAdmin = signers.proxyAdminSigner!;
     user = signers.deployer;
 
-    newRegistrar = signers.airdropOwner.address;
+    newRegistrar = signers.apTeam1.address;
     endowment = {...DEFAULT_CHARITY_ENDOWMENT, owner: owner.address};
   });
 

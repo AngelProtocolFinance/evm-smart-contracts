@@ -41,9 +41,9 @@ describe("GasFwd", function () {
   }
 
   before(async function () {
-    const {deployer, proxyAdmin, apTeam1} = await getSigners(hre);
+    const {deployer, proxyAdminSigner, apTeam1} = await getSigners(hre);
     owner = deployer;
-    admin = proxyAdmin;
+    admin = proxyAdminSigner!;
     accounts = apTeam1;
   });
 

@@ -1,7 +1,12 @@
-import {task, types} from "hardhat/config";
-import {CharityApplications__factory, ITransparentUpgradeableProxy__factory} from "typechain-types";
+import {task} from "hardhat/config";
+import {
+  CharityApplications__factory,
+  ITransparentUpgradeableProxy__factory,
+  ProxyAdminMultiSig__factory,
+} from "typechain-types";
 import {
   confirmAction,
+  connectSignerFromPkey,
   getAddresses,
   getContractName,
   getSigners,
@@ -14,11 +19,13 @@ import {
 type TaskArgs = {
   skipVerify: boolean;
   yes: boolean;
+  proxyAdminPkey?: string;
 };
 
 task("upgrade:CharityApplications", "Will upgrade the implementation of CharityApplications")
   .addFlag("skipVerify", "Skip contract verification")
   .addFlag("yes", "Automatic yes to prompt.")
+  .addOptionalParam("proxyAdminPkey", "The pkey for the prod proxy admin multisig")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       logger.divider();
@@ -30,25 +37,43 @@ task("upgrade:CharityApplications", "Will upgrade the implementation of CharityA
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      const {proxyAdmin} = await getSigners(hre);
+      let {deployer, proxyAdminSigner} = await getSigners(hre);
+      if (!proxyAdminSigner && taskArgs.proxyAdminPkey) {
+        proxyAdminSigner = await connectSignerFromPkey(taskArgs.proxyAdminPkey, hre);
+      } else if (!proxyAdminSigner) {
+        throw new Error("Must provide a pkey for proxyAdmin signer on this network");
+      }
+
       const addresses = await getAddresses(hre);
 
       // deploy implementation
       logger.out("Deploying CharityApplications...");
-      const charityApplicationsFactory = new CharityApplications__factory(proxyAdmin);
+      const charityApplicationsFactory = new CharityApplications__factory(deployer);
       const charityApplications = await charityApplicationsFactory.deploy();
       await charityApplications.deployed();
       logger.out(`Address: ${charityApplications.address}`);
 
       // upgrade proxy
       logger.out("Upgrading proxy...");
-      const apTeamProxy = ITransparentUpgradeableProxy__factory.connect(
+      const charityApplicationsProxy = ITransparentUpgradeableProxy__factory.connect(
         addresses.multiSig.charityApplications.proxy,
-        proxyAdmin
+        deployer
       );
-      const tx1 = await apTeamProxy.upgradeTo(charityApplications.address);
-      logger.out(`Tx hash: ${tx1.hash}`);
-      await tx1.wait();
+      const proxyAdminMultisig = ProxyAdminMultiSig__factory.connect(
+        addresses.multiSig.proxyAdmin,
+        proxyAdminSigner
+      );
+      const payload = charityApplicationsProxy.interface.encodeFunctionData("upgradeTo", [
+        charityApplications.address,
+      ]);
+      const tx = await proxyAdminMultisig.submitTransaction(
+        charityApplicationsProxy.address,
+        0,
+        payload,
+        "0x"
+      );
+      logger.out(`Tx hash: ${tx.hash}`);
+      await tx.wait();
 
       // update address & verify
       await updateAddresses(

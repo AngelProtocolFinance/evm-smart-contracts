@@ -9,7 +9,7 @@ type RegistrarDeployData = {
   router: string;
   owner: string;
   deployer: SignerWithAddress;
-  proxyAdmin: SignerWithAddress;
+  proxyAdmin: string;
   treasury: string;
   apTeamMultisig: string;
 };
@@ -36,7 +36,7 @@ export async function deployRegistrar(
 
   // deploy implementation
   logger.out("Deploying implementation...");
-  const factory = new Registrar__factory(proxyAdmin);
+  const factory = new Registrar__factory(deployer);
   const registrar = await factory.deploy();
   await registrar.deployed();
   logger.out(`Address: ${registrar.address}`);
@@ -58,7 +58,7 @@ export async function deployRegistrar(
     ]
   );
   const proxyFactory = new ProxyContract__factory(deployer);
-  const proxy = await proxyFactory.deploy(registrar.address, proxyAdmin.address, initData);
+  const proxy = await proxyFactory.deploy(registrar.address, proxyAdmin, initData);
   await proxy.deployed();
   logger.out(`Address: ${proxy.address}`);
 
@@ -88,7 +88,7 @@ export async function deployRegistrar(
 type LocalRegistrarDeployData = {
   owner: string;
   deployer: SignerWithAddress;
-  proxyAdmin: SignerWithAddress;
+  proxyAdmin: string;
 };
 
 export async function deployLocalRegistrar(
@@ -102,7 +102,7 @@ export async function deployLocalRegistrar(
 
   // deploy implementation
   logger.out("Deploying implementation...");
-  const factory = new LocalRegistrar__factory(proxyAdmin);
+  const factory = new LocalRegistrar__factory(deployer);
   const localRegistrar = await factory.deploy();
   await localRegistrar.deployed();
   logger.out(`Address: ${localRegistrar.address}`);
@@ -113,7 +113,7 @@ export async function deployLocalRegistrar(
   const initData = localRegistrar.interface.encodeFunctionData("initialize", [
     await getAxlNetworkName(hre),
   ]);
-  const proxy = await proxyFactory.deploy(localRegistrar.address, proxyAdmin.address, initData);
+  const proxy = await proxyFactory.deploy(localRegistrar.address, proxyAdmin, initData);
   await proxy.deployed();
   logger.out(`Address: ${proxy.address}`);
 

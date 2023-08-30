@@ -1,6 +1,6 @@
 import {HardhatUserConfig} from "hardhat/config";
 import {HardhatNetworkAccountsUserConfig} from "hardhat/types";
-import {envConfig, getHardhatAccounts} from "./utils";
+import {envConfigDev, envConfigProd, getHardhatAccounts} from "./utils";
 import "@nomiclabs/hardhat-etherscan";
 import "@nomicfoundation/hardhat-chai-matchers";
 import "@openzeppelin/hardhat-upgrades";
@@ -10,14 +10,7 @@ require("tsconfig-paths/register"); // must use `require`, otherwise TS complain
 import "./tasks";
 import * as tdly from "@tenderly/hardhat-tenderly";
 
-var accounts = [
-  envConfig.DEPLOYER.key,
-  envConfig.PROXY_ADMIN.key,
-  envConfig.AP_TEAM_1.key,
-  envConfig.AP_TEAM_2.key,
-  envConfig.AP_TEAM_3.key,
-];
-var hardhatAccounts: HardhatNetworkAccountsUserConfig = getHardhatAccounts(accounts);
+var hardhatAccounts: HardhatNetworkAccountsUserConfig = getHardhatAccounts(envConfigDev.ACCOUNTS);
 
 tdly.setup({
   automaticVerifications: false,
@@ -42,21 +35,20 @@ const config: HardhatUserConfig = {
   },
   networks: {
     mainnet: {
-      url: envConfig.MAINNET_RPC_URL,
-      accounts: accounts,
+      url: envConfigProd.MAINNET_RPC_URL,
+      accounts: envConfigProd.ACCOUNTS,
     },
     goerli: {
-      url: envConfig.GOERLI_RPC_URL,
-      accounts: accounts,
+      url: envConfigDev.GOERLI_RPC_URL,
+      accounts: envConfigDev.ACCOUNTS,
     },
     mumbai: {
-      url: envConfig.MUMBAI_RPC_URL,
-      accounts: accounts,
-      // gasPrice: 50_000_000_000 //50Gwei
+      url: envConfigDev.MUMBAI_RPC_URL,
+      accounts: envConfigDev.ACCOUNTS,
     },
     polygon: {
-      url: envConfig.POLYGON_RPC_URL,
-      accounts: accounts,
+      url: envConfigProd.POLYGON_RPC_URL,
+      accounts: envConfigProd.ACCOUNTS,
     },
     hardhat: {
       accounts: hardhatAccounts,
@@ -67,10 +59,10 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: {
-      mainnet: envConfig.ETHERSCAN_API_KEY,
-      goerli: envConfig.ETHERSCAN_API_KEY,
-      polygon: envConfig.POLYSCAN_API_KEY,
-      polygonMumbai: envConfig.POLYSCAN_API_KEY,
+      mainnet: envConfigProd.ETHERSCAN_API_KEY,
+      goerli: envConfigDev.ETHERSCAN_API_KEY,
+      polygon: envConfigProd.POLYSCAN_API_KEY,
+      polygonMumbai: envConfigDev.POLYSCAN_API_KEY,
     },
   },
   tenderly: {

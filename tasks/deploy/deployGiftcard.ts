@@ -1,4 +1,4 @@
-import {deployGiftCard} from "contracts/accessory/gift-cards/scripts/deploy";
+import {deployGiftCard} from "contracts/accessory/gift-cards/scripts/deploy.ts";
 import {task} from "hardhat/config";
 import {getAddresses, isLocalNetwork, logger} from "utils";
 

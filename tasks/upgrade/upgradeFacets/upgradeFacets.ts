@@ -1,6 +1,14 @@
 import {FacetCutAction} from "contracts/core/accounts/scripts/libraries/diamond";
 import {task} from "hardhat/config";
-import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
+import {
+  confirmAction,
+  connectSignerFromPkey,
+  getAddresses,
+  getSigners,
+  isLocalNetwork,
+  logger,
+  verify,
+} from "utils";
 import {ALL_FACET_NAMES} from "./constants";
 import createFacetCuts from "./createFacetCuts";
 import cutDiamond from "./cutDiamond";
@@ -11,6 +19,7 @@ type TaskArgs = {
   facets: string[];
   skipVerify: boolean;
   yes: boolean;
+  proxyAdminPkey?: string;
 };
 
 // Sample syntax: npx hardhat upgrade:facets --yes --network mumbai "AccountsStrategy"
@@ -27,6 +36,7 @@ task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountSto
   )
   .addFlag("skipVerify", "Skip contract verification")
   .addFlag("yes", "Automatic yes to prompt.")
+  .addOptionalParam("proxyAdminPkey", "The pkey for the prod proxy admin multisig")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       if (taskArgs.facets.length === 0) {
@@ -42,17 +52,22 @@ task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountSto
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      const {proxyAdmin} = await getSigners(hre);
+      let {deployer, proxyAdminSigner} = await getSigners(hre);
+      if (!proxyAdminSigner && taskArgs.proxyAdminPkey) {
+        proxyAdminSigner = await connectSignerFromPkey(taskArgs.proxyAdminPkey, hre);
+      } else if (!proxyAdminSigner) {
+        throw new Error("Must provide a pkey for proxyAdmin signer on this network");
+      }
 
       const addresses = await getAddresses(hre);
 
       const accountsDiamond = taskArgs.accountsDiamond || addresses.accounts.diamond;
 
-      const facets = await deployFacets(facetsToUpgrade, proxyAdmin, hre);
+      const facets = await deployFacets(facetsToUpgrade, deployer, hre);
 
-      const facetCuts = await createFacetCuts(facets, accountsDiamond, proxyAdmin);
+      const facetCuts = await createFacetCuts(facets, accountsDiamond, deployer);
 
-      await cutDiamond(accountsDiamond, proxyAdmin, facetCuts, hre);
+      await cutDiamond(accountsDiamond, addresses.multiSig.proxyAdmin, proxyAdminSigner, facetCuts);
 
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
         const facetsToVerify = facetCuts.filter((cut) => cut.cut.action !== FacetCutAction.Remove);
