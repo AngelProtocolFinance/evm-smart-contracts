@@ -3,11 +3,12 @@ pragma solidity ^0.8.19;
 
 import {LibDiamond} from "./libraries/LibDiamond.sol";
 import {IDiamondCut} from "./interfaces/IDiamondCut.sol";
+import {Validator} from "../../../validator.sol";
 
 contract Diamond {
   constructor(address contractowner, address diamondcutfacet) payable {
-    require(contractowner != address(0), "Invalid Address");
-    require(diamondcutfacet != address(0), "Invalid Address");
+    require(Validator.addressChecker(contractowner), "Invalid Address");
+    require(Validator.addressChecker(diamondcutfacet), "Invalid Address");
     LibDiamond.setContractOwner(contractowner);
 
     // Add the diamondCut external function from the diamondCutFacet
@@ -33,7 +34,7 @@ contract Diamond {
     }
     // get facet from function selector
     address facet = ds.selectorToFacetAndPosition[msg.sig].facetAddress;
-    require(facet != address(0), "Diamond: Function does not exist");
+    require(Validator.addressChecker(facet), "Diamond: Function does not exist");
     // Execute external function from facet using delegatecall and return any value.
     assembly {
       // copy function selector and any arguments

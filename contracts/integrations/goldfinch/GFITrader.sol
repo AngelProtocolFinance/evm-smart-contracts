@@ -15,7 +15,7 @@ contract GFITrader {
   uint24 public constant poolFee = 3000;
 
   constructor(address _swapRouterAddr, address _gfi, address _weth9, address _usdc) {
-    require(Validator.addressChecker(_swapRouterAddr), "Invalid swap router address");
+    require(_swapRouterAddr != address(0), "Invalid swap router address");
     swapRouter = ISwapRouter(_swapRouterAddr);
     GFI = _gfi;
     WETH9 = _weth9;
