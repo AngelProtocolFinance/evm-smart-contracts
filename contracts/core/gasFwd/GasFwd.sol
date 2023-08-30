@@ -16,6 +16,7 @@ contract GasFwd is IGasFwd, Initializable {
   address accounts;
 
   function initialize(address _accounts) public initializer {
+    require(Validator.addressChecker(_accounts), "Invalid Accounts address");
     accounts = _accounts;
   }
 
