@@ -3,6 +3,7 @@
 pragma solidity >=0.8.0;
 
 import {ISwapRouter} from "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
+import {Validator} from "../../core/validator.sol";
 
 contract GFITrader {
   ISwapRouter swapRouter;
@@ -15,7 +16,10 @@ contract GFITrader {
   uint24 public constant poolFee = 3000;
 
   constructor(address _swapRouterAddr, address _gfi, address _weth9, address _usdc) {
-    require(_swapRouterAddr != address(0), "Invalid swap router address");
+    require(Validator.addressChecker(_swapRouterAddr), "Invalid swap router address");
+    require(Validator.addressChecker(_gfi), "Invalid GFI Address");
+    require(Validator.addressChecker(_weth9), "Invalid wETH Address");
+    require(Validator.addressChecker(_usdc), "Invalid USDC Address");
     swapRouter = ISwapRouter(_swapRouterAddr);
     GFI = _gfi;
     WETH9 = _weth9;

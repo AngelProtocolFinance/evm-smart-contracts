@@ -3,7 +3,7 @@ pragma solidity ^0.8.19;
 
 import {LibDiamond} from "./libraries/LibDiamond.sol";
 import {IDiamondCut} from "./interfaces/IDiamondCut.sol";
-import {Validator} from "../../../validator.sol";
+import {Validator} from "../../validator.sol";
 
 contract Diamond {
   constructor(address contractowner, address diamondcutfacet) payable {
