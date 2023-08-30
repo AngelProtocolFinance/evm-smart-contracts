@@ -75,7 +75,11 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
 
       logger.out(`Deploying the contracts with the account: ${deployer.address}`);
 
-      const proxyAdminMultisig = await deployProxyAdminMultisig(proxyAdminSigner, deployer, hre);
+      const proxyAdminMultisig = await deployProxyAdminMultisig(
+        [proxyAdminSigner.address],
+        deployer,
+        hre
+      );
 
       const thirdPartyAddresses = await getOrDeployThirdPartyContracts(deployer, hre);
 

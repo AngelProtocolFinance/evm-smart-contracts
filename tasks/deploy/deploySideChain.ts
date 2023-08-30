@@ -29,7 +29,11 @@ task("deploy:SideChain", "Will deploy complete side-chain infrastructure")
 
         logger.out(`Deploying the contracts with the account: ${deployer.address}`);
 
-        const proxyAdminMultisig = await deployProxyAdminMultisig(proxyAdminSigner, deployer, hre);
+        const proxyAdminMultisig = await deployProxyAdminMultisig(
+          [proxyAdminSigner.address],
+          deployer,
+          hre
+        );
 
         const apTeamMultisig = await deployAPTeamMultiSig(
           proxyAdminMultisig.address,
