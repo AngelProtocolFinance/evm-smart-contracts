@@ -67,6 +67,11 @@ const config: Config = {
       "0x165d1f1361490974ea2F2A4079b5828E81F13b11",
       "0x13C9060a611e4277a93ca259068256271fC2d7B4",
     ],
+    ProxyAdminMultiSigOwners: [
+      "0xF71eba1cf57997B6C52eA33D7939A330D6D85502",
+      "0x109641d919da899c7bd1ce27413d0c02b3bb611d",
+      "0x0f6d331f26C0B64fc6EACddABd5645b55cf2d8e0",
+    ],
     Treasury: "0x4C6cDdFC00064D73E64B34aE453884de1Bf6D639",
   },
 };

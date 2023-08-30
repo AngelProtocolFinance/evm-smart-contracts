@@ -52,6 +52,7 @@ export type Config = {
   PROD_CONFIG: {
     APTeamMultiSigOwners: string[];
     CharityApplicationsOwners: string[];
+    ProxyAdminMultiSigOwners: string[];
     Treasury: string;
   };
 };

@@ -1,3 +1,3 @@
 export * from "./deployAPTeamMultiSig";
 export * from "./deployCharityApplications";
-export * from "./deployProxyAdmin";
+export * from "./deployProxyAdminMultiSig";
