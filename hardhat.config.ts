@@ -52,7 +52,7 @@ const config: HardhatUserConfig = {
     },
     hardhat: {
       accounts: hardhatAccounts,
-    }
+    },
   },
   mocha: {
     timeout: 400000,
