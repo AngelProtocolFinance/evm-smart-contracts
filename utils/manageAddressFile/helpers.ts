@@ -1,5 +1,5 @@
 import fs from "fs";
-import {DEFAULT_CONTRACT_ADDRESS_FILE_PATH} from "utils/constants";
+import {DEFAULT_CONTRACT_ADDRESS_FILE_PATH} from "../constants";
 import {AddressObj} from "./types";
 
 export function getAddressesByNetworkId(

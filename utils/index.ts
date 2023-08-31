@@ -4,7 +4,7 @@ export * from "./env.config";
 export * from "./getContractName";
 export * from "./getEnumKeys";
 export * from "./getEvents";
-export * from "./getSigners";
+export * from "./signers";
 export * from "./keygen";
 export * as logger from "./logger";
 export * from "./manageAddressFile";
