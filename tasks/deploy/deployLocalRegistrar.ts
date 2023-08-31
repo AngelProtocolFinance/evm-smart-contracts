@@ -1,7 +1,6 @@
 import {deployLocalRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task} from "hardhat/config";
-import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
 import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
 
 type TaskArgs = {
@@ -53,11 +52,8 @@ task("deploy:LocalRegistrarAndRouter", "Will deploy the Local Registrar contract
         hre
       );
 
-      const networkInfo: Partial<LocalRegistrarLib.NetworkInfoStruct> = {
-        refundAddr: addresses.multiSig.apTeam.proxy,
-      };
       await hre.run("manage:registrar:updateNetworkConnections", {
-        ...networkInfo,
+        refundAddr: addresses.multiSig.apTeam.proxy,
         apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });

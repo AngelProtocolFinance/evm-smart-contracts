@@ -50,8 +50,6 @@ task(
 
       let treasuryAddress = treasury ? treasury.address : config.PROD_CONFIG.Treasury;
 
-      const apTeamOwner = await getAPTeamOwner(hre, taskArgs.apTeamSignerPkey);
-
       const addresses = await getAddresses(hre);
 
       const apTeamMultiSig = taskArgs.apTeamMultisig || addresses.multiSig.apTeam.proxy;
@@ -67,6 +65,7 @@ task(
           proxyAdmin: addresses.multiSig.proxyAdmin,
           treasury: treasuryAddress,
           apTeamMultisig: apTeamMultiSig,
+          refundAddr: apTeamMultiSig,
         },
         hre
       );
