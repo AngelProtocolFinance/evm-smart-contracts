@@ -1,7 +1,6 @@
 import {task} from "hardhat/config";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {APTeamMultiSig__factory, GasFwdFactory__factory} from "typechain-types";
-import {confirmAction, connectSignerFromPkey, getAddresses, getSigners, logger} from "utils";
+import {confirmAction, getAPTeamOwner, getAddresses, logger} from "utils";
 
 type TaskArgs = {newRegistrar: string; apTeamSignerPkey?: string; yes: boolean};
 
@@ -23,21 +22,12 @@ task(
       logger.divider();
       const addresses = await getAddresses(hre);
 
-      const {apTeamMultisigOwners} = await getSigners(hre);
-
-      let apTeamSigner: SignerWithAddress;
-      if (!apTeamMultisigOwners && taskArgs.apTeamSignerPkey) {
-        apTeamSigner = await connectSignerFromPkey(taskArgs.apTeamSignerPkey, hre);
-      } else if (!apTeamMultisigOwners) {
-        throw new Error("Must provide a pkey for AP Team signer on this network");
-      } else {
-        apTeamSigner = apTeamMultisigOwners[0];
-      }
+      const apTeamOwner = await getAPTeamOwner(hre, taskArgs.apTeamSignerPkey);
 
       const newRegistrar = taskArgs.newRegistrar || addresses.registrar.proxy;
 
       logger.out("Querying current GasFwdFactory registrar...");
-      const gasFwdFactory = GasFwdFactory__factory.connect(addresses.gasFwd.factory, apTeamSigner);
+      const gasFwdFactory = GasFwdFactory__factory.connect(addresses.gasFwd.factory, apTeamOwner);
       const curRegistrar = await gasFwdFactory.registrar();
       if (curRegistrar === newRegistrar) {
         return logger.out(`"${newRegistrar}" is already set as the registrar address.`);
@@ -53,7 +43,7 @@ task(
       logger.out(`Updating Registrar address to: ${newRegistrar}...`);
       const apTeamMultiSig = APTeamMultiSig__factory.connect(
         addresses.multiSig.apTeam.proxy, // ensure connection to current owning APTeamMultiSig contract
-        apTeamSigner
+        apTeamOwner
       );
       const payload = gasFwdFactory.interface.encodeFunctionData("updateRegistrar", [newRegistrar]);
       const tx = await apTeamMultiSig.submitTransaction(gasFwdFactory.address, 0, payload, "0x");

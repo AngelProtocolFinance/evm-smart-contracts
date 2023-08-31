@@ -1,7 +1,7 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {Wallet} from "ethers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {ProxyAdminMultiSig__factory} from "typechain-types";
+import {APTeamMultiSig__factory, ProxyAdminMultiSig__factory} from "typechain-types";
 import {getContractName} from "./getContractName";
 import {getAddresses} from "./manageAddressFile";
 import {isProdNetwork} from "./networkHelpers";
@@ -20,6 +20,7 @@ type Result = {
 };
 
 const ProxyAdminMultiSigName = getContractName(new ProxyAdminMultiSig__factory());
+const APTeamMultiSigName = getContractName(new APTeamMultiSig__factory());
 
 export async function getSigners(hre: HardhatRuntimeEnvironment): Promise<Result> {
   if (await isProdNetwork(hre)) {
@@ -80,6 +81,34 @@ export async function getProxyAdmin(
   const isOwner = await proxyAdminMultiSig.isOwner(signer.address);
   if (!isOwner) {
     throw PAM_ERROR;
+  }
+
+  return signer;
+}
+
+const APTM_ERROR = new Error(`Must provide a pkey for ${APTeamMultiSigName} owner on this network`);
+export async function getAPTeamOwner(
+  hre: HardhatRuntimeEnvironment,
+  pkey?: string
+): Promise<SignerWithAddress> {
+  if (!pkey) {
+    const {apTeamMultisigOwners} = await getSigners(hre);
+    if (!apTeamMultisigOwners || apTeamMultisigOwners.length === 0) {
+      throw APTM_ERROR;
+    }
+    return apTeamMultisigOwners[0];
+  }
+
+  const signer = await connectSignerFromPkey(pkey, hre);
+  const addresses = await getAddresses(hre);
+
+  const apTeamMultiSig = APTeamMultiSig__factory.connect(
+    addresses.multiSig.apTeam.proxy,
+    hre.ethers.provider
+  );
+  const isOwner = await apTeamMultiSig.isOwner(signer.address);
+  if (!isOwner) {
+    throw APTM_ERROR;
   }
 
   return signer;

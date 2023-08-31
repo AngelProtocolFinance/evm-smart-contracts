@@ -1,7 +1,6 @@
 import {task, types} from "hardhat/config";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {Registrar__factory, APTeamMultiSig__factory} from "typechain-types";
-import {confirmAction, connectSignerFromPkey, getAddresses, getSigners, logger} from "utils";
+import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
+import {confirmAction, getAPTeamOwner, getAddresses, logger} from "utils";
 
 type TaskArgs = {vaultEmitter: string; apTeamSignerPkey?: string; yes: boolean};
 
@@ -17,18 +16,10 @@ task("manage:registrar:setVaultEmitterAddress")
       logger.divider();
       logger.out(`Updating Registrar's VaultEmitter address to ${taskArgs.vaultEmitter}...`);
       const addresses = await getAddresses(hre);
-      const {apTeamMultisigOwners} = await getSigners(hre);
 
-      let apTeamSigner: SignerWithAddress;
-      if (!apTeamMultisigOwners && taskArgs.apTeamSignerPkey) {
-        apTeamSigner = await connectSignerFromPkey(taskArgs.apTeamSignerPkey, hre);
-      } else if (!apTeamMultisigOwners) {
-        throw new Error("Must provide a pkey for AP Team signer on this network");
-      } else {
-        apTeamSigner = apTeamMultisigOwners[0];
-      }
+      const apTeamOwner = await getAPTeamOwner(hre, taskArgs.apTeamSignerPkey);
 
-      const registrar = Registrar__factory.connect(addresses.registrar.proxy, apTeamSigner);
+      const registrar = Registrar__factory.connect(addresses.registrar.proxy, apTeamOwner);
       const currVaultEmitter = await registrar.getVaultEmitterAddress();
       if (currVaultEmitter === taskArgs.vaultEmitter) {
         return logger.out(`VaultEmitter address is already set to "${currVaultEmitter}".`);
@@ -46,7 +37,7 @@ task("manage:registrar:setVaultEmitterAddress")
       ]);
       const apTeamMultisigContract = APTeamMultiSig__factory.connect(
         addresses.multiSig.apTeam.proxy,
-        apTeamSigner
+        apTeamOwner
       );
       const tx = await apTeamMultisigContract.submitTransaction(
         registrar.address,

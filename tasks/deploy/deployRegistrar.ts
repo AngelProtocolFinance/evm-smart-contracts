@@ -4,7 +4,7 @@ import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task} from "hardhat/config";
 import {
   confirmAction,
-  connectSignerFromPkey,
+  getAPTeamOwner,
   getAddresses,
   getSigners,
   isLocalNetwork,
@@ -12,7 +12,6 @@ import {
   verify,
 } from "utils";
 import {updateRegistrarNetworkConnections} from "../helpers";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 
 type TaskArgs = {
   apTeamMultisig?: string;
@@ -48,18 +47,11 @@ task(
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      const {treasury, deployer, apTeamMultisigOwners} = await getSigners(hre);
+      const {treasury, deployer} = await getSigners(hre);
 
       let treasuryAddress = treasury ? treasury.address : config.PROD_CONFIG.Treasury;
 
-      let apTeamSigner: SignerWithAddress;
-      if (!apTeamMultisigOwners && taskArgs.apTeamSignerPkey) {
-        apTeamSigner = await connectSignerFromPkey(taskArgs.apTeamSignerPkey, hre);
-      } else if (!apTeamMultisigOwners) {
-        throw new Error("Must provide a pkey for AP Team signer on this network");
-      } else {
-        apTeamSigner = apTeamMultisigOwners[0];
-      }
+      const apTeamOwner = await getAPTeamOwner(hre, taskArgs.apTeamSignerPkey);
 
       const addresses = await getAddresses(hre);
 
@@ -114,7 +106,7 @@ task(
         registrar.proxy.address,
         apTeamMultiSig,
         {router: router.proxy.address},
-        apTeamSigner,
+        apTeamOwner,
         hre
       );
 

@@ -1,11 +1,10 @@
 import {deployLocalRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task} from "hardhat/config";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
 import {
   confirmAction,
-  connectSignerFromPkey,
+  getAPTeamOwner,
   getAddresses,
   getSigners,
   isLocalNetwork,
@@ -37,16 +36,9 @@ task("deploy:LocalRegistrarAndRouter", "Will deploy the Local Registrar contract
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      const {deployer, apTeamMultisigOwners} = await getSigners(hre);
+      const {deployer} = await getSigners(hre);
 
-      let apTeamSigner: SignerWithAddress;
-      if (!apTeamMultisigOwners && taskArgs.apTeamSignerPkey) {
-        apTeamSigner = await connectSignerFromPkey(taskArgs.apTeamSignerPkey, hre);
-      } else if (!apTeamMultisigOwners) {
-        throw new Error("Must provide a pkey for AP Team signer on this network");
-      } else {
-        apTeamSigner = apTeamMultisigOwners[0];
-      }
+      const apTeamOwner = await getAPTeamOwner(hre, taskArgs.apTeamSignerPkey);
 
       const addresses = await getAddresses(hre);
 
@@ -84,7 +76,7 @@ task("deploy:LocalRegistrarAndRouter", "Will deploy the Local Registrar contract
         localRegistrar.proxy.address,
         owner,
         networkInfo,
-        apTeamSigner,
+        apTeamOwner,
         hre
       );
 

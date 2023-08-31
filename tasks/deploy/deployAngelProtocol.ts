@@ -1,4 +1,3 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import config from "config";
 import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
 import {deployGasFwd} from "contracts/core/gasFwd/scripts/deploy";
@@ -17,7 +16,7 @@ import {
   ADDRESS_ZERO,
   Deployment,
   confirmAction,
-  connectSignerFromPkey,
+  getAPTeamOwner,
   getSigners,
   isLocalNetwork,
   logger,
@@ -49,9 +48,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
 
       const verify_contracts = !isLocalNetwork(hre) && !taskArgs.skipVerify;
 
-      let {deployer, proxyAdminMultisigOwners, apTeamMultisigOwners, treasury} = await getSigners(
-        hre
-      );
+      let {deployer, proxyAdminMultisigOwners, treasury} = await getSigners(hre);
 
       let treasuryAddress = treasury ? treasury.address : config.PROD_CONFIG.Treasury;
 
@@ -59,14 +56,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
         ? proxyAdminMultisigOwners.map((x) => x.address)
         : config.PROD_CONFIG.ProxyAdminMultiSigOwners;
 
-      let apTeamSigner: SignerWithAddress;
-      if (!apTeamMultisigOwners && taskArgs.apTeamSignerPkey) {
-        apTeamSigner = await connectSignerFromPkey(taskArgs.apTeamSignerPkey, hre);
-      } else if (!apTeamMultisigOwners) {
-        throw new Error("Must provide a pkey for AP Team signer on this network");
-      } else {
-        apTeamSigner = apTeamMultisigOwners[0];
-      }
+      const apTeamOwner = await getAPTeamOwner(hre, taskArgs.apTeamSignerPkey);
 
       // Reset the contract address object for all contracts that will be deployed here
       await resetContractAddresses(hre);
@@ -177,7 +167,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
         registrar.proxy.address,
         apTeamMultisig.proxy.address,
         {router: router.proxy.address},
-        apTeamSigner,
+        apTeamOwner,
         hre
       );
 

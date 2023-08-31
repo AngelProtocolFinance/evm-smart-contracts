@@ -1,9 +1,8 @@
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task} from "hardhat/config";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {
   confirmAction,
-  connectSignerFromPkey,
+  getAPTeamOwner,
   getAddresses,
   getSigners,
   isLocalNetwork,
@@ -43,16 +42,9 @@ task("deploy:Router", "Will deploy Router contract")
       }
 
       const addresses = await getAddresses(hre);
-      const {apTeamMultisigOwners, deployer} = await getSigners(hre);
+      const {deployer} = await getSigners(hre);
 
-      let apTeamSigner: SignerWithAddress;
-      if (!apTeamMultisigOwners && taskArgs.apTeamSignerPkey) {
-        apTeamSigner = await connectSignerFromPkey(taskArgs.apTeamSignerPkey, hre);
-      } else if (!apTeamMultisigOwners) {
-        throw new Error("Must provide a pkey for AP Team signer on this network");
-      } else {
-        apTeamSigner = apTeamMultisigOwners[0];
-      }
+      const apTeamOwner = await getAPTeamOwner(hre, taskArgs.apTeamSignerPkey);
 
       const apTeamMultiSig = taskArgs.apTeamMultisig || addresses.multiSig.apTeam.proxy;
       const registrar = taskArgs.registrar || addresses.registrar.proxy;
@@ -69,7 +61,7 @@ task("deploy:Router", "Will deploy Router contract")
         registrar,
         apTeamMultiSig,
         {router: deployment.proxy.address},
-        apTeamSigner,
+        apTeamOwner,
         hre
       );
 
