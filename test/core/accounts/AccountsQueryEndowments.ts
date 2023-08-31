@@ -53,6 +53,7 @@ describe("AccountsQueryEndowments", function () {
 
     await wait(state.setEndowmentDetails(accountId, DEFAULT_CHARITY_ENDOWMENT));
     await wait(state.setEndowmentTokenBalance(accountId, tokenAddress, lockedBal, liquidBal));
+    await wait(state.setDafApprovedEndowment(accountId, true));
     await wait(
       state.setClosingEndowmentState(
         accountId,
@@ -225,6 +226,19 @@ describe("AccountsQueryEndowments", function () {
       expect(stateResponse.closingBeneficiary.data.endowId).to.equal(
         endowState.closingBeneficiary.data.endowId
       );
+    });
+  });
+
+  describe("isDafApprovedEndowment", () => {
+    it("should return DAF Approval status of true if Endowment is approved", async () => {
+      // returns True for approved DAF Endowments
+      expect(await facet.isDafApprovedEndowment(accountId)).to.equal(true);
+    });
+
+    it("should return DAF Approval status of false if not approved OR non-existing Endowment", async () => {
+      const configResponse = await facet.queryConfig();
+      // returns False for not approved OR non-existing Endowment IDs
+      expect(await facet.isDafApprovedEndowment(config.nextAccountId)).to.equal(false);
     });
   });
 });
