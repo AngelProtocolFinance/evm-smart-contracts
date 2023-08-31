@@ -90,10 +90,6 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
         deployer,
         hre
       );
-      await hre.run("manage:registrar:updateNetworkConnections", {
-        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
-        yes: true,
-      });
 
       const accounts = await deployAccountsDiamond(
         apTeamMultisig.proxy.address,
@@ -155,10 +151,16 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
         usdcAddress: thirdPartyAddresses.usdcToken.address,
         wMaticAddress: thirdPartyAddresses.wmaticToken.address,
         gasFwdFactory: gasFwd.factory.address,
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });
       await hre.run("manage:registrar:setVaultEmitterAddress", {
         vaultEmitter: vaultEmitter.proxy.address,
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
+        yes: true,
+      });
+      await hre.run("manage:registrar:updateNetworkConnections", {
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });
 
