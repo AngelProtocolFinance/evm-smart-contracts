@@ -24,7 +24,7 @@ contract DummyRouter is IRouter {
     string calldata,
     string calldata,
     bytes calldata
-  ) external returns (IVault.VaultActionData memory) {
+  ) external view returns (IVault.VaultActionData memory) {
     return response;
   }
 
@@ -34,7 +34,7 @@ contract DummyRouter is IRouter {
     bytes calldata,
     string calldata,
     uint256
-  ) external returns (IVault.VaultActionData memory) {
+  ) external view returns (IVault.VaultActionData memory) {
     return response;
   }
 
