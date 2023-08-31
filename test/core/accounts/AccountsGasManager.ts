@@ -18,7 +18,7 @@ import {
   GasFwd__factory,
   TestFacetProxyContract,
 } from "typechain-types";
-import {VaultType, getProxyAdmin, getSigners} from "utils";
+import {VaultType, getProxyAdminOwner, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
 
 use(smock.matchers);
@@ -38,7 +38,7 @@ describe("AccountsGasManager", function () {
     owner = signers.deployer;
     user = signers.apTeam1;
 
-    proxyAdmin = await getProxyAdmin(hre);
+    proxyAdmin = await getProxyAdminOwner(hre);
 
     let Facet = new AccountsGasManager__factory(owner);
     impl = await Facet.deploy();

@@ -8,7 +8,7 @@ import {
   confirmAction,
   getAddresses,
   getContractName,
-  getProxyAdmin,
+  getProxyAdminOwner,
   getSigners,
   isLocalNetwork,
   logger,
@@ -30,7 +30,7 @@ task("upgrade:router", "Will upgrade the Router")
         }
 
         const {deployer} = await getSigners(hre);
-        const proxyAdminSigner = await getProxyAdmin(hre, taskArgs.proxyAdminPkey);
+        const proxyAdminOwner = await getProxyAdminOwner(hre, taskArgs.proxyAdminPkey);
 
         const addresses = await getAddresses(hre);
 
@@ -47,7 +47,7 @@ task("upgrade:router", "Will upgrade the Router")
         );
         const proxyAdminMultisig = ProxyAdminMultiSig__factory.connect(
           addresses.multiSig.proxyAdmin,
-          proxyAdminSigner
+          proxyAdminOwner
         );
         const payload = routerProxy.interface.encodeFunctionData("upgradeTo", [router.address]);
         const tx = await proxyAdminMultisig.submitTransaction(

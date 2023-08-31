@@ -47,7 +47,7 @@ import {
   VaultActionStatus,
   genWallet,
   getChainId,
-  getProxyAdmin,
+  getProxyAdminOwner,
   getSigners,
 } from "utils";
 import {deployFacetAsProxy} from "./utils";
@@ -94,7 +94,7 @@ describe("AccountsStrategy", function () {
     owner = deployer;
     user = apTeam1;
 
-    admin = await getProxyAdmin(hre);
+    admin = await getProxyAdminOwner(hre);
 
     gasService = await smock.fake<IAxelarGasService>(IAxelarGasService__factory.createInterface());
     gateway = await smock.fake<IAxelarGateway>(IAxelarGateway__factory.createInterface());

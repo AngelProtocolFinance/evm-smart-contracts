@@ -26,7 +26,7 @@ import {
   LocalRegistrar__factory,
 } from "typechain-types";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
-import {StrategyApprovalState, getProxyAdmin, getSigners} from "utils";
+import {StrategyApprovalState, getProxyAdminOwner, getSigners} from "utils";
 
 use(smock.matchers);
 
@@ -87,7 +87,7 @@ describe("Vault", function () {
     user = apTeam1;
     collector = apTeam2;
 
-    admin = await getProxyAdmin(hre);
+    admin = await getProxyAdminOwner(hre);
 
     vaultEmitterFake = await smock.fake<IVaultEmitter>(IVaultEmitter__factory.createInterface());
   });

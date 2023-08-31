@@ -8,7 +8,7 @@ import {
   confirmAction,
   getAddresses,
   getContractName,
-  getProxyAdmin,
+  getProxyAdminOwner,
   getSigners,
   isLocalNetwork,
   logger,
@@ -38,7 +38,7 @@ task("upgrade:CharityApplications", "Will upgrade the implementation of CharityA
       }
 
       const {deployer} = await getSigners(hre);
-      const proxyAdminSigner = await getProxyAdmin(hre, taskArgs.proxyAdminPkey);
+      const proxyAdminOwner = await getProxyAdminOwner(hre, taskArgs.proxyAdminPkey);
 
       const addresses = await getAddresses(hre);
 
@@ -57,7 +57,7 @@ task("upgrade:CharityApplications", "Will upgrade the implementation of CharityA
       );
       const proxyAdminMultisig = ProxyAdminMultiSig__factory.connect(
         addresses.multiSig.proxyAdmin,
-        proxyAdminSigner
+        proxyAdminOwner
       );
       const payload = charityApplicationsProxy.interface.encodeFunctionData("upgradeTo", [
         charityApplications.address,

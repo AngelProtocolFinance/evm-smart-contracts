@@ -10,7 +10,7 @@ import {
   Registrar,
   Registrar__factory,
 } from "typechain-types";
-import {genWallet, getProxyAdmin, getSigners} from "utils";
+import {genWallet, getProxyAdminOwner, getSigners} from "utils";
 
 use(smock.matchers);
 
@@ -40,7 +40,7 @@ describe("GasFwdFactory", function () {
     owner = deployer;
     user = apTeam1;
 
-    admin = await getProxyAdmin(hre);
+    admin = await getProxyAdminOwner(hre);
   });
 
   beforeEach(async function () {

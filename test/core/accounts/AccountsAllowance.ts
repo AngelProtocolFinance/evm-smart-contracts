@@ -10,7 +10,7 @@ import {
   IERC20__factory,
   TestFacetProxyContract,
 } from "typechain-types";
-import {genWallet, getProxyAdmin, getSigners} from "utils";
+import {genWallet, getProxyAdminOwner, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
 import {time} from "@nomicfoundation/hardhat-network-helpers";
 
@@ -35,7 +35,7 @@ describe("AccountsAllowance", function () {
     endowOwner = signers.apTeam1;
     user = signers.apTeam2;
 
-    proxyAdmin = await getProxyAdmin(hre);
+    proxyAdmin = await getProxyAdminOwner(hre);
   });
 
   beforeEach(async function () {

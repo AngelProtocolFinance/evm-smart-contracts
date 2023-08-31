@@ -20,7 +20,7 @@ import {
 import {LibAccounts} from "typechain-types/contracts/core/accounts/facets/AccountsUpdateStatusEndowments";
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
-import {BeneficiaryEnum, EndowmentType, genWallet, getProxyAdmin, getSigners} from "utils";
+import {BeneficiaryEnum, EndowmentType, genWallet, getProxyAdminOwner, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
 
 use(smock.matchers);
@@ -63,7 +63,7 @@ describe("AccountsUpdateStatusEndowments", function () {
     endowOwner = signers.deployer;
     treasuryAddress = signers.apTeam2.address;
 
-    proxyAdmin = await getProxyAdmin(hre);
+    proxyAdmin = await getProxyAdminOwner(hre);
 
     charity_endowment = {...DEFAULT_CHARITY_ENDOWMENT, owner: endowOwner.address};
     ast_endowment = {

@@ -8,7 +8,7 @@ import {
   confirmAction,
   getAddresses,
   getContractName,
-  getProxyAdmin,
+  getProxyAdminOwner,
   getSigners,
   isLocalNetwork,
   logger,
@@ -31,7 +31,7 @@ task("upgrade:APTeamMultiSig", "Will upgrade the APTeamMultiSig")
         }
 
         const {deployer} = await getSigners(hre);
-        const proxyAdminSigner = await getProxyAdmin(hre, taskArgs.proxyAdminPkey);
+        const proxyAdminOwner = await getProxyAdminOwner(hre, taskArgs.proxyAdminPkey);
 
         const addresses = await getAddresses(hre);
 
@@ -49,7 +49,7 @@ task("upgrade:APTeamMultiSig", "Will upgrade the APTeamMultiSig")
         );
         const proxyAdminMultisig = ProxyAdminMultiSig__factory.connect(
           addresses.multiSig.proxyAdmin,
-          proxyAdminSigner
+          proxyAdminOwner
         );
         const payload = apTeamProxy.interface.encodeFunctionData("upgradeTo", [
           apTeamMultiSig.address,

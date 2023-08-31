@@ -24,7 +24,7 @@ import {
   Router__factory,
 } from "typechain-types";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
-import {StrategyApprovalState, VaultActionStatus, getProxyAdmin, getSigners} from "utils";
+import {StrategyApprovalState, VaultActionStatus, getProxyAdminOwner, getSigners} from "utils";
 
 use(smock.matchers);
 
@@ -45,7 +45,7 @@ describe("Router", function () {
     user = apTeam1;
     collector = apTeam2;
 
-    admin = await getProxyAdmin(hre);
+    admin = await getProxyAdminOwner(hre);
   });
 
   async function deployRouterAsProxy(registrar: string): Promise<Router> {

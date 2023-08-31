@@ -18,7 +18,7 @@ import {
 import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsCreateEndowment";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
-import {FeeTypes, genWallet, getProxyAdmin, getSigners} from "utils";
+import {FeeTypes, genWallet, getProxyAdminOwner, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
 
 use(smock.matchers);
@@ -44,7 +44,7 @@ describe("AccountsCreateEndowment", function () {
     owner = signers.apTeam1;
     charityApplications = signers.deployer;
 
-    proxyAdmin = await getProxyAdmin(hre);
+    proxyAdmin = await getProxyAdminOwner(hre);
 
     const defaultSettingsPermissionsStruct = {
       locked: false,

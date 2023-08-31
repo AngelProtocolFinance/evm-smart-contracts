@@ -9,7 +9,7 @@ import {
   IERC20__factory,
   ProxyContract__factory,
 } from "typechain-types";
-import {getProxyAdmin, getSigners} from "utils";
+import {getProxyAdminOwner, getSigners} from "utils";
 
 use(smock.matchers);
 
@@ -45,7 +45,7 @@ describe("GasFwd", function () {
     owner = deployer;
     accounts = apTeam1;
 
-    admin = await getProxyAdmin(hre);
+    admin = await getProxyAdminOwner(hre);
   });
 
   beforeEach(async function () {

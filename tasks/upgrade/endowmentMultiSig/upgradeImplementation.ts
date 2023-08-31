@@ -8,7 +8,7 @@ import {
   confirmAction,
   getAddresses,
   getContractName,
-  getProxyAdmin,
+  getProxyAdminOwner,
   getSigners,
   isLocalNetwork,
   logger,
@@ -46,7 +46,7 @@ task(
       }
 
       const {deployer} = await getSigners(hre);
-      const proxyAdminSigner = await getProxyAdmin(hre, taskArgs.proxyAdminPkey);
+      const proxyAdminOwner = await getProxyAdminOwner(hre, taskArgs.proxyAdminPkey);
 
       const addresses = await getAddresses(hre);
 
@@ -62,11 +62,11 @@ task(
       logger.out("Upgrading EndowmentMultiSigFactory's implementation address...");
       const endowmentMultiSigFactory = EndowmentMultiSigFactory__factory.connect(
         EndowmentMultiSigFactoryAddress,
-        proxyAdminSigner
+        proxyAdminOwner
       );
       const proxyAdminMultisig = ProxyAdminMultiSig__factory.connect(
         addresses.multiSig.proxyAdmin,
-        proxyAdminSigner
+        proxyAdminOwner
       );
       const payload = endowmentMultiSigFactory.interface.encodeFunctionData(
         "updateImplementation",

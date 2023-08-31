@@ -17,7 +17,7 @@ import {
   AccountStorage,
   LibAccounts,
 } from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
-import {ControllerSettingOption, genWallet, getProxyAdmin, getSigners} from "utils";
+import {ControllerSettingOption, genWallet, getProxyAdminOwner, getSigners} from "utils";
 import {deployFacetAsProxy, updateAllSettings, updateSettings} from "./utils";
 
 use(smock.matchers);
@@ -45,7 +45,7 @@ describe("AccountsUpdateEndowments", function () {
     endowOwner = signers.deployer;
     delegate = signers.apTeam2;
 
-    proxyAdmin = await getProxyAdmin(hre);
+    proxyAdmin = await getProxyAdminOwner(hre);
 
     oldCharity = {
       ...DEFAULT_CHARITY_ENDOWMENT,
