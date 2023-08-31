@@ -11,6 +11,7 @@ import {
   logger,
   verify,
 } from "utils";
+import {updateRegistrarNetworkConnections} from "../helpers";
 
 type TaskArgs = {
   apTeamMultisig?: string;
@@ -61,7 +62,7 @@ task(
         {
           axelarGateway: addresses.axelar.gateway,
           axelarGasService: addresses.axelar.gasService,
-          router: oldRouterAddress, // Router must be redeployed, so this will be updated
+          router: oldRouterAddress,
           owner: apTeamMultiSig,
           deployer,
           proxyAdmin: addresses.multiSig.proxyAdmin,
@@ -101,12 +102,14 @@ task(
       );
 
       // Registrar NetworkInfo's Router address must be updated for the current network
-      await hre.run("manage:registrar:updateNetworkConnections", {
-        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
-        yes: true,
-      });
+      await updateRegistrarNetworkConnections(
+        registrar.proxy.address,
+        apTeamMultiSig,
+        {router: router.proxy.address},
+        apTeamOwner,
+        hre
+      );
 
-      // update all contracts' registrar addresses
       await hre.run("manage:accounts:updateConfig", {
         registrarContract: registrar.proxy.address,
         yes: true,
