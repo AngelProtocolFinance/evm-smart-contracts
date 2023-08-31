@@ -2,7 +2,6 @@ import {task, types} from "hardhat/config";
 import {updateRegistrarNetworkConnections} from "tasks/helpers";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
 import {
-  DEFAULT_CONTRACT_ADDRESS_FILE_PATH,
   getAPTeamOwner,
   getAddresses,
   getAddressesByNetworkId,
@@ -42,10 +41,7 @@ task("manage:registrar:setNetworkInfo", "Set network info for a specified networ
 
     const apTeamOwner = await getAPTeamOwner(hre, taskArguments.apTeamSignerPkey);
 
-    const thatNetworkAddresses = getAddressesByNetworkId(
-      networkId,
-      DEFAULT_CONTRACT_ADDRESS_FILE_PATH
-    );
+    const thatNetworkAddresses = getAddressesByNetworkId(networkId);
     const newNetworkInfo: Partial<LocalRegistrarLib.NetworkInfoStruct> = {
       chainId: networkId,
       router: thatNetworkAddresses.router.proxy,

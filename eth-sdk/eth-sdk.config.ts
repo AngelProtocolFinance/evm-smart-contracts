@@ -3,7 +3,7 @@ import type {Opaque} from "ts-essentials";
 import type {ZodTypeDef} from "zod";
 import {z} from "zod";
 
-import {DEFAULT_CONTRACT_ADDRESS_FILE_PATH, getAddressesByNetworkId, AddressObj} from "../utils";
+import {AddressObj, getAddressesByNetworkId} from "../utils";
 
 type AddressInput = `0x${string}`;
 type Address = Opaque<AddressInput, "Address">;
@@ -30,8 +30,8 @@ export function parseAddress(address: string): Address {
  * Loads and parses the Contract addresses from the contract-address.json
  * file based on the network ID passed
  */
-const mumbaiData: AddressObj = getAddressesByNetworkId(80001, DEFAULT_CONTRACT_ADDRESS_FILE_PATH);
-// const polygonData: AddressObj = getAddressesByNetworkId(137, DEFAULT_CONTRACT_ADDRESS_FILE_PATH);
+const mumbaiData: AddressObj = getAddressesByNetworkId(80001);
+// const polygonData: AddressObj = getAddressesByNetworkId(137);
 
 export default defineConfig({
   contracts: {
