@@ -24,7 +24,7 @@ import {
   Registrar__factory,
   TestFacetProxyContract,
 } from "typechain-types";
-import {VaultType, genWallet, getSigners} from "utils";
+import {VaultType, genWallet, getProxyAdmin, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
 import {time} from "@nomicfoundation/hardhat-network-helpers";
 
@@ -47,8 +47,9 @@ describe("AccountsSwapRouter", function () {
   before(async function () {
     const signers = await getSigners(hre);
     owner = signers.apTeam1;
-    proxyAdmin = signers.proxyAdminSigner!;
     user = signers.deployer;
+
+    proxyAdmin = await getProxyAdmin(hre);
 
     let Facet = new AccountsSwapRouter__factory(owner);
     facetImpl = await Facet.deploy();

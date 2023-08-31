@@ -2,8 +2,8 @@ import {FacetCutAction} from "contracts/core/accounts/scripts/libraries/diamond"
 import {task} from "hardhat/config";
 import {
   confirmAction,
-  connectSignerFromPkey,
   getAddresses,
+  getProxyAdmin,
   getSigners,
   isLocalNetwork,
   logger,
@@ -52,12 +52,8 @@ task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountSto
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      let {deployer, proxyAdminSigner} = await getSigners(hre);
-      if (!proxyAdminSigner && taskArgs.proxyAdminPkey) {
-        proxyAdminSigner = await connectSignerFromPkey(taskArgs.proxyAdminPkey, hre);
-      } else if (!proxyAdminSigner) {
-        throw new Error("Must provide a pkey for proxyAdmin signer on this network");
-      }
+      const {deployer} = await getSigners(hre);
+      const proxyAdminSigner = await getProxyAdmin(hre, taskArgs.proxyAdminPkey);
 
       const addresses = await getAddresses(hre);
 

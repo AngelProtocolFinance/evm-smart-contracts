@@ -8,15 +8,7 @@ import {
   OwnershipFacet__factory,
   ProxyContract__factory,
 } from "typechain-types";
-import {
-  AddressObj,
-  confirmAction,
-  connectSignerFromPkey,
-  getAddresses,
-  getEvents,
-  getSigners,
-  logger,
-} from "utils";
+import {AddressObj, confirmAction, getAddresses, getEvents, getProxyAdmin, logger} from "utils";
 
 type TaskArgs = {
   proxyAdminPkey: string;
@@ -43,12 +35,7 @@ task("manage:changeProxyAdmin", "Will update the proxy admin for all proxy contr
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      let {proxyAdminSigner} = await getSigners(hre);
-      if (!proxyAdminSigner && taskArgs.proxyAdminPkey) {
-        proxyAdminSigner = await connectSignerFromPkey(taskArgs.proxyAdminPkey, hre);
-      } else if (!proxyAdminSigner) {
-        throw new Error("Must provide a pkey for proxyAdmin signer on this network");
-      }
+      const proxyAdminSigner = await getProxyAdmin(hre, taskArgs.proxyAdminPkey);
 
       if (proxyAdminSigner.address === taskArgs.newProxyAdmin) {
         return logger.out(`"${taskArgs.newProxyAdmin}" is already the proxy admin.`);

@@ -2,7 +2,7 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
 import hre from "hardhat";
 import {AccountsUpdate, AccountsUpdate__factory, TestFacetProxyContract} from "typechain-types";
-import {getSigners, EndowmentType} from "utils";
+import {getProxyAdmin, getSigners, EndowmentType} from "utils";
 import {deployFacetAsProxy} from "./utils";
 import {wait, DEFAULT_CHARITY_ENDOWMENT} from "test/utils";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
@@ -23,8 +23,9 @@ describe("AccountsUpdate", function () {
   before(async function () {
     const signers = await getSigners(hre);
     owner = signers.apTeam1;
-    proxyAdmin = signers.proxyAdminSigner!;
     user = signers.deployer;
+
+    proxyAdmin = await getProxyAdmin(hre);
 
     newRegistrar = signers.apTeam1.address;
     endowment = {...DEFAULT_CHARITY_ENDOWMENT, owner: owner.address};

@@ -6,9 +6,9 @@ import {
 } from "typechain-types";
 import {
   confirmAction,
-  connectSignerFromPkey,
   getAddresses,
   getContractName,
+  getProxyAdmin,
   getSigners,
   isLocalNetwork,
   logger,
@@ -30,12 +30,8 @@ task("upgrade:APTeamMultiSig", "Will upgrade the APTeamMultiSig")
           return logger.out("Confirmation denied.", logger.Level.Warn);
         }
 
-        let {deployer, proxyAdminSigner} = await getSigners(hre);
-        if (!proxyAdminSigner && taskArgs.proxyAdminPkey) {
-          proxyAdminSigner = await connectSignerFromPkey(taskArgs.proxyAdminPkey, hre);
-        } else if (!proxyAdminSigner) {
-          throw new Error("Must provide a pkey for proxyAdmin signer on this network");
-        }
+        const {deployer} = await getSigners(hre);
+        const proxyAdminSigner = await getProxyAdmin(hre, taskArgs.proxyAdminPkey);
 
         const addresses = await getAddresses(hre);
 

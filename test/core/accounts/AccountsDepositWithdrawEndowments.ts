@@ -20,7 +20,7 @@ import {
 import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsDepositWithdrawEndowments";
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
-import {VaultType, genWallet, getSigners} from "utils";
+import {VaultType, genWallet, getProxyAdmin, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
 
 use(smock.matchers);
@@ -73,9 +73,10 @@ describe("AccountsDepositWithdrawEndowments", function () {
   before(async function () {
     const signers = await getSigners(hre);
     accOwner = signers.apTeam1;
-    proxyAdmin = signers.proxyAdminSigner!;
     endowOwner = signers.deployer;
     indexFund = signers.apTeam2;
+
+    proxyAdmin = await getProxyAdmin(hre);
 
     charity = {
       ...DEFAULT_CHARITY_ENDOWMENT,

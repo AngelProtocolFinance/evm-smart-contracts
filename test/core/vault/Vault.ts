@@ -1,19 +1,18 @@
-import {expect, use} from "chai";
 import {FakeContract, smock} from "@defi-wonderland/smock";
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {expect, use} from "chai";
 import {BigNumber} from "ethers";
 import hre from "hardhat";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {StrategyApprovalState, getSigners} from "utils";
 import {
-  deployDummyStrategy,
-  deployDummyERC20,
+  DEFAULT_NETWORK,
+  DEFAULT_NETWORK_INFO,
   DEFAULT_STRATEGY_ID,
+  DEFAULT_STRATEGY_PARAMS,
   DEFAULT_VAULT_NAME,
   DEFAULT_VAULT_SYMBOL,
-  DEFAULT_NETWORK,
+  deployDummyERC20,
+  deployDummyStrategy,
   wait,
-  DEFAULT_STRATEGY_PARAMS,
-  DEFAULT_NETWORK_INFO,
 } from "test/utils";
 import {
   APVault_V1,
@@ -27,6 +26,7 @@ import {
   LocalRegistrar__factory,
 } from "typechain-types";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
+import {StrategyApprovalState, getProxyAdmin, getSigners} from "utils";
 
 use(smock.matchers);
 
@@ -82,11 +82,12 @@ describe("Vault", function () {
   }
 
   before(async function () {
-    const {deployer, proxyAdminSigner, apTeam1, apTeam2} = await getSigners(hre);
+    const {deployer, apTeam1, apTeam2} = await getSigners(hre);
     owner = deployer;
-    admin = proxyAdminSigner!;
     user = apTeam1;
     collector = apTeam2;
+
+    admin = await getProxyAdmin(hre);
 
     vaultEmitterFake = await smock.fake<IVaultEmitter>(IVaultEmitter__factory.createInterface());
   });
