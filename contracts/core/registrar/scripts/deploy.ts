@@ -12,7 +12,6 @@ type RegistrarDeployData = {
   proxyAdmin: string;
   treasury: string;
   apTeamMultisig: string;
-  refundAddr: string;
 };
 
 export async function deployRegistrar(
@@ -25,7 +24,6 @@ export async function deployRegistrar(
     proxyAdmin,
     treasury,
     apTeamMultisig,
-    refundAddr,
   }: RegistrarDeployData,
   hre: HardhatRuntimeEnvironment
 ): Promise<{
@@ -55,7 +53,7 @@ export async function deployRegistrar(
         axelarGateway: axelarGateway,
         axelarGasService: axelarGasService,
         networkName: networkName,
-        refundAddr: refundAddr,
+        refundAddr: owner,
       },
     ]
   );

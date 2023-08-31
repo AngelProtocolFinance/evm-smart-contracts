@@ -65,7 +65,6 @@ task(
           proxyAdmin: addresses.multiSig.proxyAdmin,
           treasury: treasuryAddress,
           apTeamMultisig: apTeamMultiSig,
-          refundAddr: apTeamMultiSig,
         },
         hre
       );
@@ -84,11 +83,13 @@ task(
         proxyAdmin: addresses.multiSig.proxyAdmin,
         usdcAddress: addresses.tokens.usdc,
         wMaticAddress: addresses.tokens.wmatic,
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });
 
       await hre.run("manage:registrar:setVaultEmitterAddress", {
         vaultEmitter: addresses.vaultEmitter.proxy,
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });
 
@@ -108,14 +109,17 @@ task(
       // update all contracts' registrar addresses
       await hre.run("manage:accounts:updateConfig", {
         registrarContract: registrar.proxy.address,
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });
       await hre.run("manage:IndexFund:updateConfig", {
         registrarContract: registrar.proxy.address,
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });
       await hre.run("manage:GasFwdFactory:updateRegistrar", {
         newRegistrar: registrar.proxy.address,
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });
 

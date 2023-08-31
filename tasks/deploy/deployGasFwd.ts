@@ -3,11 +3,16 @@ import {task} from "hardhat/config";
 import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
 
 type TaskArgs = {
+  apTeamSignerPkey?: string;
   skipVerify: boolean;
   yes: boolean;
 };
 
 task("deploy:GasFwd", "Will deploy the GasFwd implementation and factory")
+  .addOptionalParam(
+    "apTeamSignerPkey",
+    "If running on prod, provide a pkey for a valid APTeam Multisig Owner."
+  )
   .addFlag("skipVerify", "Skip contract verification")
   .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {
@@ -33,6 +38,7 @@ task("deploy:GasFwd", "Will deploy the GasFwd implementation and factory")
 
       await hre.run("manage:registrar:updateConfig", {
         gasFwdFactory: gasFwdDeployment.factory.address,
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });
 

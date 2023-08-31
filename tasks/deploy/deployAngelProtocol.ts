@@ -80,7 +80,6 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
           proxyAdmin: proxyAdminMultisig.address,
           treasury: treasuryAddress,
           apTeamMultisig: apTeamMultisig.proxy.address,
-          refundAddr: apTeamMultisig.proxy.address,
         },
         hre
       );

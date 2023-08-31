@@ -31,7 +31,7 @@ task("manage:CharityApplications:updateConfig", "Will update CharityApplications
   )
   .addOptionalParam(
     "appsSignerPkey",
-    "If running on prod, provide a pkey for a valid APTeam Multisig Owner."
+    "If running on prod, provide a pkey for a valid CharityApplications Multisig Owner."
   )
   .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {

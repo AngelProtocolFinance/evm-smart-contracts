@@ -11,10 +11,20 @@ import {
   verify,
 } from "utils";
 
+type TaskArgs = {
+  apTeamSignerPkey?: string;
+  skipVerify: boolean;
+  yes: boolean;
+};
+
 task("deploy:SideChain", "Will deploy complete side-chain infrastructure")
+  .addOptionalParam(
+    "apTeamSignerPkey",
+    "If running on prod, provide a pkey for a valid APTeam Multisig Owner."
+  )
   .addFlag("skipVerify", "Skip contract verification")
   .addFlag("yes", "Automatic yes to prompt.")
-  .setAction(async (taskArgs: {skipVerify: boolean; yes: boolean}, hre) => {
+  .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       const isConfirmed =
         taskArgs.yes || (await confirmAction("Deploying all side chain contracts..."));
@@ -43,9 +53,10 @@ task("deploy:SideChain", "Will deploy complete side-chain infrastructure")
       const apTeamMultisig = await deployAPTeamMultiSig(proxyAdminMultisig.address, deployer, hre);
 
       await hre.run("deploy:LocalRegistrarAndRouter", {
+        owner: apTeamMultisig.proxy.address,
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         skipVerify: verify_contracts,
         yes: true,
-        owner: apTeamMultisig.proxy.address,
       });
 
       if (verify_contracts) {

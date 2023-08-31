@@ -2,12 +2,20 @@ import {task} from "hardhat/config";
 import {APTeamMultiSig__factory, IndexFund__factory} from "typechain-types";
 import {confirmAction, getAPTeamOwner, getAddresses, logger} from "utils";
 
-type TaskArgs = {to: string; apTeamSignerPkey?: string; yes: boolean};
+type TaskArgs = {
+  apTeamSignerPkey?: string;
+  to: string;
+  yes: boolean;
+};
 
 task("manage:IndexFund:transferOwnership", "Will update the owner of the IndexFund")
   .addOptionalParam(
     "to",
     "Address of the new owner. Ensure at least one of `apTeamMultisigOwners` is the controller of this address. Will default to `contract-address.json > multiSig.apTeam.proxy` if none is provided."
+  )
+  .addOptionalParam(
+    "apTeamSignerPkey",
+    "If running on prod, provide a pkey for a valid APTeam Multisig Owner."
   )
   .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {

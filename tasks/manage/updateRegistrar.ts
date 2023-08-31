@@ -65,10 +65,12 @@ task(
       } else {
         await hre.run("manage:registrar:updateConfig", {
           ...newConfig,
+          apTeamSignerPkey: taskArgs.apTeamSignerPkey,
           yes: true,
         });
         await hre.run("manage:registrar:setVaultEmitterAddress", {
           vaultEmitter: addresses.vaultEmitter.proxy,
+          apTeamSignerPkey: taskArgs.apTeamSignerPkey,
           yes: true,
         });
       }
@@ -86,9 +88,14 @@ task(
                 tokenAddress,
                 acceptanceState,
                 signerKey,
+                apTeamSignerPkey: taskArgs.apTeamSignerPkey,
               });
             } else {
-              await hre.run("manage:registrar:setTokenAccepted", {tokenAddress, acceptanceState});
+              await hre.run("manage:registrar:setTokenAccepted", {
+                tokenAddress,
+                acceptanceState,
+                apTeamSignerPkey: taskArgs.apTeamSignerPkey,
+              });
             }
           } catch (error) {
             logger.out(error, logger.Level.Error);

@@ -18,6 +18,7 @@ import {
 } from "utils";
 
 type TaskArgs = {
+  apTeamSignerPkey?: string;
   proxyAdminPkey: string;
   newProxyAdmin: string;
   yes: boolean;
@@ -31,6 +32,10 @@ task("manage:changeProxyAdmin", "Will update the proxy admin for all proxy contr
   .addParam(
     "newProxyAdmin",
     "New admin address. Make sure to use an address of an account listed in the hardhat configuration for the target network."
+  )
+  .addOptionalParam(
+    "apTeamSignerPkey",
+    "If running on prod, provide a pkey for a valid APTeam Multisig Owner."
   )
   .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {
@@ -55,7 +60,8 @@ task("manage:changeProxyAdmin", "Will update the proxy admin for all proxy contr
       await changeProxiesAdmin(proxyAdminOwner, taskArgs.newProxyAdmin, addresses, hre);
 
       await hre.run("manage:registrar:updateConfig", {
-        proxyAdmin: taskArgs.newProxyAdmin, //address
+        proxyAdmin: taskArgs.newProxyAdmin,
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });
     } catch (error) {
