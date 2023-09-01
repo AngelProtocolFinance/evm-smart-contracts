@@ -5,21 +5,29 @@ import {
   CharityApplications__factory,
 } from "typechain-types";
 import {AccountMessages} from "typechain-types/contracts/multisigs/CharityApplications";
-import {getAddresses, getEvents, getSigners, logger, structToObject} from "utils";
+import {getAddresses, getEvents, logger, structToObject} from "utils";
+import {getCharityApplicationsOwner} from "utils/signers/getCharityApplicationsOwner";
 
-type TaskArgs = {endowType: 0 | 1};
+type TaskArgs = {
+  appsSignerPkey?: string;
+  endowType: 0 | 1;
+};
 
 task("manage:createEndowment", "Will create a new endowment")
   .addParam("endowType", "0 - charity, 1 - ast, 2 - daf ", 0, types.int)
+  .addOptionalParam(
+    "appsSignerPkey",
+    "If running on prod, provide a pkey for a valid CharityApplications Multisig Owner."
+  )
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
-      const {apTeam2} = await getSigners(hre);
-
       const addresses = await getAddresses(hre);
+
+      const appsSigner = await getCharityApplicationsOwner(hre, taskArgs.appsSignerPkey);
 
       const queryEndowmentFacet = AccountsQueryEndowments__factory.connect(
         addresses.accounts.diamond,
-        apTeam2
+        hre.ethers.provider
       );
 
       const config = await queryEndowmentFacet.queryConfig();
@@ -32,7 +40,7 @@ task("manage:createEndowment", "Will create a new endowment")
       const defaultSettingsPermissionsStruct = {
         locked: false,
         delegate: {
-          addr: apTeam2.address,
+          addr: appsSigner.address,
           expires: 0,
         },
       };
@@ -53,7 +61,7 @@ task("manage:createEndowment", "Will create a new endowment")
         endowType: taskArgs.endowType, // Charity
         logo: "",
         image: "",
-        members: [apTeam2.address],
+        members: [appsSigner.address],
         threshold: 1,
         allowlistedBeneficiaries: [],
         allowlistedContributors: [],
@@ -95,7 +103,7 @@ task("manage:createEndowment", "Will create a new endowment")
         logger.out("Creating a charity applications proposal...");
         const charityApplications = CharityApplications__factory.connect(
           addresses.multiSig.charityApplications.proxy,
-          apTeam2
+          appsSigner
         );
         const tx = await charityApplications.proposeApplication(createEndowmentRequest, "0x");
         logger.out(`Tx hash: ${tx.hash}`);
@@ -129,7 +137,7 @@ task("manage:createEndowment", "Will create a new endowment")
       } else {
         const createEndowFacet = AccountsCreateEndowment__factory.connect(
           addresses.accounts.diamond,
-          apTeam2
+          appsSigner
         );
         let tx = await createEndowFacet.createEndowment(createEndowmentRequest);
         logger.out(`Creating endowment...\nTx hash: ${tx.hash}`);

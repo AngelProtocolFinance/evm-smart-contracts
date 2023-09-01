@@ -16,19 +16,18 @@ import {
   ADDRESS_ZERO,
   Deployment,
   confirmAction,
-  getAPTeamOwner,
   getSigners,
   isLocalNetwork,
   logger,
   resetContractAddresses,
   verify,
 } from "utils";
-import {getOrDeployThirdPartyContracts, updateRegistrarNetworkConnections} from "../helpers";
+import {getOrDeployThirdPartyContracts} from "../helpers";
 
 type TaskArgs = {
+  apTeamSignerPkey?: string;
   skipVerify: boolean;
   yes: boolean;
-  apTeamSignerPkey?: string;
 };
 
 task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
@@ -56,8 +55,6 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
         ? proxyAdminMultisigOwners.map((x) => x.address)
         : config.PROD_CONFIG.ProxyAdminMultiSigOwners;
 
-      const apTeamOwner = await getAPTeamOwner(hre, taskArgs.apTeamSignerPkey);
-
       // Reset the contract address object for all contracts that will be deployed here
       await resetContractAddresses(hre);
 
@@ -77,7 +74,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
         {
           axelarGateway: thirdPartyAddresses.axelarGateway.address,
           axelarGasService: thirdPartyAddresses.axelarGasService.address,
-          router: ADDRESS_ZERO,
+          router: ADDRESS_ZERO, // will be updated once Router is deployed
           owner: apTeamMultisig.proxy.address,
           deployer,
           proxyAdmin: proxyAdminMultisig.address,
@@ -87,7 +84,6 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
         hre
       );
 
-      // Router deployment will require updating Registrar config's "router" address
       const router = await deployRouter(
         registrar.proxy.address,
         proxyAdminMultisig.address,
@@ -155,21 +151,18 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
         usdcAddress: thirdPartyAddresses.usdcToken.address,
         wMaticAddress: thirdPartyAddresses.wmaticToken.address,
         gasFwdFactory: gasFwd.factory.address,
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });
       await hre.run("manage:registrar:setVaultEmitterAddress", {
         vaultEmitter: vaultEmitter.proxy.address,
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });
-
-      // Registrar NetworkInfo's Router address must be updated for the current network
-      await updateRegistrarNetworkConnections(
-        registrar.proxy.address,
-        apTeamMultisig.proxy.address,
-        {router: router.proxy.address},
-        apTeamOwner,
-        hre
-      );
+      await hre.run("manage:registrar:updateNetworkConnections", {
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
+        yes: true,
+      });
 
       if (verify_contracts) {
         const deployments: Array<Deployment> = [

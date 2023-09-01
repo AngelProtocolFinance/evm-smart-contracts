@@ -2,16 +2,7 @@ import {deployLocalRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task} from "hardhat/config";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
-import {
-  confirmAction,
-  getAPTeamOwner,
-  getAddresses,
-  getSigners,
-  isLocalNetwork,
-  logger,
-  verify,
-} from "utils";
-import {updateRegistrarNetworkConnections} from "../helpers";
+import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
 
 type TaskArgs = {
   skipVerify: boolean;
@@ -38,8 +29,6 @@ task("deploy:LocalRegistrarAndRouter", "Will deploy the Local Registrar contract
 
       const {deployer} = await getSigners(hre);
 
-      const apTeamOwner = await getAPTeamOwner(hre, taskArgs.apTeamSignerPkey);
-
       const addresses = await getAddresses(hre);
 
       const owner = taskArgs.owner || addresses.multiSig.apTeam.proxy;
@@ -64,21 +53,14 @@ task("deploy:LocalRegistrarAndRouter", "Will deploy the Local Registrar contract
         hre
       );
 
-      let network = await hre.ethers.provider.getNetwork();
-      const networkInfo: LocalRegistrarLib.NetworkInfoStruct = {
-        chainId: network.chainId,
-        router: router.proxy.address,
-        axelarGateway: addresses.axelar.gateway,
-        gasReceiver: addresses.axelar.gasService,
+      const networkInfo: Partial<LocalRegistrarLib.NetworkInfoStruct> = {
         refundAddr: addresses.multiSig.apTeam.proxy,
       };
-      await updateRegistrarNetworkConnections(
-        localRegistrar.proxy.address,
-        owner,
-        networkInfo,
-        apTeamOwner,
-        hre
-      );
+      await hre.run("manage:registrar:updateNetworkConnections", {
+        ...networkInfo,
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
+        yes: true,
+      });
 
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
         await verify(hre, localRegistrar.implementation);

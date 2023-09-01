@@ -11,7 +11,6 @@ import {
   logger,
   verify,
 } from "utils";
-import {updateRegistrarNetworkConnections} from "../helpers";
 
 type TaskArgs = {
   apTeamMultisig?: string;
@@ -51,8 +50,6 @@ task(
 
       let treasuryAddress = treasury ? treasury.address : config.PROD_CONFIG.Treasury;
 
-      const apTeamOwner = await getAPTeamOwner(hre, taskArgs.apTeamSignerPkey);
-
       const addresses = await getAddresses(hre);
 
       const apTeamMultiSig = taskArgs.apTeamMultisig || addresses.multiSig.apTeam.proxy;
@@ -62,7 +59,7 @@ task(
         {
           axelarGateway: addresses.axelar.gateway,
           axelarGasService: addresses.axelar.gasService,
-          router: oldRouterAddress,
+          router: oldRouterAddress, // Router must be redeployed, so this will be updated
           owner: apTeamMultiSig,
           deployer,
           proxyAdmin: addresses.multiSig.proxyAdmin,
@@ -86,11 +83,13 @@ task(
         proxyAdmin: addresses.multiSig.proxyAdmin,
         usdcAddress: addresses.tokens.usdc,
         wMaticAddress: addresses.tokens.wmatic,
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });
 
       await hre.run("manage:registrar:setVaultEmitterAddress", {
         vaultEmitter: addresses.vaultEmitter.proxy,
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });
 
@@ -102,24 +101,25 @@ task(
       );
 
       // Registrar NetworkInfo's Router address must be updated for the current network
-      await updateRegistrarNetworkConnections(
-        registrar.proxy.address,
-        apTeamMultiSig,
-        {router: router.proxy.address},
-        apTeamOwner,
-        hre
-      );
+      await hre.run("manage:registrar:updateNetworkConnections", {
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
+        yes: true,
+      });
 
+      // update all contracts' registrar addresses
       await hre.run("manage:accounts:updateConfig", {
         registrarContract: registrar.proxy.address,
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });
       await hre.run("manage:IndexFund:updateConfig", {
         registrarContract: registrar.proxy.address,
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });
       await hre.run("manage:GasFwdFactory:updateRegistrar", {
         newRegistrar: registrar.proxy.address,
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });
 

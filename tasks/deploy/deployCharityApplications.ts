@@ -3,6 +3,7 @@ import {task} from "hardhat/config";
 import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
 
 type TaskArgs = {
+  apTeamSignerPkey?: string;
   accountsDiamond?: string;
   charityApplications?: string;
   skipVerify: boolean;
@@ -13,6 +14,10 @@ task("deploy:CharityApplications", "Will deploy CharityApplication contract")
   .addOptionalParam(
     "accountsDiamond",
     "Accounts Diamond contract address. Will do a local lookup from contract-address.json if none is provided."
+  )
+  .addOptionalParam(
+    "apTeamSignerPkey",
+    "If running on prod, provide a pkey for a valid APTeam Multisig Owner."
   )
   .addFlag("skipVerify", "Skip contract verification")
   .addFlag("yes", "Automatic yes to prompt.")
@@ -38,6 +43,7 @@ task("deploy:CharityApplications", "Will deploy CharityApplication contract")
 
       await hre.run("manage:registrar:updateConfig", {
         charityApplications: charityApplications.proxy.address,
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });
 
