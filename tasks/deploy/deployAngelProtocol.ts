@@ -24,6 +24,7 @@ import {
   resetContractAddresses,
   verify,
 } from "utils";
+
 import {getOrDeployThirdPartyContracts, updateRegistrarNetworkConnections} from "../helpers";
 
 type TaskArgs = {

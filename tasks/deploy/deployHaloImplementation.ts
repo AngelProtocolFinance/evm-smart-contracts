@@ -1,160 +1,111 @@
 import {task} from "hardhat/config";
 import config from "config";
-import {isLocalNetwork, logger, getSigners, verify} from "utils";
+import {getContractName, getAddresses, isLocalNetwork, logger, getSigners, verify} from "utils";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
+import {Halo__factory} from "typechain-types";
 
-import {Airdrop} from "./halo/airdrop";
-import {Collector} from "./halo/collector";
-import {Community} from "./halo/community";
-import {distributor} from "./halo/distributor";
-import {deployGov} from "./halo/gov";
-import {GovHodler} from "./halo/gov-hodler";
-import {Staking} from "./halo/staking";
-import {Vesting} from "./halo/vesting";
+import {deployAirdrop} from "contracts/halo/airdrop/scripts/deploy";
+import {deployCollector} from "contracts/halo/collector/scripts/deploy";
+import {deployCommunity} from "contracts/halo/community/scripts/deploy";
+import {deployGov} from "contracts/halo/gov/scripts/deploy";
+import {deployStaking} from "contracts/halo/staking/scripts/deploy";
+import {deployVesting} from "contracts/halo/vesting/scripts/deploy";
 
 task("deploy:HaloImplementation", "Will deploy HaloImplementation contract")
   .addFlag("skipVerify", "Skip contract verification")
-  .addParam("swaprouter", "swap Router address")
+  .addOptionalParam(
+    "registrar",
+    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
+  )
   .setAction(async (taskArgs, hre) => {
     try {
+      const addresses = await getAddresses(hre);
+
+      const registrar = taskArgs.registrar || addresses.registrar.proxy;
       const verify_contracts = !isLocalNetwork(hre) && !taskArgs.skipVerify;
-      await deployHaloImplementation(taskArgs.swaprouter, verify_contracts, hre);
+
+      await deployHaloImplementation(registrar, verify_contracts, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }
   });
 
-const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
-
-const deployERC20 = async (verify_contracts: boolean, hre: HardhatRuntimeEnvironment) => {
+const deployHalo = async (verify_contracts: boolean, hre: HardhatRuntimeEnvironment) => {
   try {
     const {ethers, run, network} = hre;
-    const {proxyAdmin} = await getSigners(hre);
+    const {deployer} = await getSigners(hre);
 
-    const ERC20Upgrade = await ethers.getContractFactory("ERC20Upgrade");
-    const ERC20UpgradeInstance = await ERC20Upgrade.deploy();
-    await ERC20UpgradeInstance.deployed();
-
-    console.log("ERC20Upgrade implementation address:", ERC20UpgradeInstance.address);
-
-    const ProxyContract = await ethers.getContractFactory("ProxyContract");
-
-    const ERC20UpgradeData = ERC20UpgradeInstance.interface.encodeFunctionData("initialize");
-
-    const ERC20UpgradeProxy = await ProxyContract.deploy(
-      ERC20UpgradeInstance.address,
-      proxyAdmin.address,
-      ERC20UpgradeData
-    );
-
-    await ERC20UpgradeProxy.deployed();
+    const factory = new Halo__factory(deployer);
+    const Halo = await factory.deploy();
+    await Halo.deployed();
 
     if (verify_contracts) {
-      await verify(hre, {address: ERC20UpgradeInstance.address});
-      await verify(hre, {
-        address: ERC20UpgradeProxy.address,
-        constructorArguments: [ERC20UpgradeInstance.address, proxyAdmin.address, ERC20UpgradeData],
-      });
+      await verify(hre, {contractName: getContractName(factory), address: Halo.address});
     }
-    console.log("ERC20Upgrade Address (Proxy):", ERC20UpgradeProxy.address);
+    console.log("Halo Address (ERC20):", Halo.address);
 
-    return Promise.resolve(ERC20UpgradeProxy.address);
+    return Promise.resolve(Halo.address);
   } catch (error) {
     return Promise.reject(error);
   }
 };
 
 export async function deployHaloImplementation(
-  swapRouter: string,
+  registrarContract: string,
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
   try {
-    const {GovHodlerOwner, CommunitySpendLimit, distributorSpendLimit} =
-      config.HALO_IMPLEMENTATION_DATA;
+    const {CommunitySpendLimit, distributorSpendLimit} = config.HALO_IMPLEMENTATION_DATA;
 
     const {ethers, run, network} = hre;
+    const {proxyAdmin, airdropOwner, apTeam1} = await getSigners(hre);
 
-    const {proxyAdmin, airdropOwner, apTeam2, apTeam3} = await getSigners(hre);
-
-    let halo = await deployERC20(verify_contracts, hre);
-
-    let gov = await deployGov(halo, verify_contracts, hre);
-
-    let halo_code = await ethers.getContractAt("ERC20Upgrade", halo);
-
-    await halo_code.mint(
-      proxyAdmin.address,
-      ethers.utils.parseEther("100000000000000000000000000")
-    );
-
-    await halo_code.transferOwnership(gov.GovProxy); // TODO: uncomment this before deploying to prod. Keep this commented while testing
-
-    const distributorAddress = await distributor(
-      proxyAdmin.address,
-      {
-        timelockContract: gov.TimeLock,
-        haloToken: halo,
-        allowlist: [apTeam2.address, apTeam3.address],
-        spendLimit: distributorSpendLimit,
-      },
-      hre
-    );
+    const halo = await deployHalo(verify_contracts, hre);
+    const gov = await deployGov(halo, apTeam1.address, verify_contracts, hre);
     var response = {
       Halo: halo,
       Gov: gov,
-      GovHodler: await GovHodler(
-        proxyAdmin.address,
+      Airdrop: await deployAirdrop(
         {
-          owner: GovHodlerOwner,
-          haloToken: halo,
-          timelockContract: gov.TimeLock,
-        },
-        hre
-      ),
-      Airdrop: await Airdrop(
-        proxyAdmin.address,
-        {
-          owner: airdropOwner.address,
           haloToken: halo,
         },
+        verify_contracts,
         hre
       ),
-      Community: await Community(
-        proxyAdmin.address,
+      Community: await deployCommunity(
         {
-          timelockContract: gov.TimeLock,
           haloToken: halo,
           spendLimit: CommunitySpendLimit,
         },
+        verify_contracts,
         hre
       ),
-      distributor: distributorAddress,
-      vesting: await Vesting(
-        proxyAdmin.address,
+      Vesting: await deployVesting(
         {
+          vestingDuration: 63072000, // 2 years (in seconds)
+          vestingSlope: 100, // 2 decimals
           haloToken: halo,
         },
+        verify_contracts,
         hre
       ),
-      collector: await Collector(
-        proxyAdmin.address,
-        {
-          timelockContract: gov.TimeLock,
-          govContract: gov.GovProxy,
-          swapFactory: swapRouter,
-          haloToken: halo,
-          distributorContract: distributorAddress,
-          rewardFactor: 90,
-        },
-        hre
-      ),
-      staking: await Staking(
-        proxyAdmin.address,
+      Staking: await deployStaking(
         {
           haloToken: halo,
+          stakePeriod: 1814400, // 21 days in seconds
           interestRate: 10,
         },
+        verify_contracts,
+        hre
+      ),
+      Collector: await deployCollector(
+        {
+          registrarContract: registrarContract,
+          slippage: 500,
+          rewardFactor: 90,
+        },
+        verify_contracts,
         hre
       ),
     };
