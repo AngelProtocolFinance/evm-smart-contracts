@@ -20,7 +20,7 @@ import {
   TestFacetProxyContract,
 } from "typechain-types";
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
-import {getSigners} from "utils";
+import {getProxyAdminOwner, getSigners} from "utils";
 
 describe("IndexFund", function () {
   const {ethers} = hre;
@@ -67,8 +67,10 @@ describe("IndexFund", function () {
   before(async function () {
     const signers = await getSigners(hre);
     owner = signers.deployer;
-    proxyAdmin = signers.proxyAdminSigner!;
     user = signers.apTeam1;
+
+    proxyAdmin = await getProxyAdminOwner(hre);
+
     registrar = await smock.fake<Registrar>(new Registrar__factory());
 
     token = await smock.fake<IERC20>(IERC20__factory.createInterface());

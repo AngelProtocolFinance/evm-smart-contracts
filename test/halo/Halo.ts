@@ -3,7 +3,7 @@ import {expect} from "chai";
 import {BigNumber} from "ethers";
 import hre from "hardhat";
 import {Halo, Halo__factory} from "typechain-types";
-import {getSigners} from "utils";
+import {getProxyAdminOwner, getSigners} from "utils";
 
 describe("Halo token", function () {
   let Halo: Halo__factory;
@@ -18,7 +18,7 @@ describe("Halo token", function () {
     beforeEach(async function () {
       const signers = await getSigners(hre);
       deployer = signers.deployer;
-      proxyAdmin = signers.proxyAdminSigner!;
+      proxyAdmin = await getProxyAdminOwner(hre);
       user = signers.apTeam1;
 
       Halo = (await hre.ethers.getContractFactory("Halo", deployer)) as Halo__factory;

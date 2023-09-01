@@ -1,11 +1,11 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {BigNumber} from "ethers";
 import {expect} from "chai";
+import {BigNumber} from "ethers";
 import hre from "hardhat";
 import {FeeTypes, StrategyApprovalState, getSigners} from "utils";
 
+import {DEFAULT_NETWORK_INFO} from "test/utils";
 import {LocalRegistrar, LocalRegistrar__factory} from "typechain-types";
-import {DEFAULT_FEE_STRUCT, DEFAULT_NETWORK_INFO} from "test/utils";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
 
 describe("Local Registrar", function () {
@@ -39,8 +39,8 @@ describe("Local Registrar", function () {
 
   async function deployRegistrarAsProxy(): Promise<LocalRegistrar> {
     const signers = await getSigners(hre);
-    owner = signers.proxyAdminSigner!;
     user = signers.apTeam1;
+    owner = signers.apTeam2;
 
     Registrar = (await ethers.getContractFactory(
       "LocalRegistrar",

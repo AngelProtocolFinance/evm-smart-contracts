@@ -1,8 +1,7 @@
 import {BigNumber} from "ethers";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {task, types} from "hardhat/config";
-import {Registrar__factory, APTeamMultiSig__factory} from "typechain-types";
-import {connectSignerFromPkey, getAddresses, getSigners, logger} from "utils";
+import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
+import {getAPTeamOwner, getAddresses, logger} from "utils";
 
 type TaskArgs = {gas: number; tokenAddress: string; apTeamSignerPkey?: string};
 
@@ -24,18 +23,9 @@ task("manage:registrar:setGasByToken")
     const addresses = await getAddresses(hre);
     const registrarAddress = addresses["registrar"]["proxy"];
 
-    const {apTeamMultisigOwners} = await getSigners(hre);
+    const apTeamOwner = await getAPTeamOwner(hre, taskArguments.apTeamSignerPkey);
 
-    let apTeamSigner: SignerWithAddress;
-    if (!apTeamMultisigOwners && taskArguments.apTeamSignerPkey) {
-      apTeamSigner = await connectSignerFromPkey(taskArguments.apTeamSignerPkey, hre);
-    } else if (!apTeamMultisigOwners) {
-      throw new Error("Must provide a pkey for AP Team signer on this network");
-    } else {
-      apTeamSigner = apTeamMultisigOwners[0];
-    }
-
-    const registrar = Registrar__factory.connect(registrarAddress, apTeamSigner);
+    const registrar = Registrar__factory.connect(registrarAddress, apTeamOwner);
     logger.pad(50, "Connected to Registrar at: ", registrar.address);
 
     logger.divider();
@@ -55,7 +45,7 @@ task("manage:registrar:setGasByToken")
     ]);
     const apTeamMultisigContract = APTeamMultiSig__factory.connect(
       addresses.multiSig.apTeam.proxy,
-      apTeamSigner
+      apTeamOwner
     );
     const tx = await apTeamMultisigContract.submitTransaction(
       registrar.address,

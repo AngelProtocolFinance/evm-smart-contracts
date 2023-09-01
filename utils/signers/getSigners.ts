@@ -1,7 +1,6 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {Wallet} from "ethers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {isProdNetwork} from "./networkHelpers";
+import {isProdNetwork} from "../networkHelpers";
 
 type Result = {
   airdropOwner?: SignerWithAddress;
@@ -12,7 +11,6 @@ type Result = {
   apTeamMultisigOwners?: SignerWithAddress[];
   proxyAdminMultisigOwners?: SignerWithAddress[];
   deployer: SignerWithAddress;
-  proxyAdminSigner?: SignerWithAddress;
   timeLockAdmin?: SignerWithAddress;
   treasury?: SignerWithAddress;
 };
@@ -27,8 +25,7 @@ export async function getSigners(hre: HardhatRuntimeEnvironment): Promise<Result
       apTeam3,
     };
   } else {
-    const [deployer, proxyAdminSigner, apTeam1, apTeam2, apTeam3] = await hre.ethers.getSigners();
-
+    const [deployer, proxyAdminOwner, apTeam1, apTeam2, apTeam3] = await hre.ethers.getSigners();
     return {
       airdropOwner: apTeam1,
       apTeam1,
@@ -36,19 +33,10 @@ export async function getSigners(hre: HardhatRuntimeEnvironment): Promise<Result
       apTeam3,
       charityApplicationsOwners: [apTeam2, apTeam3],
       apTeamMultisigOwners: [apTeam1, apTeam2],
-      proxyAdminMultisigOwners: [proxyAdminSigner],
+      proxyAdminMultisigOwners: [proxyAdminOwner],
       deployer,
-      proxyAdminSigner,
       treasury: apTeam1,
       timeLockAdmin: apTeam1,
     };
   }
-}
-
-export async function connectSignerFromPkey(
-  pkey: string,
-  hre: HardhatRuntimeEnvironment
-): Promise<SignerWithAddress> {
-  const signer = new Wallet(pkey, hre.ethers.provider);
-  return hre.ethers.getSigner(signer.address);
 }

@@ -1,14 +1,14 @@
 import {task} from "hardhat/config";
 import {
-  Router__factory,
   ITransparentUpgradeableProxy__factory,
   ProxyAdminMultiSig__factory,
+  Router__factory,
 } from "typechain-types";
 import {
   confirmAction,
-  connectSignerFromPkey,
   getAddresses,
   getContractName,
+  getProxyAdminOwner,
   getSigners,
   isLocalNetwork,
   logger,
@@ -29,12 +29,9 @@ task("upgrade:router", "Will upgrade the Router")
           return logger.out("Confirmation denied.", logger.Level.Warn);
         }
 
-        let {deployer, proxyAdminSigner} = await getSigners(hre);
-        if (!proxyAdminSigner && taskArgs.proxyAdminPkey) {
-          proxyAdminSigner = await connectSignerFromPkey(taskArgs.proxyAdminPkey, hre);
-        } else if (!proxyAdminSigner) {
-          throw new Error("Must provide a pkey for proxyAdmin signer on this network");
-        }
+        const {deployer} = await getSigners(hre);
+        const proxyAdminOwner = await getProxyAdminOwner(hre, taskArgs.proxyAdminPkey);
+
         const addresses = await getAddresses(hre);
 
         logger.out("Deploying a new Router implementation...");
@@ -50,7 +47,7 @@ task("upgrade:router", "Will upgrade the Router")
         );
         const proxyAdminMultisig = ProxyAdminMultiSig__factory.connect(
           addresses.multiSig.proxyAdmin,
-          proxyAdminSigner
+          proxyAdminOwner
         );
         const payload = routerProxy.interface.encodeFunctionData("upgradeTo", [router.address]);
         const tx = await proxyAdminMultisig.submitTransaction(

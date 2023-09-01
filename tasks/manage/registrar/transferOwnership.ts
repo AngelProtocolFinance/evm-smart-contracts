@@ -1,7 +1,6 @@
 import {task} from "hardhat/config";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
-import {confirmAction, connectSignerFromPkey, getAddresses, getSigners, logger} from "utils";
+import {confirmAction, getAPTeamOwner, getAddresses, logger} from "utils";
 
 type TaskArgs = {to: string; apTeamSignerPkey?: string; yes: boolean};
 
@@ -20,18 +19,10 @@ task("manage:registrar:transferOwnership")
       logger.divider();
       logger.out("Connecting to registrar on specified network...");
       const addresses = await getAddresses(hre);
-      const {apTeamMultisigOwners} = await getSigners(hre);
 
-      let apTeamSigner: SignerWithAddress;
-      if (!apTeamMultisigOwners && taskArgs.apTeamSignerPkey) {
-        apTeamSigner = await connectSignerFromPkey(taskArgs.apTeamSignerPkey, hre);
-      } else if (!apTeamMultisigOwners) {
-        throw new Error("Must provide a pkey for AP Team signer on this network");
-      } else {
-        apTeamSigner = apTeamMultisigOwners[0];
-      }
+      const apTeamOwner = await getAPTeamOwner(hre, taskArgs.apTeamSignerPkey);
 
-      const registrar = Registrar__factory.connect(addresses.registrar.proxy, apTeamSigner);
+      const registrar = Registrar__factory.connect(addresses.registrar.proxy, apTeamOwner);
       logger.out(`Connected to Registrar at: ${registrar.address}`);
 
       const newOwner = taskArgs.to || addresses.multiSig.apTeam.proxy;
@@ -52,7 +43,7 @@ task("manage:registrar:transferOwnership")
       const data = registrar.interface.encodeFunctionData("transferOwnership", [newOwner]);
       const apTeamMultiSig = APTeamMultiSig__factory.connect(
         curOwner, // ensure connection to current owning APTeamMultiSig contract
-        apTeamSigner
+        apTeamOwner
       );
       const tx = await apTeamMultiSig.submitTransaction(registrar.address, 0, data, "0x");
       logger.out(`Tx hash: ${tx.hash}`);

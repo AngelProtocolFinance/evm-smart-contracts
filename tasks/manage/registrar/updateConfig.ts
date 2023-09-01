@@ -1,15 +1,7 @@
 import {task, types} from "hardhat/config";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
 import {RegistrarMessages} from "typechain-types/contracts/core/registrar/Registrar";
-import {
-  confirmAction,
-  connectSignerFromPkey,
-  getAddresses,
-  getSigners,
-  logger,
-  structToObject,
-} from "utils";
+import {confirmAction, getAPTeamOwner, getAddresses, logger, structToObject} from "utils";
 
 type TaskArgs = Partial<RegistrarMessages.UpdateConfigRequestStruct> & {
   apTeamSignerPkey?: string;
@@ -119,16 +111,8 @@ task("manage:registrar:updateConfig", "Will update Accounts Diamond config")
 
     try {
       const addresses = await getAddresses(hre);
-      const {apTeamMultisigOwners} = await getSigners(hre);
 
-      let apTeamSigner: SignerWithAddress;
-      if (!apTeamMultisigOwners && taskArgs.apTeamSignerPkey) {
-        apTeamSigner = await connectSignerFromPkey(taskArgs.apTeamSignerPkey, hre);
-      } else if (!apTeamMultisigOwners) {
-        throw new Error("Must provide a pkey for AP Team signer on this network");
-      } else {
-        apTeamSigner = apTeamMultisigOwners[0];
-      }
+      const apTeamOwner = await getAPTeamOwner(hre, taskArgs.apTeamSignerPkey);
 
       const {yes, ...dirtyConfigValues} = taskArgs;
 
@@ -146,7 +130,7 @@ task("manage:registrar:updateConfig", "Will update Accounts Diamond config")
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      const registrarContract = Registrar__factory.connect(addresses.registrar.proxy, apTeamSigner);
+      const registrarContract = Registrar__factory.connect(addresses.registrar.proxy, apTeamOwner);
 
       logger.out("Fetching current Registrar's config...");
       const struct = await registrarContract.queryConfig();
@@ -161,7 +145,7 @@ task("manage:registrar:updateConfig", "Will update Accounts Diamond config")
       ]);
       const apTeamMultisigContract = APTeamMultiSig__factory.connect(
         addresses.multiSig.apTeam.proxy,
-        apTeamSigner
+        apTeamOwner
       );
       const tx = await apTeamMultisigContract.submitTransaction(
         addresses.registrar.proxy,

@@ -1,14 +1,12 @@
 import {task, types} from "hardhat/config";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {Registrar__factory, APTeamMultiSig__factory} from "typechain-types";
+import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
 import {
-  connectSignerFromPkey,
-  getAddresses,
-  getSigners,
   StratConfig,
-  logger,
   StrategyApprovalState,
+  getAPTeamOwner,
+  getAddresses,
   getEnumKeys,
+  logger,
 } from "utils";
 import {allStrategyConfigs} from "../../../contracts/integrations/stratConfig";
 
@@ -43,17 +41,9 @@ task("manage:registrar:setStratApproval")
     const addresses = await getAddresses(hre);
     const registrarAddress = addresses["registrar"]["proxy"];
 
-    const {apTeamMultisigOwners} = await getSigners(hre);
-    let apTeamSigner: SignerWithAddress;
-    if (!apTeamMultisigOwners && taskArguments.apTeamSignerPkey) {
-      apTeamSigner = await connectSignerFromPkey(taskArguments.apTeamSignerPkey, hre);
-    } else if (!apTeamMultisigOwners) {
-      throw new Error("Must provide a pkey for AP Team signer on this network");
-    } else {
-      apTeamSigner = apTeamMultisigOwners[0];
-    }
+    const apTeamOwner = await getAPTeamOwner(hre, taskArguments.apTeamSignerPkey);
 
-    const registrar = Registrar__factory.connect(registrarAddress, apTeamSigner);
+    const registrar = Registrar__factory.connect(registrarAddress, apTeamOwner);
     logger.pad(50, "Connected to Registrar at: ", registrar.address);
 
     logger.divider();
@@ -74,7 +64,7 @@ task("manage:registrar:setStratApproval")
     ]);
     const apTeamMultisigContract = APTeamMultiSig__factory.connect(
       addresses.multiSig.apTeam.proxy,
-      apTeamSigner
+      apTeamOwner
     );
     const tx = await apTeamMultisigContract.submitTransaction(
       registrar.address,

@@ -9,6 +9,7 @@ import {
   connectSignerFromPkey,
   getAddresses,
   getContractName,
+  getProxyAdminOwner,
   getSigners,
   isLocalNetwork,
   logger,
@@ -40,12 +41,8 @@ task(
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      let {deployer, proxyAdminSigner} = await getSigners(hre);
-      if (!proxyAdminSigner && taskArgs.proxyAdminPkey) {
-        proxyAdminSigner = await connectSignerFromPkey(taskArgs.proxyAdminPkey, hre);
-      } else if (!proxyAdminSigner) {
-        throw new Error("Must provide a pkey for proxyAdmin signer on this network");
-      }
+      const {deployer} = await getSigners(hre);
+      const proxyAdminOwner = await getProxyAdminOwner(hre, taskArgs.proxyAdminPkey);
 
       const addresses = await getAddresses(hre);
 
@@ -59,7 +56,7 @@ task(
       logger.out("Upgrading proxy...");
       const proxyAdminMultisig = ProxyAdminMultiSig__factory.connect(
         addresses.multiSig.proxyAdmin,
-        proxyAdminSigner
+        proxyAdminOwner
       );
       const emitterProxy = ITransparentUpgradeableProxy__factory.connect(
         addresses.multiSig.endowment.emitter.proxy,

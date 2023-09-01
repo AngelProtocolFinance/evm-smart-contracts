@@ -1,7 +1,6 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
-import {BigNumber} from "ethers";
 import hre from "hardhat";
 import {
   DEFAULT_CHARITY_ENDOWMENT,
@@ -21,7 +20,7 @@ import {
 import {LibAccounts} from "typechain-types/contracts/core/accounts/facets/AccountsUpdateStatusEndowments";
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
-import {genWallet, getSigners, BeneficiaryEnum, EndowmentType} from "utils";
+import {BeneficiaryEnum, EndowmentType, genWallet, getProxyAdminOwner, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
 
 use(smock.matchers);
@@ -61,9 +60,10 @@ describe("AccountsUpdateStatusEndowments", function () {
   before(async function () {
     const signers = await getSigners(hre);
     accOwner = signers.apTeam1;
-    proxyAdmin = signers.proxyAdminSigner!;
     endowOwner = signers.deployer;
     treasuryAddress = signers.apTeam2.address;
+
+    proxyAdmin = await getProxyAdminOwner(hre);
 
     charity_endowment = {...DEFAULT_CHARITY_ENDOWMENT, owner: endowOwner.address};
     ast_endowment = {

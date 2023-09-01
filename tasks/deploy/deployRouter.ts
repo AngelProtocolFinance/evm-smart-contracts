@@ -1,19 +1,8 @@
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task} from "hardhat/config";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {
-  confirmAction,
-  connectSignerFromPkey,
-  getAddresses,
-  getSigners,
-  isLocalNetwork,
-  logger,
-  verify,
-} from "utils";
-import {updateRegistrarNetworkConnections} from "../helpers";
+import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
 
 type TaskArgs = {
-  apTeamMultisig?: string;
   registrar?: string;
   apTeamSignerPkey?: string;
   skipVerify: boolean;
@@ -21,10 +10,6 @@ type TaskArgs = {
 };
 
 task("deploy:Router", "Will deploy Router contract")
-  .addOptionalParam(
-    "apTeamMultisig",
-    "APTeamMultiSig contract address. Will do a local lookup from contract-address.json if none is provided."
-  )
   .addOptionalParam(
     "registrar",
     "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
@@ -43,18 +28,8 @@ task("deploy:Router", "Will deploy Router contract")
       }
 
       const addresses = await getAddresses(hre);
-      const {apTeamMultisigOwners, deployer} = await getSigners(hre);
+      const {deployer} = await getSigners(hre);
 
-      let apTeamSigner: SignerWithAddress;
-      if (!apTeamMultisigOwners && taskArgs.apTeamSignerPkey) {
-        apTeamSigner = await connectSignerFromPkey(taskArgs.apTeamSignerPkey, hre);
-      } else if (!apTeamMultisigOwners) {
-        throw new Error("Must provide a pkey for AP Team signer on this network");
-      } else {
-        apTeamSigner = apTeamMultisigOwners[0];
-      }
-
-      const apTeamMultiSig = taskArgs.apTeamMultisig || addresses.multiSig.apTeam.proxy;
       const registrar = taskArgs.registrar || addresses.registrar.proxy;
 
       const deployment = await deployRouter(
@@ -65,13 +40,10 @@ task("deploy:Router", "Will deploy Router contract")
       );
 
       // Registrar NetworkInfo's Router address must be updated for the current network
-      await updateRegistrarNetworkConnections(
-        registrar,
-        apTeamMultiSig,
-        {router: deployment.proxy.address},
-        apTeamSigner,
-        hre
-      );
+      await hre.run("manage:registrar:updateNetworkConnections", {
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
+        yes: true,
+      });
 
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
         await verify(hre, deployment.implementation);

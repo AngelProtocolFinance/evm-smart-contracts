@@ -1,18 +1,8 @@
 import {deployLocalRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task} from "hardhat/config";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
-import {
-  confirmAction,
-  connectSignerFromPkey,
-  getAddresses,
-  getSigners,
-  isLocalNetwork,
-  logger,
-  verify,
-} from "utils";
-import {updateRegistrarNetworkConnections} from "../helpers";
+import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
 
 type TaskArgs = {
   skipVerify: boolean;
@@ -37,16 +27,7 @@ task("deploy:LocalRegistrarAndRouter", "Will deploy the Local Registrar contract
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      const {deployer, apTeamMultisigOwners} = await getSigners(hre);
-
-      let apTeamSigner: SignerWithAddress;
-      if (!apTeamMultisigOwners && taskArgs.apTeamSignerPkey) {
-        apTeamSigner = await connectSignerFromPkey(taskArgs.apTeamSignerPkey, hre);
-      } else if (!apTeamMultisigOwners) {
-        throw new Error("Must provide a pkey for AP Team signer on this network");
-      } else {
-        apTeamSigner = apTeamMultisigOwners[0];
-      }
+      const {deployer} = await getSigners(hre);
 
       const addresses = await getAddresses(hre);
 
@@ -72,21 +53,14 @@ task("deploy:LocalRegistrarAndRouter", "Will deploy the Local Registrar contract
         hre
       );
 
-      let network = await hre.ethers.provider.getNetwork();
-      const networkInfo: LocalRegistrarLib.NetworkInfoStruct = {
-        chainId: network.chainId,
-        router: router.proxy.address,
-        axelarGateway: addresses.axelar.gateway,
-        gasReceiver: addresses.axelar.gasService,
+      const networkInfo: Partial<LocalRegistrarLib.NetworkInfoStruct> = {
         refundAddr: addresses.multiSig.apTeam.proxy,
       };
-      await updateRegistrarNetworkConnections(
-        localRegistrar.proxy.address,
-        owner,
-        networkInfo,
-        apTeamSigner,
-        hre
-      );
+      await hre.run("manage:registrar:updateNetworkConnections", {
+        ...networkInfo,
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
+        yes: true,
+      });
 
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
         await verify(hre, localRegistrar.implementation);

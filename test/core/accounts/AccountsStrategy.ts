@@ -11,8 +11,8 @@ import {
   DEFAULT_NETWORK_INFO,
   DEFAULT_REDEEM_ALL_REQUEST,
   DEFAULT_REDEEM_REQUEST,
-  DEFAULT_STRATEGY_PARAMS,
   DEFAULT_STRATEGY_ID,
+  DEFAULT_STRATEGY_PARAMS,
   convertVaultActionStructToArray,
   packActionData,
   wait,
@@ -42,7 +42,14 @@ import {
 } from "typechain-types/contracts/core/accounts/facets/AccountsStrategy";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
-import {StrategyApprovalState, VaultActionStatus, genWallet, getChainId, getSigners} from "utils";
+import {
+  StrategyApprovalState,
+  VaultActionStatus,
+  genWallet,
+  getChainId,
+  getProxyAdminOwner,
+  getSigners,
+} from "utils";
 import {deployFacetAsProxy} from "./utils";
 
 use(smock.matchers);
@@ -83,10 +90,11 @@ describe("AccountsStrategy", function () {
   let endowDetails: AccountStorage.EndowmentStruct;
 
   before(async function () {
-    const {deployer, proxyAdminSigner, apTeam1} = await getSigners(hre);
+    const {deployer, apTeam1} = await getSigners(hre);
     owner = deployer;
-    admin = proxyAdminSigner!;
     user = apTeam1;
+
+    admin = await getProxyAdminOwner(hre);
 
     gasService = await smock.fake<IAxelarGasService>(IAxelarGasService__factory.createInterface());
     gateway = await smock.fake<IAxelarGateway>(IAxelarGateway__factory.createInterface());

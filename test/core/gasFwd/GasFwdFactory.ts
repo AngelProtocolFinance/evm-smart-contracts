@@ -1,16 +1,16 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {FakeContract, smock} from "@defi-wonderland/smock";
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
 import hre from "hardhat";
-import {getSigners, genWallet} from "utils";
+import {DEFAULT_REGISTRAR_CONFIG} from "test/utils";
 import {
-  GasFwd__factory,
   GasFwdFactory,
   GasFwdFactory__factory,
+  GasFwd__factory,
   Registrar,
   Registrar__factory,
 } from "typechain-types";
-import {DEFAULT_REGISTRAR_CONFIG} from "test/utils";
+import {genWallet, getProxyAdminOwner, getSigners} from "utils";
 
 use(smock.matchers);
 
@@ -36,10 +36,11 @@ describe("GasFwdFactory", function () {
   }
 
   before(async function () {
-    const {deployer, proxyAdminSigner, apTeam1} = await getSigners(hre);
+    const {deployer, apTeam1} = await getSigners(hre);
     owner = deployer;
-    admin = proxyAdminSigner!;
     user = apTeam1;
+
+    admin = await getProxyAdminOwner(hre);
   });
 
   beforeEach(async function () {

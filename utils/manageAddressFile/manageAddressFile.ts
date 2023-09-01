@@ -1,5 +1,5 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {DeepPartial} from "utils/types";
+import {DeepPartial} from "../types";
 import {DEFAULT_CONTRACT_ADDRESS_FILE_PATH, getChainId, isLocalNetwork} from "..";
 import {createEmptyAddressObj, getAddressesByNetworkId, saveFrontendFiles} from "./helpers";
 import {AddressObj} from "./types";

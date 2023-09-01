@@ -1,10 +1,10 @@
 import fs from "fs";
-
+import {DEFAULT_CONTRACT_ADDRESS_FILE_PATH} from "../constants";
 import {AddressObj} from "./types";
 
 export function getAddressesByNetworkId(
   networkId: string | symbol | number,
-  filePath: string
+  filePath = DEFAULT_CONTRACT_ADDRESS_FILE_PATH
 ): AddressObj {
   const addresses = readAllAddresses(filePath);
 
@@ -35,7 +35,9 @@ export function getAddressesByNetworkId(
   });
 }
 
-export function readAllAddresses(filePath: string): Record<string, AddressObj> {
+export function readAllAddresses(
+  filePath = DEFAULT_CONTRACT_ADDRESS_FILE_PATH
+): Record<string, AddressObj> {
   checkExistence(filePath);
 
   const jsonData = fs.readFileSync(filePath, "utf-8");
@@ -45,7 +47,10 @@ export function readAllAddresses(filePath: string): Record<string, AddressObj> {
   return data;
 }
 
-export function saveFrontendFiles(addresses: Record<string, AddressObj>, filePath: string) {
+export function saveFrontendFiles(
+  addresses: Record<string, AddressObj>,
+  filePath = DEFAULT_CONTRACT_ADDRESS_FILE_PATH
+) {
   checkExistence(filePath);
 
   const data = readAllAddresses(filePath);

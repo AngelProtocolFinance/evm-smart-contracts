@@ -1,18 +1,25 @@
 import {BytesLike} from "ethers";
 import {task} from "hardhat/config";
 import {IndexFund__factory, MultiSigGeneric__factory} from "typechain-types";
-import {getAddresses, getSigners, logger} from "utils";
+import {getAPTeamOwner, getAddresses, logger} from "utils";
 
-task("manage:createIndexFund", "Will create a new index fund").setAction(
-  async (_taskArguments, hre) => {
+task("manage:createIndexFund", "Will create a new index fund")
+  .addOptionalParam(
+    "apTeamSignerPkey",
+    "If running on prod, provide a pkey for a valid APTeam Multisig Owner."
+  )
+  .setAction(async (taskArgs: {apTeamSignerPkey?: string}, hre) => {
     try {
-      const {apTeam2} = await getSigners(hre);
+      const apTeamOwner = await getAPTeamOwner(hre, taskArgs.apTeamSignerPkey);
 
       const addresses = await getAddresses(hre);
 
-      const multisig = MultiSigGeneric__factory.connect(addresses.multiSig.apTeam.proxy, apTeam2);
+      const multisig = MultiSigGeneric__factory.connect(
+        addresses.multiSig.apTeam.proxy,
+        apTeamOwner
+      );
 
-      const indexfund = IndexFund__factory.connect(addresses.indexFund.proxy, apTeam2);
+      const indexfund = IndexFund__factory.connect(addresses.indexFund.proxy, apTeamOwner);
 
       const {data} = await indexfund.populateTransaction.createIndexFund(
         "Test Index Fund",
@@ -42,5 +49,4 @@ task("manage:createIndexFund", "Will create a new index fund").setAction(
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }
-  }
-);
+  });

@@ -2,11 +2,22 @@ import {deployAPTeamMultiSig} from "contracts/multisigs/scripts/deploy";
 import {task} from "hardhat/config";
 import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
 
+type TaskArgs = {
+  apTeamSignerPkey?: string;
+  skipVerify: boolean;
+  yes: boolean;
+  admin?: string;
+};
+
 task("deploy:APTeamMultiSig", "Will deploy APTeamMultiSig contract")
   .addFlag("skipVerify", "Skip contract verification")
   .addFlag("yes", "Automatic yes to prompt.")
   .addOptionalParam("admin", "override for proxy admin wallet, default: proxyAdminMultisig")
-  .setAction(async (taskArgs: {skipVerify: boolean; yes: boolean; admin?: string}, hre) => {
+  .addOptionalParam(
+    "apTeamSignerPkey",
+    "If running on prod, provide a pkey for a valid APTeam Multisig Owner."
+  )
+  .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       const isConfirmed = taskArgs.yes || (await confirmAction("Deploying APTeamMultiSig..."));
       if (!isConfirmed) {
@@ -24,14 +35,17 @@ task("deploy:APTeamMultiSig", "Will deploy APTeamMultiSig contract")
 
       await hre.run("manage:registrar:transferOwnership", {
         to: deployments.proxy.address,
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });
       await hre.run("manage:AccountsDiamond:updateOwner", {
         to: deployments.proxy.address,
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });
       await hre.run("manage:IndexFund:transferOwnership", {
         to: deployments.proxy.address,
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });
 

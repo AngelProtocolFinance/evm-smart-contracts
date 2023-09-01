@@ -1,4 +1,3 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import config from "config";
 import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
 import {deployGasFwd} from "contracts/core/gasFwd/scripts/deploy";
@@ -17,20 +16,18 @@ import {
   ADDRESS_ZERO,
   Deployment,
   confirmAction,
-  connectSignerFromPkey,
   getSigners,
   isLocalNetwork,
   logger,
   resetContractAddresses,
   verify,
 } from "utils";
-
-import {getOrDeployThirdPartyContracts, updateRegistrarNetworkConnections} from "../helpers";
+import {getOrDeployThirdPartyContracts} from "../helpers";
 
 type TaskArgs = {
+  apTeamSignerPkey?: string;
   skipVerify: boolean;
   yes: boolean;
-  apTeamSignerPkey?: string;
 };
 
 task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
@@ -50,24 +47,13 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
 
       const verify_contracts = !isLocalNetwork(hre) && !taskArgs.skipVerify;
 
-      let {deployer, proxyAdminMultisigOwners, apTeamMultisigOwners, treasury} = await getSigners(
-        hre
-      );
+      let {deployer, proxyAdminMultisigOwners, treasury} = await getSigners(hre);
 
       let treasuryAddress = treasury ? treasury.address : config.PROD_CONFIG.Treasury;
 
       const proxyAdminMultisigOwnerAddresses = proxyAdminMultisigOwners
         ? proxyAdminMultisigOwners.map((x) => x.address)
         : config.PROD_CONFIG.ProxyAdminMultiSigOwners;
-
-      let apTeamSigner: SignerWithAddress;
-      if (!apTeamMultisigOwners && taskArgs.apTeamSignerPkey) {
-        apTeamSigner = await connectSignerFromPkey(taskArgs.apTeamSignerPkey, hre);
-      } else if (!apTeamMultisigOwners) {
-        throw new Error("Must provide a pkey for AP Team signer on this network");
-      } else {
-        apTeamSigner = apTeamMultisigOwners[0];
-      }
 
       // Reset the contract address object for all contracts that will be deployed here
       await resetContractAddresses(hre);
@@ -88,7 +74,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
         {
           axelarGateway: thirdPartyAddresses.axelarGateway.address,
           axelarGasService: thirdPartyAddresses.axelarGasService.address,
-          router: ADDRESS_ZERO,
+          router: ADDRESS_ZERO, // will be updated once Router is deployed
           owner: apTeamMultisig.proxy.address,
           deployer,
           proxyAdmin: proxyAdminMultisig.address,
@@ -98,7 +84,6 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
         hre
       );
 
-      // Router deployment will require updating Registrar config's "router" address
       const router = await deployRouter(
         registrar.proxy.address,
         proxyAdminMultisig.address,
@@ -166,21 +151,18 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
         usdcAddress: thirdPartyAddresses.usdcToken.address,
         wMaticAddress: thirdPartyAddresses.wmaticToken.address,
         gasFwdFactory: gasFwd.factory.address,
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });
       await hre.run("manage:registrar:setVaultEmitterAddress", {
         vaultEmitter: vaultEmitter.proxy.address,
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });
-
-      // Registrar NetworkInfo's Router address must be updated for the current network
-      await updateRegistrarNetworkConnections(
-        registrar.proxy.address,
-        apTeamMultisig.proxy.address,
-        {router: router.proxy.address},
-        apTeamSigner,
-        hre
-      );
+      await hre.run("manage:registrar:updateNetworkConnections", {
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
+        yes: true,
+      });
 
       if (verify_contracts) {
         const deployments: Array<Deployment> = [

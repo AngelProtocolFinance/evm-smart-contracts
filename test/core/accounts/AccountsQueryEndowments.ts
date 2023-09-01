@@ -10,7 +10,7 @@ import {
 } from "typechain-types";
 import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsQueryEndowments";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
-import {getSigners} from "utils";
+import {getProxyAdminOwner, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
 
 describe("AccountsQueryEndowments", function () {
@@ -43,8 +43,9 @@ describe("AccountsQueryEndowments", function () {
   before(async function () {
     const signers = await getSigners(hre);
     owner = signers.apTeam1;
-    proxyAdmin = signers.proxyAdminSigner!;
     tokenAddress = signers.deployer.address;
+
+    proxyAdmin = await getProxyAdminOwner(hre);
 
     const Facet = new AccountsQueryEndowments__factory(owner);
     const facetImpl = await Facet.deploy();

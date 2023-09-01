@@ -1,11 +1,10 @@
 import {task} from "hardhat/config";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {
   APTeamMultiSig__factory,
   AccountsQueryEndowments__factory,
   AccountsUpdate__factory,
 } from "typechain-types";
-import {confirmAction, connectSignerFromPkey, getAddresses, getSigners, logger} from "utils";
+import {confirmAction, getAPTeamOwner, getAddresses, logger} from "utils";
 
 type TaskArgs = {to: string; apTeamSignerPkey?: string; yes: boolean};
 
@@ -23,23 +22,15 @@ task("manage:AccountsDiamond:updateOwner", "Will update the owner of the Account
     try {
       logger.divider();
       const addresses = await getAddresses(hre);
-      const {apTeamMultisigOwners} = await getSigners(hre);
 
-      let apTeamSigner: SignerWithAddress;
-      if (!apTeamMultisigOwners && taskArgs.apTeamSignerPkey) {
-        apTeamSigner = await connectSignerFromPkey(taskArgs.apTeamSignerPkey, hre);
-      } else if (!apTeamMultisigOwners) {
-        throw new Error("Must provide a pkey for AP Team signer on this network");
-      } else {
-        apTeamSigner = apTeamMultisigOwners[0];
-      }
+      const apTeamOwner = await getAPTeamOwner(hre, taskArgs.apTeamSignerPkey);
 
       const newOwner = taskArgs.to || addresses.multiSig.apTeam.proxy;
 
       logger.out("Querying current Diamond owner...");
       const accountsQueryEndowments = AccountsQueryEndowments__factory.connect(
         addresses.accounts.diamond,
-        apTeamSigner
+        apTeamOwner
       );
       const curOwner = (await accountsQueryEndowments.queryConfig()).owner;
       if (curOwner === newOwner) {
@@ -56,12 +47,12 @@ task("manage:AccountsDiamond:updateOwner", "Will update the owner of the Account
       logger.out(`Transferring ownership to: ${newOwner}...`);
       const accountsUpdate = AccountsUpdate__factory.connect(
         addresses.accounts.diamond,
-        apTeamSigner
+        apTeamOwner
       );
       const data = accountsUpdate.interface.encodeFunctionData("updateOwner", [newOwner]);
       const apTeamMultiSig = APTeamMultiSig__factory.connect(
         curOwner, // ensure connection to current owning APTeamMultiSig contract
-        apTeamSigner
+        apTeamOwner
       );
       const tx = await apTeamMultiSig.submitTransaction(addresses.accounts.diamond, 0, data, "0x");
       logger.out(`Tx hash: ${tx.hash}`);
