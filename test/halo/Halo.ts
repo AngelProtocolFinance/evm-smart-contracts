@@ -9,6 +9,7 @@ describe("Halo token", function () {
   let Halo: Halo__factory;
 
   let deployer: SignerWithAddress;
+  let proxyAdmin: SignerWithAddress;
   let user: SignerWithAddress;
 
   describe("upon Deployment", async function () {

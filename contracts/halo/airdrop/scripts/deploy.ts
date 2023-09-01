@@ -1,5 +1,5 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {getContractName, getSigners, isLocalNetwork, logger, updateAddresses, verify} from "utils";
+import {getContractName, getProxyAdminOwner, isLocalNetwork, logger, updateAddresses, verify} from "utils";
 
 import {AirdropMessage} from "typechain-types/contracts/halo/airdrop/Airdrop";
 
@@ -10,7 +10,7 @@ export async function deployAirdrop(
 ) {
   try {
     const {ethers, run, network} = hre;
-    const {proxyAdmin} = await getSigners(hre);
+    const proxyAdmin = await getProxyAdminOwner(hre);
     const Airdrop = await ethers.getContractFactory("Airdrop");
     const AirdropInstance = await Airdrop.deploy();
     await AirdropInstance.deployed();

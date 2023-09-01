@@ -1,5 +1,5 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {getContractName, getSigners, isLocalNetwork, logger, updateAddresses, verify} from "utils";
+import {getContractName, getProxyAdminOwner, isLocalNetwork, logger, updateAddresses, verify} from "utils";
 
 import {CollectorMessage} from "typechain-types/contracts/halo/collector/Collector";
 
@@ -10,7 +10,7 @@ export async function deployCollector(
 ) {
   try {
     const {ethers, run, network} = hre;
-    const {proxyAdmin} = await getSigners(hre);
+    const proxyAdmin = await getProxyAdminOwner(hre);
     const Collector = await ethers.getContractFactory("Collector");
     const CollectorInstance = await Collector.deploy();
     await CollectorInstance.deployed();

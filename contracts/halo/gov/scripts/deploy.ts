@@ -1,5 +1,5 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {getContractName, getSigners, isLocalNetwork, logger, updateAddresses, verify} from "utils";
+import {getContractName, getProxyAdminOwner, isLocalNetwork, logger, updateAddresses, verify} from "utils";
 
 export async function deployGov(
   haloToken: string,
@@ -9,7 +9,7 @@ export async function deployGov(
 ) {
   try {
     const {ethers, run, network} = hre;
-    const {proxyAdmin} = await getSigners(hre);
+    const proxyAdmin = await getProxyAdminOwner(hre);
     const Gov = await ethers.getContractFactory("Gov");
     const GovInstance = await Gov.deploy();
     await GovInstance.deployed();

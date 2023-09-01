@@ -59,7 +59,7 @@ export async function deployHaloImplementation(
     const {CommunitySpendLimit, distributorSpendLimit} = config.HALO_IMPLEMENTATION_DATA;
 
     const {ethers, run, network} = hre;
-    const {proxyAdmin, airdropOwner, apTeam1} = await getSigners(hre);
+    const {airdropOwner, apTeam1} = await getSigners(hre);
 
     const halo = await deployHalo(verify_contracts, hre);
     const gov = await deployGov(halo, apTeam1.address, verify_contracts, hre);

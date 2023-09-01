@@ -1,5 +1,5 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {getContractName, getSigners, isLocalNetwork, logger, updateAddresses, verify} from "utils";
+import {getContractName, getProxyAdminOwner, isLocalNetwork, logger, updateAddresses, verify} from "utils";
 
 import {StakingMessages} from "typechain-types/contracts/halo/staking/Staking";
 
@@ -10,7 +10,7 @@ export async function deployStaking(
 ) {
   try {
     const {ethers, run, network} = hre;
-    const {proxyAdmin} = await getSigners(hre);
+    const proxyAdmin = await getProxyAdminOwner(hre);
     const Staking = await ethers.getContractFactory("Staking");
     const StakingInstance = await Staking.deploy();
     await StakingInstance.deployed();

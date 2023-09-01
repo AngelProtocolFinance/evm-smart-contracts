@@ -1,5 +1,5 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {getContractName, getSigners, isLocalNetwork, logger, updateAddresses, verify} from "utils";
+import {getContractName, getProxyAdminOwner, isLocalNetwork, logger, updateAddresses, verify} from "utils";
 
 import {CommunityMessage} from "typechain-types/contracts/halo/community/Community";
 
@@ -10,7 +10,7 @@ export async function deployCommunity(
 ) {
   try {
     const {ethers, run, network} = hre;
-    const {proxyAdmin} = await getSigners(hre);
+    const proxyAdmin = await getProxyAdminOwner(hre);
     const Community = await ethers.getContractFactory("Community");
     const CommunityInstance = await Community.deploy();
     await CommunityInstance.deployed();

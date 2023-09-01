@@ -1,5 +1,5 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {getContractName, getSigners, isLocalNetwork, logger, updateAddresses, verify} from "utils";
+import {getContractName, getProxyAdminOwner, isLocalNetwork, logger, updateAddresses, verify} from "utils";
 
 import {VestingMessages} from "typechain-types/contracts/halo/vesting/Vesting";
 
@@ -10,7 +10,7 @@ export async function deployVesting(
 ) {
   try {
     const {ethers, run, network} = hre;
-    const {proxyAdmin} = await getSigners(hre);
+    const proxyAdmin = await getProxyAdminOwner(hre);
     const Vesting = await ethers.getContractFactory("Vesting");
     const VestingInstance = await Vesting.deploy();
     await VestingInstance.deployed();
