@@ -1,17 +1,32 @@
 import {task} from "hardhat/config";
 import {MultiSigGeneric__factory} from "typechain-types";
-import {getEvents, getSigners, logger} from "utils";
+import {confirmAction, connectSignerFromPkey, getEvents, logger} from "utils";
 
-type TaskArgs = {multisig: string; owner: string};
+type TaskArgs = {
+  multisig: string;
+  owner: string;
+  multisigOwnerPkey: string;
+  yes: boolean;
+};
 
 task("manage:addMultisigOwner", "Will add the specified address to the multisig as an owner")
   .addParam("multisig", "Address of multisig")
   .addParam("owner", "Address of the new owner")
+  .addParam("multisigOwnerPkey", "Private Key for a valid Multisig Owner.")
+  .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArguments: TaskArgs, hre) => {
     try {
-      const {apTeam2} = await getSigners(hre);
+      logger.divider();
 
-      const multisig = MultiSigGeneric__factory.connect(taskArguments.multisig, apTeam2);
+      const msOwner = await connectSignerFromPkey(taskArguments.multisigOwnerPkey, hre);
+
+      const isConfirmed =
+        taskArguments.yes || (await confirmAction(`Adding new owner: ${msOwner.address}`));
+      if (!isConfirmed) {
+        return logger.out("Confirmation denied.", logger.Level.Warn);
+      }
+
+      const multisig = MultiSigGeneric__factory.connect(taskArguments.multisig, msOwner);
 
       const alreadyOwner = await multisig.isOwner(taskArguments.owner);
       if (alreadyOwner) {

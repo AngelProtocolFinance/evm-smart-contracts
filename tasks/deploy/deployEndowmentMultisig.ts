@@ -3,6 +3,7 @@ import {task} from "hardhat/config";
 import {confirmAction, isLocalNetwork, getAddresses, logger, verify, getSigners} from "utils";
 
 type TaskArgs = {
+  apTeamSignerPkey?: string;
   registrar?: string;
   skipVerify: boolean;
   yes: boolean;
@@ -12,6 +13,10 @@ task("deploy:EndowmentMultiSig", "Will deploy EndowmentMultiSig contract")
   .addOptionalParam(
     "registrar",
     "Addresss of the registrar contract. Will do a local lookup from contract-address.json if none is provided."
+  )
+  .addOptionalParam(
+    "apTeamSignerPkey",
+    "If running on prod, provide a pkey for a valid APTeam Multisig Owner."
   )
   .addFlag("skipVerify", "Skip contract verification")
   .addFlag("yes", "Automatic yes to prompt.")
@@ -38,6 +43,7 @@ task("deploy:EndowmentMultiSig", "Will deploy EndowmentMultiSig contract")
       await hre.run("manage:registrar:updateConfig", {
         multisigFactory: deployData.factory.address,
         multisigEmitter: deployData.emitter.proxy.address,
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });
 
