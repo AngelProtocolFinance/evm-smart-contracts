@@ -1,14 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-library CommunityMessage {
+library StakingMessages {
   struct InstantiateMsg {
     address haloToken;
-    uint spendLimit;
+    uint256 interestRate;
+    uint256 stakePeriod;
   }
 
   struct ConfigResponse {
-    address haloToken;
-    uint spendLimit;
+    uint256 interestRate;
+    uint256 stakePeriod;
   }
 }

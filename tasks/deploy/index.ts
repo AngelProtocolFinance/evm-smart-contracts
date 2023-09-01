@@ -5,7 +5,7 @@ import "./deployCharityApplications";
 import "./deployEndowmentMultisig";
 import "./deployGasFwd";
 // import "./deployGiftcard";
-// import "./deployHaloImplementation";
+import "./deployHaloImplementation";
 import "./deployIndexFund";
 import "./deployLocalRegistrar";
 import "./deployRegistrar";
