@@ -2,7 +2,7 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {BytesLike} from "ethers";
 import {CharityApplications__factory} from "typechain-types";
 import {AccountMessages} from "typechain-types/contracts/multisigs/CharityApplications";
-import {getEvents, logger} from "utils";
+import {filterEvents, logger} from "utils";
 
 /**
  * Submits a proposal to CharityApplications contract and executes it if possible.
@@ -24,7 +24,7 @@ export async function proposeCharityApplication(
   logger.out(`Tx hash: ${tx.hash}`);
   const receipt = await tx.wait();
 
-  const applicationExecutedEvent = getEvents(
+  const applicationExecutedEvent = filterEvents(
     receipt.events,
     charApps,
     charApps.filters.ApplicationExecuted()
@@ -33,7 +33,7 @@ export async function proposeCharityApplication(
     return true;
   }
 
-  const applicationProposedEvent = getEvents(
+  const applicationProposedEvent = filterEvents(
     receipt.events,
     charApps,
     charApps.filters.ApplicationProposed()
@@ -58,7 +58,7 @@ export async function proposeCharityApplication(
   logger.out(`Tx hash: ${tx2.hash}`);
   const execReceipt = await tx2.wait();
 
-  const txExecuted = getEvents(
+  const txExecuted = filterEvents(
     execReceipt.events,
     charApps,
     charApps.filters.ApplicationExecuted()

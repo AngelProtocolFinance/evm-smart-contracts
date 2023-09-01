@@ -1,7 +1,7 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {BytesLike} from "ethers";
 import {IMultiSigGeneric__factory} from "typechain-types";
-import {getEvents, logger} from "utils";
+import {filterEvents, logger} from "utils";
 
 /**
  * Submits a transaction to the designated Multisig contract and executes it if possible.
@@ -23,7 +23,7 @@ export async function submitMultiSigTx(
   logger.out(`Tx hash: ${tx.hash}`);
   const receipt = await tx.wait();
 
-  const transactionExecutedEvent = getEvents(
+  const transactionExecutedEvent = filterEvents(
     receipt.events,
     multisig,
     multisig.filters.TransactionExecuted()
@@ -32,7 +32,7 @@ export async function submitMultiSigTx(
     return true;
   }
 
-  const transactionSubmittedEvent = getEvents(
+  const transactionSubmittedEvent = filterEvents(
     receipt.events,
     multisig,
     multisig.filters.TransactionSubmitted()
@@ -55,7 +55,7 @@ export async function submitMultiSigTx(
   logger.out(`Tx hash: ${tx2.hash}`);
   const execReceipt = await tx2.wait();
 
-  const txExecuted = getEvents(
+  const txExecuted = filterEvents(
     execReceipt.events,
     multisig,
     multisig.filters.TransactionExecuted()

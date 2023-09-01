@@ -3,7 +3,7 @@ export * from "./constants";
 export * from "./env.config";
 export * from "./getContractName";
 export * from "./getEnumKeys";
-export * from "./getEvents";
+export * from "./filterEvents";
 export * from "./signers";
 export * from "./keygen";
 export * as logger from "./logger";
