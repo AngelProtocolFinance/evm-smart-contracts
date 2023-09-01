@@ -1,5 +1,12 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {getContractName, getProxyAdminOwner, isLocalNetwork, logger, updateAddresses, verify} from "utils";
+import {
+  getContractName,
+  getProxyAdminOwner,
+  isLocalNetwork,
+  logger,
+  updateAddresses,
+  verify,
+} from "utils";
 
 import {StakingMessages} from "typechain-types/contracts/halo/staking/Staking";
 

@@ -1,5 +1,12 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {getContractName, getProxyAdminOwner, isLocalNetwork, logger, updateAddresses, verify} from "utils";
+import {
+  getContractName,
+  getProxyAdminOwner,
+  isLocalNetwork,
+  logger,
+  updateAddresses,
+  verify,
+} from "utils";
 
 import {CommunityMessage} from "typechain-types/contracts/halo/community/Community";
 
