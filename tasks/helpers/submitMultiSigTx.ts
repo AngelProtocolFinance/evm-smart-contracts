@@ -6,19 +6,19 @@ import {getEvents, logger} from "utils";
 /**
  * Submits a transaction to the designated Multisig contract and executes it if possible.
  * @param msAddress address of the Multisig contract
- * @param msOwner signer representing an owner of the Multisig with the ability to submit, confirm and execute transactions
+ * @param owner signer representing one of the Multisig owners
  * @param destination transaction target address
  * @param data transaction data payload
  * @returns boolean value indicating whether the transaction was executed or not (i.e. is pending confirmation by other owners)
  */
 export async function submitMultiSigTx(
   msAddress: string,
-  msOwner: SignerWithAddress,
+  owner: SignerWithAddress,
   destination: string,
   data: BytesLike
 ): Promise<boolean> {
   logger.out(`Submitting transaction to Multisig at address: ${msAddress}...`);
-  const multisig = IMultiSigGeneric__factory.connect(msAddress, msOwner);
+  const multisig = IMultiSigGeneric__factory.connect(msAddress, owner);
   const tx = await multisig.submitTransaction(destination, 0, data, "0x");
   logger.out(`Tx hash: ${tx.hash}`);
   const receipt = await tx.wait();
