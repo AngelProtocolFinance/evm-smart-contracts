@@ -286,7 +286,7 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
     uint256 gasAmount,
     address seedAsset,
     uint256 seedAmount
-  ) public override ownerExists(msg.sender) {
+  ) public override onlyWallet {
     require(Validator.addressChecker(seedAsset), "Seed Asset is not a valid address");
     require(Validator.addressChecker(accountsContract), "Accounts Contract is not a valid address");
     require(
