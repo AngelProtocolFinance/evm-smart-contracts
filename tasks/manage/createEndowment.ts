@@ -1,12 +1,8 @@
 import {task, types} from "hardhat/config";
-import {
-  AccountsCreateEndowment__factory,
-  AccountsQueryEndowments__factory,
-  CharityApplications__factory,
-} from "typechain-types";
+import {proposeCharityApplication} from "tasks/helpers";
+import {AccountsCreateEndowment__factory, AccountsQueryEndowments__factory} from "typechain-types";
 import {AccountMessages} from "typechain-types/contracts/multisigs/CharityApplications";
-import {getAddresses, getEvents, logger, structToObject} from "utils";
-import {getCharityApplicationsOwner} from "utils/signers/getCharityApplicationsOwner";
+import {getAddresses, getCharityApplicationsOwner, logger, structToObject} from "utils";
 
 type TaskArgs = {
   appsSignerPkey?: string;
@@ -100,40 +96,11 @@ task("manage:createEndowment", "Will create a new endowment")
       };
 
       if (taskArgs.endowType == 0) {
-        logger.out("Creating a charity applications proposal...");
-        const charityApplications = CharityApplications__factory.connect(
+        await proposeCharityApplication(
           addresses.multiSig.charityApplications.proxy,
-          appsSigner
+          appsSigner,
+          createEndowmentRequest
         );
-        const tx = await charityApplications.proposeApplication(createEndowmentRequest, "0x");
-        logger.out(`Tx hash: ${tx.hash}`);
-        const receipt = await tx.wait();
-
-        const applicationProposedEvent = getEvents(
-          receipt.events,
-          charityApplications,
-          charityApplications.filters.ApplicationProposed()
-        ).at(0);
-        if (!applicationProposedEvent) {
-          throw new Error("Unexpected: ApplicationProposed not emitted.");
-        }
-
-        const proposalId = applicationProposedEvent.args.proposalId;
-
-        const isExecuted = (await charityApplications.proposals(proposalId)).executed;
-        if (!isExecuted) {
-          const isConfirmed = await charityApplications.isProposalConfirmed(proposalId);
-          if (isConfirmed) {
-            logger.out(
-              `Proposal with ID "${proposalId}" submitted, awaiting confirmation by other owners.`
-            );
-            return;
-          }
-          logger.out(`Executing the new charity endowment with proposal ID: ${proposalId}...`);
-          const tx2 = await charityApplications.executeProposal(proposalId);
-          logger.out(`Tx hash: ${tx2.hash}`);
-          await tx2.wait();
-        }
       } else {
         const createEndowFacet = AccountsCreateEndowment__factory.connect(
           addresses.accounts.diamond,
