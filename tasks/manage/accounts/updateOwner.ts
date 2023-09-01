@@ -1,9 +1,6 @@
 import {task} from "hardhat/config";
-import {
-  APTeamMultiSig__factory,
-  AccountsQueryEndowments__factory,
-  AccountsUpdate__factory,
-} from "typechain-types";
+import {submitMultiSigTx} from "tasks/helpers";
+import {AccountsQueryEndowments__factory, AccountsUpdate__factory} from "typechain-types";
 import {confirmAction, getAPTeamOwner, getAddresses, logger} from "utils";
 
 type TaskArgs = {to: string; apTeamSignerPkey?: string; yes: boolean};
@@ -50,16 +47,18 @@ task("manage:AccountsDiamond:updateOwner", "Will update the owner of the Account
         apTeamOwner
       );
       const data = accountsUpdate.interface.encodeFunctionData("updateOwner", [newOwner]);
-      const apTeamMultiSig = APTeamMultiSig__factory.connect(
-        curOwner, // ensure connection to current owning APTeamMultiSig contract
-        apTeamOwner
-      );
-      const tx = await apTeamMultiSig.submitTransaction(addresses.accounts.diamond, 0, data, "0x");
-      logger.out(`Tx hash: ${tx.hash}`);
-      await tx.wait();
 
-      const updatedOwner = (await accountsQueryEndowments.queryConfig()).owner;
-      logger.out(`New owner: ${updatedOwner}`);
+      const isExecuted = await submitMultiSigTx(
+        curOwner, // ensure connection to current owning APTeamMultiSig contract
+        apTeamOwner,
+        addresses.accounts.diamond,
+        data
+      );
+
+      if (isExecuted) {
+        const updatedOwner = (await accountsQueryEndowments.queryConfig()).owner;
+        logger.out(`New owner: ${updatedOwner}`);
+      }
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }

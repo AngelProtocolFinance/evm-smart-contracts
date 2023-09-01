@@ -2,6 +2,7 @@ import {task, types} from "hardhat/config";
 import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
 import {StratConfig, getAPTeamOwner, getAddresses, logger} from "utils";
 import {allStrategyConfigs} from "../../../contracts/integrations/stratConfig";
+import {submitMultiSigTx} from "tasks/helpers";
 
 type TaskArgs = {
   name: string;
@@ -70,16 +71,10 @@ task("manage:registrar:setStratParams")
       config.params.liquidVaultAddr,
       config.params.approvalState,
     ]);
-    const apTeamMultisigContract = APTeamMultiSig__factory.connect(
+    await submitMultiSigTx(
       addresses.multiSig.apTeam.proxy,
-      apTeamOwner
-    );
-    const tx = await apTeamMultisigContract.submitTransaction(
+      apTeamOwner,
       registrar.address,
-      0,
-      updateData,
-      "0x"
+      updateData
     );
-    logger.out(`Tx hash: ${tx.hash}`);
-    await tx.wait();
   });

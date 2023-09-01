@@ -1,5 +1,6 @@
 import {task} from "hardhat/config";
-import {APTeamMultiSig__factory, IndexFund__factory} from "typechain-types";
+import {submitMultiSigTx} from "tasks/helpers";
+import {IndexFund__factory} from "typechain-types";
 import {confirmAction, getAPTeamOwner, getAddresses, logger} from "utils";
 
 type TaskArgs = {
@@ -43,16 +44,17 @@ task("manage:IndexFund:transferOwnership", "Will update the owner of the IndexFu
 
       logger.out(`Transferring ownership to: ${newOwner}...`);
       const data = indexFund.interface.encodeFunctionData("transferOwnership", [newOwner]);
-      const apTeamMultiSig = APTeamMultiSig__factory.connect(
+      const isExecuted = await submitMultiSigTx(
         curOwner, // ensure connection to current owning APTeamMultiSig contract
-        apTeamOwner
+        apTeamOwner,
+        indexFund.address,
+        data
       );
-      const tx = await apTeamMultiSig.submitTransaction(indexFund.address, 0, data, "0x");
-      logger.out(`Tx hash: ${tx.hash}`);
-      await tx.wait();
 
-      const updatedOwner = await indexFund.owner();
-      logger.out(`New owner: ${updatedOwner}`);
+      if (isExecuted) {
+        const updatedOwner = await indexFund.owner();
+        logger.out(`New owner: ${updatedOwner}`);
+      }
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }

@@ -1,9 +1,6 @@
 import {task} from "hardhat/config";
-import {
-  ITransparentUpgradeableProxy__factory,
-  ProxyAdminMultiSig__factory,
-  Router__factory,
-} from "typechain-types";
+import {submitMultiSigTx} from "tasks/helpers";
+import {ITransparentUpgradeableProxy__factory, Router__factory} from "typechain-types";
 import {
   confirmAction,
   getAddresses,
@@ -41,23 +38,19 @@ task("upgrade:router", "Will upgrade the Router")
         logger.out(`New impl address: ${router.address}`);
 
         logger.out("Upgrading Router proxy implementation...");
-        const routerProxy = ITransparentUpgradeableProxy__factory.connect(
-          addresses.router.proxy,
-          deployer
+        const payload = ITransparentUpgradeableProxy__factory.createInterface().encodeFunctionData(
+          "upgradeTo",
+          [router.address]
         );
-        const proxyAdminMultisig = ProxyAdminMultiSig__factory.connect(
+        const isExecuted = await submitMultiSigTx(
           addresses.multiSig.proxyAdmin,
-          proxyAdminOwner
+          proxyAdminOwner,
+          addresses.router.proxy,
+          payload
         );
-        const payload = routerProxy.interface.encodeFunctionData("upgradeTo", [router.address]);
-        const tx = await proxyAdminMultisig.submitTransaction(
-          routerProxy.address,
-          0,
-          payload,
-          "0x"
-        );
-        logger.out(`Tx hash: ${tx.hash}`);
-        await tx.wait();
+        if (!isExecuted) {
+          return;
+        }
 
         await updateAddresses(
           {

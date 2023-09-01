@@ -1,5 +1,6 @@
 import {task, types} from "hardhat/config";
-import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
+import {submitMultiSigTx} from "tasks/helpers";
+import {Registrar__factory} from "typechain-types";
 import {FeeTypes, getAPTeamOwner, getAddresses, getEnumKeys, logger} from "utils";
 
 type TaskArgs = {feeType: number; payoutAddress: string; bps: number; apTeamSignerPkey?: string};
@@ -48,26 +49,22 @@ task("manage:registrar:setFeeSettings")
       taskArguments.bps,
       taskArguments.payoutAddress,
     ]);
-    const apTeamMultisigContract = APTeamMultiSig__factory.connect(
+    const isExecuted = await submitMultiSigTx(
       addresses.multiSig.apTeam.proxy,
-      apTeamOwner
-    );
-    const tx = await apTeamMultisigContract.submitTransaction(
+      apTeamOwner,
       registrar.address,
-      0,
-      updateData,
-      "0x"
+      updateData
     );
-    logger.out(`Tx hash: ${tx.hash}`);
-    await tx.wait();
+
+    if (!isExecuted) {
+      return;
+    }
 
     const newfeeSetting = await registrar.getFeeSettingsByFeeType(taskArguments.feeType);
     if (
-      newfeeSetting.payoutAddress == taskArguments.payoutAddress &&
-      newfeeSetting.bps.eq(taskArguments.bps)
+      newfeeSetting.payoutAddress !== taskArguments.payoutAddress ||
+      !newfeeSetting.bps.eq(taskArguments.bps)
     ) {
-      logger.out("Fee settings updated successfully");
-    } else {
       throw new Error(
         `Fee settings were not updated. Expected: ${[
           taskArguments.payoutAddress,
@@ -75,4 +72,5 @@ task("manage:registrar:setFeeSettings")
         ]}, Got: ${[newfeeSetting.payoutAddress, newfeeSetting.bps]}`
       );
     }
+    logger.out("Fee settings updated successfully");
   });

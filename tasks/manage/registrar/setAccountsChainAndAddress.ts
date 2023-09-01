@@ -1,5 +1,6 @@
 import {task} from "hardhat/config";
-import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
+import {submitMultiSigTx} from "tasks/helpers";
+import {Registrar__factory} from "typechain-types";
 import {getAPTeamOwner, getAddresses, logger} from "utils";
 
 type TaskArgs = {accountsDiamond: string; chainName: string; apTeamSignerPkey?: string};
@@ -29,16 +30,10 @@ task("manage:registrar:setAccountsChainAndAddress")
       taskArguments.chainName,
       taskArguments.accountsDiamond,
     ]);
-    const apTeamMultisigContract = APTeamMultiSig__factory.connect(
+    await submitMultiSigTx(
       addresses.multiSig.apTeam.proxy,
-      apTeamOwner
-    );
-    const tx = await apTeamMultisigContract.submitTransaction(
+      apTeamOwner,
       registrar.address,
-      0,
-      updateData,
-      "0x"
+      updateData
     );
-    logger.out(`Tx hash: ${tx.hash}`);
-    await tx.wait();
   });

@@ -1,4 +1,5 @@
 import {task, types} from "hardhat/config";
+import {submitMultiSigTx} from "tasks/helpers";
 import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
 import {confirmAction, getAPTeamOwner, getAddresses, logger} from "utils";
 
@@ -35,21 +36,17 @@ task("manage:registrar:setVaultEmitterAddress")
       const updateData = registrar.interface.encodeFunctionData("setVaultEmitterAddress", [
         taskArgs.vaultEmitter,
       ]);
-      const apTeamMultisigContract = APTeamMultiSig__factory.connect(
+      const isExecuted = await submitMultiSigTx(
         addresses.multiSig.apTeam.proxy,
-        apTeamOwner
-      );
-      const tx = await apTeamMultisigContract.submitTransaction(
+        apTeamOwner,
         registrar.address,
-        0,
-        updateData,
-        "0x"
+        updateData
       );
-      logger.out(`Tx hash: ${tx.hash}`);
-      await tx.wait();
 
-      const newVaultEmitter = await registrar.getVaultEmitterAddress();
-      logger.out(`New VaultEmitter address: ${newVaultEmitter}`);
+      if (isExecuted) {
+        const newVaultEmitter = await registrar.getVaultEmitterAddress();
+        logger.out(`New VaultEmitter address: ${newVaultEmitter}`);
+      }
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }

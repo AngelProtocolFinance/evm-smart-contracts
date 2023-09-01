@@ -1,5 +1,6 @@
 import {task, types} from "hardhat/config";
-import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
+import {submitMultiSigTx} from "tasks/helpers";
+import {Registrar__factory} from "typechain-types";
 import {getAPTeamOwner, getAddresses, logger} from "utils";
 
 const NULL_NUMBER = 0;
@@ -112,18 +113,12 @@ task("manage:registrar:setRebalParams")
         basis: newBasis,
       },
     ]);
-    const apTeamMultisigContract = APTeamMultiSig__factory.connect(
+    await submitMultiSigTx(
       addresses.multiSig.apTeam.proxy,
-      apTeamOwner
-    );
-    const tx = await apTeamMultisigContract.submitTransaction(
+      apTeamOwner,
       registrar.address,
-      0,
-      updateData,
-      "0x"
+      updateData
     );
-    logger.out(`Tx hash: ${tx.hash}`);
-    await tx.wait();
   });
 
 function checkIfDefaultAndSet(taskArg: any, currentValue: any) {
