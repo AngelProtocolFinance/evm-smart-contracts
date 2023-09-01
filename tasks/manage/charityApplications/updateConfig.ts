@@ -1,7 +1,12 @@
 import {task, types} from "hardhat/config";
 import {CharityApplications__factory} from "typechain-types";
-import {confirmAction, getAddresses, logger, structToObject} from "utils";
-import {getCharityApplicationsOwner} from "utils/signers/getCharityApplicationsOwner";
+import {
+  confirmAction,
+  getAddresses,
+  getCharityApplicationsOwner,
+  logger,
+  structToObject,
+} from "utils";
 
 type TaskArgs = {
   accountsDiamond?: string;
