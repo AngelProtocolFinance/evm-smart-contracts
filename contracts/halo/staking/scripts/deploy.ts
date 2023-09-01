@@ -1,4 +1,5 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
+import {StakingMessages} from "typechain-types/contracts/halo/staking/Staking.sol/Staking";
 import {
   getContractName,
   getProxyAdminOwner,
@@ -7,8 +8,6 @@ import {
   updateAddresses,
   verify,
 } from "utils";
-
-import {StakingMessages} from "typechain-types/contracts/halo/staking/Staking";
 
 export async function deployStaking(
   StakingDataInput: StakingMessages.InstantiateMsgStruct,
