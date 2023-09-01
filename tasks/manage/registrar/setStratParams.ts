@@ -1,11 +1,13 @@
 import {task, types} from "hardhat/config";
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {Registrar__factory, APTeamMultiSig__factory} from "typechain-types";
-import {StratConfig, getAddresses, getSigners, logger} from "utils";
+import {StratConfig, connectSignerFromPkey, getAddresses, getSigners, logger} from "utils";
 import {allStrategyConfigs} from "../../../contracts/integrations/stratConfig";
 
 type TaskArgs = {
   name: string;
   modifyExisting: boolean;
+  apTeamSignerPkey?: string;
 };
 
 task("manage:registrar:setStratParams")
@@ -23,15 +25,26 @@ task("manage:registrar:setStratParams")
     false,
     types.boolean
   )
+  .addOptionalParam(
+    "apTeamSignerPkey",
+    "If running on prod, provide a pkey for a valid APTeam Multisig Owner."
+  )
   .setAction(async function (taskArguments: TaskArgs, hre) {
     logger.divider();
     logger.out("Connecting to registrar on specified network...");
     const addresses = await getAddresses(hre);
     const {apTeamMultisigOwners} = await getSigners(hre);
-    const registrar = Registrar__factory.connect(
-      addresses.registrar.proxy,
-      apTeamMultisigOwners[0]
-    );
+
+    let apTeamSigner: SignerWithAddress;
+    if (!apTeamMultisigOwners && taskArguments.apTeamSignerPkey) {
+      apTeamSigner = await connectSignerFromPkey(taskArguments.apTeamSignerPkey, hre);
+    } else if (!apTeamMultisigOwners) {
+      throw new Error("Must provide a pkey for AP Team signer on this network");
+    } else {
+      apTeamSigner = apTeamMultisigOwners[0];
+    }
+
+    const registrar = Registrar__factory.connect(addresses.registrar.proxy, apTeamSigner);
     logger.pad(50, "Connected to Registrar at: ", registrar.address);
 
     logger.divider();
@@ -69,7 +82,7 @@ task("manage:registrar:setStratParams")
     ]);
     const apTeamMultisigContract = APTeamMultiSig__factory.connect(
       addresses.multiSig.apTeam.proxy,
-      apTeamMultisigOwners[0]
+      apTeamSigner
     );
     const tx = await apTeamMultisigContract.submitTransaction(
       registrar.address,

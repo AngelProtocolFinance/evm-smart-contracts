@@ -21,4 +21,6 @@ interface IAccountsQueryEndowments {
   function queryState(
     uint32 id
   ) external view returns (AccountMessages.StateResponse memory stateResponse);
+
+  function isDafApprovedEndowment(uint32 id) external view returns (bool);
 }

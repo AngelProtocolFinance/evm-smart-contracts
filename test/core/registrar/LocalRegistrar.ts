@@ -39,7 +39,7 @@ describe("Local Registrar", function () {
 
   async function deployRegistrarAsProxy(): Promise<LocalRegistrar> {
     const signers = await getSigners(hre);
-    owner = signers.proxyAdmin;
+    owner = signers.proxyAdminSigner!;
     user = signers.apTeam1;
 
     Registrar = (await ethers.getContractFactory(

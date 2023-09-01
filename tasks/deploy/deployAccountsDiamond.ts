@@ -1,6 +1,6 @@
 import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
 import {task} from "hardhat/config";
-import {confirmAction, getAddresses, isLocalNetwork, logger, verify} from "utils";
+import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
 
 type TaskArgs = {
   apTeamMultisig?: string;
@@ -28,10 +28,17 @@ task("deploy:accounts", "It will deploy accounts diamond contracts")
       }
 
       const addresses = await getAddresses(hre);
+      const {deployer} = await getSigners(hre);
       const apTeam = taskArgs.apTeamMultisig || addresses.multiSig.apTeam.proxy;
       const registrar = taskArgs.registrar || addresses.registrar.proxy;
 
-      const {diamond, facets} = await deployAccountsDiamond(apTeam, registrar, hre);
+      const {diamond, facets} = await deployAccountsDiamond(
+        apTeam,
+        registrar,
+        addresses.multiSig.proxyAdmin,
+        deployer,
+        hre
+      );
 
       await hre.run("manage:registrar:updateConfig", {
         accountsContract: diamond.address,

@@ -108,4 +108,14 @@ contract AccountsQueryEndowments is IAccountsQueryEndowments, IterableMappingAdd
       closingBeneficiary: state.States[id].closingBeneficiary
     });
   }
+
+  /**
+   * @notice queries DAF Approval state of an Endowment ID
+   * @param id The id of the endowment
+   * @return bool The DAF Approval state
+   */
+  function isDafApprovedEndowment(uint32 id) public view returns (bool) {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    return state.DafApprovedEndowments[id];
+  }
 }

@@ -2,21 +2,42 @@
 pragma solidity ^0.8.19;
 
 import {Validator} from "../core/validator.sol";
-import "./storage.sol";
+import {StorageMultiSig, MultiSigStorage} from "./storage.sol";
 import {IMultiSigGeneric} from "./interfaces/IMultiSigGeneric.sol";
-import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
-import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {ERC165} from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {Utils} from "../lib/utils.sol";
 
-contract MultiSigGeneric is
-  StorageMultiSig,
-  IMultiSigGeneric,
-  ERC165,
-  Initializable,
-  ReentrancyGuard
-{
+contract ProxyAdminMultiSig is StorageMultiSig, IMultiSigGeneric, ERC165, ReentrancyGuard {
+  /// @dev Contract constructor sets initial owners and required number of confirmations.
+  /// @param owners List of initial owners.
+  /// @param _approvalsRequired Number of required confirmations.
+  /// @param _requireExecution setting for if an explicit execution call is required
+  /// @param _transactionExpiry Proposal expiry time in seconds
+  constructor(
+    address[] memory owners,
+    uint256 _approvalsRequired,
+    bool _requireExecution,
+    uint256 _transactionExpiry
+  ) validApprovalsRequirement(owners.length, _approvalsRequired) {
+    require(owners.length > 0, "Must pass at least one owner address");
+    for (uint256 i = 0; i < owners.length; i++) {
+      require(
+        Validator.addressChecker(owners[i]),
+        string.concat("Invalid owner address at index: ", Strings.toString(i))
+      );
+      isOwner[owners[i]] = true;
+    }
+    activeOwnersCount = owners.length;
+
+    // set storage variables
+    approvalsRequired = _approvalsRequired;
+    requireExecution = _requireExecution;
+    transactionExpiry = _transactionExpiry;
+    emitInitializedMultiSig(owners, approvalsRequired, requireExecution, transactionExpiry);
+  }
+
   /*
    *  Modifiers
    */
@@ -67,7 +88,10 @@ contract MultiSigGeneric is
   }
 
   modifier approvalsThresholdMet(uint256 transactionId) {
-    require(isConfirmed(transactionId), "Not enough confirmations to execute");
+    require(
+      confirmations[transactionId].count >= approvalsRequired,
+      "Not enough confirmations to execute"
+    );
     _;
   }
 
@@ -202,7 +226,7 @@ contract MultiSigGeneric is
     confirmations[transactionId].count += 1;
     emitTransactionConfirmed(msg.sender, transactionId);
     // if execution is not required and confirmation count is met, execute
-    if (!requireExecution && isConfirmed(transactionId)) {
+    if (!requireExecution && confirmations[transactionId].count >= approvalsRequired) {
       executeTransaction(transactionId);
     }
   }
@@ -268,9 +292,10 @@ contract MultiSigGeneric is
 
   /// @dev Returns the confirmation status of a transaction.
   /// @param transactionId Transaction ID.
-  /// @return bool Confirmation status.
+  /// @return Confirmation status.
   function isConfirmed(uint256 transactionId) public view override returns (bool) {
-    return confirmations[transactionId].count >= approvalsRequired;
+    if (confirmations[transactionId].count >= approvalsRequired) return true;
+    return false;
   }
 
   /// @dev Returns number of confirmations of a transaction.
@@ -298,34 +323,6 @@ contract MultiSigGeneric is
   /*
    * Internal functions
    */
-  /// @dev Contract constructor sets initial owners and required number of confirmations.
-  /// @param owners List of initial owners.
-  /// @param _approvalsRequired Number of required confirmations.
-  /// @param _requireExecution setting for if an explicit execution call is required
-  /// @param _transactionExpiry Proposal expiry time in seconds
-  function initialize(
-    address[] memory owners,
-    uint256 _approvalsRequired,
-    bool _requireExecution,
-    uint256 _transactionExpiry
-  ) internal onlyInitializing validApprovalsRequirement(owners.length, _approvalsRequired) {
-    require(owners.length > 0, "Must pass at least one owner address");
-    for (uint256 i = 0; i < owners.length; i++) {
-      require(
-        Validator.addressChecker(owners[i]),
-        string.concat("Invalid owner address at index: ", Strings.toString(i))
-      );
-      isOwner[owners[i]] = true;
-    }
-    activeOwnersCount = owners.length;
-
-    // set storage variables
-    approvalsRequired = _approvalsRequired;
-    requireExecution = _requireExecution;
-    transactionExpiry = _transactionExpiry;
-    emitInitializedMultiSig(owners, approvalsRequired, requireExecution, transactionExpiry);
-  }
-
   /// @dev Adds a new transaction to the transaction mapping, if transaction does not exist yet.
   /// @param destination Transaction target address.
   /// @param value Transaction ether value.

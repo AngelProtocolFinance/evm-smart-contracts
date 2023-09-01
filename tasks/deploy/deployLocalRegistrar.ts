@@ -1,18 +1,32 @@
 import {deployLocalRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task} from "hardhat/config";
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
-import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
+import {
+  confirmAction,
+  connectSignerFromPkey,
+  getAddresses,
+  getSigners,
+  isLocalNetwork,
+  logger,
+  verify,
+} from "utils";
 import {updateRegistrarNetworkConnections} from "../helpers";
 
 type TaskArgs = {
   skipVerify: boolean;
+  apTeamSignerPkey?: string;
   yes: boolean;
   owner?: string;
 };
 
 task("deploy:LocalRegistrarAndRouter", "Will deploy the Local Registrar contract and Router.")
   .addOptionalParam("owner", "The owner wallet for both router and registrar")
+  .addOptionalParam(
+    "apTeamSignerPkey",
+    "If running on prod, provide a pkey for a valid APTeam Multisig Owner."
+  )
   .addFlag("skipVerify", "Skip contract verification")
   .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {
@@ -23,7 +37,17 @@ task("deploy:LocalRegistrarAndRouter", "Will deploy the Local Registrar contract
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      const {proxyAdmin, deployer} = await getSigners(hre);
+      const {deployer, apTeamMultisigOwners} = await getSigners(hre);
+
+      let apTeamSigner: SignerWithAddress;
+      if (!apTeamMultisigOwners && taskArgs.apTeamSignerPkey) {
+        apTeamSigner = await connectSignerFromPkey(taskArgs.apTeamSignerPkey, hre);
+      } else if (!apTeamMultisigOwners) {
+        throw new Error("Must provide a pkey for AP Team signer on this network");
+      } else {
+        apTeamSigner = apTeamMultisigOwners[0];
+      }
+
       const addresses = await getAddresses(hre);
 
       const owner = taskArgs.owner || addresses.multiSig.apTeam.proxy;
@@ -31,8 +55,8 @@ task("deploy:LocalRegistrarAndRouter", "Will deploy the Local Registrar contract
       const localRegistrar = await deployLocalRegistrar(
         {
           owner: owner,
-          deployer,
-          proxyAdmin,
+          deployer: deployer,
+          proxyAdmin: addresses.multiSig.proxyAdmin,
         },
         hre
       );
@@ -41,7 +65,12 @@ task("deploy:LocalRegistrarAndRouter", "Will deploy the Local Registrar contract
         return;
       }
 
-      const router = await deployRouter(localRegistrar.proxy.address, hre);
+      const router = await deployRouter(
+        localRegistrar.proxy.address,
+        addresses.multiSig.proxyAdmin,
+        deployer,
+        hre
+      );
 
       let network = await hre.ethers.provider.getNetwork();
       const networkInfo: LocalRegistrarLib.NetworkInfoStruct = {
@@ -55,6 +84,7 @@ task("deploy:LocalRegistrarAndRouter", "Will deploy the Local Registrar contract
         localRegistrar.proxy.address,
         owner,
         networkInfo,
+        apTeamSigner,
         hre
       );
 

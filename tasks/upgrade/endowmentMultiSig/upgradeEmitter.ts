@@ -2,9 +2,11 @@ import {task} from "hardhat/config";
 import {
   EndowmentMultiSigEmitter__factory,
   ITransparentUpgradeableProxy__factory,
+  ProxyAdminMultiSig__factory,
 } from "typechain-types";
 import {
   confirmAction,
+  connectSignerFromPkey,
   getAddresses,
   getContractName,
   getSigners,
@@ -18,6 +20,7 @@ type TaskArgs = {
   factory?: string;
   skipVerify: boolean;
   yes: boolean;
+  proxyAdminPkey?: string;
 };
 
 task(
@@ -26,6 +29,7 @@ task(
 )
   .addFlag("skipVerify", "Skip contract verification")
   .addFlag("yes", "Automatic yes to prompt.")
+  .addOptionalParam("proxyAdminPkey", "The pkey for the prod proxy admin multisig")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       logger.divider();
@@ -36,23 +40,33 @@ task(
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      const {proxyAdmin} = await getSigners(hre);
+      let {deployer, proxyAdminSigner} = await getSigners(hre);
+      if (!proxyAdminSigner && taskArgs.proxyAdminPkey) {
+        proxyAdminSigner = await connectSignerFromPkey(taskArgs.proxyAdminPkey, hre);
+      } else if (!proxyAdminSigner) {
+        throw new Error("Must provide a pkey for proxyAdmin signer on this network");
+      }
 
       const addresses = await getAddresses(hre);
 
       logger.out("Deploying implementation...");
-      const Emitter = new EndowmentMultiSigEmitter__factory(proxyAdmin);
+      const Emitter = new EndowmentMultiSigEmitter__factory(deployer);
       const emitter = await Emitter.deploy();
       logger.out(`Tx hash: ${emitter.deployTransaction.hash}`);
       await emitter.deployed();
       logger.out(`Address: ${emitter.address}`);
 
       logger.out("Upgrading proxy...");
-      const proxy = ITransparentUpgradeableProxy__factory.connect(
-        addresses.multiSig.endowment.emitter.proxy,
-        proxyAdmin
+      const proxyAdminMultisig = ProxyAdminMultiSig__factory.connect(
+        addresses.multiSig.proxyAdmin,
+        proxyAdminSigner
       );
-      const tx = await proxy.upgradeTo(emitter.address);
+      const emitterProxy = ITransparentUpgradeableProxy__factory.connect(
+        addresses.multiSig.endowment.emitter.proxy,
+        deployer
+      );
+      const payload = emitterProxy.interface.encodeFunctionData("upgradeTo", [emitter.address]);
+      const tx = await proxyAdminMultisig.submitTransaction(emitterProxy.address, 0, payload, "0x");
       logger.out(`Tx hash: ${tx.hash}`);
       await tx.wait();
 

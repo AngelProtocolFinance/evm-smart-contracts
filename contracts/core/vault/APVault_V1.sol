@@ -26,7 +26,6 @@ contract APVault_V1 is IVault, ERC4626AP {
   ) ERC4626AP(IERC20Metadata(_config.yieldToken), _config.apTokenName, _config.apTokenSymbol) {
     EMITTER_ADDRESS = _emitter;
     vaultConfig = _config;
-    IVaultEmitter(EMITTER_ADDRESS).vaultCreated(address(this), _config);
   }
 
   /*//////////////////////////////////////////////////////////////

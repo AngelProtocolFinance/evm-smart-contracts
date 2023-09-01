@@ -7,6 +7,11 @@ export type Config = {
     requireExecution: boolean;
     transactionExpiry: number;
   };
+  PROXY_ADMIN_MULTISIG_DATA: {
+    threshold: number;
+    requireExecution: boolean;
+    transactionExpiry: number;
+  };
   REGISTRAR_DATA: {
     taxRate: number;
     acceptedTokens: {
@@ -25,7 +30,7 @@ export type Config = {
     requireExecution: boolean;
     transactionExpiry: number;
     seedSplitToLiquid: number;
-    gasAmount: number;
+    gasAmount: BigNumber;
     seedAmount: number;
   };
   DONATION_MATCH_CHARITY_DATA: {
@@ -43,5 +48,11 @@ export type Config = {
     GovHodlerOwner: string;
     CommunitySpendLimit: number;
     distributorSpendLimit: number;
+  };
+  PROD_CONFIG: {
+    APTeamMultiSigOwners: string[];
+    CharityApplicationsOwners: string[];
+    ProxyAdminMultiSigOwners: string[];
+    Treasury: string;
   };
 };

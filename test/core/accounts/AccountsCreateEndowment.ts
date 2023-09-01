@@ -42,7 +42,7 @@ describe("AccountsCreateEndowment", function () {
   before(async function () {
     const signers = await getSigners(hre);
     owner = signers.apTeam1;
-    proxyAdmin = signers.proxyAdmin;
+    proxyAdmin = signers.proxyAdminSigner!;
     charityApplications = signers.deployer;
 
     const defaultSettingsPermissionsStruct = {

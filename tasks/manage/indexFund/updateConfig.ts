@@ -1,11 +1,20 @@
 import {task, types} from "hardhat/config";
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {APTeamMultiSig__factory, IndexFund__factory} from "typechain-types";
-import {confirmAction, getAddresses, getSigners, logger, structToObject} from "utils";
+import {
+  confirmAction,
+  connectSignerFromPkey,
+  getAddresses,
+  getSigners,
+  logger,
+  structToObject,
+} from "utils";
 
 type TaskArgs = {
   registrarContract: string;
   fundingGoal: number;
   fundRotation: number;
+  apTeamSignerPkey?: string;
   yes: boolean;
 };
 
@@ -16,6 +25,10 @@ task("manage:IndexFund:updateConfig", "Will update the config of the IndexFund")
   )
   .addOptionalParam("fundingGoal", "Funding rotation blocks.", undefined, types.int)
   .addOptionalParam("fundRotation", "Funding goal amount.", undefined, types.int)
+  .addOptionalParam(
+    "apTeamSignerPkey",
+    "If running on prod, provide a pkey for a valid APTeam Multisig Owner."
+  )
   .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
@@ -25,11 +38,17 @@ task("manage:IndexFund:updateConfig", "Will update the config of the IndexFund")
       const addresses = await getAddresses(hre);
       const {apTeamMultisigOwners} = await getSigners(hre);
 
+      let apTeamSigner: SignerWithAddress;
+      if (!apTeamMultisigOwners && taskArgs.apTeamSignerPkey) {
+        apTeamSigner = await connectSignerFromPkey(taskArgs.apTeamSignerPkey, hre);
+      } else if (!apTeamMultisigOwners) {
+        throw new Error("Must provide a pkey for AP Team signer on this network");
+      } else {
+        apTeamSigner = apTeamMultisigOwners[0];
+      }
+
       logger.out("Querying current IndexFund registrar...");
-      const indexFund = IndexFund__factory.connect(
-        addresses.indexFund.proxy,
-        apTeamMultisigOwners[0]
-      );
+      const indexFund = IndexFund__factory.connect(addresses.indexFund.proxy, apTeamSigner);
       const struct = await indexFund.queryConfig();
       const curConfig = structToObject(struct);
       logger.out(curConfig);
@@ -47,7 +66,7 @@ task("manage:IndexFund:updateConfig", "Will update the config of the IndexFund")
       logger.out("Updating config...");
       const apTeamMultiSig = APTeamMultiSig__factory.connect(
         addresses.multiSig.apTeam.proxy, // ensure connection to current owning APTeamMultiSig contract
-        apTeamMultisigOwners[0]
+        apTeamSigner
       );
       const data = indexFund.interface.encodeFunctionData("updateConfig", [
         newConfig.registrarContract || curConfig.registrarContract,

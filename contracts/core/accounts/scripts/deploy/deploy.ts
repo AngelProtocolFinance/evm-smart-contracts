@@ -1,13 +1,20 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {DiamondCutFacet__factory, DiamondInit__factory, Diamond__factory} from "typechain-types";
-import {Deployment, getContractName, getSigners, logger, updateAddresses} from "utils";
+import {
+  DiamondCutFacet__factory,
+  DiamondInit__factory,
+  Diamond__factory,
+  IERC173__factory,
+} from "typechain-types";
+import {Deployment, getContractName, logger, updateAddresses} from "utils";
 import cutDiamond from "./cutDiamond";
 import deployFacets from "./deployFacets";
 
 export async function deployAccountsDiamond(
   owner: string,
   registrar: string,
+  diamondAdmin: string,
+  deployer: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
 ): Promise<{
   diamond: Deployment;
@@ -15,15 +22,15 @@ export async function deployAccountsDiamond(
 }> {
   logger.out("Deploying and setting up Accounts Diamond and all its facets...");
 
-  const {proxyAdmin} = await getSigners(hre);
+  const {diamond, diamondCutFacet} = await deployDiamond(deployer, hre);
 
-  const {diamond, diamondCutFacet} = await deployDiamond(proxyAdmin, hre);
+  const diamondInit = await deployDiamondInit(deployer, hre);
 
-  const diamondInit = await deployDiamondInit(proxyAdmin, hre);
+  const cuts = await deployFacets(deployer, hre);
 
-  const cuts = await deployFacets(proxyAdmin, hre);
+  await cutDiamond(diamond.address, diamondInit.address, deployer, owner, registrar, cuts, hre);
 
-  await cutDiamond(diamond.address, diamondInit.address, proxyAdmin, owner, registrar, cuts, hre);
+  await setDiamondContractOwner(diamond.address, diamondAdmin, deployer);
 
   return {
     diamond,
@@ -37,19 +44,19 @@ export async function deployAccountsDiamond(
 }
 
 async function deployDiamond(
-  admin: SignerWithAddress,
+  deployer: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
 ): Promise<{diamond: Deployment; diamondCutFacet: Deployment}> {
-  const DiamondCutFacet = new DiamondCutFacet__factory(admin);
+  const DiamondCutFacet = new DiamondCutFacet__factory(deployer);
   const diamondCutFacet = await DiamondCutFacet.deploy();
   await diamondCutFacet.deployed();
   logger.out(`DiamondCutFacet deployed at: ${diamondCutFacet.address}`);
 
   const constructorArguments: Parameters<Diamond__factory["deploy"]> = [
-    admin.address,
+    deployer.address,
     diamondCutFacet.address,
   ];
-  const Diamond = new Diamond__factory(admin);
+  const Diamond = new Diamond__factory(deployer);
   const diamond = await Diamond.deploy(...constructorArguments);
   await diamond.deployed();
   logger.out(`Diamond deployed at: ${diamond.address}`);
@@ -92,4 +99,16 @@ async function deployDiamondInit(
     address: diamondInit.address,
     contractName: getContractName(DiamondInit),
   };
+}
+
+async function setDiamondContractOwner(
+  address: string,
+  newOwner: string,
+  curOwner: SignerWithAddress
+) {
+  logger.out(`Transferring ownership from "${curOwner}" to "${newOwner}"...`);
+  const accountsDiamond = IERC173__factory.connect(address, curOwner);
+  const tx = await accountsDiamond.transferOwnership(newOwner);
+  logger.out(`Tx hash: ${tx.hash}`);
+  await tx.wait();
 }

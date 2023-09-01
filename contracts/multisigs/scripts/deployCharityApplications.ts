@@ -1,23 +1,29 @@
 import config from "config";
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {CharityApplications__factory, ProxyContract__factory} from "typechain-types";
 import {Deployment, getContractName, getSigners, logger, updateAddresses} from "utils";
 
 export async function deployCharityApplications(
   accountsDiamond: string,
+  proxyAdmin: string,
   seedAsset: string,
+  deployer: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
 ): Promise<{
   implementation: Deployment;
   proxy: Deployment;
 }> {
-  const {apTeamMultisigOwners, proxyAdmin} = await getSigners(hre);
-
   logger.out("Deploying CharityApplications...");
+
+  const {charityApplicationsOwners} = await getSigners(hre);
+  const owners = !charityApplicationsOwners
+    ? config.PROD_CONFIG.CharityApplicationsOwners
+    : charityApplicationsOwners.map((x) => x.address);
 
   // deploy implementation
   logger.out("Deploying implementation...");
-  const charityApplicationsFactory = new CharityApplications__factory(proxyAdmin);
+  const charityApplicationsFactory = new CharityApplications__factory(deployer);
   const charityApplications = await charityApplicationsFactory.deploy();
   await charityApplications.deployed();
   logger.out(`Address: ${charityApplications.address}`);
@@ -25,7 +31,7 @@ export async function deployCharityApplications(
   // deploy proxy
   logger.out("Deploying proxy...");
   const initData = charityApplications.interface.encodeFunctionData("initializeApplications", [
-    apTeamMultisigOwners.map((x) => x.address),
+    owners,
     config.CHARITY_APPLICATIONS_DATA.threshold,
     config.CHARITY_APPLICATIONS_DATA.requireExecution,
     config.CHARITY_APPLICATIONS_DATA.transactionExpiry,
@@ -35,10 +41,10 @@ export async function deployCharityApplications(
     seedAsset,
     config.CHARITY_APPLICATIONS_DATA.seedAmount,
   ]);
-  const proxyFactory = new ProxyContract__factory(proxyAdmin);
+  const proxyFactory = new ProxyContract__factory(deployer);
   const charityApplicationsProxy = await proxyFactory.deploy(
     charityApplications.address,
-    proxyAdmin.address,
+    proxyAdmin,
     initData
   );
   await charityApplicationsProxy.deployed();
