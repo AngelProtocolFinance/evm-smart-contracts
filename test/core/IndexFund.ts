@@ -12,7 +12,6 @@ import hre from "hardhat";
 import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
 import {DEFAULT_CHARITY_ENDOWMENT, DEFAULT_REGISTRAR_CONFIG, wait} from "test/utils";
 import {
-  AccountsDepositWithdrawEndowments,
   AccountsDepositWithdrawEndowments__factory,
   DummyWMATIC,
   DummyWMATIC__factory,
@@ -26,7 +25,7 @@ import {
   TestFacetProxyContract,
 } from "typechain-types";
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
-import {getProxyAdminOwner, getSigners, structToObject} from "utils";
+import {getProxyAdminOwner, getSigners} from "utils";
 
 describe("IndexFund", function () {
   const {ethers} = hre;
@@ -43,6 +42,8 @@ describe("IndexFund", function () {
 
   let state: TestFacetProxyContract;
   let indexFund: IndexFund;
+
+  let nextFundId = 1;
 
   async function deployIndexFundAsProxy(
     registrarContract = registrar.address,
@@ -112,9 +113,11 @@ describe("IndexFund", function () {
     let endowment = DEFAULT_CHARITY_ENDOWMENT;
     await wait(state.setEndowmentDetails(nextAccountId, endowment));
 
+    nextAccountId++;
+
     // #3 - A non-closing endowment
     await wait(
-      state.setClosingEndowmentState(++nextAccountId, false, {
+      state.setClosingEndowmentState(nextAccountId, false, {
         data: {endowId: 0, addr: ethers.constants.AddressZero},
         enumData: 0,
       })
@@ -149,19 +152,37 @@ describe("IndexFund", function () {
     };
     registrar.queryConfig.returns(registrarConfig);
     registrar.isTokenAccepted.whenCalledWith(token.address).returns(true);
+
+    let currTime = await time.latest();
+    // create 1 active, non-rotating fund
+    await wait(
+      indexFund.createIndexFund(`Test Fund #${nextFundId++}`, "Test fund", [2, 3], false, 50, 0)
+    );
+    // create 1 expired, non-rotating fund
+    await wait(
+      indexFund.createIndexFund(
+        `Test Fund #${nextFundId++}`,
+        "Test fund",
+        [2, 3],
+        false,
+        50,
+        currTime + 42069
+      )
+    );
+    await time.increase(42069); // move time forward so Fund #2 is @ expiry
+  });
+
+  let snapshot: SnapshotRestorer;
+
+  beforeEach(async () => {
+    snapshot = await takeSnapshot();
+  });
+
+  afterEach(async () => {
+    await snapshot.restore();
   });
 
   describe("Deploying the contract", function () {
-    let localSnapshot: SnapshotRestorer;
-
-    beforeEach(async () => {
-      localSnapshot = await takeSnapshot();
-    });
-
-    afterEach(async () => {
-      await localSnapshot.restore();
-    });
-
     it("Deploying the contract as an upgradable proxy", async function () {
       const proxy = await deployIndexFundAsProxy();
       const facet = IndexFund__factory.connect(proxy.address, owner);
@@ -193,6 +214,9 @@ describe("IndexFund", function () {
     });
 
     it("should have correct starting state values", async function () {
+      const proxy = await deployIndexFundAsProxy();
+      const indexFund = IndexFund__factory.connect(proxy.address, owner);
+
       let state = await indexFund.queryState();
       expect(state.roundDonations).to.equal(0);
       expect(state.activeFund).to.equal(0);
@@ -204,16 +228,6 @@ describe("IndexFund", function () {
   });
 
   describe("Updating the Config", function () {
-    let localSnapshot: SnapshotRestorer;
-
-    beforeEach(async () => {
-      localSnapshot = await takeSnapshot();
-    });
-
-    afterEach(async () => {
-      await localSnapshot.restore();
-    });
-
     it("reverts when the message sender is not the owner", async function () {
       await expect(
         indexFund.connect(user).updateConfig(registrar.address, 0, 5000)
@@ -247,16 +261,6 @@ describe("IndexFund", function () {
   });
 
   describe("Creating a new Fund", function () {
-    let localSnapshot: SnapshotRestorer;
-
-    beforeEach(async () => {
-      localSnapshot = await takeSnapshot();
-    });
-
-    afterEach(async () => {
-      await localSnapshot.restore();
-    });
-
     it("reverts when the message sender is not the owner", async function () {
       await expect(
         indexFund.connect(user).createIndexFund("Test Fund #1", "Test fund", [1, 2], false, 0, 0)
@@ -296,12 +300,15 @@ describe("IndexFund", function () {
     });
 
     it("passes when all inputs are correct", async function () {
+      const expectedFundId = nextFundId;
       // create a new fund with two Endowment members
-      await expect(indexFund.createIndexFund("Test Fund #1", "Test fund", [1, 2], true, 0, 0))
+      await expect(
+        indexFund.createIndexFund(`Test Fund #${expectedFundId}`, "Test fund", [1, 2], true, 0, 0)
+      )
         .to.emit(indexFund, "FundCreated")
-        .withArgs(1);
+        .withArgs(expectedFundId);
       let activeFund = await indexFund.queryActiveFundDetails();
-      expect(activeFund.id).to.equal(1);
+      expect(activeFund.id).to.equal(expectedFundId);
 
       // check that the list of rotating funds has a length of 1
       let rotatingFunds = await indexFund.queryRotatingFunds();
@@ -310,7 +317,14 @@ describe("IndexFund", function () {
       // create 1 expired fund
       let currTime = await time.latest();
       await expect(
-        indexFund.createIndexFund("Test Fund #2", "Test fund", [3], true, 50, currTime + 42069)
+        indexFund.createIndexFund(
+          `Test Fund #${expectedFundId} (expired)`,
+          "Test fund",
+          [3],
+          true,
+          50,
+          currTime + 42069
+        )
       ).to.not.be.reverted;
       await time.increase(42069); // move time forward so Fund #2 is @ expiry
 
@@ -321,32 +335,6 @@ describe("IndexFund", function () {
   });
 
   describe("Updating an existing Fund's endowment members", function () {
-    let localSnapshot: SnapshotRestorer;
-    let rootSnapshot: SnapshotRestorer;
-
-    before(async function () {
-      rootSnapshot = await takeSnapshot();
-      // create 2 funds (1 active and 1 expired)
-      let currTime = await time.latest();
-      await wait(indexFund.createIndexFund("Test Fund #1", "Test fund", [2, 3], true, 50, 0));
-      await wait(
-        indexFund.createIndexFund("Test Fund #2", "Test fund", [3], false, 50, currTime + 42069)
-      );
-      await time.increase(42069); // move time forward so Fund #2 is @ expiry
-    });
-
-    beforeEach(async () => {
-      localSnapshot = await takeSnapshot();
-    });
-
-    afterEach(async () => {
-      await localSnapshot.restore();
-    });
-
-    after(async () => {
-      await rootSnapshot.restore();
-    });
-
     it("reverts when the message sender is not the owner", async function () {
       await expect(indexFund.connect(user).updateFundMembers(1, [1, 2], [])).to.be.revertedWith(
         "Ownable: caller is not the owner"
@@ -381,33 +369,6 @@ describe("IndexFund", function () {
   });
 
   describe("Removing an existing Fund", function () {
-    let localSnapshot: SnapshotRestorer;
-    let rootSnapshot: SnapshotRestorer;
-
-    before(async function () {
-      rootSnapshot = await takeSnapshot();
-
-      // create 2 funds (1 active and 1 expired)
-      let currTime = await time.latest();
-      await wait(indexFund.createIndexFund("Test Fund #1", "Test fund", [2, 3], true, 50, 0));
-      await wait(
-        indexFund.createIndexFund("Test Fund #2", "Test fund", [3], false, 50, currTime + 42069)
-      );
-      await time.increase(42069); // move time forward so Fund #2 is @ expiry
-    });
-
-    beforeEach(async () => {
-      localSnapshot = await takeSnapshot();
-    });
-
-    afterEach(async () => {
-      await localSnapshot.restore();
-    });
-
-    after(async () => {
-      await rootSnapshot.restore();
-    });
-
     it("reverts when the message sender is not the owner", async function () {
       await expect(indexFund.connect(user).removeIndexFund(1)).to.be.revertedWith(
         "Ownable: caller is not the owner"
@@ -424,33 +385,6 @@ describe("IndexFund", function () {
   });
 
   describe("Removing an endowment from all involved Funds", function () {
-    let localSnapshot: SnapshotRestorer;
-    let rootSnapshot: SnapshotRestorer;
-
-    before(async function () {
-      rootSnapshot = await takeSnapshot();
-
-      // create 2 funds (1 active and 1 expired)
-      let currTime = await time.latest();
-      await wait(indexFund.createIndexFund("Test Fund #1", "Test fund", [2, 3], true, 50, 0));
-      await wait(
-        indexFund.createIndexFund("Test Fund #2", "Test fund", [3], false, 50, currTime + 42069)
-      );
-      await time.increase(42069); // move time forward so Fund #2 is @ expiry
-    });
-
-    beforeEach(async () => {
-      localSnapshot = await takeSnapshot();
-    });
-
-    afterEach(async () => {
-      await localSnapshot.restore();
-    });
-
-    after(async () => {
-      await rootSnapshot.restore();
-    });
-
     it("reverts when the message sender is not the accounts contract", async function () {
       await expect(indexFund.removeMember(1)).to.be.revertedWith("Unauthorized");
     });
@@ -479,34 +413,6 @@ describe("IndexFund", function () {
   });
 
   describe("When a user deposits tokens to a Fund", function () {
-    let localSnapshot: SnapshotRestorer;
-    let rootSnapshot: SnapshotRestorer;
-
-    before(async function () {
-      rootSnapshot = await takeSnapshot();
-
-      let currTime = await time.latest();
-      // create 1 active, non-rotating fund
-      await wait(indexFund.createIndexFund("Test Fund #1", "Test fund", [2, 3], false, 50, 0));
-      // create 1 expired, non-rotating fund
-      await wait(
-        indexFund.createIndexFund("Test Fund #2", "Test fund", [2, 3], false, 50, currTime + 42069)
-      );
-      await time.increase(42069); // move time forward so Fund #2 is @ expiry
-    });
-
-    beforeEach(async () => {
-      localSnapshot = await takeSnapshot();
-    });
-
-    afterEach(async () => {
-      await localSnapshot.restore();
-    });
-
-    after(async () => {
-      await rootSnapshot.restore();
-    });
-
     it("reverts when amount is zero", async function () {
       await expect(indexFund.depositERC20(1, token.address, 0)).to.be.revertedWith(
         "Amount to donate must be greater than zero"
