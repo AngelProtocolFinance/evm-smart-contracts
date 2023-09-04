@@ -73,12 +73,12 @@ task("manage:CharityApplications:updateConfig", "Will update CharityApplications
       // update config
       logger.out("Updating config...");
       const data = charityApplications.interface.encodeFunctionData("updateConfig", [
-        toUpdate.expiry || transactionExpiry,
+        toUpdate.expiry ?? transactionExpiry,
         toUpdate.accountsDiamond || curConfig.accountsContract,
-        toUpdate.seedSplitToLiquid || curConfig.seedSplitToLiquid,
-        toUpdate.gasAmount || curConfig.gasAmount,
+        toUpdate.seedSplitToLiquid ?? curConfig.seedSplitToLiquid,
+        toUpdate.gasAmount ?? curConfig.gasAmount,
         toUpdate.seedAsset || curConfig.seedAsset,
-        toUpdate.seedAmount || curConfig.seedAmount,
+        toUpdate.seedAmount ?? curConfig.seedAmount,
       ]);
       const isExecuted = await submitMultiSigTx(
         charityApplications.address,

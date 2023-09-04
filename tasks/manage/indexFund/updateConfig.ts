@@ -50,8 +50,8 @@ task("manage:IndexFund:updateConfig", "Will update the config of the IndexFund")
       logger.out("Updating config...");
       const data = indexFund.interface.encodeFunctionData("updateConfig", [
         newConfig.registrarContract || curConfig.registrarContract,
-        newConfig.fundRotation || curConfig.fundRotation,
-        newConfig.fundingGoal || curConfig.fundingGoal,
+        newConfig.fundRotation ?? curConfig.fundRotation,
+        newConfig.fundingGoal ?? curConfig.fundingGoal,
       ]);
 
       const isExecuted = await submitMultiSigTx(
