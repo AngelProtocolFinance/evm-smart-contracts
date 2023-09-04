@@ -1,6 +1,5 @@
 import config from "config";
 import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
-import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task} from "hardhat/config";
 import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
 
@@ -84,16 +83,10 @@ task(
         yes: true,
       });
 
-      const router = await deployRouter(
-        registrar.proxy.address,
-        addresses.multiSig.proxyAdmin,
-        deployer,
-        hre
-      );
-
-      // Registrar NetworkInfo's Router address must be updated for the current network
-      await hre.run("manage:registrar:updateNetworkConnections", {
+      // Updates newly deployed Registrar's Router address
+      await hre.run("deploy:Router", {
         apTeamSignerPkey: taskArgs.apTeamSignerPkey,
+        skipVerify: taskArgs.skipVerify,
         yes: true,
       });
 
@@ -117,10 +110,6 @@ task(
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
         await verify(hre, registrar.implementation);
         await verify(hre, registrar.proxy);
-        if (router) {
-          await verify(hre, router.implementation);
-          await verify(hre, router.proxy);
-        }
       }
     } catch (error) {
       logger.out(error, logger.Level.Error);
