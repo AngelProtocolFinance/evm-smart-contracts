@@ -1,5 +1,6 @@
 import {task, types} from "hardhat/config";
-import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
+import {submitMultiSigTx} from "tasks/helpers";
+import {Registrar__factory} from "typechain-types";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
 import {
   AddressObj,
@@ -69,26 +70,22 @@ task("manage:registrar:updateNetworkConnections")
       logger.out("Submitting Tx to APTeamMultiSig...");
       const apTeamOwner = await getAPTeamOwner(hre, taskArgs.apTeamSignerPkey);
 
-      const apTeamMultisigContract = APTeamMultiSig__factory.connect(
-        addresses.multiSig.apTeam.proxy,
-        apTeamOwner
-      );
       const updateNetworkConnectionsData = registrar.interface.encodeFunctionData(
         "updateNetworkConnections",
         [networkName, newNetworkConnection, NetworkConnectionAction.POST]
       );
-      const tx = await apTeamMultisigContract.submitTransaction(
+      const isExecuted = await submitMultiSigTx(
+        addresses.multiSig.apTeam.proxy,
+        apTeamOwner,
         registrar.address,
-        0,
-        updateNetworkConnectionsData,
-        "0x"
+        updateNetworkConnectionsData
       );
-      logger.out(`Tx hash: ${tx.hash}`);
-      await tx.wait();
 
-      logger.out("Updated network connection data:");
-      const newStruct = await registrar.queryNetworkConnection(networkName);
-      logger.out(JSON.stringify(structToObject(newStruct), undefined, 2));
+      if (isExecuted) {
+        const newStruct = await registrar.queryNetworkConnection(networkName);
+        logger.out("Updated network connection data:");
+        logger.out(JSON.stringify(structToObject(newStruct), undefined, 2));
+      }
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }

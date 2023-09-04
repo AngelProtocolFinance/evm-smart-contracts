@@ -1,5 +1,6 @@
 import {task, types} from "hardhat/config";
-import {APTeamMultiSig__factory, IndexFund__factory} from "typechain-types";
+import {submitMultiSigTx} from "tasks/helpers";
+import {IndexFund__factory} from "typechain-types";
 import {confirmAction, getAPTeamOwner, getAddresses, logger, structToObject} from "utils";
 
 type TaskArgs = {
@@ -33,9 +34,8 @@ task("manage:IndexFund:updateConfig", "Will update the config of the IndexFund")
 
       logger.out("Querying current IndexFund registrar...");
       const indexFund = IndexFund__factory.connect(addresses.indexFund.proxy, apTeamOwner);
-      const struct = await indexFund.queryConfig();
-      const curConfig = structToObject(struct);
-      logger.out(curConfig);
+      const curConfig = await indexFund.queryConfig();
+      logger.out(structToObject(curConfig));
 
       logger.out("Config data to update:");
       logger.out(newConfig);
@@ -48,22 +48,24 @@ task("manage:IndexFund:updateConfig", "Will update the config of the IndexFund")
       }
 
       logger.out("Updating config...");
-      const apTeamMultiSig = APTeamMultiSig__factory.connect(
-        addresses.multiSig.apTeam.proxy, // ensure connection to current owning APTeamMultiSig contract
-        apTeamOwner
-      );
       const data = indexFund.interface.encodeFunctionData("updateConfig", [
         newConfig.registrarContract || curConfig.registrarContract,
         newConfig.fundRotation || curConfig.fundRotation,
         newConfig.fundingGoal || curConfig.fundingGoal,
       ]);
-      const tx = await apTeamMultiSig.submitTransaction(indexFund.address, 0, data, "0x");
-      logger.out(`Tx hash: ${tx.hash}`);
-      await tx.wait();
 
-      logger.out("New config:");
-      const updatedConfig = await indexFund.queryConfig();
-      logger.out(structToObject(updatedConfig));
+      const isExecuted = await submitMultiSigTx(
+        addresses.multiSig.apTeam.proxy,
+        apTeamOwner,
+        indexFund.address,
+        data
+      );
+
+      if (isExecuted) {
+        logger.out("New config:");
+        const updatedConfig = await indexFund.queryConfig();
+        logger.out(structToObject(updatedConfig));
+      }
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }

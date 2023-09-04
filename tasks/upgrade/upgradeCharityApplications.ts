@@ -1,9 +1,6 @@
 import {task} from "hardhat/config";
-import {
-  CharityApplications__factory,
-  ITransparentUpgradeableProxy__factory,
-  ProxyAdminMultiSig__factory,
-} from "typechain-types";
+import {submitMultiSigTx} from "tasks/helpers";
+import {CharityApplications__factory, ITransparentUpgradeableProxy__factory} from "typechain-types";
 import {
   confirmAction,
   getAddresses,
@@ -51,25 +48,19 @@ task("upgrade:CharityApplications", "Will upgrade the implementation of CharityA
 
       // upgrade proxy
       logger.out("Upgrading proxy...");
-      const charityApplicationsProxy = ITransparentUpgradeableProxy__factory.connect(
-        addresses.multiSig.charityApplications.proxy,
-        deployer
+      const payload = ITransparentUpgradeableProxy__factory.createInterface().encodeFunctionData(
+        "upgradeTo",
+        [charityApplications.address]
       );
-      const proxyAdminMultisig = ProxyAdminMultiSig__factory.connect(
+      const isExecuted = await submitMultiSigTx(
         addresses.multiSig.proxyAdmin,
-        proxyAdminOwner
+        proxyAdminOwner,
+        addresses.multiSig.charityApplications.proxy,
+        payload
       );
-      const payload = charityApplicationsProxy.interface.encodeFunctionData("upgradeTo", [
-        charityApplications.address,
-      ]);
-      const tx = await proxyAdminMultisig.submitTransaction(
-        charityApplicationsProxy.address,
-        0,
-        payload,
-        "0x"
-      );
-      logger.out(`Tx hash: ${tx.hash}`);
-      await tx.wait();
+      if (!isExecuted) {
+        return;
+      }
 
       // update address & verify
       await updateAddresses(

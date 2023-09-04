@@ -1,5 +1,6 @@
 import {task} from "hardhat/config";
-import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
+import {submitMultiSigTx} from "tasks/helpers";
+import {Registrar__factory} from "typechain-types";
 import {confirmAction, getAPTeamOwner, getAddresses, logger} from "utils";
 
 type TaskArgs = {to: string; apTeamSignerPkey?: string; yes: boolean};
@@ -41,16 +42,17 @@ task("manage:registrar:transferOwnership")
 
       logger.out(`Transferring ownership to: ${newOwner}...`);
       const data = registrar.interface.encodeFunctionData("transferOwnership", [newOwner]);
-      const apTeamMultiSig = APTeamMultiSig__factory.connect(
+      const isExecuted = await submitMultiSigTx(
         curOwner, // ensure connection to current owning APTeamMultiSig contract
-        apTeamOwner
+        apTeamOwner,
+        registrar.address,
+        data
       );
-      const tx = await apTeamMultiSig.submitTransaction(registrar.address, 0, data, "0x");
-      logger.out(`Tx hash: ${tx.hash}`);
-      await tx.wait();
 
-      const updatedOwner = await registrar.owner();
-      logger.out(`New owner: ${updatedOwner}`);
+      if (isExecuted) {
+        const updatedOwner = await registrar.owner();
+        logger.out(`New owner: ${updatedOwner}`);
+      }
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }

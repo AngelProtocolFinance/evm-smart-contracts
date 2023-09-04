@@ -1,5 +1,6 @@
 import {BytesLike} from "ethers";
 import {task} from "hardhat/config";
+import {submitMultiSigTx} from "tasks/helpers";
 import {IndexFund__factory, MultiSigGeneric__factory} from "typechain-types";
 import {getAPTeamOwner, getAddresses, logger} from "utils";
 
@@ -31,21 +32,12 @@ task("manage:createIndexFund", "Will create a new index fund")
       );
       let txData: BytesLike = data!;
 
-      let submission = await multisig.submitTransaction(indexfund.address, 0, txData, "0x");
-      logger.out(`Tx hash: ${submission.hash}`);
-      await submission.wait();
-
-      let txId = (await multisig.transactionCount()).sub(1);
-      let confirmations = await multisig.confirmations(txId);
-      logger.out(confirmations);
-
-      let execution = await multisig.executeTransaction(txId);
-      logger.out(`Tx hash: ${execution.hash}`);
-      await execution.wait();
-      logger.out(execution);
-
-      let txDetails = await multisig.transactions(txId);
-      logger.out(txDetails);
+      await submitMultiSigTx(
+        addresses.multiSig.apTeam.proxy,
+        apTeamOwner,
+        indexfund.address,
+        txData
+      );
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }

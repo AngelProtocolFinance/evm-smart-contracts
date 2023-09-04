@@ -1,12 +1,11 @@
 import {task} from "hardhat/config";
+import {submitMultiSigTx} from "tasks/helpers";
 import {
   EndowmentMultiSigEmitter__factory,
   ITransparentUpgradeableProxy__factory,
-  ProxyAdminMultiSig__factory,
 } from "typechain-types";
 import {
   confirmAction,
-  connectSignerFromPkey,
   getAddresses,
   getContractName,
   getProxyAdminOwner,
@@ -54,18 +53,19 @@ task(
       logger.out(`Address: ${emitter.address}`);
 
       logger.out("Upgrading proxy...");
-      const proxyAdminMultisig = ProxyAdminMultiSig__factory.connect(
+      const payload = ITransparentUpgradeableProxy__factory.createInterface().encodeFunctionData(
+        "upgradeTo",
+        [emitter.address]
+      );
+      const isExecuted = await submitMultiSigTx(
         addresses.multiSig.proxyAdmin,
-        proxyAdminOwner
-      );
-      const emitterProxy = ITransparentUpgradeableProxy__factory.connect(
+        proxyAdminOwner,
         addresses.multiSig.endowment.emitter.proxy,
-        deployer
+        payload
       );
-      const payload = emitterProxy.interface.encodeFunctionData("upgradeTo", [emitter.address]);
-      const tx = await proxyAdminMultisig.submitTransaction(emitterProxy.address, 0, payload, "0x");
-      logger.out(`Tx hash: ${tx.hash}`);
-      await tx.wait();
+      if (!isExecuted) {
+        return;
+      }
 
       await updateAddresses(
         {

@@ -1,5 +1,6 @@
 import {task, types} from "hardhat/config";
-import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
+import {submitMultiSigTx} from "tasks/helpers";
+import {Registrar__factory} from "typechain-types";
 import {RegistrarMessages} from "typechain-types/contracts/core/registrar/Registrar";
 import {confirmAction, getAPTeamOwner, getAddresses, logger, structToObject} from "utils";
 
@@ -143,22 +144,18 @@ task("manage:registrar:updateConfig", "Will update Accounts Diamond config")
           ...updateConfigRequest,
         },
       ]);
-      const apTeamMultisigContract = APTeamMultiSig__factory.connect(
+      const isExecuted = await submitMultiSigTx(
         addresses.multiSig.apTeam.proxy,
-        apTeamOwner
-      );
-      const tx = await apTeamMultisigContract.submitTransaction(
+        apTeamOwner,
         addresses.registrar.proxy,
-        0,
-        updateConfigData,
-        "0x"
+        updateConfigData
       );
-      logger.out(`Tx hash: ${tx.hash}`);
-      await tx.wait();
 
-      logger.out("New config:");
-      const newStruct = await registrarContract.queryConfig();
-      logger.out(structToObject(newStruct));
+      if (isExecuted) {
+        const newStruct = await registrarContract.queryConfig();
+        logger.out("New config:");
+        logger.out(structToObject(newStruct));
+      }
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }

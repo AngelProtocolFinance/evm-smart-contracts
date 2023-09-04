@@ -1,9 +1,6 @@
 import {task} from "hardhat/config";
-import {
-  APTeamMultiSig__factory,
-  AccountsQueryEndowments__factory,
-  AccountsUpdate__factory,
-} from "typechain-types";
+import {submitMultiSigTx} from "tasks/helpers";
+import {AccountsQueryEndowments__factory, AccountsUpdate__factory} from "typechain-types";
 import {confirmAction, getAPTeamOwner, getAddresses, logger, structToObject} from "utils";
 
 type TaskArgs = {
@@ -35,7 +32,7 @@ task("manage:accounts:updateConfig", "Will update Accounts Diamond config")
         apTeamOwner
       );
       const curConfig = await accountsQueryEndowments.queryConfig();
-      logger.out(structToObject(curConfig));
+      logger.out(JSON.stringify(structToObject(curConfig), undefined, 2));
 
       logger.out("Config data to update:");
       logger.out({registrarContract: taskArgs.registrarContract});
@@ -53,13 +50,19 @@ task("manage:accounts:updateConfig", "Will update Accounts Diamond config")
       const data = accountsUpdate.interface.encodeFunctionData("updateConfig", [
         taskArgs.registrarContract || curConfig.registrarContract,
       ]);
-      const apTeamMultiSig = APTeamMultiSig__factory.connect(
+
+      const isExecuted = await submitMultiSigTx(
         curConfig.owner, // ensure connection to current owning APTeamMultiSig contract
-        apTeamOwner
+        apTeamOwner,
+        addresses.accounts.diamond,
+        data
       );
-      const tx = await apTeamMultiSig.submitTransaction(addresses.accounts.diamond, 0, data, "0x");
-      logger.out(`Tx hash: ${tx.hash}`);
-      await tx.wait();
+
+      if (isExecuted) {
+        const newConfig = await accountsQueryEndowments.queryConfig();
+        logger.out("New config:");
+        logger.out(JSON.stringify(structToObject(newConfig), undefined, 2));
+      }
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }

@@ -7,7 +7,7 @@ import {TypedEvent, TypedEventFilter} from "typechain-types/common";
  * Finds the events that match the specified filter, and
  * returns these parsed and mapped to the appropriate type
  */
-export function getEvents<TArgsArray extends any[], TArgsObject>(
+export function filterEvents<TArgsArray extends any[], TArgsObject>(
   events: Event[] = [],
   contract: BaseContract,
   eventFilter: TypedEventFilter<TypedEvent<TArgsArray, TArgsObject>>

@@ -1,5 +1,6 @@
 import {task} from "hardhat/config";
-import {APTeamMultiSig__factory, GasFwdFactory__factory} from "typechain-types";
+import {submitMultiSigTx} from "tasks/helpers";
+import {GasFwdFactory__factory} from "typechain-types";
 import {confirmAction, getAPTeamOwner, getAddresses, logger} from "utils";
 
 type TaskArgs = {newRegistrar: string; apTeamSignerPkey?: string; yes: boolean};
@@ -41,17 +42,19 @@ task(
       }
 
       logger.out(`Updating Registrar address to: ${newRegistrar}...`);
-      const apTeamMultiSig = APTeamMultiSig__factory.connect(
-        addresses.multiSig.apTeam.proxy, // ensure connection to current owning APTeamMultiSig contract
-        apTeamOwner
-      );
-      const payload = gasFwdFactory.interface.encodeFunctionData("updateRegistrar", [newRegistrar]);
-      const tx = await apTeamMultiSig.submitTransaction(gasFwdFactory.address, 0, payload, "0x");
-      logger.out(`Tx hash: ${tx.hash}`);
-      await tx.wait();
+      const data = gasFwdFactory.interface.encodeFunctionData("updateRegistrar", [newRegistrar]);
 
-      const updatedRegistrar = await gasFwdFactory.registrar();
-      logger.out(`New registrar: ${updatedRegistrar}`);
+      const isExecuted = await submitMultiSigTx(
+        addresses.multiSig.apTeam.proxy,
+        apTeamOwner,
+        gasFwdFactory.address,
+        data
+      );
+
+      if (isExecuted) {
+        const updatedRegistrar = await gasFwdFactory.registrar();
+        logger.out(`New registrar: ${updatedRegistrar}`);
+      }
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }

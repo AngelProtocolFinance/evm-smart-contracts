@@ -1,9 +1,6 @@
 import {task} from "hardhat/config";
-import {
-  EndowmentMultiSig__factory,
-  EndowmentMultiSigFactory__factory,
-  ProxyAdminMultiSig__factory,
-} from "typechain-types";
+import {submitMultiSigTx} from "tasks/helpers";
+import {EndowmentMultiSig__factory, EndowmentMultiSigFactory__factory} from "typechain-types";
 import {
   confirmAction,
   getAddresses,
@@ -64,22 +61,26 @@ task(
         EndowmentMultiSigFactoryAddress,
         proxyAdminOwner
       );
-      const proxyAdminMultisig = ProxyAdminMultiSig__factory.connect(
-        addresses.multiSig.proxyAdmin,
-        proxyAdminOwner
-      );
       const payload = endowmentMultiSigFactory.interface.encodeFunctionData(
         "updateImplementation",
         [contract.address]
       );
-      const tx = await proxyAdminMultisig.submitTransaction(
-        EndowmentMultiSigFactoryAddress,
-        0,
-        payload,
-        "0x"
+      const isExecuted = await submitMultiSigTx(
+        addresses.multiSig.proxyAdmin,
+        proxyAdminOwner,
+        endowmentMultiSigFactory.address,
+        payload
       );
-      logger.out(`Tx hash: ${tx.hash}`);
-      await tx.wait();
+      if (!isExecuted) {
+        return;
+      }
+
+      const newImplAddr = await endowmentMultiSigFactory.implementationAddress();
+      if (newImplAddr !== contract.address) {
+        throw new Error(
+          `Unexpected: expected EndowmentMultiSigFactory.implementationAddress value "${contract.address}", but got "${newImplAddr}"`
+        );
+      }
 
       await updateAddresses({multiSig: {endowment: {implementation: contract.address}}}, hre);
 
