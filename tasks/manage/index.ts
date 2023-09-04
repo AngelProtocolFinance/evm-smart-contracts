@@ -1,5 +1,5 @@
 import "./accounts";
-import "./addMultisigOwner";
+import "./addMultisigOwners";
 import "./changeAdmin";
 import "./charityApplications";
 import "./createEndowment";

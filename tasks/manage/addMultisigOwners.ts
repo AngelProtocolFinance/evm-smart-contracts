@@ -5,14 +5,14 @@ import {confirmAction, connectSignerFromPkey, logger} from "utils";
 
 type TaskArgs = {
   multisig: string;
-  owner: string;
+  owners: string[];
   multisigOwnerPkey: string;
   yes: boolean;
 };
 
-task("manage:addMultisigOwner", "Will add the specified address to the multisig as an owner")
+task("manage:addMultisigOwners", "Will add the specified address to the multisig as an owner")
   .addParam("multisig", "Address of multisig")
-  .addParam("owner", "Address of the new owner")
+  .addVariadicPositionalParam("owners", "Addresses of new owners")
   .addParam("multisigOwnerPkey", "Private Key for a valid Multisig Owner.")
   .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArguments: TaskArgs, hre) => {
@@ -29,18 +29,10 @@ task("manage:addMultisigOwner", "Will add the specified address to the multisig 
 
       const multisig = MultiSigGeneric__factory.connect(taskArguments.multisig, msOwner);
 
-      const alreadyOwner = await multisig.isOwner(taskArguments.owner);
-      if (alreadyOwner) {
-        return logger.out(
-          `Account with address ${taskArguments.owner} is already an owner`,
-          logger.Level.Warn
-        );
-      }
-
-      logger.out("Adding new owner:");
-      logger.out(taskArguments.owner);
+      logger.out("Adding new owners:");
+      logger.out(taskArguments.owners);
       const addOwnerData = multisig.interface.encodeFunctionData("addOwners", [
-        [taskArguments.owner],
+        taskArguments.owners,
       ]);
 
       const isExecuted = await submitMultiSigTx(
@@ -54,11 +46,12 @@ task("manage:addMultisigOwner", "Will add the specified address to the multisig 
         return;
       }
 
-      const isOwner = await multisig.isOwner(taskArguments.owner);
-      if (!isOwner) {
-        throw new Error("Unexpected: adding new owner failed");
+      for (let owner of taskArguments.owners) {
+        const isOwner = await multisig.isOwner(owner);
+        if (!isOwner) {
+          throw new Error("Unexpected: adding new owner failed");
+        }
       }
-      logger.out(`Account with address ${taskArguments.owner} is now one of the owners.`);
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }
