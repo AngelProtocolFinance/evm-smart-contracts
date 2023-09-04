@@ -153,17 +153,17 @@ describe("IndexFund", function () {
     registrar.isTokenAccepted.whenCalledWith(token.address).returns(true);
   });
 
+  let snapshot: SnapshotRestorer;
+
+  beforeEach(async () => {
+    snapshot = await takeSnapshot();
+  });
+
+  afterEach(async () => {
+    await snapshot.restore();
+  });
+
   describe("Deploying the contract", function () {
-    let localSnapshot: SnapshotRestorer;
-
-    beforeEach(async () => {
-      localSnapshot = await takeSnapshot();
-    });
-
-    afterEach(async () => {
-      await localSnapshot.restore();
-    });
-
     it("Deploying the contract as an upgradable proxy", async function () {
       const proxy = await deployIndexFundAsProxy();
       const facet = IndexFund__factory.connect(proxy.address, owner);
@@ -206,16 +206,6 @@ describe("IndexFund", function () {
   });
 
   describe("Updating the Config", function () {
-    let localSnapshot: SnapshotRestorer;
-
-    beforeEach(async () => {
-      localSnapshot = await takeSnapshot();
-    });
-
-    afterEach(async () => {
-      await localSnapshot.restore();
-    });
-
     it("reverts when the message sender is not the owner", async function () {
       await expect(
         indexFund.connect(user).updateConfig(registrar.address, 0, 5000)
@@ -249,16 +239,6 @@ describe("IndexFund", function () {
   });
 
   describe("Creating a new Fund", function () {
-    let localSnapshot: SnapshotRestorer;
-
-    beforeEach(async () => {
-      localSnapshot = await takeSnapshot();
-    });
-
-    afterEach(async () => {
-      await localSnapshot.restore();
-    });
-
     it("reverts when the message sender is not the owner", async function () {
       await expect(
         indexFund.connect(user).createIndexFund("Test Fund #1", "Test fund", [1, 2], false, 0, 0)
@@ -323,7 +303,6 @@ describe("IndexFund", function () {
   });
 
   describe("Updating an existing Fund's endowment members", function () {
-    let localSnapshot: SnapshotRestorer;
     let rootSnapshot: SnapshotRestorer;
 
     before(async function () {
@@ -337,14 +316,6 @@ describe("IndexFund", function () {
         indexFund.createIndexFund("Test Fund #2", "Test fund", [2, 3], false, 50, currTime + 42069)
       );
       await time.increase(42069); // move time forward so Fund #2 is @ expiry
-    });
-
-    beforeEach(async () => {
-      localSnapshot = await takeSnapshot();
-    });
-
-    afterEach(async () => {
-      await localSnapshot.restore();
     });
 
     after(async () => {
@@ -385,7 +356,6 @@ describe("IndexFund", function () {
   });
 
   describe("Removing an existing Fund", function () {
-    let localSnapshot: SnapshotRestorer;
     let rootSnapshot: SnapshotRestorer;
 
     before(async function () {
@@ -399,14 +369,6 @@ describe("IndexFund", function () {
         indexFund.createIndexFund("Test Fund #2", "Test fund", [2, 3], false, 50, currTime + 42069)
       );
       await time.increase(42069); // move time forward so Fund #2 is @ expiry
-    });
-
-    beforeEach(async () => {
-      localSnapshot = await takeSnapshot();
-    });
-
-    afterEach(async () => {
-      await localSnapshot.restore();
     });
 
     after(async () => {
@@ -429,7 +391,6 @@ describe("IndexFund", function () {
   });
 
   describe("Removing an endowment from all involved Funds", function () {
-    let localSnapshot: SnapshotRestorer;
     let rootSnapshot: SnapshotRestorer;
 
     before(async function () {
@@ -443,14 +404,6 @@ describe("IndexFund", function () {
         indexFund.createIndexFund("Test Fund #2", "Test fund", [2, 3], false, 50, currTime + 42069)
       );
       await time.increase(42069); // move time forward so Fund #2 is @ expiry
-    });
-
-    beforeEach(async () => {
-      localSnapshot = await takeSnapshot();
-    });
-
-    afterEach(async () => {
-      await localSnapshot.restore();
     });
 
     after(async () => {
@@ -485,7 +438,6 @@ describe("IndexFund", function () {
   });
 
   describe("When a user deposits tokens to a Fund", function () {
-    let localSnapshot: SnapshotRestorer;
     let rootSnapshot: SnapshotRestorer;
 
     before(async function () {
@@ -499,14 +451,6 @@ describe("IndexFund", function () {
         indexFund.createIndexFund("Test Fund #2", "Test fund", [2, 3], false, 50, currTime + 42069)
       );
       await time.increase(42069); // move time forward so Fund #2 is @ expiry
-    });
-
-    beforeEach(async () => {
-      localSnapshot = await takeSnapshot();
-    });
-
-    afterEach(async () => {
-      await localSnapshot.restore();
     });
 
     after(async () => {
@@ -579,7 +523,7 @@ describe("IndexFund", function () {
       );
     });
 
-    it("passes for a specific fund, amount > min & token is valid", async function () {
+    it("passes for a specific rotating fund, amount > min & token is valid", async function () {
       // create 1 active, rotating fund
       const fundId = 3;
       await expect(indexFund.createIndexFund("Test Fund #3", "Test fund", [2, 3], true, 50, 0))
