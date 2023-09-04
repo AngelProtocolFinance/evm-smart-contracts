@@ -7,6 +7,7 @@ import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetP
 import {EndowmentType} from "types";
 import {getProxyAdminOwner, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
+import {SnapshotRestorer, takeSnapshot} from "@nomicfoundation/hardhat-network-helpers";
 
 describe("AccountsUpdate", function () {
   const {ethers} = hre;
@@ -30,9 +31,7 @@ describe("AccountsUpdate", function () {
 
     newRegistrar = await signers.apTeam1.getAddress();
     endowment = {...DEFAULT_CHARITY_ENDOWMENT, owner: await owner.getAddress()};
-  });
 
-  beforeEach(async function () {
     let Facet = new AccountsUpdate__factory(owner);
     let facetImpl = await Facet.deploy();
     state = await deployFacetAsProxy(hre, owner, proxyAdmin, facetImpl.address);
@@ -53,6 +52,16 @@ describe("AccountsUpdate", function () {
     );
 
     facet = AccountsUpdate__factory.connect(state.address, owner);
+  });
+
+  let snapshot: SnapshotRestorer;
+
+  beforeEach(async () => {
+    snapshot = await takeSnapshot();
+  });
+
+  afterEach(async () => {
+    await snapshot.restore();
   });
 
   describe("updateOwner", () => {
