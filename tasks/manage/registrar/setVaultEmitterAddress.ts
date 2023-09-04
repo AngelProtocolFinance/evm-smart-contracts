@@ -1,6 +1,6 @@
 import {task, types} from "hardhat/config";
 import {submitMultiSigTx} from "tasks/helpers";
-import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
+import {Registrar__factory} from "typechain-types";
 import {confirmAction, getAPTeamOwner, getAddresses, logger} from "utils";
 
 type TaskArgs = {vaultEmitter: string; apTeamSignerPkey?: string; yes: boolean};
@@ -15,7 +15,7 @@ task("manage:registrar:setVaultEmitterAddress")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       logger.divider();
-      logger.out(`Updating Registrar's VaultEmitter address to ${taskArgs.vaultEmitter}...`);
+      logger.out(`Updating Registrar's VaultEmitter address...`);
       const addresses = await getAddresses(hre);
 
       const apTeamOwner = await getAPTeamOwner(hre, taskArgs.apTeamSignerPkey);
@@ -27,12 +27,12 @@ task("manage:registrar:setVaultEmitterAddress")
       }
       logger.out(`Current VaultEmitter address: ${currVaultEmitter}`);
 
-      const isConfirmed = taskArgs.yes || (await confirmAction());
+      const isConfirmed =
+        taskArgs.yes || (await confirmAction(`New VaultEmitter address: ${taskArgs.vaultEmitter}`));
       if (!isConfirmed) {
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      logger.out("Updating VaultEmitter address...");
       const updateData = registrar.interface.encodeFunctionData("setVaultEmitterAddress", [
         taskArgs.vaultEmitter,
       ]);
