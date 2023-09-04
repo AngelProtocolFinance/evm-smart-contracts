@@ -63,7 +63,6 @@ task(
 
       await hre.run("manage:registrar:updateConfig", {
         accountsContract: addresses.accounts.diamond,
-        collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare,
         gasFwdFactory: addresses.gasFwd.factory,
         indexFundContract: addresses.indexFund.proxy,
         treasury: treasuryAddress,
