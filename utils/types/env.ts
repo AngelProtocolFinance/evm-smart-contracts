@@ -1,5 +1,3 @@
-export type Signer = {key: string; address: string};
-
 export type EnvConfig = {
   ETHERSCAN_API_KEY: string;
   GANACHE_PRIVATE_KEY: string;

@@ -2,34 +2,15 @@
 import {config as dotenvConfig} from "dotenv";
 import {resolve} from "path";
 import {HardhatNetworkAccountsUserConfig, HardhatNetworkAccountUserConfig} from "hardhat/types";
-import {Signer, EnvConfig} from "./types";
+import {EnvConfig} from "./types";
 
 dotenvConfig({path: resolve(__dirname, "../.env")});
 
-const AP_TEAM_1: Signer = {
-  key: extractString("AP_TEAM_1_KEY"),
-  address: extractString("AP_TEAM_1_ADDRESS"),
-};
-
-const AP_TEAM_2: Signer = {
-  key: extractString("AP_TEAM_2_KEY"),
-  address: extractString("AP_TEAM_2_ADDRESS"),
-};
-
-const AP_TEAM_3: Signer = {
-  key: extractString("AP_TEAM_3_KEY"),
-  address: extractString("AP_TEAM_3_ADDRESS"),
-};
-
-const DEPLOYER: Signer = {
-  key: extractString("DEPLOYER_KEY"),
-  address: extractString("DEPLOYER_ADDRESS"),
-};
-
-const PROXY_ADMIN_DEV: Signer = {
-  key: extractString("PROXY_ADMIN_KEY"),
-  address: extractString("PROXY_ADMIN_ADDRESS"),
-};
+const DEPLOYER_KEY = extractString("DEPLOYER_KEY");
+const PROXY_ADMIN_DEV_KEY = extractString("PROXY_ADMIN_KEY");
+const AP_TEAM_1_KEY = extractString("AP_TEAM_1_KEY");
+const AP_TEAM_2_KEY = extractString("AP_TEAM_2_KEY");
+const AP_TEAM_3_KEY = extractString("AP_TEAM_3_KEY");
 
 const ETHERSCAN_API_KEY = extractString("ETHERSCAN_API_KEY");
 const GOERLI_RPC_URL = extractString("GOERLI_RPC_URL");
@@ -66,7 +47,7 @@ export const envConfigDev: EnvConfig = {
   POLYGON_RPC_URL,
   POLYSCAN_API_KEY,
   // order of account items is important!
-  ACCOUNTS: [DEPLOYER.key, PROXY_ADMIN_DEV.key, AP_TEAM_1.key, AP_TEAM_2.key, AP_TEAM_3.key],
+  ACCOUNTS: [DEPLOYER_KEY, PROXY_ADMIN_DEV_KEY, AP_TEAM_1_KEY, AP_TEAM_2_KEY, AP_TEAM_3_KEY],
 };
 
 export const envConfigProd: EnvConfig = {
@@ -78,5 +59,5 @@ export const envConfigProd: EnvConfig = {
   MUMBAI_RPC_URL,
   POLYGON_RPC_URL,
   POLYSCAN_API_KEY,
-  ACCOUNTS: [DEPLOYER.key, AP_TEAM_1.key, AP_TEAM_2.key, AP_TEAM_3.key],
+  ACCOUNTS: [DEPLOYER_KEY, AP_TEAM_1_KEY, AP_TEAM_2_KEY, AP_TEAM_3_KEY],
 };
