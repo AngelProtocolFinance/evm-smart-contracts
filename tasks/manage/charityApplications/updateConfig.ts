@@ -90,7 +90,8 @@ task("manage:CharityApplications:updateConfig", "Will update CharityApplications
       if (isExecuted) {
         logger.out("New config:");
         const newConfig = await charityApplications.queryConfig();
-        logger.out(structToObject(newConfig));
+        const transactionExpiry = await charityApplications.transactionExpiry();
+        logger.out(structToObject({transactionExpiry, ...newConfig}));
       }
     } catch (error) {
       logger.out(error, logger.Level.Error);
