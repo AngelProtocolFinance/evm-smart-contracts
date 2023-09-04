@@ -18,12 +18,10 @@ import {
 import {AddressObj} from "utils";
 
 // Getting factories instantiated in bulk as they share the deploy/cut creation logic.
-export default async function getFacetFactoryEntries(diamondOwner: SignerWithAddress): Promise<
-  {
-    factory: ContractFactory;
-    addressField: keyof AddressObj["accounts"]["facets"];
-  }[]
-> {
+export default function getFacetFactoryEntries(diamondOwner: SignerWithAddress): {
+  factory: ContractFactory;
+  addressField: keyof AddressObj["accounts"]["facets"];
+}[] {
   return [
     {
       addressField: "accountsUpdate",
