@@ -13,7 +13,6 @@ import hre from "hardhat";
 import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
 import {DEFAULT_CHARITY_ENDOWMENT, DEFAULT_REGISTRAR_CONFIG, wait} from "test/utils";
 import {
-  AccountsDepositWithdrawEndowments,
   AccountsDepositWithdrawEndowments__factory,
   DummyWMATIC,
   DummyWMATIC__factory,
@@ -27,7 +26,7 @@ import {
   TestFacetProxyContract,
 } from "typechain-types";
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
-import {getProxyAdminOwner, getSigners, structToObject} from "utils";
+import {getProxyAdminOwner, getSigners} from "utils";
 
 describe("IndexFund", function () {
   const {ethers} = hre;
@@ -113,9 +112,11 @@ describe("IndexFund", function () {
     let endowment = DEFAULT_CHARITY_ENDOWMENT;
     await wait(state.setEndowmentDetails(nextAccountId, endowment));
 
+    nextAccountId++;
+
     // #3 - A non-closing endowment
     await wait(
-      state.setClosingEndowmentState(++nextAccountId, false, {
+      state.setClosingEndowmentState(nextAccountId, false, {
         data: {endowId: 0, addr: ethers.constants.AddressZero},
         enumData: 0,
       })
@@ -327,11 +328,13 @@ describe("IndexFund", function () {
 
     before(async function () {
       rootSnapshot = await takeSnapshot();
-      // create 2 funds (1 active and 1 expired)
+
       let currTime = await time.latest();
-      await wait(indexFund.createIndexFund("Test Fund #1", "Test fund", [2, 3], true, 50, 0));
+      // create 1 active, non-rotating fund
+      await wait(indexFund.createIndexFund("Test Fund #1", "Test fund", [2, 3], false, 50, 0));
+      // create 1 expired, non-rotating fund
       await wait(
-        indexFund.createIndexFund("Test Fund #2", "Test fund", [3], false, 50, currTime + 42069)
+        indexFund.createIndexFund("Test Fund #2", "Test fund", [2, 3], false, 50, currTime + 42069)
       );
       await time.increase(42069); // move time forward so Fund #2 is @ expiry
     });
@@ -388,11 +391,12 @@ describe("IndexFund", function () {
     before(async function () {
       rootSnapshot = await takeSnapshot();
 
-      // create 2 funds (1 active and 1 expired)
       let currTime = await time.latest();
-      await wait(indexFund.createIndexFund("Test Fund #1", "Test fund", [2, 3], true, 50, 0));
+      // create 1 active, non-rotating fund
+      await wait(indexFund.createIndexFund("Test Fund #1", "Test fund", [2, 3], false, 50, 0));
+      // create 1 expired, non-rotating fund
       await wait(
-        indexFund.createIndexFund("Test Fund #2", "Test fund", [3], false, 50, currTime + 42069)
+        indexFund.createIndexFund("Test Fund #2", "Test fund", [2, 3], false, 50, currTime + 42069)
       );
       await time.increase(42069); // move time forward so Fund #2 is @ expiry
     });
@@ -431,11 +435,12 @@ describe("IndexFund", function () {
     before(async function () {
       rootSnapshot = await takeSnapshot();
 
-      // create 2 funds (1 active and 1 expired)
       let currTime = await time.latest();
-      await wait(indexFund.createIndexFund("Test Fund #1", "Test fund", [2, 3], true, 50, 0));
+      // create 1 active, non-rotating fund
+      await wait(indexFund.createIndexFund("Test Fund #1", "Test fund", [2, 3], false, 50, 0));
+      // create 1 expired, non-rotating fund
       await wait(
-        indexFund.createIndexFund("Test Fund #2", "Test fund", [3], false, 50, currTime + 42069)
+        indexFund.createIndexFund("Test Fund #2", "Test fund", [2, 3], false, 50, currTime + 42069)
       );
       await time.increase(42069); // move time forward so Fund #2 is @ expiry
     });
