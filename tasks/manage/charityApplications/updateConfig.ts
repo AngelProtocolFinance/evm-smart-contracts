@@ -1,4 +1,5 @@
 import {task, types} from "hardhat/config";
+import {submitMultiSigTx} from "tasks/helpers";
 import {CharityApplications__factory} from "typechain-types";
 import {
   confirmAction,
@@ -55,13 +56,14 @@ task("manage:CharityApplications:updateConfig", "Will update CharityApplications
       // fetch current config
       logger.out("Querying current config...");
       const struct = await charityApplications.queryConfig();
-      const curConfig = structToObject(struct);
-      logger.out(curConfig);
       const transactionExpiry = await charityApplications.transactionExpiry();
+      const curConfig = structToObject(struct);
       logger.out(structToObject({transactionExpiry, ...curConfig}));
 
+      const {yes, appsSignerPkey, ...toUpdate} = taskArgs;
+
       logger.out("Config data to update:");
-      logger.out(taskArgs);
+      logger.out(toUpdate);
 
       const isConfirmed = taskArgs.yes || (await confirmAction(`Updating config...`));
       if (!isConfirmed) {
@@ -70,20 +72,26 @@ task("manage:CharityApplications:updateConfig", "Will update CharityApplications
 
       // update config
       logger.out("Updating config...");
-      const tx = await charityApplications.updateConfig(
-        taskArgs.expiry || transactionExpiry,
-        taskArgs.accountsDiamond || curConfig.accountsContract,
-        taskArgs.seedSplitToLiquid || curConfig.seedSplitToLiquid,
-        taskArgs.gasAmount || curConfig.gasAmount,
-        taskArgs.seedAsset || curConfig.seedAsset,
-        taskArgs.seedAmount || curConfig.seedAmount
+      const data = charityApplications.interface.encodeFunctionData("updateConfig", [
+        toUpdate.expiry || transactionExpiry,
+        toUpdate.accountsDiamond || curConfig.accountsContract,
+        toUpdate.seedSplitToLiquid || curConfig.seedSplitToLiquid,
+        toUpdate.gasAmount || curConfig.gasAmount,
+        toUpdate.seedAsset || curConfig.seedAsset,
+        toUpdate.seedAmount || curConfig.seedAmount,
+      ]);
+      const isExecuted = await submitMultiSigTx(
+        charityApplications.address,
+        appsSigner,
+        charityApplications.address,
+        data
       );
-      logger.out(`Tx hash: ${tx.hash}`);
-      await tx.wait();
 
-      logger.out("New config:");
-      const newConfig = await charityApplications.queryConfig();
-      logger.out(structToObject(newConfig));
+      if (isExecuted) {
+        logger.out("New config:");
+        const newConfig = await charityApplications.queryConfig();
+        logger.out(structToObject(newConfig));
+      }
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }
