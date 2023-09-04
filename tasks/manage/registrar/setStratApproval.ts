@@ -58,7 +58,11 @@ task("manage:registrar:setStratApproval")
 
     logger.divider();
     logger.out("Setting strategy approval state to:");
-    logger.pad(50, "New strategy approval state", taskArguments.approvalState);
+    logger.pad(
+      50,
+      "New strategy approval state",
+      StrategyApprovalState[taskArguments.approvalState]
+    );
     const updateData = registrar.interface.encodeFunctionData("setStrategyApprovalState", [
       config.id,
       taskArguments.approvalState,

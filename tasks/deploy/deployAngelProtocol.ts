@@ -154,7 +154,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
         yes: true,
       });
       await hre.run("manage:registrar:setVaultEmitterAddress", {
-        vaultEmitter: vaultEmitter.proxy.address,
+        to: vaultEmitter.proxy.address,
         apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });

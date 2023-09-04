@@ -78,7 +78,7 @@ task(
       });
 
       await hre.run("manage:registrar:setVaultEmitterAddress", {
-        vaultEmitter: addresses.vaultEmitter.proxy,
+        to: addresses.vaultEmitter.proxy,
         apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });

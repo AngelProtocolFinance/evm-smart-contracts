@@ -3,10 +3,10 @@ import {submitMultiSigTx} from "tasks/helpers";
 import {Registrar__factory} from "typechain-types";
 import {confirmAction, getAPTeamOwner, getAddresses, logger} from "utils";
 
-type TaskArgs = {vaultEmitter: string; apTeamSignerPkey?: string; yes: boolean};
+type TaskArgs = {to: string; apTeamSignerPkey?: string; yes: boolean};
 
 task("manage:registrar:setVaultEmitterAddress")
-  .addParam("vaultEmitter", "Address of the VaultEmitter contract", undefined, types.string)
+  .addParam("to", "Address of the VaultEmitter contract", undefined, types.string)
   .addOptionalParam(
     "apTeamSignerPkey",
     "If running on prod, provide a pkey for a valid APTeam Multisig Owner."
@@ -22,19 +22,19 @@ task("manage:registrar:setVaultEmitterAddress")
 
       const registrar = Registrar__factory.connect(addresses.registrar.proxy, apTeamOwner);
       const currVaultEmitter = await registrar.getVaultEmitterAddress();
-      if (currVaultEmitter === taskArgs.vaultEmitter) {
+      if (currVaultEmitter === taskArgs.to) {
         return logger.out(`VaultEmitter address is already set to "${currVaultEmitter}".`);
       }
       logger.out(`Current VaultEmitter address: ${currVaultEmitter}`);
 
       const isConfirmed =
-        taskArgs.yes || (await confirmAction(`New VaultEmitter address: ${taskArgs.vaultEmitter}`));
+        taskArgs.yes || (await confirmAction(`New VaultEmitter address: ${taskArgs.to}`));
       if (!isConfirmed) {
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
       const updateData = registrar.interface.encodeFunctionData("setVaultEmitterAddress", [
-        taskArgs.vaultEmitter,
+        taskArgs.to,
       ]);
       const isExecuted = await submitMultiSigTx(
         addresses.multiSig.apTeam.proxy,
