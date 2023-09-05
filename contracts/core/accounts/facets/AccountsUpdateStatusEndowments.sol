@@ -95,6 +95,7 @@ contract AccountsUpdateStatusEndowments is
     // Emmit EndowmentClosed for each re-linking so that SubGraph is aware of the change.
     uint32[] memory closedEndows = state.BeneficiaryEndowment[id];
     if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.Wallet) {
+      beneficiary.data.endowId = 0;
       state.BeneficiaryWallet[beneficiary.data.addr].push(id);
       for (uint256 i = 0; i < closedEndows.length; i++) {
         state.BeneficiaryWallet[beneficiary.data.addr].push(closedEndows[i]);
@@ -102,6 +103,7 @@ contract AccountsUpdateStatusEndowments is
         emit EndowmentClosed(closedEndows[i], beneficiary);
       }
     } else if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.EndowmentId) {
+      beneficiary.data.addr = address(0);
       state.BeneficiaryEndowment[beneficiary.data.endowId].push(id);
       for (uint256 i = 0; i < closedEndows.length; i++) {
         state.BeneficiaryEndowment[beneficiary.data.endowId].push(closedEndows[i]);
