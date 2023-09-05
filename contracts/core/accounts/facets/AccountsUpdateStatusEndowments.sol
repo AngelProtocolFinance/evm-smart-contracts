@@ -78,25 +78,29 @@ contract AccountsUpdateStatusEndowments is
       }
     }
 
-    if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.EndowmentId) {
+    // final check to ensure beneficiary data is set correctly for the desired type
+    if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.Wallet) {
+      require(beneficiary.data.addr != address(0), "Cannot set to zero address");
+      beneficiary.data.endowId = 0;
+      state.BeneficiaryWallet[beneficiary.data.addr].push(id);
+    } else if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.EndowmentId) {
+      require(
+        beneficiary.data.endowId > 0 && beneficiary.data.endowId < state.config.nextAccountId,
+        "Invalid final Beneficiary Endowment ID passed"
+      );
       require(id != beneficiary.data.endowId, "Cannot set own Endowment as final Beneficiary");
-    }
-
-    // Beneficiary of NONE passed, set to the AP Treasury
-    if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.None) {
+      require(
+        !state.States[beneficiary.data.endowId].closingEndowment,
+        "Cannot set a closed Endowment as final Beneficiary"
+      );
+      beneficiary.data.addr = address(0);
+      state.BeneficiaryEndowment[beneficiary.data.endowId].push(id);
+      // Beneficiary of NONE passed, set as Wallet Type and make the AP Treasury the Beneficiary
+    } else if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.None) {
       beneficiary = LibAccounts.Beneficiary({
         data: LibAccounts.BeneficiaryData({endowId: 0, addr: registrarConfig.treasury}),
         enumData: LibAccounts.BeneficiaryEnum.Wallet
       });
-    }
-
-    // final check to ensure beneficiary data is set correctly for the desired type
-    if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.Wallet) {
-      beneficiary.data.endowId = 0;
-      state.BeneficiaryWallet[beneficiary.data.addr].push(id);
-    } else if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.EndowmentId) {
-      beneficiary.data.addr = address(0);
-      state.BeneficiaryEndowment[beneficiary.data.endowId].push(id);
     }
 
     // lookup closed endowments that the currently closing Endowment is a beneficiary
@@ -109,8 +113,6 @@ contract AccountsUpdateStatusEndowments is
         state.BeneficiaryEndowment[beneficiary.data.endowId].push(closedEndows[i]);
       }
       state.States[closedEndows[i]].closingBeneficiary = beneficiary;
-      // emit for each re-linking so that SubGraph is aware of the change.
-      emit EndowmentClosed(closedEndows[i], beneficiary);
     }
     // remove closing endowment beneficiary record now that it has been reassigned
     delete state.BeneficiaryEndowment[id];
@@ -120,7 +122,7 @@ contract AccountsUpdateStatusEndowments is
 
     state.States[id].closingEndowment = true;
     state.States[id].closingBeneficiary = beneficiary;
-    emit EndowmentClosed(id, beneficiary);
+    emit EndowmentClosed(id, beneficiary, closedEndows);
   }
 
   /**
