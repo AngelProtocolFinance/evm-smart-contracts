@@ -111,7 +111,7 @@ contract AccountsUpdateStatusEndowments is
       if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.Wallet) {
         state.BeneficiaryWallet[beneficiary.data.addr].push(closedEndows[i]);
       } else if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.Wallet) {
-        state.BeneficiaryEndowment[fdas].push(closedEndows[i]);
+        state.BeneficiaryEndowment[beneficiary.data.endowId].push(closedEndows[i]);
       }
       state.States[closedEndows[i]].closingBeneficiary = beneficiary;
     }
