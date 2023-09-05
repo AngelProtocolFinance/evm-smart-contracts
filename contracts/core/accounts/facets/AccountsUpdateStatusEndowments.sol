@@ -90,26 +90,27 @@ contract AccountsUpdateStatusEndowments is
       });
     }
 
-    // lookup closed endowments that the currently closing Endowment is a beneficiary
-    // of in order to re-link them to the new Beneficiary to ensure access is not lost.
-    // Emmit EndowmentClosed for each re-linking so that SubGraph is aware of the change.
-    uint32[] memory closedEndows = state.BeneficiaryEndowment[id];
+    // final check to ensure beneficiary data is set correctly for the desired type
     if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.Wallet) {
       beneficiary.data.endowId = 0;
       state.BeneficiaryWallet[beneficiary.data.addr].push(id);
-      for (uint256 i = 0; i < closedEndows.length; i++) {
-        state.BeneficiaryWallet[beneficiary.data.addr].push(closedEndows[i]);
-        state.States[closedEndows[i]].closingBeneficiary = beneficiary;
-        emit EndowmentClosed(closedEndows[i], beneficiary);
-      }
     } else if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.EndowmentId) {
       beneficiary.data.addr = address(0);
       state.BeneficiaryEndowment[beneficiary.data.endowId].push(id);
-      for (uint256 i = 0; i < closedEndows.length; i++) {
+    }
+
+    // lookup closed endowments that the currently closing Endowment is a beneficiary
+    // of in order to re-link them to the new Beneficiary to ensure access is not lost.
+    uint32[] memory closedEndows = state.BeneficiaryEndowment[id];
+    for (uint256 i = 0; i < closedEndows.length; i++) {
+      if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.Wallet) {
+        state.BeneficiaryWallet[beneficiary.data.addr].push(closedEndows[i]);
+      } else if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.Wallet) {
         state.BeneficiaryEndowment[beneficiary.data.endowId].push(closedEndows[i]);
-        state.States[closedEndows[i]].closingBeneficiary = beneficiary;
-        emit EndowmentClosed(closedEndows[i], beneficiary);
       }
+      state.States[closedEndows[i]].closingBeneficiary = beneficiary;
+      // emit for each re-linking so that SubGraph is aware of the change.
+      emit EndowmentClosed(closedEndows[i], beneficiary);
     }
     // remove closing endowment beneficiary record now that it has been reassigned
     delete state.BeneficiaryEndowment[id];
