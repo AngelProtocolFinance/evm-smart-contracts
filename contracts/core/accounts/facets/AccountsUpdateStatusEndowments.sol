@@ -101,6 +101,7 @@ contract AccountsUpdateStatusEndowments is
         data: LibAccounts.BeneficiaryData({endowId: 0, addr: registrarConfig.treasury}),
         enumData: LibAccounts.BeneficiaryEnum.Wallet
       });
+      state.BeneficiaryWallet[beneficiary.data.addr].push(id);
     }
 
     // lookup closed endowments that the currently closing Endowment is a beneficiary
