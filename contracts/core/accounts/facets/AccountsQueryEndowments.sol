@@ -118,4 +118,24 @@ contract AccountsQueryEndowments is IAccountsQueryEndowments, IterableMappingAdd
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     return state.DafApprovedEndowments[id];
   }
+
+  /**
+   * @notice queries Endowments for whom a given Endowment ID is a Beneficiary of
+   * @param id The id of the endowment
+   * @return uint32[] list of Beneficiary endowments
+   */
+  function getEndowmentBeneficiaries(uint32 id) public view returns (uint32[] memory) {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    return state.BeneficiaryEndowment[id];
+  }
+
+  /**
+   * @notice queries Endowments for whom a given Wallet Address is a Beneficiary of
+   * @param addr The wallet address
+   * @return uint32[] list of Beneficiary endowments
+   */
+  function getWalletBeneficiaries(address addr) public view returns (uint32[] memory) {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    return state.BeneficiaryWallet[addr];
+  }
 }

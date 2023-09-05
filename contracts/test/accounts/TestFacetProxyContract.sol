@@ -92,6 +92,11 @@ contract TestFacetProxyContract is
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     state.States[accountId].closingEndowment = _closing;
     state.States[accountId].closingBeneficiary = _closingBeneficiary;
+    if (_closingBeneficiary.enumData == LibAccounts.BeneficiaryEnum.Wallet) {
+      state.BeneficiaryWallet[_closingBeneficiary.data.addr] = [accountId];
+    } else if (_closingBeneficiary.enumData == LibAccounts.BeneficiaryEnum.EndowmentId) {
+      state.BeneficiaryEndowment[_closingBeneficiary.data.endowId] = [accountId];
+    }
   }
 
   function getClosingEndowmentState(
