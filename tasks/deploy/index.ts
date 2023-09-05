@@ -1,3 +1,4 @@
+import "./integrations";
 import "./deployAPTeamMultiSig";
 import "./deployAccountsDiamond";
 import "./deployAngelProtocol";
@@ -11,4 +12,4 @@ import "./deployLocalRegistrar";
 import "./deployRegistrar";
 import "./deployRouter";
 import "./deploySideChain";
-import "./integrations";
+import "./deployVaultEmitter";
