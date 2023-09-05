@@ -244,6 +244,41 @@ describe("AccountsUpdateStatusEndowments", function () {
       expect(endowState[1].data.addr).to.equal(ethers.constants.AddressZero);
       expect(endowState[1].data.endowId).to.equal(charityId2);
     });
+
+    it("passes if a Charity endowment (whom is a beneficiary of a closed endowment) sends a None type beneficiary", async () => {
+      await expect(
+        facet.closeEndowment(charityId, {
+          enumData: BeneficiaryEnum.EndowmentId,
+          data: {addr: ethers.constants.AddressZero, endowId: charityId2},
+        })
+      ).to.emit(facet, "EndowmentClosed");
+
+      const endowState = await state.getClosingEndowmentState(charityId);
+      expect(endowState[0]).to.equal(true);
+      expect(endowState[1].enumData).to.equal(BeneficiaryEnum.EndowmentId);
+      expect(endowState[1].data.addr).to.equal(ethers.constants.AddressZero);
+      expect(endowState[1].data.endowId).to.equal(charityId2);
+
+      await expect(
+        facet.closeEndowment(charityId2, {
+          enumData: BeneficiaryEnum.None,
+          data: {addr: ethers.constants.AddressZero, endowId: 0},
+        })
+      ).to.emit(facet, "EndowmentClosed");
+
+      // Both endowments should now be linked to AP Treasury Address
+      const newEndowState1 = await state.getClosingEndowmentState(charityId);
+      expect(newEndowState1[0]).to.equal(true);
+      expect(newEndowState1[1].enumData).to.equal(BeneficiaryEnum.Wallet);
+      expect(newEndowState1[1].data.addr).to.equal(treasuryAddress);
+      expect(newEndowState1[1].data.endowId).to.equal(0);
+
+      const newEndowState2 = await state.getClosingEndowmentState(charityId2);
+      expect(newEndowState2[0]).to.equal(true);
+      expect(newEndowState2[1].enumData).to.equal(BeneficiaryEnum.Wallet);
+      expect(newEndowState2[1].data.addr).to.equal(treasuryAddress);
+      expect(newEndowState2[1].data.endowId).to.equal(0);
+    });
   });
 
   describe("upon forceSetStrategyInactive", async function () {

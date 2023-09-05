@@ -70,6 +70,10 @@ library AccountStorage {
     mapping(uint32 => bool) DafApprovedEndowments;
     // Endowments AllowLists Iterable mappings
     mapping(uint32 => mapping(LibAccounts.AllowlistType => IterableMappingAddr.Map)) Allowlists;
+    // track closed endowments linked to an endowment beneficiary
+    mapping(uint32 => uint32[]) BeneficiaryEndowment;
+    // track closed endowments linked to a wallet beneficiary
+    mapping(address => uint32[]) BeneficiaryWallet;
     Config config;
   }
 }
