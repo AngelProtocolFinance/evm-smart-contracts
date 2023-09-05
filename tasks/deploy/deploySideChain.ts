@@ -1,6 +1,7 @@
 import config from "config";
 import {deployAPTeamMultiSig, deployProxyAdminMultisig} from "contracts/multisigs/scripts/deploy";
 import {task} from "hardhat/config";
+import {getOrDeployThirdPartyContracts} from "tasks/helpers";
 import {
   Deployment,
   confirmAction,
@@ -32,8 +33,6 @@ task("deploy:SideChain", "Will deploy complete side-chain infrastructure")
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      const verify_contracts = !isLocalNetwork(hre) && !taskArgs.skipVerify;
-
       let {deployer, proxyAdminMultisigOwners} = await getSigners(hre);
 
       const proxyAdminMultisigOwnerAddresses = proxyAdminMultisigOwners
@@ -41,6 +40,8 @@ task("deploy:SideChain", "Will deploy complete side-chain infrastructure")
         : config.PROD_CONFIG.ProxyAdminMultiSigOwners;
 
       await resetContractAddresses(hre);
+
+      await getOrDeployThirdPartyContracts(deployer, hre);
 
       logger.out(`Deploying the contracts with the account: ${deployer.address}`);
 
@@ -55,11 +56,11 @@ task("deploy:SideChain", "Will deploy complete side-chain infrastructure")
       await hre.run("deploy:LocalRegistrarAndRouter", {
         owner: apTeamMultisig.proxy.address,
         apTeamSignerPkey: taskArgs.apTeamSignerPkey,
-        skipVerify: verify_contracts,
+        skipVerify: taskArgs.skipVerify,
         yes: true,
       });
 
-      if (verify_contracts) {
+      if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
         const deployments: Array<Deployment> = [
           proxyAdminMultisig,
           apTeamMultisig.implementation,

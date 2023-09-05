@@ -25,12 +25,12 @@ task("manage:IndexFund:updateConfig", "Will update the config of the IndexFund")
   .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
-      const {yes, ...newConfig} = taskArgs;
+      const {yes, apTeamSignerPkey, ...newConfig} = taskArgs;
 
       logger.divider();
       const addresses = await getAddresses(hre);
 
-      const apTeamOwner = await getAPTeamOwner(hre, taskArgs.apTeamSignerPkey);
+      const apTeamOwner = await getAPTeamOwner(hre, apTeamSignerPkey);
 
       logger.out("Querying current IndexFund registrar...");
       const indexFund = IndexFund__factory.connect(addresses.indexFund.proxy, apTeamOwner);
@@ -50,8 +50,8 @@ task("manage:IndexFund:updateConfig", "Will update the config of the IndexFund")
       logger.out("Updating config...");
       const data = indexFund.interface.encodeFunctionData("updateConfig", [
         newConfig.registrarContract || curConfig.registrarContract,
-        newConfig.fundRotation || curConfig.fundRotation,
-        newConfig.fundingGoal || curConfig.fundingGoal,
+        newConfig.fundRotation ?? curConfig.fundRotation,
+        newConfig.fundingGoal ?? curConfig.fundingGoal,
       ]);
 
       const isExecuted = await submitMultiSigTx(

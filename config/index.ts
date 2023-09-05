@@ -39,9 +39,6 @@ const config: Config = {
   DONATION_MATCH_CHARITY_DATA: {
     poolFee: 300,
   },
-  REGISTRAR_UPDATE_CONFIG: {
-    collectorShare: 1,
-  },
   INDEX_FUND_DATA: {
     fundRotation: 0,
     fundMemberLimit: 30,

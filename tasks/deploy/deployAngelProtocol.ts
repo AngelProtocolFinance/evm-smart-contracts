@@ -139,7 +139,6 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
 
       await hre.run("manage:registrar:updateConfig", {
         accountsContract: accounts.diamond.address, //Address
-        collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare, //uint256
         indexFundContract: indexFund.proxy.address, //address
         treasury: treasuryAddress,
         uniswapRouter: thirdPartyAddresses.uniswap.swapRouter.address, //address
@@ -155,7 +154,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
         yes: true,
       });
       await hre.run("manage:registrar:setVaultEmitterAddress", {
-        vaultEmitter: vaultEmitter.proxy.address,
+        to: vaultEmitter.proxy.address,
         apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });

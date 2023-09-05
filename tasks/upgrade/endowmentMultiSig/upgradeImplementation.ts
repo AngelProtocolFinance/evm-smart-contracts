@@ -4,8 +4,8 @@ import {EndowmentMultiSig__factory, EndowmentMultiSigFactory__factory} from "typ
 import {
   confirmAction,
   getAddresses,
+  getAPTeamOwner,
   getContractName,
-  getProxyAdminOwner,
   getSigners,
   isLocalNetwork,
   logger,
@@ -17,7 +17,7 @@ type TaskArgs = {
   factory?: string;
   skipVerify: boolean;
   yes: boolean;
-  proxyAdminPkey?: string;
+  apTeamSignerPkey?: string;
 };
 
 task(
@@ -30,7 +30,10 @@ task(
   )
   .addFlag("skipVerify", "Skip contract verification")
   .addFlag("yes", "Automatic yes to prompt.")
-  .addOptionalParam("proxyAdminPkey", "The pkey for the prod proxy admin multisig")
+  .addOptionalParam(
+    "apTeamSignerPkey",
+    "If running on prod, provide a pkey for a valid APTeam Multisig Owner."
+  )
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       logger.divider();
@@ -43,7 +46,7 @@ task(
       }
 
       const {deployer} = await getSigners(hre);
-      const proxyAdminOwner = await getProxyAdminOwner(hre, taskArgs.proxyAdminPkey);
+      const apTeamOwner = await getAPTeamOwner(hre, taskArgs.apTeamSignerPkey);
 
       const addresses = await getAddresses(hre);
 
@@ -59,15 +62,15 @@ task(
       logger.out("Upgrading EndowmentMultiSigFactory's implementation address...");
       const endowmentMultiSigFactory = EndowmentMultiSigFactory__factory.connect(
         EndowmentMultiSigFactoryAddress,
-        proxyAdminOwner
+        apTeamOwner
       );
       const payload = endowmentMultiSigFactory.interface.encodeFunctionData(
         "updateImplementation",
         [contract.address]
       );
       const isExecuted = await submitMultiSigTx(
-        addresses.multiSig.proxyAdmin,
-        proxyAdminOwner,
+        addresses.multiSig.apTeam.proxy,
+        apTeamOwner,
         endowmentMultiSigFactory.address,
         payload
       );

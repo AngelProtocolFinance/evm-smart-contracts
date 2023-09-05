@@ -123,6 +123,13 @@ task("manage:registrar:updateConfig", "Will update Accounts Diamond config")
         return logger.out("Nothing to update");
       }
 
+      const registrarContract = Registrar__factory.connect(addresses.registrar.proxy, apTeamOwner);
+
+      logger.out("Fetching current Registrar's config...");
+      const struct = await registrarContract.queryConfig();
+      const curConfig = structToObject(struct);
+      logger.out(curConfig);
+
       logger.out("Config data to update:");
       logger.out(updateConfigRequest);
 
@@ -130,13 +137,6 @@ task("manage:registrar:updateConfig", "Will update Accounts Diamond config")
       if (!isConfirmed) {
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
-
-      const registrarContract = Registrar__factory.connect(addresses.registrar.proxy, apTeamOwner);
-
-      logger.out("Fetching current Registrar's config...");
-      const struct = await registrarContract.queryConfig();
-      const curConfig = structToObject(struct);
-      logger.out(curConfig);
 
       const updateConfigData = registrarContract.interface.encodeFunctionData("updateConfig", [
         {

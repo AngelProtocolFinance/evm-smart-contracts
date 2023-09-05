@@ -5,6 +5,7 @@ import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger, verify}
 type TaskArgs = {
   apTeamMultisig?: string;
   apTeamSignerPkey?: string;
+  appsSignerPkey?: string;
   registrar?: string;
   skipVerify: boolean;
   yes: boolean;
@@ -22,6 +23,10 @@ task("deploy:accounts", "It will deploy accounts diamond contracts")
   .addOptionalParam(
     "apTeamSignerPkey",
     "If running on prod, provide a pkey for a valid APTeam Multisig Owner."
+  )
+  .addOptionalParam(
+    "appsSignerPkey",
+    "If running on prod, provide a pkey for a valid CharityApplications Multisig Owner."
   )
   .addFlag("skipVerify", "Skip contract verification")
   .addFlag("yes", "Automatic yes to prompt.")
@@ -52,7 +57,7 @@ task("deploy:accounts", "It will deploy accounts diamond contracts")
       });
       await hre.run("manage:CharityApplications:updateConfig", {
         accountsDiamond: diamond.address,
-        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
+        appsSignerPkey: taskArgs.appsSignerPkey,
         yes: true,
       });
 

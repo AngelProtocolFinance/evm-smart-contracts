@@ -36,9 +36,6 @@ export type Config = {
   DONATION_MATCH_CHARITY_DATA: {
     poolFee: number;
   };
-  REGISTRAR_UPDATE_CONFIG: {
-    collectorShare: number;
-  };
   INDEX_FUND_DATA: {
     fundRotation: number;
     fundMemberLimit: number;

@@ -1,8 +1,8 @@
 import {task, types} from "hardhat/config";
-import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
+import {submitMultiSigTx} from "tasks/helpers";
+import {Registrar__factory} from "typechain-types";
 import {StratConfig, getAPTeamOwner, getAddresses, logger} from "utils";
 import {allStrategyConfigs} from "../../../contracts/integrations/stratConfig";
-import {submitMultiSigTx} from "tasks/helpers";
 
 type TaskArgs = {
   name: string;
