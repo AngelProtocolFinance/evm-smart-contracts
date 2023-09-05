@@ -1,6 +1,6 @@
 import "./accounts";
-import "./addMultisigOwner";
-import "./changeAdmin";
+import "./addMultisigOwners";
+import "./changeProxyAdmin";
 import "./charityApplications";
 import "./createEndowment";
 import "./createIndexFund";

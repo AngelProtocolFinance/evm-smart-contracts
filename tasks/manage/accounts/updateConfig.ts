@@ -34,8 +34,9 @@ task("manage:accounts:updateConfig", "Will update Accounts Diamond config")
       const curConfig = await accountsQueryEndowments.queryConfig();
       logger.out(JSON.stringify(structToObject(curConfig), undefined, 2));
 
+      const registrarContract = taskArgs.registrarContract || curConfig.registrarContract;
       logger.out("Config data to update:");
-      logger.out({registrarContract: taskArgs.registrarContract});
+      logger.out({registrarContract});
 
       const isConfirmed = taskArgs.yes || (await confirmAction(`Updating config...`));
       if (!isConfirmed) {
@@ -47,9 +48,7 @@ task("manage:accounts:updateConfig", "Will update Accounts Diamond config")
         addresses.accounts.diamond,
         apTeamOwner
       );
-      const data = accountsUpdate.interface.encodeFunctionData("updateConfig", [
-        taskArgs.registrarContract || curConfig.registrarContract,
-      ]);
+      const data = accountsUpdate.interface.encodeFunctionData("updateConfig", [registrarContract]);
 
       const isExecuted = await submitMultiSigTx(
         curConfig.owner, // ensure connection to current owning APTeamMultiSig contract

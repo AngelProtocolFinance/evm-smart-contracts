@@ -51,29 +51,16 @@ task(
         gasFwdFactory: addresses.gasFwd.factory,
       };
 
-      if (taskArgs.apTeamSignerPkey) {
-        await hre.run("manage:registrar:updateConfig", {
-          ...newConfig,
-          apTeamSignerPkey: taskArgs.apTeamSignerPkey,
-          yes: true,
-        });
-        await hre.run("manage:registrar:setVaultEmitterAddress", {
-          vaultEmitter: addresses.vaultEmitter.proxy,
-          apTeamSignerPkey: taskArgs.apTeamSignerPkey,
-          yes: true,
-        });
-      } else {
-        await hre.run("manage:registrar:updateConfig", {
-          ...newConfig,
-          apTeamSignerPkey: taskArgs.apTeamSignerPkey,
-          yes: true,
-        });
-        await hre.run("manage:registrar:setVaultEmitterAddress", {
-          vaultEmitter: addresses.vaultEmitter.proxy,
-          apTeamSignerPkey: taskArgs.apTeamSignerPkey,
-          yes: true,
-        });
-      }
+      await hre.run("manage:registrar:updateConfig", {
+        ...newConfig,
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
+        yes: true,
+      });
+      await hre.run("manage:registrar:setVaultEmitterAddress", {
+        to: addresses.vaultEmitter.proxy,
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
+        yes: true,
+      });
 
       if (taskArgs.acceptedTokens.length > 0) {
         logger.divider();
