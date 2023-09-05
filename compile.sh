@@ -16,6 +16,7 @@ compile_result=$?;
 mv ./tasks/temp_index.ts ./tasks/index.ts;
 # turn logging off
 set +x;
+# force the script to fail if the compilation step failed
 if [ $compile_result -eq 1 ]; then
     exit 1;
 fi
