@@ -1,5 +1,3 @@
-Closes 
-
 ## Explanation of the solution
 
 ## Instructions on making this work
