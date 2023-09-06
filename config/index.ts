@@ -2,7 +2,6 @@ import dotenv from "dotenv";
 import {ethers} from "ethers";
 import {Config} from "./types";
 import {BigNumber} from "ethers";
-// import {fees} from "./fees";
 
 dotenv.config({path: __dirname + "/./../.env"});
 
