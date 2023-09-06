@@ -47,6 +47,8 @@ export enum FeeTypes {
   WithdrawCharity,
   EarlyLockedWithdraw,
   EarlyLockedWithdrawCharity,
+  Balance,
+  BalanceCharity,
 }
 
 export enum BeneficiaryEnum {

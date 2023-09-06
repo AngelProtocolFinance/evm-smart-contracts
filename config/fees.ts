@@ -34,4 +34,12 @@ export const FEES: Fees = {
     payoutAddress: "",
     bps: 1000,
   },
+  [FeeTypes.Balance]: {
+    payoutAddress: "",
+    bps: 0,
+  },
+  [FeeTypes.BalanceCharity]: {
+    payoutAddress: "",
+    bps: 0,
+  },
 };
