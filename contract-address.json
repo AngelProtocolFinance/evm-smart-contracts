@@ -241,12 +241,12 @@
       "proxyAdmin": "0x1BE9451496bfB6aDcFfbc308b673018a8972AFFE"
     },
     "registrar": {
-      "implementation": "0xfC8caFA21dc76a1065494E213dE9F94E788DaAC9",
-      "proxy": "0xB2BD05A652973f567aD6472b9FEa29FE293f6cD9"
+      "implementation": "0x1BE9451496bfB6aDcFfbc308b673018a8972AFFE",
+      "proxy": "0x2e3c2536E1349e0E18d057f61499Ef64BB4B23E8"
     },
     "router": {
-      "implementation": "0x9B1a72BD9efC089935766f7Ebc8779B67C0F7495",
-      "proxy": "0x8450D449D5Cc73EBf35970d9723e8d214151e702"
+      "implementation": "0x3539f918A787529732465a4ccb89A96FFfb33073",
+      "proxy": "0x801E1B78732dbEC5B8ACc3EcD24031B4e32aD341"
     },
     "tokens": {
       "dai": "",

@@ -1,5 +1,5 @@
-import { Fees } from "./types"
-import { FeeTypes } from "../utils"
+import {Fees} from "./types";
+import {FeeTypes} from "../utils";
 
 export const fees: Fees = {
   [FeeTypes.Default]: {
@@ -34,4 +34,4 @@ export const fees: Fees = {
     payoutAddress: "",
     bps: 1000,
   },
-}
+};

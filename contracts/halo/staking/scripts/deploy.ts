@@ -8,7 +8,7 @@ import {
   verify,
 } from "utils";
 
-import { StakingMessages } from "typechain-types/contracts/halo/staking/Staking.sol/Staking";
+import {StakingMessages} from "typechain-types/contracts/halo/staking/Staking.sol/Staking";
 
 export async function deployStaking(
   StakingDataInput: StakingMessages.InstantiateMsgStruct,

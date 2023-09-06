@@ -1,11 +1,11 @@
-import { task, types } from "hardhat/config";
-import { submitMultiSigTx } from "tasks/helpers";
-import { Registrar__factory } from "typechain-types";
-import { FeeTypes, getAPTeamOwner, getAddresses, getEnumKeys, logger } from "utils";
+import {task, types} from "hardhat/config";
+import {submitMultiSigTx} from "tasks/helpers";
+import {Registrar__factory} from "typechain-types";
+import {FeeTypes, getAPTeamOwner, getAddresses, getEnumKeys, logger} from "utils";
 import {fees} from "config";
-import { Fees } from "config/types";
+import {Fees} from "config/types";
 
-type TaskArgs = { feeType: number; payoutAddress?: string; bps?: number; apTeamSignerPkey?: string };
+type TaskArgs = {feeType: number; payoutAddress?: string; bps?: number; apTeamSignerPkey?: string};
 
 task("manage:registrar:setFeeSettings")
   .addParam(
@@ -17,15 +17,15 @@ task("manage:registrar:setFeeSettings")
     types.int
   )
   .addOptionalParam(
-    "payoutAddress", 
-    "Address of fee recipient -- will do a config lookup if not provided", 
-    "", 
+    "payoutAddress",
+    "Address of fee recipient -- will do a config lookup if not provided",
+    "",
     types.string
   )
   .addOptionalParam(
-    "bps", 
-    "basis points to be applied for this fee -- will do a config lookup if not provided", 
-    0, 
+    "bps",
+    "basis points to be applied for this fee -- will do a config lookup if not provided",
+    0,
     types.int
   )
   .addOptionalParam(
@@ -43,9 +43,11 @@ task("manage:registrar:setFeeSettings")
     const registrar = Registrar__factory.connect(registrarAddress, apTeamOwner);
     logger.pad(50, "Connected to Registrar at: ", registrar.address);
 
-    let configFee = fees[taskArguments.feeType as keyof Fees]
-    const bps = !taskArguments.bps? configFee.bps : taskArguments.bps; 
-    const payoutAddress = !taskArguments.payoutAddress? configFee.payoutAddress : taskArguments.payoutAddress;
+    let configFee = fees[taskArguments.feeType as keyof Fees];
+    const bps = !taskArguments.bps ? configFee.bps : taskArguments.bps;
+    const payoutAddress = !taskArguments.payoutAddress
+      ? configFee.payoutAddress
+      : taskArguments.payoutAddress;
 
     logger.divider();
     logger.out("Checking current fee settings");
@@ -77,10 +79,7 @@ task("manage:registrar:setFeeSettings")
     }
 
     const newfeeSetting = await registrar.getFeeSettingsByFeeType(taskArguments.feeType);
-    if (
-      newfeeSetting.payoutAddress !== taskArguments.payoutAddress ||
-      !newfeeSetting.bps.eq(bps)
-    ) {
+    if (newfeeSetting.payoutAddress !== taskArguments.payoutAddress || !newfeeSetting.bps.eq(bps)) {
       throw new Error(
         `Fee settings for type: ${taskArguments.feeType} were not updated. Expected: ${[
           taskArguments.payoutAddress,

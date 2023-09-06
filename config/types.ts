@@ -1,6 +1,6 @@
 import {BigNumber} from "ethers";
 import {AddressObj} from "../utils";
-import { FeeTypes } from "../utils";
+import {FeeTypes} from "../utils";
 
 export type Config = {
   AP_TEAM_MULTISIG_DATA: {
@@ -55,7 +55,8 @@ export type Config = {
   };
 };
 
-export type Fees = { [key in FeeTypes]: {
+export type Fees = {
+  [key in FeeTypes]: {
     payoutAddress: string;
     bps: number;
   };
