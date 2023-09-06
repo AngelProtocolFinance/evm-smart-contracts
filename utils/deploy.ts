@@ -1,7 +1,6 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {BytesLike, ContractFactory} from "ethers";
-import {getContractName, logger} from ".";
 import {ProxyContract__factory} from "typechain-types";
+import {getContractName, logger} from ".";
 
 type Deployment<T extends ContractFactory> = {
   constructorArguments?: Parameters<T["deploy"]>;
@@ -15,20 +14,17 @@ type Deployment<T extends ContractFactory> = {
  * Note: Deployment tx hash is logged only if the deployment fails.
  * Otherwise the tx hash can be obtained by using the contract address to search the relevant Tx explorer.
  *
- * @param Type ContractFactory type used to deploy the contract
- * @param deployer signer used to deploy the contract
+ * @param factory contract factory used to deploy the contract
  * @param constructorArguments contract's constructor arguments
  * @returns (Deployment) object containing deployment data (including the contract instance)
  */
 export async function deploy<T extends ContractFactory>(
-  Type: {new (...args: any): T},
-  deployer: SignerWithAddress,
+  factory: T,
   constructorArguments?: Parameters<T["deploy"]>
 ): Promise<Deployment<T>> {
-  const contractName = getContractName(Type);
+  const contractName = getContractName(factory);
   logger.out(`Deploying ${contractName}...`);
-  const Contract = new Type(deployer);
-  const contract = await Contract.deploy(...(constructorArguments ?? []));
+  const contract = await factory.deploy(...(constructorArguments ?? []));
   try {
     await contract.deployed();
     logger.out(`Address: ${contract.address}`);
@@ -49,23 +45,21 @@ export async function deploy<T extends ContractFactory>(
  * Note: Deployment tx hash is logged only if the deployment fails.
  * Otherwise the tx hash can be obtained by using the contract address to search the relevant Tx explorer.
  *
- * @param Type ContractFactory type used to deploy the contract
- * @param deployer signer used to deploy the contract
+ * @param factory contract factory used to deploy the contract
  * @param proxyAdmin proxy admin address
  * @param initData data used to initialize the contract
  * @returns object containing both implementation and proxy deployment data (including the contract instances)
  */
 export async function deployBehindProxy<T extends ContractFactory>(
-  Type: {new (...args: any): T},
-  deployer: SignerWithAddress,
+  factory: T,
   proxyAdmin: string,
   initData: BytesLike
 ): Promise<{
   implementation: Deployment<T>;
   proxy: Deployment<ProxyContract__factory>;
 }> {
-  const implementation = await deploy(Type, deployer);
-  const proxy = await deploy(ProxyContract__factory, deployer, [
+  const implementation = await deploy(factory);
+  const proxy = await deploy(new ProxyContract__factory(factory.signer), [
     implementation.contract.address,
     proxyAdmin,
     initData,
