@@ -8,6 +8,7 @@ import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IER
 import {ERC4626AP} from "./ERC4626AP.sol";
 import {IStrategy} from "../strategy/IStrategy.sol";
 import {IRegistrar} from "../registrar/interfaces/IRegistrar.sol";
+import {IRouter} from "../router/IRouter.sol";
 import {LocalRegistrarLib} from "../registrar/lib/LocalRegistrarLib.sol";
 import {LibAccounts} from "../accounts/lib/LibAccounts.sol";
 import {FixedPointMathLib} from "../../lib/FixedPointMathLib.sol";
@@ -195,7 +196,9 @@ contract APVault_V1 is IVault, ERC4626AP {
     return response;
   }
 
-  function harvest(uint32[] calldata accountIds) public virtual override notPaused onlyApproved {
+  function harvest(
+    uint32[] calldata accountIds
+  ) public virtual override notPaused onlyApproved returns (uint256 amt) {
     for (uint32 i; i < accountIds.length; i++) {
       uint32 accountId = accountIds[i];
       uint256 baseTokenValue = IStrategy(vaultConfig.strategy).previewWithdraw(
@@ -203,7 +206,7 @@ contract APVault_V1 is IVault, ERC4626AP {
       );
       // no yield, no harvest
       if (baseTokenValue <= principleByAccountId[accountId].baseToken) {
-        return;
+        return 0;
       }
       // Determine going exchange rate (shares / baseToken)
       uint256 currentExRate_withPrecision = balanceOf(accountId).mulDivDown(
@@ -223,10 +226,18 @@ contract APVault_V1 is IVault, ERC4626AP {
 
       // Call appropriate harvest method
       if (vaultConfig.vaultType == VaultType.LIQUID) {
-        _harvestLiquid(accountId, yieldBaseTokens, currentExRate_withPrecision, feeSetting);
+        amt += _harvestLiquid(accountId, yieldBaseTokens, currentExRate_withPrecision, feeSetting);
       } else {
-        _harvestLocked(accountId, yieldBaseTokens, currentExRate_withPrecision, feeSetting);
+        amt += _harvestLocked(accountId, yieldBaseTokens, currentExRate_withPrecision, feeSetting);
       }
+    }
+
+    // Approve router for the harvest amt
+    string memory thisChain = IRegistrar(vaultConfig.registrar).thisChain();
+    LocalRegistrarLib.NetworkInfo memory network = IRegistrar(vaultConfig.registrar)
+      .queryNetworkConnection(thisChain);
+    if (!IERC20Metadata(vaultConfig.baseToken).approve(network.router, amt)) {
+      revert ApproveFailed();
     }
   }
 
@@ -235,7 +246,7 @@ contract APVault_V1 is IVault, ERC4626AP {
     uint256 yield,
     uint256 exchageRate,
     LibAccounts.FeeSetting memory feeSetting
-  ) internal {
+  ) internal returns (uint256) {
     // Determine tax denominated in shares
     // tax (shares) = yield * exchangeRate * feeRate
     uint256 taxShares = yield.mulDivDown(exchageRate, PRECISION).mulDivDown(
@@ -255,10 +266,7 @@ contract APVault_V1 is IVault, ERC4626AP {
     ) {
       revert TransferFailed();
     }
-    // Pay tax to tax collector
-    if (!IERC20Metadata(vaultConfig.baseToken).transfer(feeSetting.payoutAddress, redemption)) {
-      revert TransferFailed();
-    }
+    return redemption;
   }
 
   function _harvestLocked(
@@ -266,7 +274,7 @@ contract APVault_V1 is IVault, ERC4626AP {
     uint256 yield,
     uint256 exchageRate,
     LibAccounts.FeeSetting memory feeSetting
-  ) internal {
+  ) internal returns (uint256) {
     // Get rebal params
     LocalRegistrarLib.RebalanceParams memory rbParams = IRegistrar(vaultConfig.registrar)
       .getRebalanceParams();
@@ -281,14 +289,14 @@ contract APVault_V1 is IVault, ERC4626AP {
       rbParams.basis
     );
 
-    _sendRebalAndTax(accountId, taxShares, rebalShares, feeSetting.payoutAddress);
+    return _sendRebalAndTax(accountId, taxShares, rebalShares);
   }
 
   /*//////////////////////////////////////////////////////////////
                         ACCOUNTING
   //////////////////////////////////////////////////////////////*/
 
-  /// @notice Determine if a tax can be applied and send if so
+  /// @notice Determine if a tax can be applied and send to router if so
   /// @dev Apply the tax and send it to the payee, return the value of the tax
   /// @param sharesRedeemedAmt number of shares redeemed for redemption value
   /// @param baseTokensReturnedAmt number of tokens returned by redemption
@@ -315,9 +323,15 @@ contract APVault_V1 is IVault, ERC4626AP {
     // tax = taxableAmt * yieldRate * feeRate
     uint256 tax = yieldBaseTokens.mulDivDown(feeSetting.bps, LibAccounts.FEE_BASIS);
 
-    if (!IERC20Metadata(vaultConfig.baseToken).transfer(feeSetting.payoutAddress, tax)) {
+    // Approve router for paying fee and call `sendTax`
+    string memory thisChain = IRegistrar(vaultConfig.registrar).thisChain();
+    LocalRegistrarLib.NetworkInfo memory network = IRegistrar(vaultConfig.registrar)
+      .queryNetworkConnection(thisChain);
+    if (!IERC20Metadata(vaultConfig.baseToken).approve(network.router, tax)) {
       revert TransferFailed();
     }
+    IRouter(network.router).sendTax(vaultConfig.baseToken, tax, feeSetting.payoutAddress);
+
     return tax;
   }
 
@@ -368,9 +382,8 @@ contract APVault_V1 is IVault, ERC4626AP {
   function _sendRebalAndTax(
     uint32 accountId,
     uint256 taxShares,
-    uint256 rebalShares,
-    address feeRecipient
-  ) internal {
+    uint256 rebalShares
+  ) internal returns (uint256) {
     // Shares -> Yield Asset -> Base Asset
     uint256 dYieldToken = super.redeemERC4626(
       (taxShares + rebalShares),
@@ -393,14 +406,14 @@ contract APVault_V1 is IVault, ERC4626AP {
     ) {
       revert TransferFailed();
     }
-    // Determine proportion owed in tax and send to payee
+    // Determine proportion owed in tax and approve router
     uint256 taxProportion_withPrecision = taxShares.mulDivDown(
       PRECISION,
       (taxShares + rebalShares)
     );
     uint256 tax = redemption.mulDivUp(taxProportion_withPrecision, PRECISION);
-    if (!IERC20Metadata(vaultConfig.baseToken).transfer(feeRecipient, tax)) {
-      revert TransferFailed();
+    if (IERC20Metadata(vaultConfig.baseToken).approve(msg.sender, tax)) {
+      revert ApproveFailed();
     }
     // Rebalance remainder to liquid
     LocalRegistrarLib.StrategyParams memory stratParams = IRegistrar(vaultConfig.registrar)
@@ -418,6 +431,7 @@ contract APVault_V1 is IVault, ERC4626AP {
       vaultConfig.baseToken,
       (redemption - tax)
     );
+    return tax;
   }
 
   /*//////////////////////////////////////////////////////////////

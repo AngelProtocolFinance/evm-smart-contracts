@@ -125,7 +125,7 @@ abstract contract IVault {
   /// on the target yield strategy and VaultType. Only callable by an Angel Protocol Keeper
   /// @param accountIds Used to specify which accounts to call harvest against. Structured so that this can
   /// be called in batches to avoid running out of gas.
-  function harvest(uint32[] calldata accountIds) external virtual;
+  function harvest(uint32[] calldata accountIds) external virtual returns (uint256);
 
   /*////////////////////////////////////////////////
                 INTERNAL HELPER METHODS

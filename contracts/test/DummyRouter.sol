@@ -52,4 +52,6 @@ contract DummyRouter is IRouter {
     string calldata,
     uint256
   ) external {}
+  
+  function sendTax(address token, uint256 amount, address payee) external {}
 }
