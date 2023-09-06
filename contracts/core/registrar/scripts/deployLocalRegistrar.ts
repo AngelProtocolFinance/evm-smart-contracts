@@ -49,8 +49,5 @@ export async function deployLocalRegistrar(
     hre
   );
 
-  return {
-    implementation,
-    proxy,
-  };
+  return {implementation, proxy};
 }

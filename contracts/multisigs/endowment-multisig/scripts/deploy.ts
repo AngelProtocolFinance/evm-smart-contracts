@@ -66,7 +66,7 @@ export async function deployEndowmentMultiSig(
   await emitterProxy.deployed();
   logger.out(`Address: ${emitterProxy.address}`);
 
-  // update address file & verify contracts
+  // update address file
   await updateAddresses(
     {
       multiSig: {

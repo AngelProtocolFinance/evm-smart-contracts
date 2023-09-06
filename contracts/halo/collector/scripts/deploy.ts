@@ -35,7 +35,7 @@ export async function deployCollector(
     await CollectorProxy.deployed();
     logger.out(`Collector Address (Proxy): ${CollectorProxy.address}"`);
 
-    // update address file & verify contracts
+    // update address file
     await updateAddresses(
       {
         halo: {

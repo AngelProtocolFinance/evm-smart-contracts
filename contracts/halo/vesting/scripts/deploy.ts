@@ -35,7 +35,7 @@ export async function deployVesting(
     await VestingProxy.deployed();
     logger.out(`Vesting Address (Proxy): ${VestingProxy.address}"`);
 
-    // update address file & verify contracts
+    // update address file
     await updateAddresses(
       {
         halo: {

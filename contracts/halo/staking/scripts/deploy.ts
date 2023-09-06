@@ -35,7 +35,7 @@ export async function deployStaking(
     await StakingProxy.deployed();
     logger.out(`Staking Address (Proxy): ${StakingProxy.address}"`);
 
-    // update address file & verify contracts
+    // update address file
     await updateAddresses(
       {
         halo: {

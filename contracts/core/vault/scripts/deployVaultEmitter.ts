@@ -7,10 +7,7 @@ export async function deployVaultEmitter(
   proxyAdmin: string,
   deployer: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
-): Promise<{
-  implementation: Deployment;
-  proxy: Deployment;
-}> {
+): Promise<ProxyDeployment<>> {
   logger.out("Deploying VaultEmitter...");
 
   logger.out("Deploying implementation...");
@@ -28,7 +25,7 @@ export async function deployVaultEmitter(
   await proxy.deployed();
   logger.out(`Address: ${proxy.address}`);
 
-  // update address file & verify contracts
+  // update address file
   await updateAddresses(
     {
       vaultEmitter: {

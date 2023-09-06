@@ -35,7 +35,7 @@ export async function deployCommunity(
     await CommunityProxy.deployed();
     logger.out(`Community Address (Proxy): ${CommunityProxy.address}"`);
 
-    // update address file & verify contracts
+    // update address file
     await updateAddresses(
       {
         halo: {

@@ -76,8 +76,5 @@ export async function deployRegistrar(
     hre
   );
 
-  return {
-    implementation,
-    proxy,
-  };
+  return {implementation, proxy};
 }

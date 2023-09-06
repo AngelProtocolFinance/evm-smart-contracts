@@ -28,7 +28,7 @@ export async function deployGov(
     await GovProxy.deployed();
     logger.out(`Gov Address (Proxy): ${GovProxy.address}"`);
 
-    // update address file & verify contracts
+    // update address file
     await updateAddresses(
       {
         halo: {

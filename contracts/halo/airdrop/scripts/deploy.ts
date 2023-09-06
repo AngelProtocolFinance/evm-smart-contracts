@@ -35,7 +35,7 @@ export async function deployAirdrop(
     await AirdropProxy.deployed();
     logger.out(`Airdrop Address (Proxy): ${AirdropProxy.address}"`);
 
-    // update address file & verify contracts
+    // update address file
     await updateAddresses(
       {
         halo: {

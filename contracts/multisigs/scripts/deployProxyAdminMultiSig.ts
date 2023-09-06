@@ -8,20 +8,16 @@ export async function deployProxyAdminMultisig(
   owners: string[],
   deployer: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
-): Promise<Deployment> {
-  const proxyAdmin = await deploy(ProxyAdminMultiSig__factory, deployer, [
+): Promise<Deployment<ProxyAdminMultiSig__factory>> {
+  const proxyAdmin = await deploy(new ProxyAdminMultiSig__factory(deployer), [
     owners,
     CONFIG.PROXY_ADMIN_MULTISIG_DATA.threshold,
     CONFIG.PROXY_ADMIN_MULTISIG_DATA.requireExecution,
     CONFIG.PROXY_ADMIN_MULTISIG_DATA.transactionExpiry,
   ]);
 
-  // update address file & verify contracts
+  // update address file
   await updateAddresses({multiSig: {proxyAdmin: proxyAdmin.contract.address}}, hre);
 
-  return {
-    address: proxyAdmin.contract.address,
-    contractName: proxyAdmin.contractName,
-    constructorArguments: proxyAdmin.constructorArguments,
-  };
+  return proxyAdmin;
 }
