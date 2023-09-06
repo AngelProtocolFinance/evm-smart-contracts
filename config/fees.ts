@@ -1,7 +1,7 @@
 import {Fees} from "./types";
 import {FeeTypes} from "../utils";
 
-export const fees: Fees = {
+export const FEES: Fees = {
   [FeeTypes.Default]: {
     payoutAddress: "",
     bps: 0,

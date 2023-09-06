@@ -1,4 +1,4 @@
-import config from "config";
+import {CONFIG} from "config";
 import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
 import {deployGasFwd} from "contracts/core/gasFwd/scripts/deploy";
 import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
@@ -49,11 +49,11 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
 
       let {deployer, proxyAdminMultisigOwners, treasury} = await getSigners(hre);
 
-      let treasuryAddress = treasury ? treasury.address : config.PROD_CONFIG.Treasury;
+      let treasuryAddress = treasury ? treasury.address : CONFIG.PROD_CONFIG.Treasury;
 
       const proxyAdminMultisigOwnerAddresses = proxyAdminMultisigOwners
         ? proxyAdminMultisigOwners.map((x) => x.address)
-        : config.PROD_CONFIG.ProxyAdminMultiSigOwners;
+        : CONFIG.PROD_CONFIG.ProxyAdminMultiSigOwners;
 
       // Reset the contract address object for all contracts that will be deployed here
       await resetContractAddresses(hre);

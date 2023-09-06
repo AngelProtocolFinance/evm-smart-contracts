@@ -1,7 +1,9 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {TwoWayMap} from "./twoWayMap";
 
-const PROD_NETWORKS = [1, 137]; // Ethereum, Polygon
+export const POLYGON = 137;
+export const ETHEREUM = 1;
+export const PROD_NETWORKS = [ETHEREUM, POLYGON];
 
 // There are errors/mismatches in the axelar sdk jsons, so we just implement a lightweight
 // version here and use this instead.

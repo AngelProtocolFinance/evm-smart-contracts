@@ -1,4 +1,4 @@
-import config from "config";
+import {CONFIG} from "config";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {CharityApplications__factory, ProxyContract__factory} from "typechain-types";
@@ -18,7 +18,7 @@ export async function deployCharityApplications(
 
   const {charityApplicationsOwners} = await getSigners(hre);
   const owners = !charityApplicationsOwners
-    ? config.PROD_CONFIG.CharityApplicationsOwners
+    ? CONFIG.PROD_CONFIG.CharityApplicationsOwners
     : charityApplicationsOwners.map((x) => x.address);
 
   // deploy implementation
@@ -32,14 +32,14 @@ export async function deployCharityApplications(
   logger.out("Deploying proxy...");
   const initData = charityApplications.interface.encodeFunctionData("initializeApplications", [
     owners,
-    config.CHARITY_APPLICATIONS_DATA.threshold,
-    config.CHARITY_APPLICATIONS_DATA.requireExecution,
-    config.CHARITY_APPLICATIONS_DATA.transactionExpiry,
+    CONFIG.CHARITY_APPLICATIONS_DATA.threshold,
+    CONFIG.CHARITY_APPLICATIONS_DATA.requireExecution,
+    CONFIG.CHARITY_APPLICATIONS_DATA.transactionExpiry,
     accountsDiamond,
-    config.CHARITY_APPLICATIONS_DATA.gasAmount,
-    config.CHARITY_APPLICATIONS_DATA.seedSplitToLiquid,
+    CONFIG.CHARITY_APPLICATIONS_DATA.gasAmount,
+    CONFIG.CHARITY_APPLICATIONS_DATA.seedSplitToLiquid,
     seedAsset,
-    config.CHARITY_APPLICATIONS_DATA.seedAmount,
+    CONFIG.CHARITY_APPLICATIONS_DATA.seedAmount,
   ]);
   const proxyFactory = new ProxyContract__factory(deployer);
   const charityApplicationsProxy = await proxyFactory.deploy(
