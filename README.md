@@ -43,7 +43,7 @@ _Note: Most calls to hardhat check for requisite artifacts and will auto-compile
 
 To compile `clean` use: 
 
-`yarn compile --clean`
+`yarn compile clean`
 
 The default behavior is for Hardhat to use a chain in memory at runtime. For persistent state, run a local node `yarn hardhat node` or use a testnet.
 The network can be pointed to using the `--network` CLI flag.
