@@ -1,6 +1,6 @@
 import {BytesLike, ContractFactory} from "ethers";
 import {ProxyContract__factory} from "typechain-types";
-import {Deployment, getContractName, logger} from ".";
+import {Deployment, ProxyDeployment, getContractName, logger} from ".";
 
 /**
  * Deploys a contract; includes logging of the relevant data
@@ -48,10 +48,7 @@ export async function deployBehindProxy<T extends ContractFactory>(
   factory: T,
   proxyAdmin: string,
   initData: BytesLike
-): Promise<{
-  implementation: Deployment<T>;
-  proxy: Deployment<ProxyContract__factory>;
-}> {
+): Promise<ProxyDeployment<T>> {
   const implementation = await deploy(factory);
   const proxy = await deploy(new ProxyContract__factory(factory.signer), [
     implementation.contract.address,
