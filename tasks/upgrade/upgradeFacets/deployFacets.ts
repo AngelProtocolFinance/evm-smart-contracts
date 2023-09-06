@@ -1,40 +1,40 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import getFacetFactoryEntries from "contracts/core/accounts/scripts/deploy/getFacetFactoryEntries";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {getContractName, logger, updateAddresses} from "utils";
+import {deploy, getContractName, logger, updateAddresses} from "utils";
 import {Facet} from "./types";
 
 export default async function deployFacets(
   facetNames: string[],
-  diamondOwner: SignerWithAddress,
+  deployer: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
 ): Promise<Facet[]> {
   logger.out("Deploying facets...");
 
   const facets: Facet[] = [];
 
-  const facetEntries = getFacetsToUpgrade(facetNames, diamondOwner);
+  const facetEntries = getFacetsToUpgrade(facetNames);
 
   for (const entry of facetEntries) {
-    const facetName = getContractName(entry.factory);
     try {
-      const facet = await entry.factory.deploy();
-      await facet.deployed();
-      logger.out(`${facetName} deployed: ${facet.address}`);
+      const facet = await deploy(entry.factory, deployer);
 
-      await updateAddresses({accounts: {facets: {[entry.addressField]: facet.address}}}, hre);
+      await updateAddresses(
+        {accounts: {facets: {[entry.addressField]: facet.contract.address}}},
+        hre
+      );
 
-      facets.push({name: facetName, contract: facet});
+      facets.push({name: facet.contractName, contract: facet.contract});
     } catch (error) {
-      logger.out(`Failed to deploy ${facetName}, reason: ${error}`, logger.Level.Error);
+      logger.out(`Deployment failed, reason: ${error}`, logger.Level.Error);
     }
   }
 
   return facets;
 }
 
-function getFacetsToUpgrade(facetNames: string[], diamondOwner: SignerWithAddress) {
-  const factoryEntries = getFacetFactoryEntries(diamondOwner);
+function getFacetsToUpgrade(facetNames: string[]) {
+  const factoryEntries = getFacetFactoryEntries();
   const facetsToUpgrade = facetNames.map((facetName) => {
     const factoryEntry = factoryEntries.find(
       (entry) => getContractName(entry.factory) === facetName

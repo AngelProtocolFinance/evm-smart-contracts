@@ -6,7 +6,7 @@ import {
   Diamond__factory,
   IERC173__factory,
 } from "typechain-types";
-import {Deployment, getContractName, logger, updateAddresses} from "utils";
+import {Deployment, deploy, logger, updateAddresses} from "utils";
 import cutDiamond from "./cutDiamond";
 import deployFacets from "./deployFacets";
 
@@ -47,34 +47,32 @@ async function deployDiamond(
   deployer: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
 ): Promise<{diamond: Deployment; diamondCutFacet: Deployment}> {
-  const DiamondCutFacet = new DiamondCutFacet__factory(deployer);
-  const diamondCutFacet = await DiamondCutFacet.deploy();
-  await diamondCutFacet.deployed();
-  logger.out(`DiamondCutFacet deployed at: ${diamondCutFacet.address}`);
+  const diamondCutFacet = await deploy(DiamondCutFacet__factory, deployer);
 
-  const constructorArguments: Parameters<Diamond__factory["deploy"]> = [
+  const diamond = await deploy(Diamond__factory, deployer, [
     deployer.address,
-    diamondCutFacet.address,
-  ];
-  const Diamond = new Diamond__factory(deployer);
-  const diamond = await Diamond.deploy(...constructorArguments);
-  await diamond.deployed();
-  logger.out(`Diamond deployed at: ${diamond.address}`);
+    diamondCutFacet.contract.address,
+  ]);
 
   await updateAddresses(
-    {accounts: {diamond: diamond.address, facets: {diamondCutFacet: diamondCutFacet.address}}},
+    {
+      accounts: {
+        diamond: diamond.contract.address,
+        facets: {diamondCutFacet: diamondCutFacet.contract.address},
+      },
+    },
     hre
   );
 
   return {
     diamond: {
-      address: diamond.address,
-      contractName: getContractName(Diamond),
-      constructorArguments,
+      address: diamond.contract.address,
+      contractName: diamond.contractName,
+      constructorArguments: diamond.constructorArguments,
     },
     diamondCutFacet: {
-      address: diamondCutFacet.address,
-      contractName: getContractName(DiamondCutFacet),
+      address: diamondCutFacet.contract.address,
+      contractName: diamondCutFacet.contractName,
     },
   };
 }
@@ -82,22 +80,23 @@ async function deployDiamond(
 /**
  * DiamondInit provides a function that is called when the diamond is upgraded to initialize state variables
  * Read about how the diamondCut function works here: https://eips.ethereum.org/EIPS/eip-2535#addingreplacingremoving-functions
- * @param admin signer representing administrator of the contract
+ * @param deployer signer representing deployer of the contract
  */
 async function deployDiamondInit(
-  admin: SignerWithAddress,
+  deployer: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
 ): Promise<Deployment> {
-  const DiamondInit = new DiamondInit__factory(admin);
-  const diamondInit = await DiamondInit.deploy();
-  await diamondInit.deployed();
-  logger.out(`DiamondInit deployed at: ${diamondInit.address}`);
+  const diamondInit = await deploy(DiamondInit__factory, deployer);
 
-  await updateAddresses({accounts: {facets: {diamondInitFacet: diamondInit.address}}}, hre);
+  await updateAddresses(
+    {accounts: {facets: {diamondInitFacet: diamondInit.contract.address}}},
+    hre
+  );
 
   return {
-    address: diamondInit.address,
-    contractName: getContractName(DiamondInit),
+    address: diamondInit.contract.address,
+    contractName: diamondInit.contractName,
+    constructorArguments: diamondInit.constructorArguments,
   };
 }
 

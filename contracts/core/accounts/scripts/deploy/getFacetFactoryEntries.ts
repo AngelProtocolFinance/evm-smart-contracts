@@ -1,4 +1,3 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {ContractFactory} from "ethers";
 import {
   AccountsDepositWithdrawEndowments__factory,
@@ -18,62 +17,62 @@ import {
 import {AddressObj} from "utils";
 
 // Getting factories instantiated in bulk as they share the deploy/cut creation logic.
-export default function getFacetFactoryEntries(diamondOwner: SignerWithAddress): {
-  factory: ContractFactory;
+export default function getFacetFactoryEntries(): {
+  factory: typeof ContractFactory;
   addressField: keyof AddressObj["accounts"]["facets"];
 }[] {
   return [
     {
       addressField: "accountsUpdate",
-      factory: new AccountsUpdate__factory(diamondOwner),
+      factory: AccountsUpdate__factory,
     },
     {
       addressField: "accountsQueryEndowments",
-      factory: new AccountsQueryEndowments__factory(diamondOwner),
+      factory: AccountsQueryEndowments__factory,
     },
     {
       addressField: "accountsUpdateStatusEndowments",
-      factory: new AccountsUpdateStatusEndowments__factory(diamondOwner),
+      factory: AccountsUpdateStatusEndowments__factory,
     },
     {
       addressField: "diamondLoupeFacet",
-      factory: new DiamondLoupeFacet__factory(diamondOwner),
+      factory: DiamondLoupeFacet__factory,
     },
     {
       addressField: "ownershipFacet",
-      factory: new OwnershipFacet__factory(diamondOwner),
+      factory: OwnershipFacet__factory,
     },
     {
       addressField: "accountsDepositWithdrawEndowments",
-      factory: new AccountsDepositWithdrawEndowments__factory(diamondOwner),
+      factory: AccountsDepositWithdrawEndowments__factory,
     },
     {
       addressField: "accountsAllowance",
-      factory: new AccountsAllowance__factory(diamondOwner),
+      factory: AccountsAllowance__factory,
     },
     {
       addressField: "accountsCreateEndowment",
-      factory: new AccountsCreateEndowment__factory(diamondOwner),
+      factory: AccountsCreateEndowment__factory,
     },
     {
       addressField: "accountsSwapRouter",
-      factory: new AccountsSwapRouter__factory(diamondOwner),
+      factory: AccountsSwapRouter__factory,
     },
     {
       addressField: "accountsUpdateEndowments",
-      factory: new AccountsUpdateEndowments__factory(diamondOwner),
+      factory: AccountsUpdateEndowments__factory,
     },
     {
       addressField: "accountsUpdateEndowmentSettingsController",
-      factory: new AccountsUpdateEndowmentSettingsController__factory(diamondOwner),
+      factory: AccountsUpdateEndowmentSettingsController__factory,
     },
     {
       addressField: "accountsStrategy",
-      factory: new AccountsStrategy__factory(diamondOwner),
+      factory: AccountsStrategy__factory,
     },
     {
       addressField: "accountsGasManager",
-      factory: new AccountsGasManager__factory(diamondOwner),
+      factory: AccountsGasManager__factory,
     },
   ];
 }
