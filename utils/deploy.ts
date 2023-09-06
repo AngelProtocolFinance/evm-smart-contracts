@@ -1,12 +1,6 @@
 import {BytesLike, ContractFactory} from "ethers";
 import {ProxyContract__factory} from "typechain-types";
-import {getContractName, logger} from ".";
-
-type Deployment<T extends ContractFactory> = {
-  constructorArguments?: Parameters<T["deploy"]>;
-  contract: Awaited<ReturnType<T["deploy"]>>;
-  contractName: string;
-};
+import {Deployment, getContractName, logger} from ".";
 
 /**
  * Deploys a contract; includes logging of the relevant data

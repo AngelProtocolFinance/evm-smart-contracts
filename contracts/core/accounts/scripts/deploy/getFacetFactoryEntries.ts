@@ -1,78 +1,79 @@
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {ContractFactory} from "ethers";
 import {
-  AccountsDepositWithdrawEndowments__factory,
   AccountsAllowance__factory,
   AccountsCreateEndowment__factory,
+  AccountsDepositWithdrawEndowments__factory,
+  AccountsGasManager__factory,
   AccountsQueryEndowments__factory,
+  AccountsStrategy__factory,
   AccountsSwapRouter__factory,
   AccountsUpdateEndowmentSettingsController__factory,
   AccountsUpdateEndowments__factory,
   AccountsUpdateStatusEndowments__factory,
   AccountsUpdate__factory,
-  AccountsStrategy__factory,
-  AccountsGasManager__factory,
   DiamondLoupeFacet__factory,
   OwnershipFacet__factory,
 } from "typechain-types";
 import {AddressObj} from "utils";
 
 // Getting factories instantiated in bulk as they share the deploy/cut creation logic.
-export default function getFacetFactoryEntries(): {
-  factory: typeof ContractFactory;
+export default function getFacetFactoryEntries(deployer: SignerWithAddress): {
+  factory: ContractFactory;
   addressField: keyof AddressObj["accounts"]["facets"];
 }[] {
   return [
     {
       addressField: "accountsUpdate",
-      factory: AccountsUpdate__factory,
+      factory: new AccountsUpdate__factory(deployer),
     },
     {
       addressField: "accountsQueryEndowments",
-      factory: AccountsQueryEndowments__factory,
+      factory: new AccountsQueryEndowments__factory(deployer),
     },
     {
       addressField: "accountsUpdateStatusEndowments",
-      factory: AccountsUpdateStatusEndowments__factory,
+      factory: new AccountsUpdateStatusEndowments__factory(deployer),
     },
     {
       addressField: "diamondLoupeFacet",
-      factory: DiamondLoupeFacet__factory,
+      factory: new DiamondLoupeFacet__factory(deployer),
     },
     {
       addressField: "ownershipFacet",
-      factory: OwnershipFacet__factory,
+      factory: new OwnershipFacet__factory(deployer),
     },
     {
       addressField: "accountsDepositWithdrawEndowments",
-      factory: AccountsDepositWithdrawEndowments__factory,
+      factory: new AccountsDepositWithdrawEndowments__factory(deployer),
     },
     {
       addressField: "accountsAllowance",
-      factory: AccountsAllowance__factory,
+      factory: new AccountsAllowance__factory(deployer),
     },
     {
       addressField: "accountsCreateEndowment",
-      factory: AccountsCreateEndowment__factory,
+      factory: new AccountsCreateEndowment__factory(deployer),
     },
     {
       addressField: "accountsSwapRouter",
-      factory: AccountsSwapRouter__factory,
+      factory: new AccountsSwapRouter__factory(deployer),
     },
     {
       addressField: "accountsUpdateEndowments",
-      factory: AccountsUpdateEndowments__factory,
+      factory: new AccountsUpdateEndowments__factory(deployer),
     },
     {
       addressField: "accountsUpdateEndowmentSettingsController",
-      factory: AccountsUpdateEndowmentSettingsController__factory,
+      factory: new AccountsUpdateEndowmentSettingsController__factory(deployer),
     },
     {
       addressField: "accountsStrategy",
-      factory: AccountsStrategy__factory,
+      factory: new AccountsStrategy__factory(deployer),
     },
     {
       addressField: "accountsGasManager",
-      factory: AccountsGasManager__factory,
+      factory: new AccountsGasManager__factory(deployer),
     },
   ];
 }

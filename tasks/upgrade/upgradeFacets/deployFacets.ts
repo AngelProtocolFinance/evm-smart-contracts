@@ -13,11 +13,11 @@ export default async function deployFacets(
 
   const facets: Facet[] = [];
 
-  const facetEntries = getFacetsToUpgrade(facetNames);
+  const facetEntries = getFacetsToUpgrade(facetNames, deployer);
 
   for (const entry of facetEntries) {
     try {
-      const facet = await deploy(entry.factory, deployer);
+      const facet = await deploy(entry.factory);
 
       await updateAddresses(
         {accounts: {facets: {[entry.addressField]: facet.contract.address}}},
@@ -33,8 +33,8 @@ export default async function deployFacets(
   return facets;
 }
 
-function getFacetsToUpgrade(facetNames: string[]) {
-  const factoryEntries = getFacetFactoryEntries();
+function getFacetsToUpgrade(facetNames: string[], deployer: SignerWithAddress) {
+  const factoryEntries = getFacetFactoryEntries(deployer);
   const facetsToUpgrade = facetNames.map((facetName) => {
     const factoryEntry = factoryEntries.find(
       (entry) => getContractName(entry.factory) === facetName

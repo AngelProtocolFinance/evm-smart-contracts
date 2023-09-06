@@ -13,23 +13,23 @@ export default async function deployFacets(
 
   const cuts: FacetCut[] = [];
 
-  const factoryEntries = getFacetFactoryEntries();
+  const factoryEntries = getFacetFactoryEntries(deployer);
 
   for (const entry of factoryEntries) {
     try {
-      const facet = await deploy(entry.factory, deployer);
+      const deployment = await deploy(entry.factory);
 
       await updateAddresses(
-        {accounts: {facets: {[entry.addressField]: facet.contract.address}}},
+        {accounts: {facets: {[entry.addressField]: deployment.contract.address}}},
         hre
       );
 
       cuts.push({
-        facetName: facet.contractName,
+        deployment: deployment,
         cut: {
-          facetAddress: facet.contract.address,
+          facetAddress: deployment.contract.address,
           action: FacetCutAction.Add,
-          functionSelectors: getSelectors(facet.contract),
+          functionSelectors: getSelectors(deployment.contract),
         },
       });
     } catch (error) {
