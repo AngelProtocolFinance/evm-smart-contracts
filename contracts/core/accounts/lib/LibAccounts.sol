@@ -93,7 +93,9 @@ library LibAccounts {
     Withdraw,
     WithdrawCharity,
     EarlyLockedWithdraw,
-    EarlyLockedWithdrawCharity
+    EarlyLockedWithdrawCharity,
+    Balance,
+    BalanceCharity
   }
 
   struct FeeSetting {
