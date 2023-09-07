@@ -3,8 +3,8 @@ import {submitMultiSigTx} from "tasks/helpers";
 import {ITransparentUpgradeableProxy__factory, Router__factory} from "typechain-types";
 import {
   confirmAction,
+  deploy,
   getAddresses,
-  getContractName,
   getProxyAdminOwner,
   getSigners,
   isLocalNetwork,
@@ -31,16 +31,13 @@ task("upgrade:router", "Will upgrade the Router")
 
         const addresses = await getAddresses(hre);
 
-        logger.out("Deploying a new Router implementation...");
-        const Router = new Router__factory(deployer);
-        const router = await Router.deploy();
-        await router.deployed();
-        logger.out(`New impl address: ${router.address}`);
+        // deploy implementation
+        const deployment = await deploy(new Router__factory(deployer));
 
         logger.out("Upgrading Router proxy implementation...");
         const payload = ITransparentUpgradeableProxy__factory.createInterface().encodeFunctionData(
           "upgradeTo",
-          [router.address]
+          [deployment.contract.address]
         );
         const isExecuted = await submitMultiSigTx(
           addresses.multiSig.proxyAdmin,
@@ -55,18 +52,14 @@ task("upgrade:router", "Will upgrade the Router")
         await updateAddresses(
           {
             registrar: {
-              implementation: router.address,
+              implementation: deployment.contract.address,
             },
           },
           hre
         );
 
         if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
-          await verify(hre, {
-            address: router.address,
-            contract: "contracts/core/router/Router.sol:Router",
-            contractName: getContractName(Router),
-          });
+          await verify(hre, deployment);
         }
       } catch (error) {
         logger.out(error, logger.Level.Error);

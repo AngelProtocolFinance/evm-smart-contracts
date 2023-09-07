@@ -1,14 +1,14 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
+import {Staking__factory} from "typechain-types";
+import {StakingMessages} from "typechain-types/contracts/halo/staking/Staking";
 import {
-  getContractName,
+  deployBehindProxy,
   getProxyAdminOwner,
+  getSigners,
   isLocalNetwork,
-  logger,
   updateAddresses,
   verify,
 } from "utils";
-
-import {StakingMessages} from "typechain-types/contracts/halo/staking/Staking";
 
 export async function deployStaking(
   StakingDataInput: StakingMessages.InstantiateMsgStruct,
@@ -16,32 +16,22 @@ export async function deployStaking(
   hre: HardhatRuntimeEnvironment
 ) {
   try {
-    const {ethers, run, network} = hre;
+    const {deployer} = await getSigners(hre);
     const proxyAdmin = await getProxyAdminOwner(hre);
-    const Staking = await ethers.getContractFactory("Staking");
-    const StakingInstance = await Staking.deploy();
-    await StakingInstance.deployed();
-    logger.out(`Staking implementation address: ${StakingInstance.address}"`);
 
-    const ProxyContract = await ethers.getContractFactory("ProxyContract");
-    const StakingData = StakingInstance.interface.encodeFunctionData("initialize", [
-      StakingDataInput,
-    ]);
-    const StakingProxy = await ProxyContract.deploy(
-      StakingInstance.address,
-      proxyAdmin.address,
-      StakingData
-    );
-    await StakingProxy.deployed();
-    logger.out(`Staking Address (Proxy): ${StakingProxy.address}"`);
+    // data setup
+    const Staking = new Staking__factory(deployer);
+    const initData = Staking.interface.encodeFunctionData("initialize", [StakingDataInput]);
+    // deploy
+    const {implementation, proxy} = await deployBehindProxy(Staking, proxyAdmin.address, initData);
 
-    // update address file & verify contracts
+    // update address file
     await updateAddresses(
       {
         halo: {
           staking: {
-            proxy: StakingProxy.address,
-            implementation: StakingInstance.address,
+            proxy: proxy.contract.address,
+            implementation: implementation.contract.address,
           },
         },
       },
@@ -49,14 +39,11 @@ export async function deployStaking(
     );
 
     if (!isLocalNetwork(hre) && verify_contracts) {
-      await verify(hre, {contractName: getContractName(Staking), address: StakingInstance.address});
-      await verify(hre, {
-        contractName: getContractName(ProxyContract),
-        address: StakingProxy.address,
-      });
+      await verify(hre, implementation);
+      await verify(hre, proxy);
     }
 
-    return Promise.resolve(StakingProxy.address);
+    return Promise.resolve(proxy.contract.address);
   } catch (error) {
     return Promise.reject(error);
   }

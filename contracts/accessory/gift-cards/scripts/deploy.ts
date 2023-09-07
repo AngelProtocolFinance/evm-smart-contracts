@@ -1,7 +1,7 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {getContractName, getSigners, logger, updateAddresses, verify} from "utils";
+import {GiftCards__factory} from "typechain-types";
 import {GiftCardsMessage} from "typechain-types/contracts/accessory/gift-cards/GiftCards";
-import {GiftCards__factory, ProxyContract__factory} from "typechain-types";
+import {deployBehindProxy, getSigners, updateAddresses, verify} from "utils";
 
 export async function deployGiftCard(
   GiftCardsDataInput: GiftCardsMessage.InstantiateMsgStruct,
@@ -12,43 +12,29 @@ export async function deployGiftCard(
   try {
     const {deployer} = await getSigners(hre);
 
+    // data setup
     const GiftCards = new GiftCards__factory(deployer);
-    const GiftCardsInstance = await GiftCards.deploy();
-    await GiftCardsInstance.deployed();
-    logger.out(`GiftCards implementation address: ${GiftCardsInstance.address}"`);
+    const initData = GiftCards.interface.encodeFunctionData("initialize", [GiftCardsDataInput]);
+    // deploy
+    const {implementation, proxy} = await deployBehindProxy(GiftCards, admin, initData);
 
-    const ProxyContract = new ProxyContract__factory(deployer);
-    const GiftCardsData = GiftCardsInstance.interface.encodeFunctionData("initialize", [
-      GiftCardsDataInput,
-    ]);
-    const GiftCardsProxy = await ProxyContract.deploy(
-      GiftCardsInstance.address,
-      admin,
-      GiftCardsData
-    );
-    await GiftCardsProxy.deployed();
-    logger.out(`GiftCards Address (Proxy): ${GiftCardsProxy.address}"`);
-
-    // update address file & verify contracts
+    // update address file
     await updateAddresses(
       {
         giftcards: {
-          proxy: GiftCardsProxy.address,
-          implementation: GiftCardsInstance.address,
+          proxy: proxy.contract.address,
+          implementation: implementation.contract.address,
         },
       },
       hre
     );
 
     if (verify_contracts) {
-      await verify(hre, {
-        address: GiftCardsProxy.address,
-        constructorArguments: [GiftCardsInstance.address, admin, GiftCardsData],
-        contractName: getContractName(GiftCards),
-      });
+      await verify(hre, implementation);
+      await verify(hre, proxy);
     }
 
-    return Promise.resolve(GiftCardsProxy.address);
+    return Promise.resolve(proxy.contract.address);
   } catch (error) {
     return Promise.reject(error);
   }

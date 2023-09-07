@@ -1,15 +1,13 @@
+import {getSelectors} from "contracts/core/accounts/scripts/libraries/diamond";
+import {Contract} from "ethers";
 import {DiamondLoupeFacet} from "typechain-types";
 import {ADDRESS_ZERO, logger} from "utils";
 
-import {getSelectors} from "contracts/core/accounts/scripts/libraries/diamond";
-
-import {Facet} from "../types";
-
 export default async function getFacetSelectors(
-  facet: Facet,
+  facet: Contract,
   loupe: DiamondLoupeFacet
 ): Promise<{toAdd: string[]; toRemove: string[]; toReplace: string[]}> {
-  const allSelectors = getSelectors(facet.contract);
+  const allSelectors = getSelectors(facet);
 
   const toAdd: string[] = [];
   const toReplace: string[] = [];

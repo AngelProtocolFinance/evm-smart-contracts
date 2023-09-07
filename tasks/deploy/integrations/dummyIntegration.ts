@@ -1,13 +1,13 @@
 import {task} from "hardhat/config";
-import {APVault_V1__factory, GoerliDummy__factory, DummyERC20__factory} from "typechain-types";
+import {APVault_V1__factory, DummyERC20__factory, GoerliDummy__factory} from "typechain-types";
+import {VaultType} from "types";
 import {
-  logger,
-  getSigners,
-  getAddresses,
   StratConfig,
-  writeStrategyAddresses,
-  VaultType,
   StrategyObject,
+  getAddresses,
+  getSigners,
+  logger,
+  writeStrategyAddresses,
 } from "utils";
 import {allStrategyConfigs} from "../../../contracts/integrations/stratConfig";
 

@@ -51,12 +51,12 @@ task("deploy:accounts", "It will deploy accounts diamond contracts")
       );
 
       await hre.run("manage:registrar:updateConfig", {
-        accountsContract: diamond.address,
+        accountsContract: diamond.contract.address,
         apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });
       await hre.run("manage:CharityApplications:updateConfig", {
-        accountsDiamond: diamond.address,
+        accountsDiamond: diamond.contract.address,
         appsSignerPkey: taskArgs.appsSignerPkey,
         yes: true,
       });

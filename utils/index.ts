@@ -1,8 +1,9 @@
 export * from "./confirmAction";
 export * from "./constants";
-export * from "./env.config";
+export * from "./deploy";
 export * from "./getContractName";
 export * from "./getEnumKeys";
+export * from "./getKeysTyped";
 export * from "./filterEvents";
 export * from "./signers";
 export * from "./keygen";
@@ -11,6 +12,5 @@ export * from "./manageAddressFile";
 export * from "./manageStratParams";
 export * from "./networkHelpers";
 export * from "./structToObject";
-export * from "./types";
 export * from "./validation";
 export * from "./verify";

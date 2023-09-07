@@ -40,7 +40,7 @@ const deployHalo = async (verify_contracts: boolean, hre: HardhatRuntimeEnvironm
     await Halo.deployed();
 
     if (verify_contracts) {
-      await verify(hre, {contractName: getContractName(factory), address: Halo.address});
+      await verify(hre, {contractName: getContractName(factory), contract: Halo});
     }
     console.log("Halo Address (ERC20):", Halo.address);
 

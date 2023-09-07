@@ -70,8 +70,9 @@ export const CONFIG: Config = {
       "0x109641d919da899c7bd1ce27413d0c02b3bb611d",
       "0x0f6d331f26C0B64fc6EACddABd5645b55cf2d8e0",
     ],
-    Treasury: "0x4C6cDdFC00064D73E64B34aE453884de1Bf6D639",
+    Treasury: "0x30f07D09F7f0E22be0a6879eF505dc810b76D6b6",
   },
 };
 
+export * from "./env.config";
 export * from "./fees";

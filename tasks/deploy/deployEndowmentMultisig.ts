@@ -41,8 +41,8 @@ task("deploy:EndowmentMultiSig", "Will deploy EndowmentMultiSig contract")
       );
 
       await hre.run("manage:registrar:updateConfig", {
-        multisigFactory: deployData.factory.address,
-        multisigEmitter: deployData.emitter.proxy.address,
+        multisigFactory: deployData.factory.contract.address,
+        multisigEmitter: deployData.emitter.proxy.contract.address,
         apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });

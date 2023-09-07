@@ -11,10 +11,11 @@ import {
   deployCharityApplications,
   deployProxyAdminMultisig,
 } from "contracts/multisigs/scripts/deploy";
+import {ContractFactory} from "ethers";
 import {task} from "hardhat/config";
+import {Deployment} from "types";
 import {
   ADDRESS_ZERO,
-  Deployment,
   confirmAction,
   getSigners,
   isLocalNetwork,
@@ -68,33 +69,37 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
 
       const thirdPartyAddresses = await getOrDeployThirdPartyContracts(deployer, hre);
 
-      const apTeamMultisig = await deployAPTeamMultiSig(proxyAdminMultisig.address, deployer, hre);
+      const apTeamMultisig = await deployAPTeamMultiSig(
+        proxyAdminMultisig.contract.address,
+        deployer,
+        hre
+      );
 
       const registrar = await deployRegistrar(
         {
           axelarGateway: thirdPartyAddresses.axelarGateway.address,
           axelarGasService: thirdPartyAddresses.axelarGasService.address,
           router: ADDRESS_ZERO, // will be updated once Router is deployed
-          owner: apTeamMultisig.proxy.address,
+          owner: apTeamMultisig.proxy.contract.address,
           deployer,
-          proxyAdmin: proxyAdminMultisig.address,
+          proxyAdmin: proxyAdminMultisig.contract.address,
           treasury: treasuryAddress,
-          apTeamMultisig: apTeamMultisig.proxy.address,
+          apTeamMultisig: apTeamMultisig.proxy.contract.address,
         },
         hre
       );
 
       const router = await deployRouter(
-        registrar.proxy.address,
-        proxyAdminMultisig.address,
+        registrar.proxy.contract.address,
+        proxyAdminMultisig.contract.address,
         deployer,
         hre
       );
 
       const accounts = await deployAccountsDiamond(
-        apTeamMultisig.proxy.address,
-        registrar.proxy.address,
-        proxyAdminMultisig.address,
+        apTeamMultisig.proxy.contract.address,
+        registrar.proxy.contract.address,
+        proxyAdminMultisig.contract.address,
         deployer,
         hre
       );
@@ -102,9 +107,9 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
       const gasFwd = await deployGasFwd(
         {
           deployer: deployer,
-          proxyAdmin: proxyAdminMultisig.address,
-          factoryOwner: apTeamMultisig.proxy.address,
-          registrar: registrar.proxy.address,
+          proxyAdmin: proxyAdminMultisig.contract.address,
+          factoryOwner: apTeamMultisig.proxy.contract.address,
+          registrar: registrar.proxy.contract.address,
         },
         hre
       );
@@ -112,49 +117,53 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
       // const emitters = await deployEmitters(accountsDiamond.address, hre);
 
       const charityApplications = await deployCharityApplications(
-        accounts.diamond.address,
-        proxyAdminMultisig.address,
+        accounts.diamond.contract.address,
+        proxyAdminMultisig.contract.address,
         thirdPartyAddresses.seedAsset.address,
         deployer,
         hre
       );
 
       const indexFund = await deployIndexFund(
-        registrar.proxy.address,
-        apTeamMultisig.proxy.address,
-        proxyAdminMultisig.address,
+        registrar.proxy.contract.address,
+        apTeamMultisig.proxy.contract.address,
+        proxyAdminMultisig.contract.address,
         deployer,
         hre
       );
 
       const endowmentMultiSig = await deployEndowmentMultiSig(
-        registrar.proxy.address,
-        proxyAdminMultisig.address,
-        apTeamMultisig.proxy.address,
+        registrar.proxy.contract.address,
+        proxyAdminMultisig.contract.address,
+        apTeamMultisig.proxy.contract.address,
         deployer,
         hre
       );
 
-      const vaultEmitter = await deployVaultEmitter(proxyAdminMultisig.address, deployer, hre);
+      const vaultEmitter = await deployVaultEmitter(
+        proxyAdminMultisig.contract.address,
+        deployer,
+        hre
+      );
 
       await hre.run("manage:registrar:updateConfig", {
-        accountsContract: accounts.diamond.address, //Address
-        indexFundContract: indexFund.proxy.address, //address
+        accountsContract: accounts.diamond.contract.address, //Address
+        indexFundContract: indexFund.proxy.contract.address, //address
         treasury: treasuryAddress,
         uniswapRouter: thirdPartyAddresses.uniswap.swapRouter.address, //address
         uniswapFactory: thirdPartyAddresses.uniswap.factory.address, //address
-        multisigFactory: endowmentMultiSig.factory.address, //address
-        multisigEmitter: endowmentMultiSig.emitter.proxy.address, //address
-        charityApplications: charityApplications.proxy.address, //address
-        proxyAdmin: proxyAdminMultisig.address, //address
+        multisigFactory: endowmentMultiSig.factory.contract.address, //address
+        multisigEmitter: endowmentMultiSig.emitter.proxy.contract.address, //address
+        charityApplications: charityApplications.proxy.contract.address, //address
+        proxyAdmin: proxyAdminMultisig.contract.address, //address
         usdcAddress: thirdPartyAddresses.usdcToken.address,
         wMaticAddress: thirdPartyAddresses.wmaticToken.address,
-        gasFwdFactory: gasFwd.factory.address,
+        gasFwdFactory: gasFwd.factory.contract.address,
         apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });
       await hre.run("manage:registrar:setVaultEmitterAddress", {
-        to: vaultEmitter.proxy.address,
+        to: vaultEmitter.proxy.contract.address,
         apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });
@@ -164,7 +173,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
       });
 
       if (verify_contracts) {
-        const deployments: Array<Deployment> = [
+        const deployments: Array<Deployment<ContractFactory>> = [
           apTeamMultisig.implementation,
           apTeamMultisig.proxy,
           proxyAdminMultisig,

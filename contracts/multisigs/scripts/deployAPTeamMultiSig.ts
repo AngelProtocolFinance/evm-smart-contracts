@@ -1,69 +1,43 @@
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {CONFIG} from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {APTeamMultiSig__factory, ProxyContract__factory} from "typechain-types";
-import {Deployment, getContractName, getSigners, logger, updateAddresses} from "utils";
+import {APTeamMultiSig__factory} from "typechain-types";
+import {ProxyDeployment} from "types";
+import {deployBehindProxy, getSigners, updateAddresses} from "utils";
 
 export async function deployAPTeamMultiSig(
   proxyAdmin: string,
   deployer: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
-): Promise<{
-  implementation: Deployment;
-  proxy: Deployment;
-}> {
-  logger.out("Deploying APTeamMultiSig...");
-
+): Promise<ProxyDeployment<APTeamMultiSig__factory>> {
   const {apTeamMultisigOwners} = await getSigners(hre);
   const owners = apTeamMultisigOwners
     ? apTeamMultisigOwners.map((x) => x.address)
     : CONFIG.PROD_CONFIG.APTeamMultiSigOwners;
 
-  // deploy implementation
-  logger.out("Deploying implementation...");
-  const apTeamMultiSigFactory = new APTeamMultiSig__factory(deployer);
-  const apTeamMultiSig = await apTeamMultiSigFactory.deploy();
-  await apTeamMultiSig.deployed();
-  logger.out(`Address: ${apTeamMultiSig.address}.`);
-
-  // deploy proxy
-  logger.out("Deploying proxy...");
-  const apTeamMultiSigData = apTeamMultiSig.interface.encodeFunctionData("initializeAPTeam", [
+  // data setup
+  const APTeamMultiSig = new APTeamMultiSig__factory(deployer);
+  const data = APTeamMultiSig.interface.encodeFunctionData("initializeAPTeam", [
     owners,
     CONFIG.AP_TEAM_MULTISIG_DATA.threshold,
     CONFIG.AP_TEAM_MULTISIG_DATA.requireExecution,
     CONFIG.AP_TEAM_MULTISIG_DATA.transactionExpiry,
   ]);
-  const proxyFactory = new ProxyContract__factory(deployer);
-  const apTeamMultiSigProxy = await proxyFactory.deploy(
-    apTeamMultiSig.address,
-    proxyAdmin,
-    apTeamMultiSigData
-  );
-  await apTeamMultiSigProxy.deployed();
-  logger.out(`Address: ${apTeamMultiSigProxy.address}.`);
+  // deploy
+  const {implementation, proxy} = await deployBehindProxy(APTeamMultiSig, proxyAdmin, data);
 
-  // update address file & verify contracts
+  // update address file
   await updateAddresses(
     {
       multiSig: {
         apTeam: {
-          implementation: apTeamMultiSig.address,
-          proxy: apTeamMultiSigProxy.address,
+          implementation: implementation.contract.address,
+          proxy: proxy.contract.address,
         },
       },
     },
     hre
   );
 
-  return {
-    implementation: {
-      address: apTeamMultiSig.address,
-      contractName: getContractName(apTeamMultiSigFactory),
-    },
-    proxy: {
-      address: apTeamMultiSigProxy.address,
-      contractName: getContractName(proxyFactory),
-    },
-  };
+  return {implementation, proxy};
 }

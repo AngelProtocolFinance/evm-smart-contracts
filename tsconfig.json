@@ -18,7 +18,8 @@
     "./utils",
     "./tasks/*",
     "./test",
+    "./types",
     "./typechain-types"
   ],
-  "files": ["./hardhat.config.ts"]
+  "files": ["./hardhat.config.ts", "./types/index.ts"]
 }

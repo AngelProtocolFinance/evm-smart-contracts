@@ -1,4 +1,5 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {ContractFactory} from "ethers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {
   DiamondCutFacet__factory,
@@ -6,7 +7,8 @@ import {
   Diamond__factory,
   IERC173__factory,
 } from "typechain-types";
-import {Deployment, getContractName, logger, updateAddresses} from "utils";
+import {Deployment} from "types";
+import {deploy, logger, updateAddresses} from "utils";
 import cutDiamond from "./cutDiamond";
 import deployFacets from "./deployFacets";
 
@@ -17,8 +19,8 @@ export async function deployAccountsDiamond(
   deployer: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
 ): Promise<{
-  diamond: Deployment;
-  facets: Array<Deployment>;
+  diamond: Deployment<Diamond__factory>;
+  facets: Array<Deployment<ContractFactory>>;
 }> {
   logger.out("Deploying and setting up Accounts Diamond and all its facets...");
 
@@ -28,17 +30,22 @@ export async function deployAccountsDiamond(
 
   const cuts = await deployFacets(deployer, hre);
 
-  await cutDiamond(diamond.address, diamondInit.address, deployer, owner, registrar, cuts, hre);
+  await cutDiamond(
+    diamond.contract.address,
+    diamondInit.contract.address,
+    deployer,
+    owner,
+    registrar,
+    cuts,
+    hre
+  );
 
-  await setDiamondContractOwner(diamond.address, diamondAdmin, deployer);
+  await setDiamondContractOwner(diamond.contract.address, diamondAdmin, deployer);
 
   return {
     diamond,
     facets: cuts
-      .map<Deployment>(({cut, facetName}) => ({
-        address: cut.facetAddress.toString(),
-        contractName: facetName,
-      }))
+      .map<Deployment<ContractFactory>>((facetCut) => facetCut.deployment)
       .concat(diamondCutFacet, diamondInit),
   };
 }
@@ -46,36 +53,30 @@ export async function deployAccountsDiamond(
 async function deployDiamond(
   deployer: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
-): Promise<{diamond: Deployment; diamondCutFacet: Deployment}> {
-  const DiamondCutFacet = new DiamondCutFacet__factory(deployer);
-  const diamondCutFacet = await DiamondCutFacet.deploy();
-  await diamondCutFacet.deployed();
-  logger.out(`DiamondCutFacet deployed at: ${diamondCutFacet.address}`);
+): Promise<{
+  diamond: Deployment<Diamond__factory>;
+  diamondCutFacet: Deployment<DiamondCutFacet__factory>;
+}> {
+  const diamondCutFacet = await deploy(new DiamondCutFacet__factory(deployer));
 
-  const constructorArguments: Parameters<Diamond__factory["deploy"]> = [
+  const diamond = await deploy(new Diamond__factory(deployer), [
     deployer.address,
-    diamondCutFacet.address,
-  ];
-  const Diamond = new Diamond__factory(deployer);
-  const diamond = await Diamond.deploy(...constructorArguments);
-  await diamond.deployed();
-  logger.out(`Diamond deployed at: ${diamond.address}`);
+    diamondCutFacet.contract.address,
+  ]);
 
   await updateAddresses(
-    {accounts: {diamond: diamond.address, facets: {diamondCutFacet: diamondCutFacet.address}}},
+    {
+      accounts: {
+        diamond: diamond.contract.address,
+        facets: {diamondCutFacet: diamondCutFacet.contract.address},
+      },
+    },
     hre
   );
 
   return {
-    diamond: {
-      address: diamond.address,
-      contractName: getContractName(Diamond),
-      constructorArguments,
-    },
-    diamondCutFacet: {
-      address: diamondCutFacet.address,
-      contractName: getContractName(DiamondCutFacet),
-    },
+    diamond,
+    diamondCutFacet,
   };
 }
 
@@ -87,18 +88,15 @@ async function deployDiamond(
 async function deployDiamondInit(
   admin: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
-): Promise<Deployment> {
-  const DiamondInit = new DiamondInit__factory(admin);
-  const diamondInit = await DiamondInit.deploy();
-  await diamondInit.deployed();
-  logger.out(`DiamondInit deployed at: ${diamondInit.address}`);
+): Promise<Deployment<DiamondInit__factory>> {
+  const diamondInit = await deploy(new DiamondInit__factory(admin));
 
-  await updateAddresses({accounts: {facets: {diamondInitFacet: diamondInit.address}}}, hre);
+  await updateAddresses(
+    {accounts: {facets: {diamondInitFacet: diamondInit.contract.address}}},
+    hre
+  );
 
-  return {
-    address: diamondInit.address,
-    contractName: getContractName(DiamondInit),
-  };
+  return diamondInit;
 }
 
 async function setDiamondContractOwner(

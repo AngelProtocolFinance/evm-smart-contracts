@@ -26,7 +26,8 @@ import {
   LocalRegistrar__factory,
 } from "typechain-types";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
-import {StrategyApprovalState, getProxyAdminOwner, getSigners} from "utils";
+import {StrategyApprovalState} from "types";
+import {getProxyAdminOwner, getSigners} from "utils";
 
 use(smock.matchers);
 

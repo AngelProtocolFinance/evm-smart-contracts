@@ -1,9 +1,10 @@
 import {CONFIG} from "config";
 import {deployAPTeamMultiSig, deployProxyAdminMultisig} from "contracts/multisigs/scripts/deploy";
+import {ContractFactory} from "ethers";
 import {task} from "hardhat/config";
 import {getOrDeployThirdPartyContracts} from "tasks/helpers";
+import {Deployment} from "types";
 import {
-  Deployment,
   confirmAction,
   getSigners,
   isLocalNetwork,
@@ -51,17 +52,21 @@ task("deploy:SideChain", "Will deploy complete side-chain infrastructure")
         hre
       );
 
-      const apTeamMultisig = await deployAPTeamMultiSig(proxyAdminMultisig.address, deployer, hre);
+      const apTeamMultisig = await deployAPTeamMultiSig(
+        proxyAdminMultisig.contract.address,
+        deployer,
+        hre
+      );
 
       await hre.run("deploy:LocalRegistrarAndRouter", {
-        owner: apTeamMultisig.proxy.address,
+        owner: apTeamMultisig.proxy.contract.address,
         apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         skipVerify: taskArgs.skipVerify,
         yes: true,
       });
 
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
-        const deployments: Array<Deployment> = [
+        const deployments: Array<Deployment<ContractFactory>> = [
           proxyAdminMultisig,
           apTeamMultisig.implementation,
           apTeamMultisig.proxy,
