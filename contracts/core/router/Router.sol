@@ -9,7 +9,6 @@ import {IVault} from "../vault/interfaces/IVault.sol";
 import {ILocalRegistrar} from "../registrar/interfaces/ILocalRegistrar.sol";
 import {LocalRegistrarLib} from "../registrar/lib/LocalRegistrarLib.sol";
 import {StringToAddress, AddressToString} from "../../lib/StringAddressUtils.sol";
-import {StringArray} from "../../lib/Strings/string.sol";
 import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {AxelarExecutable} from "../../axelar/AxelarExecutable.sol";
@@ -241,7 +240,7 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     );
     uint256 totalAmt = _action.liqAmt + _action.lockAmt;
     // If returning locally
-    if (StringArray.stringCompare(registrar.thisChain(), _action.destinationChain)) {
+    if (_stringCompare(registrar.thisChain(), _action.destinationChain)) {
       IERC20Metadata(_action.token).safeTransfer(feeSetting.payoutAddress, totalAmt);
     }
     // Or return via GMP
@@ -307,7 +306,7 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     IVault.VaultActionData memory _action,
     uint256 _sendAmt
   ) internal returns (IVault.VaultActionData memory) {
-    if (StringArray.stringCompare(_action.destinationChain, registrar.thisChain())) {
+    if (_stringCompare(_action.destinationChain, registrar.thisChain())) {
       return _prepareAndSendTokensLocal(_action, _sendAmt);
     } else {
       return _prepareAndSendTokensGMP(_action, _sendAmt);
@@ -415,7 +414,7 @@ contract Router is IRouter, Initializable, AxelarExecutable {
   /// @param amount the amount of said token
   /// @param payee the address of who should receive the tokens
   function sendTax(address token, uint256 amount, address payee) public {
-    if (StringArray.stringCompare(registrar.thisChain(), PRIMARY_CHAIN)) {
+    if (_stringCompare(registrar.thisChain(), PRIMARY_CHAIN)) {
       IERC20Metadata(token).safeTransfer(msg.sender, amount);
       IERC20Metadata(token).safeTransfer(payee, amount);
     } else {
@@ -510,5 +509,9 @@ contract Router is IRouter, Initializable, AxelarExecutable {
       registrar.thisChain()
     );
     return IAxelarGasService(network.gasReceiver);
+  }
+
+  function _stringCompare(string memory s1, string memory s2) internal pure returns (bool result) {
+    result = (keccak256(abi.encodePacked(s1)) == keccak256(abi.encodePacked(s2)));
   }
 }
