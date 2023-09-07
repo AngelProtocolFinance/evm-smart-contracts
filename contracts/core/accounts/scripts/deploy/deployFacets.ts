@@ -6,14 +6,14 @@ import getFacetFactoryEntries from "./getFacetFactoryEntries";
 import {FacetCut} from "./types";
 
 export default async function deployFacets(
-  deployer: SignerWithAddress,
+  diamondOwner: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
 ): Promise<FacetCut[]> {
   logger.out("Deploying facets...");
 
   const cuts: FacetCut[] = [];
 
-  const factoryEntries = getFacetFactoryEntries(deployer);
+  const factoryEntries = getFacetFactoryEntries(diamondOwner);
 
   for (const entry of factoryEntries) {
     try {

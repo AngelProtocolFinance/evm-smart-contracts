@@ -7,14 +7,14 @@ import {deploy, getContractName, logger, updateAddresses} from "utils";
 
 export default async function deployFacets(
   facetNames: string[],
-  deployer: SignerWithAddress,
+  diamondOwner: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
 ): Promise<Deployment<ContractFactory>[]> {
   logger.out("Deploying facets...");
 
   const facetDeployments: Deployment<ContractFactory>[] = [];
 
-  const facetEntries = getFacetsToUpgrade(facetNames, deployer);
+  const facetEntries = getFacetsToUpgrade(facetNames, diamondOwner);
 
   for (const entry of facetEntries) {
     try {
@@ -34,8 +34,8 @@ export default async function deployFacets(
   return facetDeployments;
 }
 
-function getFacetsToUpgrade(facetNames: string[], deployer: SignerWithAddress) {
-  const factoryEntries = getFacetFactoryEntries(deployer);
+function getFacetsToUpgrade(facetNames: string[], diamondOwner: SignerWithAddress) {
+  const factoryEntries = getFacetFactoryEntries(diamondOwner);
   const facetsToUpgrade = facetNames.map((facetName) => {
     const factoryEntry = factoryEntries.find(
       (entry) => getContractName(entry.factory) === facetName

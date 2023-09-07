@@ -1,7 +1,7 @@
 // Env handling:
 import {config as dotenvConfig} from "dotenv";
-import {HardhatNetworkAccountsUserConfig, HardhatNetworkAccountUserConfig} from "hardhat/types";
 import {resolve} from "path";
+import {HardhatNetworkAccountsUserConfig, HardhatNetworkAccountUserConfig} from "hardhat/types";
 import {EnvConfig} from "./types";
 
 dotenvConfig({path: resolve(__dirname, "../.env")});

@@ -83,13 +83,13 @@ async function deployDiamond(
 /**
  * DiamondInit provides a function that is called when the diamond is upgraded to initialize state variables
  * Read about how the diamondCut function works here: https://eips.ethereum.org/EIPS/eip-2535#addingreplacingremoving-functions
- * @param deployer signer representing deployer of the contract
+ * @param admin signer representing administrator of the contract
  */
 async function deployDiamondInit(
-  deployer: SignerWithAddress,
+  admin: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
 ): Promise<Deployment<DiamondInit__factory>> {
-  const diamondInit = await deploy(new DiamondInit__factory(deployer));
+  const diamondInit = await deploy(new DiamondInit__factory(admin));
 
   await updateAddresses(
     {accounts: {facets: {diamondInitFacet: diamondInit.contract.address}}},
