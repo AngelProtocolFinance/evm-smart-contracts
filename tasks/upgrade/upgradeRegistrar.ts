@@ -3,8 +3,8 @@ import {submitMultiSigTx} from "tasks/helpers";
 import {ITransparentUpgradeableProxy__factory, Registrar__factory} from "typechain-types";
 import {
   confirmAction,
+  deploy,
   getAddresses,
-  getContractName,
   getProxyAdminOwner,
   getSigners,
   isLocalNetwork,
@@ -31,16 +31,13 @@ task("upgrade:registrar", "Will upgrade the Registrar (use only on the primary c
 
         const addresses = await getAddresses(hre);
 
-        logger.out("Deploying a new Registrar implementation...");
-        const Registrar = new Registrar__factory(deployer);
-        const registrar = await Registrar.deploy();
-        await registrar.deployed();
-        logger.out(`New impl address: ${registrar.address}`);
+        // deploy implementation
+        const deployment = await deploy(new Registrar__factory(deployer));
 
         logger.out("Upgrading Registrar proxy implementation...");
         const payload = ITransparentUpgradeableProxy__factory.createInterface().encodeFunctionData(
           "upgradeTo",
-          [registrar.address]
+          [deployment.contract.address]
         );
         const isExecuted = await submitMultiSigTx(
           addresses.multiSig.proxyAdmin,
@@ -55,18 +52,14 @@ task("upgrade:registrar", "Will upgrade the Registrar (use only on the primary c
         await updateAddresses(
           {
             registrar: {
-              implementation: registrar.address,
+              implementation: deployment.contract.address,
             },
           },
           hre
         );
 
         if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
-          await verify(hre, {
-            address: registrar.address,
-            contract: "contracts/core/registrar/Registrar.sol:Registrar",
-            contractName: getContractName(Registrar),
-          });
+          await verify(hre, deployment);
         }
       } catch (error) {
         logger.out(error, logger.Level.Error);

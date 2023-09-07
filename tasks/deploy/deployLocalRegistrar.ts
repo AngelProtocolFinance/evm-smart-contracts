@@ -47,7 +47,7 @@ task("deploy:LocalRegistrarAndRouter", "Will deploy the Local Registrar contract
       }
 
       const router = await deployRouter(
-        localRegistrar.proxy.address,
+        localRegistrar.proxy.contract.address,
         addresses.multiSig.proxyAdmin,
         deployer,
         hre

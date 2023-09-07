@@ -10,9 +10,9 @@ import {
   verify,
 } from "utils";
 import {ALL_FACET_NAMES} from "./constants";
-import createFacetCuts from "./createFacetCuts";
 import cutDiamond from "./cutDiamond";
 import deployFacets from "./deployFacets";
+import sortIntoFacetCuts from "./sortIntoFacetCuts";
 
 type TaskArgs = {
   accountsDiamond?: string;
@@ -59,16 +59,21 @@ task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountSto
 
       const accountsDiamond = taskArgs.accountsDiamond || addresses.accounts.diamond;
 
-      const facets = await deployFacets(facetsToUpgrade, deployer, hre);
+      const facetDeployments = await deployFacets(facetsToUpgrade, deployer, hre);
 
-      const facetCuts = await createFacetCuts(facets, accountsDiamond, deployer);
+      const facetCuts = await sortIntoFacetCuts(facetDeployments, accountsDiamond, deployer);
 
-      await cutDiamond(accountsDiamond, addresses.multiSig.proxyAdmin, proxyAdminOwner, facetCuts);
+      await cutDiamond(
+        accountsDiamond,
+        addresses.multiSig.proxyAdmin,
+        proxyAdminOwner,
+        facetCuts.map((x) => x.cut)
+      );
 
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
         const facetsToVerify = facetCuts.filter((cut) => cut.cut.action !== FacetCutAction.Remove);
-        for (const {facetName, cut} of facetsToVerify) {
-          await verify(hre, {address: cut.facetAddress.toString(), contractName: facetName});
+        for (const {deployment} of facetsToVerify) {
+          await verify(hre, deployment);
         }
       }
     } catch (error) {

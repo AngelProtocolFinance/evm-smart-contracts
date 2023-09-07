@@ -1,14 +1,14 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
+import {Airdrop__factory} from "typechain-types";
+import {AirdropMessage} from "typechain-types/contracts/halo/airdrop/Airdrop";
 import {
-  getContractName,
+  deployBehindProxy,
   getProxyAdminOwner,
+  getSigners,
   isLocalNetwork,
-  logger,
   updateAddresses,
   verify,
 } from "utils";
-
-import {AirdropMessage} from "typechain-types/contracts/halo/airdrop/Airdrop";
 
 export async function deployAirdrop(
   AirdropDataInput: AirdropMessage.InstantiateMsgStruct,
@@ -16,32 +16,22 @@ export async function deployAirdrop(
   hre: HardhatRuntimeEnvironment
 ) {
   try {
-    const {ethers, run, network} = hre;
+    const {deployer} = await getSigners(hre);
     const proxyAdmin = await getProxyAdminOwner(hre);
-    const Airdrop = await ethers.getContractFactory("Airdrop");
-    const AirdropInstance = await Airdrop.deploy();
-    await AirdropInstance.deployed();
-    logger.out(`Airdrop implementation address: ${AirdropInstance.address}"`);
 
-    const ProxyContract = await ethers.getContractFactory("ProxyContract");
-    const AirdropData = AirdropInstance.interface.encodeFunctionData("initialize", [
-      AirdropDataInput,
-    ]);
-    const AirdropProxy = await ProxyContract.deploy(
-      AirdropInstance.address,
-      proxyAdmin.address,
-      AirdropData
-    );
-    await AirdropProxy.deployed();
-    logger.out(`Airdrop Address (Proxy): ${AirdropProxy.address}"`);
+    // data setup
+    const Airdrop = new Airdrop__factory(deployer);
+    const initData = Airdrop.interface.encodeFunctionData("initialize", [AirdropDataInput]);
+    // deploy
+    const {implementation, proxy} = await deployBehindProxy(Airdrop, proxyAdmin.address, initData);
 
     // update address file
     await updateAddresses(
       {
         halo: {
           airdrop: {
-            proxy: AirdropProxy.address,
-            implementation: AirdropInstance.address,
+            proxy: proxy.contract.address,
+            implementation: implementation.contract.address,
           },
         },
       },
@@ -49,14 +39,11 @@ export async function deployAirdrop(
     );
 
     if (!isLocalNetwork(hre) && verify_contracts) {
-      await verify(hre, {contractName: getContractName(Airdrop), address: AirdropInstance.address});
-      await verify(hre, {
-        contractName: getContractName(ProxyContract),
-        address: AirdropProxy.address,
-      });
+      await verify(hre, implementation);
+      await verify(hre, proxy);
     }
 
-    return Promise.resolve(AirdropProxy.address);
+    return Promise.resolve(proxy.contract.address);
   } catch (error) {
     return Promise.reject(error);
   }

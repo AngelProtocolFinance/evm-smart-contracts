@@ -3,9 +3,9 @@ import {submitMultiSigTx} from "tasks/helpers";
 import {EndowmentMultiSig__factory, EndowmentMultiSigFactory__factory} from "typechain-types";
 import {
   confirmAction,
+  deploy,
   getAddresses,
   getAPTeamOwner,
-  getContractName,
   getSigners,
   isLocalNetwork,
   logger,
@@ -53,11 +53,7 @@ task(
       const EndowmentMultiSigFactoryAddress =
         taskArgs.factory || addresses.multiSig.endowment.factory;
 
-      logger.out("Deploying a new EndowmentMultiSig contract...");
-      const factory = new EndowmentMultiSig__factory(deployer);
-      const contract = await factory.deploy();
-      await contract.deployed();
-      logger.out(`Address: ${contract.address}`);
+      const deployment = await deploy(new EndowmentMultiSig__factory(deployer));
 
       logger.out("Upgrading EndowmentMultiSigFactory's implementation address...");
       const endowmentMultiSigFactory = EndowmentMultiSigFactory__factory.connect(
@@ -66,7 +62,7 @@ task(
       );
       const payload = endowmentMultiSigFactory.interface.encodeFunctionData(
         "updateImplementation",
-        [contract.address]
+        [deployment.contract.address]
       );
       const isExecuted = await submitMultiSigTx(
         addresses.multiSig.apTeam.proxy,
@@ -77,18 +73,20 @@ task(
       if (!isExecuted) {
         return;
       }
-
       const newImplAddr = await endowmentMultiSigFactory.implementationAddress();
-      if (newImplAddr !== contract.address) {
+      if (newImplAddr !== deployment.contract.address) {
         throw new Error(
-          `Unexpected: expected EndowmentMultiSigFactory.implementationAddress value "${contract.address}", but got "${newImplAddr}"`
+          `Unexpected: expected EndowmentMultiSigFactory.implementationAddress value "${deployment.contract.address}", but got "${newImplAddr}"`
         );
       }
 
-      await updateAddresses({multiSig: {endowment: {implementation: contract.address}}}, hre);
+      await updateAddresses(
+        {multiSig: {endowment: {implementation: deployment.contract.address}}},
+        hre
+      );
 
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
-        await verify(hre, {address: contract.address, contractName: getContractName(factory)});
+        await verify(hre, deployment);
       }
     } catch (error) {
       logger.out(`EndowmentMultiSig upgrade failed, reason: ${error}`, logger.Level.Error);

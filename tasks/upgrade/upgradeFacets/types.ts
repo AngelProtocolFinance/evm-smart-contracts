@@ -1,6 +1,5 @@
-import {Contract} from "ethers";
+import {ContractFactory} from "ethers";
 import {IDiamondCut} from "typechain-types";
+import {Deployment} from "utils";
 
-export type Facet = {name: string; contract: Contract};
-
-export type FacetCut = {facetName: string; cut: IDiamondCut.FacetCutStruct};
+export type FacetCut = {deployment: Deployment<ContractFactory>; cut: IDiamondCut.FacetCutStruct};

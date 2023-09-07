@@ -34,17 +34,17 @@ task("deploy:APTeamMultiSig", "Will deploy APTeamMultiSig contract")
       }
 
       await hre.run("manage:registrar:transferOwnership", {
-        to: deployments.proxy.address,
+        to: deployments.proxy.contract.address,
         apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });
       await hre.run("manage:AccountsDiamond:updateOwner", {
-        to: deployments.proxy.address,
+        to: deployments.proxy.contract.address,
         apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });
       await hre.run("manage:IndexFund:transferOwnership", {
-        to: deployments.proxy.address,
+        to: deployments.proxy.contract.address,
         apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });

@@ -3,8 +3,8 @@ import {submitMultiSigTx} from "tasks/helpers";
 import {CharityApplications__factory, ITransparentUpgradeableProxy__factory} from "typechain-types";
 import {
   confirmAction,
+  deploy,
   getAddresses,
-  getContractName,
   getProxyAdminOwner,
   getSigners,
   isLocalNetwork,
@@ -40,17 +40,13 @@ task("upgrade:CharityApplications", "Will upgrade the implementation of CharityA
       const addresses = await getAddresses(hre);
 
       // deploy implementation
-      logger.out("Deploying CharityApplications...");
-      const charityApplicationsFactory = new CharityApplications__factory(deployer);
-      const charityApplications = await charityApplicationsFactory.deploy();
-      await charityApplications.deployed();
-      logger.out(`Address: ${charityApplications.address}`);
+      const deployment = await deploy(new CharityApplications__factory(deployer));
 
       // upgrade proxy
       logger.out("Upgrading proxy...");
       const payload = ITransparentUpgradeableProxy__factory.createInterface().encodeFunctionData(
         "upgradeTo",
-        [charityApplications.address]
+        [deployment.contract.address]
       );
       const isExecuted = await submitMultiSigTx(
         addresses.multiSig.proxyAdmin,
@@ -67,7 +63,7 @@ task("upgrade:CharityApplications", "Will upgrade the implementation of CharityA
         {
           multiSig: {
             charityApplications: {
-              implementation: charityApplications.address,
+              implementation: deployment.contract.address,
             },
           },
         },
@@ -75,10 +71,7 @@ task("upgrade:CharityApplications", "Will upgrade the implementation of CharityA
       );
 
       if (!taskArgs.skipVerify && !isLocalNetwork(hre)) {
-        await verify(hre, {
-          address: charityApplications.address,
-          contractName: getContractName(charityApplicationsFactory),
-        });
+        await verify(hre, deployment);
       }
     } catch (error) {
       logger.out(error, logger.Level.Error);

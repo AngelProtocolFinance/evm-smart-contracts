@@ -14,18 +14,16 @@ export async function deployAPTeamMultiSig(
     ? apTeamMultisigOwners.map((x) => x.address)
     : CONFIG.PROD_CONFIG.APTeamMultiSigOwners;
 
-  const data = APTeamMultiSig__factory.createInterface().encodeFunctionData("initializeAPTeam", [
+  // data setup
+  const APTeamMultiSig = new APTeamMultiSig__factory(deployer);
+  const data = APTeamMultiSig.interface.encodeFunctionData("initializeAPTeam", [
     owners,
     CONFIG.AP_TEAM_MULTISIG_DATA.threshold,
     CONFIG.AP_TEAM_MULTISIG_DATA.requireExecution,
     CONFIG.AP_TEAM_MULTISIG_DATA.transactionExpiry,
   ]);
-
-  const {implementation, proxy} = await deployBehindProxy(
-    new APTeamMultiSig__factory(deployer),
-    proxyAdmin,
-    data
-  );
+  // deploy
+  const {implementation, proxy} = await deployBehindProxy(APTeamMultiSig, proxyAdmin, data);
 
   // update address file
   await updateAddresses(

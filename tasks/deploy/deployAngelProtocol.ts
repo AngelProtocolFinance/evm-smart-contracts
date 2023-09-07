@@ -148,22 +148,22 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
 
       await hre.run("manage:registrar:updateConfig", {
         accountsContract: accounts.diamond.contract.address, //Address
-        indexFundContract: indexFund.proxy.address, //address
+        indexFundContract: indexFund.proxy.contract.address, //address
         treasury: treasuryAddress,
         uniswapRouter: thirdPartyAddresses.uniswap.swapRouter.address, //address
         uniswapFactory: thirdPartyAddresses.uniswap.factory.address, //address
-        multisigFactory: endowmentMultiSig.factory.address, //address
-        multisigEmitter: endowmentMultiSig.emitter.proxy.address, //address
-        charityApplications: charityApplications.proxy.address, //address
+        multisigFactory: endowmentMultiSig.factory.contract.address, //address
+        multisigEmitter: endowmentMultiSig.emitter.proxy.contract.address, //address
+        charityApplications: charityApplications.proxy.contract.address, //address
         proxyAdmin: proxyAdminMultisig.contract.address, //address
         usdcAddress: thirdPartyAddresses.usdcToken.address,
         wMaticAddress: thirdPartyAddresses.wmaticToken.address,
-        gasFwdFactory: gasFwd.factory.address,
+        gasFwdFactory: gasFwd.factory.contract.address,
         apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });
       await hre.run("manage:registrar:setVaultEmitterAddress", {
-        to: vaultEmitter.proxy.address,
+        to: vaultEmitter.proxy.contract.address,
         apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });

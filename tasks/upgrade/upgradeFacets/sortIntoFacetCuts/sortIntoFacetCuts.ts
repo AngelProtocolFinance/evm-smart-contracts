@@ -1,14 +1,13 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {DiamondLoupeFacet__factory} from "typechain-types";
-import {ADDRESS_ZERO, logger} from "utils";
-
 import {FacetCutAction} from "contracts/core/accounts/scripts/libraries/diamond";
-
-import {Facet, FacetCut} from "../types";
+import {ContractFactory} from "ethers";
+import {DiamondLoupeFacet__factory} from "typechain-types";
+import {ADDRESS_ZERO, Deployment, logger} from "utils";
+import {FacetCut} from "../types";
 import getFacetSelectors from "./getFacetSelectors";
 
-export default async function createFacetCuts(
-  facets: Facet[],
+export default async function sortIntoFacetCuts(
+  facetDeployments: Deployment<ContractFactory>[],
   diamondAddress: string,
   diamondOwner: SignerWithAddress
 ): Promise<FacetCut[]> {
@@ -18,16 +17,16 @@ export default async function createFacetCuts(
 
   const loupe = DiamondLoupeFacet__factory.connect(diamondAddress, diamondOwner);
 
-  for (let i = 0; i < facets.length; i++) {
-    const facet = facets[i];
+  for (let i = 0; i < facetDeployments.length; i++) {
+    const facetDeployment = facetDeployments[i];
 
-    const {toAdd, toRemove, toReplace} = await getFacetSelectors(facet, loupe);
+    const {toAdd, toRemove, toReplace} = await getFacetSelectors(facetDeployment.contract, loupe);
 
     if (toAdd.length > 0) {
       facetCuts.push({
-        facetName: facet.name,
+        deployment: facetDeployment,
         cut: {
-          facetAddress: facet.contract.address,
+          facetAddress: facetDeployment.contract.address,
           action: FacetCutAction.Add,
           functionSelectors: toAdd,
         },
@@ -35,9 +34,9 @@ export default async function createFacetCuts(
     }
     if (toReplace.length > 0) {
       facetCuts.push({
-        facetName: facet.name,
+        deployment: facetDeployment,
         cut: {
-          facetAddress: facet.contract.address,
+          facetAddress: facetDeployment.contract.address,
           action: FacetCutAction.Replace,
           functionSelectors: toReplace,
         },
@@ -45,7 +44,7 @@ export default async function createFacetCuts(
     }
     if (toRemove.length > 0) {
       facetCuts.push({
-        facetName: facet.name,
+        deployment: facetDeployment,
         cut: {
           facetAddress: ADDRESS_ZERO,
           action: FacetCutAction.Remove,

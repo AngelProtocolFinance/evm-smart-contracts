@@ -47,7 +47,7 @@ task("deploy:IndexFund", "Will deploy IndexFund contract")
       );
 
       await hre.run("manage:registrar:updateConfig", {
-        indexFundContract: deployment.proxy.address,
+        indexFundContract: deployment.proxy.contract.address,
         apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });

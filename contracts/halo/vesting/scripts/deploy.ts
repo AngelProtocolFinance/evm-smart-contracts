@@ -1,14 +1,14 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
+import {Vesting__factory} from "typechain-types";
+import {VestingMessages} from "typechain-types/contracts/halo/vesting/Vesting";
 import {
-  getContractName,
+  deployBehindProxy,
   getProxyAdminOwner,
+  getSigners,
   isLocalNetwork,
-  logger,
   updateAddresses,
   verify,
 } from "utils";
-
-import {VestingMessages} from "typechain-types/contracts/halo/vesting/Vesting";
 
 export async function deployVesting(
   VestingDataInput: VestingMessages.InstantiateMsgStruct,
@@ -16,32 +16,22 @@ export async function deployVesting(
   hre: HardhatRuntimeEnvironment
 ) {
   try {
-    const {ethers, run, network} = hre;
+    const {deployer} = await getSigners(hre);
     const proxyAdmin = await getProxyAdminOwner(hre);
-    const Vesting = await ethers.getContractFactory("Vesting");
-    const VestingInstance = await Vesting.deploy();
-    await VestingInstance.deployed();
-    logger.out(`Vesting implementation address: ${VestingInstance.address}"`);
 
-    const ProxyContract = await ethers.getContractFactory("ProxyContract");
-    const VestingData = VestingInstance.interface.encodeFunctionData("initialize", [
-      VestingDataInput,
-    ]);
-    const VestingProxy = await ProxyContract.deploy(
-      VestingInstance.address,
-      proxyAdmin.address,
-      VestingData
-    );
-    await VestingProxy.deployed();
-    logger.out(`Vesting Address (Proxy): ${VestingProxy.address}"`);
+    // data setup
+    const Vesting = new Vesting__factory(deployer);
+    const initData = Vesting.interface.encodeFunctionData("initialize", [VestingDataInput]);
+    // deploy
+    const {implementation, proxy} = await deployBehindProxy(Vesting, proxyAdmin.address, initData);
 
     // update address file
     await updateAddresses(
       {
         halo: {
           vesting: {
-            proxy: VestingProxy.address,
-            implementation: VestingInstance.address,
+            proxy: proxy.contract.address,
+            implementation: implementation.contract.address,
           },
         },
       },
@@ -49,14 +39,11 @@ export async function deployVesting(
     );
 
     if (!isLocalNetwork(hre) && verify_contracts) {
-      await verify(hre, {contractName: getContractName(Vesting), address: VestingInstance.address});
-      await verify(hre, {
-        contractName: getContractName(ProxyContract),
-        address: VestingProxy.address,
-      });
+      await verify(hre, implementation);
+      await verify(hre, proxy);
     }
 
-    return Promise.resolve(VestingProxy.address);
+    return Promise.resolve(proxy.contract.address);
   } catch (error) {
     return Promise.reject(error);
   }

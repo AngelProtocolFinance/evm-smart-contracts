@@ -1,13 +1,14 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {
-  getContractName,
+  deployBehindProxy,
   getProxyAdminOwner,
+  getSigners,
   isLocalNetwork,
-  logger,
   updateAddresses,
   verify,
 } from "utils";
 
+import {Community__factory} from "typechain-types";
 import {CommunityMessage} from "typechain-types/contracts/halo/community/Community";
 
 export async function deployCommunity(
@@ -16,32 +17,26 @@ export async function deployCommunity(
   hre: HardhatRuntimeEnvironment
 ) {
   try {
-    const {ethers, run, network} = hre;
+    const {deployer} = await getSigners(hre);
     const proxyAdmin = await getProxyAdminOwner(hre);
-    const Community = await ethers.getContractFactory("Community");
-    const CommunityInstance = await Community.deploy();
-    await CommunityInstance.deployed();
-    logger.out(`Community implementation address: ${CommunityInstance.address}"`);
 
-    const ProxyContract = await ethers.getContractFactory("ProxyContract");
-    const CommunityData = CommunityInstance.interface.encodeFunctionData("initialize", [
-      CommunityDataInput,
-    ]);
-    const CommunityProxy = await ProxyContract.deploy(
-      CommunityInstance.address,
+    // data setup
+    const Community = new Community__factory(deployer);
+    const initData = Community.interface.encodeFunctionData("initialize", [CommunityDataInput]);
+    // deploy
+    const {implementation, proxy} = await deployBehindProxy(
+      Community,
       proxyAdmin.address,
-      CommunityData
+      initData
     );
-    await CommunityProxy.deployed();
-    logger.out(`Community Address (Proxy): ${CommunityProxy.address}"`);
 
     // update address file
     await updateAddresses(
       {
         halo: {
           community: {
-            proxy: CommunityProxy.address,
-            implementation: CommunityInstance.address,
+            proxy: proxy.contract.address,
+            implementation: implementation.contract.address,
           },
         },
       },
@@ -49,17 +44,11 @@ export async function deployCommunity(
     );
 
     if (!isLocalNetwork(hre) && verify_contracts) {
-      await verify(hre, {
-        contractName: getContractName(Community),
-        address: CommunityInstance.address,
-      });
-      await verify(hre, {
-        contractName: getContractName(ProxyContract),
-        address: CommunityProxy.address,
-      });
+      await verify(hre, implementation);
+      await verify(hre, proxy);
     }
 
-    return Promise.resolve(CommunityProxy.address);
+    return Promise.resolve(proxy.contract.address);
   } catch (error) {
     return Promise.reject(error);
   }

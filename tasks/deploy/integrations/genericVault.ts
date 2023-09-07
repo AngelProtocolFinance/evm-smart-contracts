@@ -1,6 +1,11 @@
 import {task} from "hardhat/config";
-import {APVault_V1__factory, DummyERC20__factory, IVaultEmitter__factory} from "typechain-types";
-import {getAddresses, getContractName, getSigners, logger, verify} from "utils";
+import {
+  APVault_V1__factory,
+  DummyERC20__factory,
+  IVault,
+  IVaultEmitter__factory,
+} from "typechain-types";
+import {deploy, getAddresses, getSigners, logger, verify} from "utils";
 
 task("Deploy:genericVault", "Will deploy a generic vault with the provided params")
   .addOptionalParam("yieldtoken", "The address of the yield token")
@@ -27,9 +32,9 @@ task("Deploy:genericVault", "Will deploy a generic vault with the provided param
         yieldTokenAddress = taskArgs.yieldtoken;
       }
 
-      let Vault = new APVault_V1__factory(deployer);
-
-      let vaultConfig = {
+      // data setup
+      const APVault_V1 = new APVault_V1__factory(deployer);
+      const vaultConfig: IVault.VaultConfigStruct = {
         vaultType: 1,
         strategyId: "0x12345678",
         strategy: hre.ethers.constants.AddressZero,
@@ -40,26 +45,16 @@ task("Deploy:genericVault", "Will deploy a generic vault with the provided param
         apTokenSymbol: "TV",
         admin: deployer.address,
       };
-      const ctorArgs: Parameters<(typeof Vault)["deploy"]> = [
-        vaultConfig,
-        addresses.vaultEmitter.proxy,
-      ];
-      let vault = await Vault.deploy(...ctorArgs);
-      logger.out(`Tx hash: ${vault.deployTransaction.hash}`);
-      await vault.deployed();
-      logger.pad(30, "Vault deployed to", vault.address);
+      // deploy
+      const deployment = await deploy(APVault_V1, [vaultConfig, addresses.vaultEmitter.proxy]);
 
       logger.out("Emitting `VaultCreated` event...");
       const vaultEmitter = IVaultEmitter__factory.connect(addresses.vaultEmitter.proxy, deployer);
-      const tx = await vaultEmitter.vaultCreated(vault.address, vaultConfig);
+      const tx = await vaultEmitter.vaultCreated(deployment.contract.address, vaultConfig);
       logger.out(`Tx hash: ${tx.hash}`);
       await tx.wait();
 
-      await verify(hre, {
-        address: vault.address,
-        contractName: getContractName(Vault),
-        constructorArguments: ctorArgs,
-      });
+      await verify(hre, deployment);
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }

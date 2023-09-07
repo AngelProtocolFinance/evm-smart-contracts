@@ -1,12 +1,18 @@
-import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {
   EndowmentMultiSigEmitter__factory,
   EndowmentMultiSigFactory__factory,
   EndowmentMultiSig__factory,
-  ProxyContract__factory,
 } from "typechain-types";
-import {Deployment, getContractName, logger, updateAddresses} from "utils";
+import {
+  Deployment,
+  ProxyDeployment,
+  deploy,
+  deployBehindProxy,
+  logger,
+  updateAddresses,
+} from "utils";
 
 export async function deployEndowmentMultiSig(
   registrar: string,
@@ -15,56 +21,38 @@ export async function deployEndowmentMultiSig(
   deployer: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
 ): Promise<{
-  emitter: {
-    implementation: Deployment;
-    proxy: Deployment;
-  };
-  factory: Deployment;
-  implementation: Deployment;
+  emitter: ProxyDeployment<EndowmentMultiSigEmitter__factory>;
+  factory: Deployment<EndowmentMultiSigFactory__factory>;
+  implementation: Deployment<EndowmentMultiSig__factory>;
 }> {
   logger.out("Deploying EndowmentMultiSig contracts...");
 
   // deploy implementation contract
-  logger.out("Deploying EndowmentMultiSig implementation...");
-  const endowmentMultiSigFactory = new EndowmentMultiSig__factory(deployer);
-  const endowmentMultiSig = await endowmentMultiSigFactory.deploy();
-  await endowmentMultiSig.deployed();
-  logger.out(`Address: ${endowmentMultiSig.address}`);
+  const implementation = await deploy(new EndowmentMultiSig__factory(deployer));
 
   // deploy factory
-  logger.out("Deploying EndowmentMultiSigFactory...");
-  const factoryCtorArgs: Parameters<typeof EndowmentMultiSigFactoryFactory.deploy> = [
-    endowmentMultiSig.address,
+  const factory = await deploy(new EndowmentMultiSigFactory__factory(deployer), [
+    implementation.contract.address,
     proxyAdmin,
     registrar,
-  ];
-  const EndowmentMultiSigFactoryFactory = new EndowmentMultiSigFactory__factory(deployer);
-  const EndowmentMultiSigFactory = await EndowmentMultiSigFactoryFactory.deploy(...factoryCtorArgs);
-  await EndowmentMultiSigFactory.deployed();
-  logger.out(`Address: ${EndowmentMultiSigFactory.address}`);
+  ]);
 
   logger.out(`Transferring ownership to: ${factoryOwner}...`);
-  const tx = await EndowmentMultiSigFactory.transferOwnership(factoryOwner);
+  const tx = await factory.contract.transferOwnership(factoryOwner);
   logger.out(`Tx hash: ${tx.hash}`);
   await tx.wait();
+  const newOwner = await factory.contract.owner();
+  if (newOwner !== factoryOwner) {
+    throw new Error(`Error updating owner: expected '${factoryOwner}', actual: '${newOwner}'`);
+  }
 
-  // deploy emitter
-  logger.out("Deploying EndowmentMultiSigEmitter...");
-
-  logger.out("Deploying implementation...");
-  const emitterFactory = new EndowmentMultiSigEmitter__factory(deployer);
-  const emitter = await emitterFactory.deploy();
-  await emitter.deployed();
-  logger.out(`Address: ${emitter.address}`);
-
-  logger.out("Deploying proxy...");
-  const initData = emitter.interface.encodeFunctionData("initEndowmentMultiSigEmitter", [
-    EndowmentMultiSigFactory.address,
+  // emitter data setup
+  const Emitter = new EndowmentMultiSigEmitter__factory(deployer);
+  const initData = Emitter.interface.encodeFunctionData("initEndowmentMultiSigEmitter", [
+    factory.contract.address,
   ]);
-  const proxyFactory = new ProxyContract__factory(deployer);
-  const emitterProxy = await proxyFactory.deploy(emitter.address, proxyAdmin, initData);
-  await emitterProxy.deployed();
-  logger.out(`Address: ${emitterProxy.address}`);
+  // deploy emitter
+  const emitter = await deployBehindProxy(Emitter, proxyAdmin, initData);
 
   // update address file
   await updateAddresses(
@@ -72,11 +60,11 @@ export async function deployEndowmentMultiSig(
       multiSig: {
         endowment: {
           emitter: {
-            implementation: emitter.address,
-            proxy: emitterProxy.address,
+            implementation: emitter.implementation.contract.address,
+            proxy: emitter.proxy.contract.address,
           },
-          factory: EndowmentMultiSigFactory.address,
-          implementation: endowmentMultiSig.address,
+          factory: factory.contract.address,
+          implementation: implementation.contract.address,
         },
       },
     },
@@ -84,24 +72,8 @@ export async function deployEndowmentMultiSig(
   );
 
   return {
-    emitter: {
-      implementation: {
-        address: emitter.address,
-        contractName: getContractName(emitterFactory),
-      },
-      proxy: {
-        address: emitterProxy.address,
-        contractName: getContractName(proxyFactory),
-      },
-    },
-    factory: {
-      address: EndowmentMultiSigFactory.address,
-      constructorArguments: factoryCtorArgs,
-      contractName: getContractName(EndowmentMultiSigFactoryFactory),
-    },
-    implementation: {
-      address: endowmentMultiSig.address,
-      contractName: getContractName(endowmentMultiSigFactory),
-    },
+    emitter,
+    factory,
+    implementation,
   };
 }

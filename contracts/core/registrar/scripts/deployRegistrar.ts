@@ -35,7 +35,9 @@ export async function deployRegistrar(
 ): Promise<ProxyDeployment<Registrar__factory>> {
   const networkName = await getAxlNetworkName(hre);
 
-  const initData = Registrar__factory.createInterface().encodeFunctionData(
+  // data setup
+  const Registrar = new Registrar__factory(deployer);
+  const initData = Registrar.interface.encodeFunctionData(
     "initialize((address,address,address,address,address,string,address))",
     [
       {
@@ -49,11 +51,8 @@ export async function deployRegistrar(
       },
     ]
   );
-  const {implementation, proxy} = await deployBehindProxy(
-    new Registrar__factory(deployer),
-    proxyAdmin,
-    initData
-  );
+  // deploy
+  const {implementation, proxy} = await deployBehindProxy(Registrar, proxyAdmin, initData);
 
   // update owner
   logger.out(`Updating Registrar owner to '${owner}'..."`);

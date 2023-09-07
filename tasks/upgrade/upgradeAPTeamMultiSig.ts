@@ -3,8 +3,8 @@ import {submitMultiSigTx} from "tasks/helpers";
 import {APTeamMultiSig__factory, ITransparentUpgradeableProxy__factory} from "typechain-types";
 import {
   confirmAction,
+  deploy,
   getAddresses,
-  getContractName,
   getProxyAdminOwner,
   getSigners,
   isLocalNetwork,
@@ -33,16 +33,12 @@ task("upgrade:APTeamMultiSig", "Will upgrade the APTeamMultiSig")
         const addresses = await getAddresses(hre);
 
         // Update APTeamMultiSig
-        logger.out("Deploying APTeamMultiSig...");
-        const apTeamFactory = new APTeamMultiSig__factory(deployer);
-        const apTeamMultiSig = await apTeamFactory.deploy();
-        await apTeamMultiSig.deployed();
-        logger.out(`Address: ${apTeamMultiSig.address}`);
+        const deployment = await deploy(new APTeamMultiSig__factory(deployer));
 
         logger.out("Upgrading APTeamMultiSig proxy implementation...");
         const payload = ITransparentUpgradeableProxy__factory.createInterface().encodeFunctionData(
           "upgradeTo",
-          [apTeamMultiSig.address]
+          [deployment.contract.address]
         );
         const isExecuted = await submitMultiSigTx(
           addresses.multiSig.proxyAdmin,
@@ -58,7 +54,7 @@ task("upgrade:APTeamMultiSig", "Will upgrade the APTeamMultiSig")
           {
             multiSig: {
               apTeam: {
-                implementation: apTeamMultiSig.address,
+                implementation: deployment.contract.address,
               },
             },
           },
@@ -66,11 +62,7 @@ task("upgrade:APTeamMultiSig", "Will upgrade the APTeamMultiSig")
         );
 
         if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
-          await verify(hre, {
-            address: apTeamMultiSig.address,
-            contract: "contracts/multisigs/APTeamMultiSig.sol:APTeamMultiSig",
-            contractName: getContractName(apTeamFactory),
-          });
+          await verify(hre, deployment);
         }
       } catch (error) {
         logger.out(error, logger.Level.Error);

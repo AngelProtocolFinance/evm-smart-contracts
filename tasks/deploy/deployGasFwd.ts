@@ -37,7 +37,7 @@ task("deploy:GasFwd", "Will deploy the GasFwd implementation and factory")
       );
 
       await hre.run("manage:registrar:updateConfig", {
-        gasFwdFactory: gasFwdDeployment.factory.address,
+        gasFwdFactory: gasFwdDeployment.factory.contract.address,
         apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });

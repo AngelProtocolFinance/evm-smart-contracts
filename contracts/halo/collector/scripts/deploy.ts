@@ -1,14 +1,14 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
+import {Collector__factory} from "typechain-types";
+import {CollectorMessage} from "typechain-types/contracts/halo/collector/Collector";
 import {
-  getContractName,
+  deployBehindProxy,
   getProxyAdminOwner,
+  getSigners,
   isLocalNetwork,
-  logger,
   updateAddresses,
   verify,
 } from "utils";
-
-import {CollectorMessage} from "typechain-types/contracts/halo/collector/Collector";
 
 export async function deployCollector(
   CollectorDataInput: CollectorMessage.InstantiateMsgStruct,
@@ -16,32 +16,26 @@ export async function deployCollector(
   hre: HardhatRuntimeEnvironment
 ) {
   try {
-    const {ethers, run, network} = hre;
+    const {deployer} = await getSigners(hre);
     const proxyAdmin = await getProxyAdminOwner(hre);
-    const Collector = await ethers.getContractFactory("Collector");
-    const CollectorInstance = await Collector.deploy();
-    await CollectorInstance.deployed();
-    logger.out(`Collector implementation address: ${CollectorInstance.address}"`);
 
-    const ProxyContract = await ethers.getContractFactory("ProxyContract");
-    const CollectorData = CollectorInstance.interface.encodeFunctionData("initialize", [
-      CollectorDataInput,
-    ]);
-    const CollectorProxy = await ProxyContract.deploy(
-      CollectorInstance.address,
+    // data setup
+    const Collector = new Collector__factory(deployer);
+    const initData = Collector.interface.encodeFunctionData("initialize", [CollectorDataInput]);
+    // deploy
+    const {implementation, proxy} = await deployBehindProxy(
+      Collector,
       proxyAdmin.address,
-      CollectorData
+      initData
     );
-    await CollectorProxy.deployed();
-    logger.out(`Collector Address (Proxy): ${CollectorProxy.address}"`);
 
     // update address file
     await updateAddresses(
       {
         halo: {
           collector: {
-            proxy: CollectorProxy.address,
-            implementation: CollectorInstance.address,
+            proxy: proxy.contract.address,
+            implementation: implementation.contract.address,
           },
         },
       },
@@ -49,17 +43,11 @@ export async function deployCollector(
     );
 
     if (!isLocalNetwork(hre) && verify_contracts) {
-      await verify(hre, {
-        contractName: getContractName(Collector),
-        address: CollectorInstance.address,
-      });
-      await verify(hre, {
-        contractName: getContractName(ProxyContract),
-        address: CollectorProxy.address,
-      });
+      await verify(hre, implementation);
+      await verify(hre, proxy);
     }
 
-    return Promise.resolve(CollectorProxy.address);
+    return Promise.resolve(proxy.contract.address);
   } catch (error) {
     return Promise.reject(error);
   }

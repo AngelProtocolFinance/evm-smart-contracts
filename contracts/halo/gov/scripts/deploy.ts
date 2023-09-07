@@ -1,9 +1,10 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
+import {Gov__factory} from "typechain-types";
 import {
-  getContractName,
+  deployBehindProxy,
   getProxyAdminOwner,
+  getSigners,
   isLocalNetwork,
-  logger,
   updateAddresses,
   verify,
 } from "utils";
@@ -15,26 +16,22 @@ export async function deployGov(
   hre: HardhatRuntimeEnvironment
 ) {
   try {
-    const {ethers, run, network} = hre;
+    const {deployer} = await getSigners(hre);
     const proxyAdmin = await getProxyAdminOwner(hre);
-    const Gov = await ethers.getContractFactory("Gov");
-    const GovInstance = await Gov.deploy();
-    await GovInstance.deployed();
-    logger.out(`Gov implementation address: ${GovInstance.address}"`);
 
-    const ProxyContract = await ethers.getContractFactory("ProxyContract");
-    const GovData = GovInstance.interface.encodeFunctionData("initialize", [haloToken, timelock]);
-    const GovProxy = await ProxyContract.deploy(GovInstance.address, proxyAdmin.address, GovData);
-    await GovProxy.deployed();
-    logger.out(`Gov Address (Proxy): ${GovProxy.address}"`);
+    // data setup
+    const Gov = new Gov__factory(deployer);
+    const initData = Gov.interface.encodeFunctionData("initialize", [haloToken, timelock]);
+    // deploy
+    const {implementation, proxy} = await deployBehindProxy(Gov, proxyAdmin.address, initData);
 
     // update address file
     await updateAddresses(
       {
         halo: {
           gov: {
-            proxy: GovProxy.address,
-            implementation: GovInstance.address,
+            proxy: proxy.contract.address,
+            implementation: implementation.contract.address,
           },
         },
       },
@@ -42,11 +39,11 @@ export async function deployGov(
     );
 
     if (!isLocalNetwork(hre) && verify_contracts) {
-      await verify(hre, {contractName: getContractName(Gov), address: GovInstance.address});
-      await verify(hre, {contractName: getContractName(ProxyContract), address: GovProxy.address});
+      await verify(hre, implementation);
+      await verify(hre, proxy);
     }
 
-    return Promise.resolve(GovProxy.address);
+    return Promise.resolve(proxy.contract.address);
   } catch (error) {
     return Promise.reject(error);
   }

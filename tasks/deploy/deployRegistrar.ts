@@ -92,17 +92,17 @@ task(
 
       // update all contracts' registrar addresses
       await hre.run("manage:accounts:updateConfig", {
-        registrarContract: registrar.proxy.address,
+        registrarContract: registrar.proxy.contract.address,
         apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });
       await hre.run("manage:IndexFund:updateConfig", {
-        registrarContract: registrar.proxy.address,
+        registrarContract: registrar.proxy.contract.address,
         apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });
       await hre.run("manage:GasFwdFactory:updateRegistrar", {
-        newRegistrar: registrar.proxy.address,
+        newRegistrar: registrar.proxy.contract.address,
         apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });

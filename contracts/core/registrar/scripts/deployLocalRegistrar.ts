@@ -19,14 +19,13 @@ export async function deployLocalRegistrar(
   {owner, deployer, proxyAdmin}: LocalRegistrarDeployData,
   hre: HardhatRuntimeEnvironment
 ): Promise<ProxyDeployment<LocalRegistrar__factory>> {
-  const initData = LocalRegistrar__factory.createInterface().encodeFunctionData("initialize", [
+  // data setup
+  const LocalRegistrar = new LocalRegistrar__factory(deployer);
+  const initData = LocalRegistrar.interface.encodeFunctionData("initialize", [
     await getAxlNetworkName(hre),
   ]);
-  const {implementation, proxy} = await deployBehindProxy(
-    new LocalRegistrar__factory(deployer),
-    proxyAdmin,
-    initData
-  );
+  // deploy
+  const {implementation, proxy} = await deployBehindProxy(LocalRegistrar, proxyAdmin, initData);
 
   // update owner
   logger.out(`Updating Registrar owner to '${owner}'...`);
