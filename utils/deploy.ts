@@ -1,6 +1,7 @@
 import {BytesLike, ContractFactory} from "ethers";
 import {ProxyContract__factory} from "typechain-types";
-import {Deployment, ProxyDeployment, getContractName, logger} from ".";
+import {Deployment, ProxyDeployment} from "types";
+import {getContractName, logger} from ".";
 
 /**
  * Deploys a contract; includes logging of the relevant data

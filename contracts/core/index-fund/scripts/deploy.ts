@@ -2,7 +2,8 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {CONFIG} from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {IndexFund__factory} from "typechain-types";
-import {ProxyDeployment, deployBehindProxy, logger, updateAddresses} from "utils";
+import {ProxyDeployment} from "types";
+import {deployBehindProxy, logger, updateAddresses} from "utils";
 
 export async function deployIndexFund(
   registrar: string,

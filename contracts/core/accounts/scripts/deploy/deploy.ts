@@ -7,7 +7,8 @@ import {
   Diamond__factory,
   IERC173__factory,
 } from "typechain-types";
-import {Deployment, deploy, logger, updateAddresses} from "utils";
+import {Deployment} from "types";
+import {deploy, logger, updateAddresses} from "utils";
 import cutDiamond from "./cutDiamond";
 import deployFacets from "./deployFacets";
 

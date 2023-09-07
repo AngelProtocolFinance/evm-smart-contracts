@@ -2,7 +2,8 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import getFacetFactoryEntries from "contracts/core/accounts/scripts/deploy/getFacetFactoryEntries";
 import {ContractFactory} from "ethers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {Deployment, deploy, getContractName, logger, updateAddresses} from "utils";
+import {Deployment} from "types";
+import {deploy, getContractName, logger, updateAddresses} from "utils";
 
 export default async function deployFacets(
   facetNames: string[],

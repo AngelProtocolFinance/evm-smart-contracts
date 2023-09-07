@@ -16,9 +16,8 @@ import {
   TestFacetProxyContract,
 } from "typechain-types";
 import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsCreateEndowment";
-import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
-import {FeeTypes, genWallet, getProxyAdminOwner, getSigners} from "utils";
+import {genWallet, getProxyAdminOwner, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
 
 use(smock.matchers);

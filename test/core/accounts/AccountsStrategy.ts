@@ -42,14 +42,8 @@ import {
 } from "typechain-types/contracts/core/accounts/facets/AccountsStrategy";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
-import {
-  StrategyApprovalState,
-  VaultActionStatus,
-  genWallet,
-  getChainId,
-  getProxyAdminOwner,
-  getSigners,
-} from "utils";
+import {StrategyApprovalState, VaultActionStatus} from "types";
+import {genWallet, getChainId, getProxyAdminOwner, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
 
 use(smock.matchers);

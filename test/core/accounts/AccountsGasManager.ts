@@ -12,13 +12,14 @@ import {
 import {
   AccountsGasManager,
   AccountsGasManager__factory,
-  IERC20,
-  IERC20__factory,
   GasFwd,
   GasFwd__factory,
+  IERC20,
+  IERC20__factory,
   TestFacetProxyContract,
 } from "typechain-types";
-import {VaultType, getProxyAdminOwner, getSigners} from "utils";
+import {VaultType} from "types";
+import {getProxyAdminOwner, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
 
 use(smock.matchers);

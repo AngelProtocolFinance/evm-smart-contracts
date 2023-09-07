@@ -2,7 +2,8 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {FacetCutAction} from "contracts/core/accounts/scripts/libraries/diamond";
 import {ContractFactory} from "ethers";
 import {DiamondLoupeFacet__factory} from "typechain-types";
-import {ADDRESS_ZERO, Deployment, logger} from "utils";
+import {Deployment} from "types";
+import {ADDRESS_ZERO, logger} from "utils";
 import {FacetCut} from "../types";
 import getFacetSelectors from "./getFacetSelectors";
 

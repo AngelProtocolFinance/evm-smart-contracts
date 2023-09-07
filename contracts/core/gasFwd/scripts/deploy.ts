@@ -1,7 +1,8 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {GasFwdFactory__factory, GasFwd__factory} from "typechain-types";
-import {Deployment, deploy, logger, updateAddresses} from "utils";
+import {Deployment} from "types";
+import {deploy, logger, updateAddresses} from "utils";
 
 type Data = {
   deployer: SignerWithAddress;

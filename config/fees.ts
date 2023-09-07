@@ -1,4 +1,4 @@
-import {FeeTypes} from "types";
+import {FeeTypes} from "../types";
 import {Fees} from "./types";
 
 export const FEES: Fees = {

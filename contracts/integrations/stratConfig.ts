@@ -1,10 +1,5 @@
-import {
-  AllStratConfigs,
-  StratConfig,
-  StrategyApprovalState,
-  VaultType,
-  getVaultAddress,
-} from "utils";
+import {StrategyApprovalState, VaultType} from "types";
+import {AllStratConfigs, StratConfig, getVaultAddress} from "utils";
 
 export const dummy: StratConfig = {
   name: "dummy",

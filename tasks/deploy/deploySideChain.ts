@@ -3,8 +3,8 @@ import {deployAPTeamMultiSig, deployProxyAdminMultisig} from "contracts/multisig
 import {ContractFactory} from "ethers";
 import {task} from "hardhat/config";
 import {getOrDeployThirdPartyContracts} from "tasks/helpers";
+import {Deployment} from "types";
 import {
-  Deployment,
   confirmAction,
   getSigners,
   isLocalNetwork,

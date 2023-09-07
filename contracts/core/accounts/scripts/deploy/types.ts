@@ -1,6 +1,6 @@
 import {ContractFactory} from "ethers";
 import {IDiamondCut} from "typechain-types";
-import {Deployment} from "utils";
+import {Deployment} from "types";
 
 export type FacetCut = {
   deployment: Deployment<ContractFactory>;

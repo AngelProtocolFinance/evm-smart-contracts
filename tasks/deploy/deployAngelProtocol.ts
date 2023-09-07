@@ -11,10 +11,11 @@ import {
   deployCharityApplications,
   deployProxyAdminMultisig,
 } from "contracts/multisigs/scripts/deploy";
+import {ContractFactory} from "ethers";
 import {task} from "hardhat/config";
+import {Deployment} from "types";
 import {
   ADDRESS_ZERO,
-  Deployment,
   confirmAction,
   getSigners,
   isLocalNetwork,
@@ -23,7 +24,6 @@ import {
   verify,
 } from "utils";
 import {getOrDeployThirdPartyContracts} from "../helpers";
-import {ContractFactory} from "ethers";
 
 type TaskArgs = {
   apTeamSignerPkey?: string;

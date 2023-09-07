@@ -5,14 +5,8 @@ import {
   EndowmentMultiSigFactory__factory,
   EndowmentMultiSig__factory,
 } from "typechain-types";
-import {
-  Deployment,
-  ProxyDeployment,
-  deploy,
-  deployBehindProxy,
-  logger,
-  updateAddresses,
-} from "utils";
+import {Deployment, ProxyDeployment} from "types";
+import {deploy, deployBehindProxy, logger, updateAddresses} from "utils";
 
 export async function deployEndowmentMultiSig(
   registrar: string,

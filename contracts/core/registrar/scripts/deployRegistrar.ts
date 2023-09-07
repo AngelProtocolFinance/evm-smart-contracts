@@ -1,13 +1,8 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {Registrar__factory} from "typechain-types";
-import {
-  ProxyDeployment,
-  deployBehindProxy,
-  getAxlNetworkName,
-  logger,
-  updateAddresses,
-} from "utils";
+import {ProxyDeployment} from "types";
+import {deployBehindProxy, getAxlNetworkName, logger, updateAddresses} from "utils";
 
 type RegistrarDeployData = {
   axelarGateway: string;

@@ -2,7 +2,8 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {CONFIG} from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {ProxyAdminMultiSig__factory} from "typechain-types";
-import {Deployment, deploy, updateAddresses} from "utils";
+import {Deployment} from "types";
+import {deploy, updateAddresses} from "utils";
 
 export async function deployProxyAdminMultisig(
   owners: string[],

@@ -1,6 +1,7 @@
 import {ContractFactory} from "ethers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {Deployment, logger} from ".";
+import {Deployment} from "types";
+import {logger} from ".";
 
 export async function verify<T extends ContractFactory>(
   hre: HardhatRuntimeEnvironment,

@@ -1,8 +1,9 @@
-import {CONFIG} from "config";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {CONFIG} from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {APTeamMultiSig__factory} from "typechain-types";
-import {ProxyDeployment, deployBehindProxy, getSigners, updateAddresses} from "utils";
+import {ProxyDeployment} from "types";
+import {deployBehindProxy, getSigners, updateAddresses} from "utils";
 
 export async function deployAPTeamMultiSig(
   proxyAdmin: string,
