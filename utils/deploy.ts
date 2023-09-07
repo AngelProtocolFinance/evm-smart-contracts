@@ -18,7 +18,6 @@ export async function deploy<T extends ContractFactory>(
   constructorArguments?: Parameters<T["deploy"]>
 ): Promise<Deployment<T>> {
   const contractName = getContractName(factory);
-  logger.divider();
   logger.out(`Deploying ${contractName}...`);
 
   const contract = await factory.deploy(...(constructorArguments ?? []));
@@ -52,14 +51,12 @@ export async function deployBehindProxy<T extends ContractFactory>(
   proxyAdmin: string,
   initData: BytesLike
 ): Promise<ProxyDeployment<T>> {
-  logger.divider();
   const implementation = await deploy(factory);
   const proxy = await deploy(new ProxyContract__factory(factory.signer), [
     implementation.contract.address,
     proxyAdmin,
     initData,
   ]);
-  logger.divider();
 
   return {implementation, proxy};
 }
