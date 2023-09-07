@@ -1,7 +1,6 @@
-import {task, types} from "hardhat/config";
-import {FeeTypes, POLYGON, getAddresses, getChainId} from "utils";
 import {CONFIG, FEES} from "config";
-import {Fees} from "config/types";
+import {task, types} from "hardhat/config";
+import {POLYGON, getAddresses, getChainId, getKeysTyped} from "utils";
 
 type TaskArgs = {payoutAddress?: string; bps?: number; apTeamSignerPkey?: string};
 
@@ -17,9 +16,8 @@ task("manage:registrar:setAllFeeSettings")
     "If running on prod, provide a pkey for a valid APTeam Multisig Owner."
   )
   .setAction(async function (taskArguments: TaskArgs, hre) {
-    for (const feeName in FeeTypes) {
-      const feeType = Number(feeName);
-      const fee = FEES[feeType as keyof Fees];
+    for (const feeType of getKeysTyped(FEES)) {
+      const fee = FEES[feeType];
 
       let payoutAddress = taskArguments.payoutAddress
         ? taskArguments.payoutAddress
@@ -29,7 +27,7 @@ task("manage:registrar:setAllFeeSettings")
       // If Network == Polygon -> PROD_CONFIG.Treasury
       // else, set to AP Team Multisig
       if (payoutAddress == "") {
-        if(await getChainId(hre) == POLYGON) {
+        if ((await getChainId(hre)) == POLYGON) {
           payoutAddress = CONFIG.PROD_CONFIG.Treasury;
         } else {
           const addresses = await getAddresses(hre);
@@ -38,7 +36,7 @@ task("manage:registrar:setAllFeeSettings")
       }
 
       await hre.run("manage:registrar:setFeeSettings", {
-        feeType: feeType,
+        feeType: Number(feeType),
         payoutAddress: payoutAddress,
         bps: fee.bps,
         apTeamSignerPkey: taskArguments.apTeamSignerPkey,
