@@ -233,6 +233,7 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     _action.lockAmt = lockedVault.harvest(_action.accountIds);
     IERC20Metadata(_action.token).safeTransfer(address(this), _action.lockAmt);
     emit RewardsHarvested(_action);
+    _action.status = IVault.VaultActionStatus.SUCCESS;
 
     // Send tokens to receiver
     LibAccounts.FeeSetting memory feeSetting = registrar.getFeeSettingsByFeeType(

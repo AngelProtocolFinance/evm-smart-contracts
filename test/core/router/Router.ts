@@ -36,8 +36,8 @@ describe("Router", function () {
   let user: SignerWithAddress;
   let collector: SignerWithAddress;
   let deadAddr = "0x000000000000000000000000000000000000dead";
-  const originatingChain = "polygon";
-  const localChain = "ethereum";
+  const originatingChain = "Polygon";
+  const localChain = "Ethereum";
   const accountsContract = deadAddr;
 
   before(async function () {
@@ -1039,14 +1039,14 @@ describe("Router", function () {
         amount: LIQ_AMT,
         status: VaultActionStatus.POSITION_EXITED,
       });
-      expect(
+      await expect(
         await router.execute(
           ethers.utils.formatBytes32String("true"),
           originatingChain,
           accountsContract,
           packedData
         )
-      ).to.emit(router, "RedeemAll");
+      ).to.emit(router, "Redeem");
       expect(lockedVault.redeemAll).to.have.been.calledWith(1);
       expect(liquidVault.redeemAll).to.have.been.calledWith(1);
       expect(token.approve).to.have.been.calledWith(gateway.address, TOTAL_AMT - GAS_COST);
@@ -1108,6 +1108,156 @@ describe("Router", function () {
           packedData
         )
       ).to.be.revertedWith("Send amount does not cover gas");
+    });
+  });
+
+  describe("Harvest cross-chain", function () {
+    let lockedVault: FakeContract<DummyVault>;
+    let liquidVault: FakeContract<DummyVault>;
+    let registrar: FakeContract<Registrar>;
+    let gateway: FakeContract<DummyGateway>;
+    let token: FakeContract<DummyERC20>;
+    let router: Router;
+    const LOCK_AMT = 111;
+    const LIQ_AMT = 222;
+    const TOTAL_AMT = LOCK_AMT + LIQ_AMT;
+    const getDefaultActionData = () => ({
+      ...DEFAULT_ACTION_DATA,
+      accountIds: [1],
+      lockAmt: LOCK_AMT,
+      liqAmt: LIQ_AMT,
+    });
+
+    beforeEach(async function () {
+      token = await smock.fake<DummyERC20>(new DummyERC20__factory());
+      registrar = await smock.fake<Registrar>(new Registrar__factory());
+      gateway = await smock.fake<DummyGateway>(new DummyGateway__factory());
+      lockedVault = await smock.fake<DummyVault>(new DummyVault__factory());
+      liquidVault = await smock.fake<DummyVault>(new DummyVault__factory());
+
+      const networkParams = {
+        ...DEFAULT_NETWORK_INFO,
+        axelarGateway: gateway.address,
+        refundAddr: collector.address,
+      };
+
+      const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
+        approvalState: StrategyApprovalState.APPROVED,
+        network: localChain,
+        lockedVaultAddr: lockedVault.address,
+        liquidVaultAddr: liquidVault.address,
+      };
+
+      gateway.validateContractCall.returns(true);
+      gateway.validateContractCallAndMint.returns(true);
+      gateway.tokenAddresses.returns(token.address);
+      registrar.queryNetworkConnection.returns(networkParams);
+      registrar.getAccountsContractAddressByChain
+        .whenCalledWith(originatingChain)
+        .returns(accountsContract);
+      registrar.getAccountsContractAddressByChain.whenCalledWith(localChain).returns(owner.address);
+      registrar.getStrategyApprovalState.returns(StrategyApprovalState.APPROVED);
+      registrar.getStrategyParamsById.returns(stratParams);
+      registrar.getFeeSettingsByFeeType.returns({payoutAddress: collector.address, bps: 1});
+      registrar.thisChain.returns(localChain);
+      token.transfer.returns(true);
+      token.transferFrom.returns(true);
+      token.approve.returns(true);
+      token.approveFor.returns(true);
+      token.symbol.returns("TKN");
+      router = await deployRouterAsProxy(registrar.address);
+    });
+
+    it("Harvests the targeted accounts and forwards tokens cross-chain", async function () {
+      let actionData = getDefaultActionData();
+      actionData.token = token.address;
+      actionData.selector = liquidVault.interface.getSighash("harvest");
+      let packedData = packActionData(actionData, hre);
+      lockedVault.harvest.returns(LOCK_AMT);
+      liquidVault.harvest.returns(LIQ_AMT);
+      expect(
+        await router.execute(
+          ethers.utils.formatBytes32String("true"),
+          originatingChain,
+          accountsContract,
+          packedData
+        )
+      ).to.emit(router, "RewardsHarvested");
+      expect(lockedVault.harvest).to.have.been.calledWith(actionData.accountIds);
+      expect(liquidVault.harvest).to.have.been.calledWith(actionData.accountIds);
+      expect(token.transfer).to.have.been.calledWith(router.address, LOCK_AMT);
+      expect(token.transfer).to.have.been.calledWith(router.address, LIQ_AMT);
+      expect(token.approve).to.have.been.calledWith(gateway.address, TOTAL_AMT);
+    });
+  });
+
+  describe("Harvest locally", function () {
+    let lockedVault: FakeContract<DummyVault>;
+    let liquidVault: FakeContract<DummyVault>;
+    let registrar: FakeContract<Registrar>;
+    let gateway: FakeContract<DummyGateway>;
+    let token: FakeContract<DummyERC20>;
+    let router: Router;
+    const LOCK_AMT = 111;
+    const LIQ_AMT = 222;
+    const TOTAL_AMT = LOCK_AMT + LIQ_AMT;
+    const getDefaultActionData = () => ({
+      ...DEFAULT_ACTION_DATA,
+      accountIds: [1],
+      lockAmt: LOCK_AMT,
+      liqAmt: LIQ_AMT,
+    });
+
+    beforeEach(async function () {
+      token = await smock.fake<DummyERC20>(new DummyERC20__factory());
+      registrar = await smock.fake<Registrar>(new Registrar__factory());
+      lockedVault = await smock.fake<DummyVault>(new DummyVault__factory());
+      liquidVault = await smock.fake<DummyVault>(new DummyVault__factory());
+
+      const networkParams = {
+        ...DEFAULT_NETWORK_INFO,
+      };
+
+      const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
+        approvalState: StrategyApprovalState.APPROVED,
+        network: originatingChain,
+        lockedVaultAddr: lockedVault.address,
+        liquidVaultAddr: liquidVault.address,
+      };
+
+      registrar.queryNetworkConnection.returns(networkParams);
+      registrar.getAccountsContractAddressByChain.whenCalledWith(originatingChain).returns(owner.address);
+      registrar.getStrategyApprovalState.returns(StrategyApprovalState.APPROVED);
+      registrar.getStrategyParamsById.returns(stratParams);
+      registrar.getFeeSettingsByFeeType.returns({payoutAddress: collector.address, bps: 1});
+      registrar.thisChain.returns(originatingChain);
+      token.transfer.returns(true);
+      token.transferFrom.returns(true);
+      token.approve.returns(true);
+      token.approveFor.returns(true);
+      token.symbol.returns("TKN");
+      router = await deployRouterAsProxy(registrar.address);
+    });
+
+    it("Harvests the targeted account and forwards tokens to the local collector", async function () {
+      let actionData = getDefaultActionData();
+      actionData.token = token.address;
+      actionData.selector = liquidVault.interface.getSighash("harvest");
+      let packedData = packActionData(actionData, hre);
+      lockedVault.harvest.returns(LOCK_AMT);
+      liquidVault.harvest.returns(LIQ_AMT);
+      expect(
+        await router.connect(owner).executeLocal(
+          originatingChain,
+          owner.address,
+          packedData
+        )
+      ).to.emit(router, "RewardsHarvested");
+      expect(lockedVault.harvest).to.have.been.calledWith(actionData.accountIds);
+      expect(liquidVault.harvest).to.have.been.calledWith(actionData.accountIds);
+      expect(token.transfer).to.have.been.calledWith(router.address, LOCK_AMT);
+      expect(token.transfer).to.have.been.calledWith(router.address, LIQ_AMT);
+      expect(token.transfer).to.have.been.calledWith(collector.address, TOTAL_AMT);
     });
   });
 });
