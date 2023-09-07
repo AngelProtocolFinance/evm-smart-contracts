@@ -20,8 +20,8 @@ export async function deploy<T extends ContractFactory>(
   const contractName = getContractName(factory);
   logger.out(`Deploying ${contractName}...`);
 
-  const contract = await factory.deploy(...(constructorArguments ?? []));
   try {
+    const contract = await factory.deploy(...(constructorArguments ?? []));
     await contract.deployed();
     logger.out(`Address: ${contract.address}`);
     return {
@@ -29,8 +29,10 @@ export async function deploy<T extends ContractFactory>(
       contractName,
       contract: contract as Awaited<ReturnType<T["deploy"]>>,
     };
-  } catch (error) {
-    logger.out(`Tx hash: ${contract.deployTransaction.hash}`);
+  } catch (error: any) {
+    if ("data" in error && "txHash" in error.data) {
+      logger.out(`Tx hash: ${error.data.txHash}`);
+    }
     throw error;
   }
 }
