@@ -1,7 +1,6 @@
 export * from "./confirmAction";
 export * from "./constants";
 export * from "./deploy";
-export * from "./env.config";
 export * from "./getContractName";
 export * from "./getEnumKeys";
 export * from "./getKeysTyped";

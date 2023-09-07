@@ -1,6 +1,6 @@
 import {HardhatUserConfig} from "hardhat/config";
 import {HardhatNetworkAccountsUserConfig} from "hardhat/types";
-import {envConfigDev, envConfigProd, getHardhatAccounts} from "./utils";
+import {envConfigDev, envConfigProd, getHardhatAccounts} from "./config";
 import "@nomiclabs/hardhat-etherscan";
 import "@nomicfoundation/hardhat-chai-matchers";
 import "@openzeppelin/hardhat-upgrades";
