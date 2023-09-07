@@ -1,6 +1,6 @@
 import {BigNumber} from "ethers";
+import {FeeTypes} from "types";
 import {AddressObj} from "../utils";
-import {FeeTypes} from "../utils";
 
 export type Config = {
   AP_TEAM_MULTISIG_DATA: {

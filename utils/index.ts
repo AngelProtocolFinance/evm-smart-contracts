@@ -12,6 +12,5 @@ export * from "./manageAddressFile";
 export * from "./manageStratParams";
 export * from "./networkHelpers";
 export * from "./structToObject";
-export * from "./types";
 export * from "./validation";
 export * from "./verify";
