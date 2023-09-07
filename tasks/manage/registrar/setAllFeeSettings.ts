@@ -29,7 +29,7 @@ task("manage:registrar:setAllFeeSettings")
       // If Network == Polygon -> PROD_CONFIG.Treasury
       // else, set to AP Team Multisig
       if (payoutAddress == "") {
-        if(await getChainId(hre) == POLYGON) {
+        if ((await getChainId(hre)) == POLYGON) {
           payoutAddress = CONFIG.PROD_CONFIG.Treasury;
         } else {
           const addresses = await getAddresses(hre);
