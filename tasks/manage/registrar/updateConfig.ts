@@ -2,7 +2,14 @@ import {task, types} from "hardhat/config";
 import {submitMultiSigTx} from "tasks/helpers";
 import {Registrar__factory} from "typechain-types";
 import {RegistrarMessages} from "typechain-types/contracts/core/registrar/Registrar";
-import {confirmAction, getAPTeamOwner, getAddresses, logger, structToObject} from "utils";
+import {
+  confirmAction,
+  getAPTeamOwner,
+  getAddresses,
+  getKeysTyped,
+  logger,
+  structToObject,
+} from "utils";
 
 type TaskArgs = Partial<RegistrarMessages.UpdateConfigRequestStruct> & {
   apTeamSignerPkey?: string;
@@ -166,7 +173,7 @@ function assignDefinedValues(
 ): Partial<RegistrarMessages.UpdateConfigRequestStruct> {
   const target: Partial<RegistrarMessages.UpdateConfigRequestStruct> = {};
 
-  (Object.keys(obj) as (keyof RegistrarMessages.UpdateConfigRequestStruct)[]).forEach((key) => {
+  getKeysTyped(obj).forEach((key) => {
     const value = obj[key];
     if (value !== undefined && value !== null) {
       target[key] = value as any;
