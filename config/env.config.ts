@@ -1,10 +1,9 @@
 // Env handling:
-import {config as dotenvConfig} from "dotenv";
+import dotenv from "dotenv";
 import {HardhatNetworkAccountsUserConfig, HardhatNetworkAccountUserConfig} from "hardhat/types";
-import {resolve} from "path";
 import {EnvConfig} from "./types";
 
-dotenvConfig({path: resolve(__dirname, "../.env")});
+dotenv.config({path: __dirname + "/./../.env"});
 
 const DEPLOYER_KEY = extractString("DEPLOYER_KEY");
 const PROXY_ADMIN_DEV_KEY = extractString("PROXY_ADMIN_KEY");

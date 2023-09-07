@@ -133,17 +133,17 @@
     "accounts": {
       "diamond": "0xf7C497157c4879A4C6ca9B66CF3911BD2b71E2da",
       "facets": {
-        "accountsDepositWithdrawEndowments": "0x03d1823DCE06d5bD225cB18773bb090b2aD33b5D",
-        "accountsAllowance": "0x0d60924d99B5C75Ce8A6698b44Fa864fdC84A2C9",
-        "accountsCreateEndowment": "0x7a0f853900040d5b131342018EAb9453723d9dcc",
+        "accountsDepositWithdrawEndowments": "0x486b1C056AC365dD969056C717ab8E7AEd59a178",
+        "accountsAllowance": "0xAb3aa8BCEA9832CB18153Aa9731E989A289277f7",
+        "accountsCreateEndowment": "0xb463AFC0b3A499a2D826155fc6E6E73061BEF826",
         "accountsGasManager": "0x53557e97deED0DdEEf2404a6A29A415e379051bb",
-        "accountsQueryEndowments": "0x675017e864CB39CEbe4A0CDBA639750f6ee0BDE2",
-        "accountsStrategy": "0x6eB34f65AcC0dd09C3AA72C3C4bA08578a4A3F96",
-        "accountsSwapRouter": "0x79AF01164e25B9c6Ff828A5f795CFA62A635CFC3",
-        "accountsUpdate": "0x635D1fE12b3b8af7174eED21536319b5280B4453",
-        "accountsUpdateEndowments": "0xd62A19ffb64C3f00271Dd7BBf455824aa799d074",
-        "accountsUpdateEndowmentSettingsController": "0xC79662B65F21A222EE95d22557664C3BE14Ec0FE",
-        "accountsUpdateStatusEndowments": "0xC4Af9B066983f55852a2796A7485ccE748392566",
+        "accountsQueryEndowments": "0xbF6b148a440acAb936796ad40947C0C33C78639A",
+        "accountsStrategy": "0xA8b73E610095A61de646eD06334c61b94318df52",
+        "accountsSwapRouter": "0xacE2a31e8B8d66C24DAea008d1eDaf571369A728",
+        "accountsUpdate": "0x45CCb6251F3500c7EE3219eE47C213fB239346cB",
+        "accountsUpdateEndowments": "0x33F76554d1474061482Bfa858f35AFD9BAb4D1C5",
+        "accountsUpdateEndowmentSettingsController": "0x053d1190081dC68ED544D5A2788878E823F64a69",
+        "accountsUpdateStatusEndowments": "0x03Bb663AccB9FD14aD3c37B2D66B025bbd4Fc533",
         "diamondCutFacet": "0x42f293b5D45C0a949639EE229E4c9acD51DF904D",
         "diamondInitFacet": "0x730EEB14F27B5D6132b9BF7D62eF877D89600F55",
         "diamondLoupeFacet": "0x22a1B036322472baC663A4d741d87829c30b8E4e",
@@ -241,12 +241,12 @@
       "proxyAdmin": "0x1BE9451496bfB6aDcFfbc308b673018a8972AFFE"
     },
     "registrar": {
-      "implementation": "0x1BE9451496bfB6aDcFfbc308b673018a8972AFFE",
-      "proxy": "0x2e3c2536E1349e0E18d057f61499Ef64BB4B23E8"
+      "implementation": "0xfC8caFA21dc76a1065494E213dE9F94E788DaAC9",
+      "proxy": "0xB2BD05A652973f567aD6472b9FEa29FE293f6cD9"
     },
     "router": {
-      "implementation": "0x3539f918A787529732465a4ccb89A96FFfb33073",
-      "proxy": "0x801E1B78732dbEC5B8ACc3EcD24031B4e32aD341"
+      "implementation": "0x9B1a72BD9efC089935766f7Ebc8779B67C0F7495",
+      "proxy": "0x8450D449D5Cc73EBf35970d9723e8d214151e702"
     },
     "tokens": {
       "dai": "",
