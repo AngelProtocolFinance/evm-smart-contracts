@@ -6,8 +6,8 @@ import {
 } from "typechain-types";
 import {
   confirmAction,
+  deploy,
   getAddresses,
-  getContractName,
   getProxyAdminOwner,
   getSigners,
   isLocalNetwork,
@@ -45,18 +45,16 @@ task(
 
       const addresses = await getAddresses(hre);
 
-      logger.out("Deploying implementation...");
-      const Emitter = new EndowmentMultiSigEmitter__factory(deployer);
-      const emitter = await Emitter.deploy();
-      logger.out(`Tx hash: ${emitter.deployTransaction.hash}`);
-      await emitter.deployed();
-      logger.out(`Address: ${emitter.address}`);
+      const deployment = await deploy(new EndowmentMultiSigEmitter__factory(deployer));
 
       logger.out("Upgrading proxy...");
-      const payload = ITransparentUpgradeableProxy__factory.createInterface().encodeFunctionData(
-        "upgradeTo",
-        [emitter.address]
+      const proxy = ITransparentUpgradeableProxy__factory.connect(
+        addresses.multiSig.proxyAdmin,
+        hre.ethers.provider
       );
+      const payload = proxy.interface.encodeFunctionData("upgradeTo", [
+        deployment.contract.address,
+      ]);
       const isExecuted = await submitMultiSigTx(
         addresses.multiSig.proxyAdmin,
         proxyAdminOwner,
@@ -66,13 +64,19 @@ task(
       if (!isExecuted) {
         return;
       }
+      const newImplAddr = await proxy.implementation();
+      if (newImplAddr !== deployment.contract.address) {
+        throw new Error(
+          `Unexpected: expected value "${deployment.contract.address}", but got "${newImplAddr}"`
+        );
+      }
 
       await updateAddresses(
         {
           multiSig: {
             endowment: {
               emitter: {
-                implementation: emitter.address,
+                implementation: deployment.contract.address,
               },
             },
           },
@@ -81,7 +85,7 @@ task(
       );
 
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
-        await verify(hre, {address: emitter.address, contractName: getContractName(Emitter)});
+        await verify(hre, deployment);
       }
     } catch (error) {
       logger.out(`EndowmentMultiSigEmitter upgrade failed, reason: ${error}`, logger.Level.Error);

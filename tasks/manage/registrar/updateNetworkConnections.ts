@@ -2,9 +2,9 @@ import {task, types} from "hardhat/config";
 import {submitMultiSigTx} from "tasks/helpers";
 import {Registrar__factory} from "typechain-types";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
+import {NetworkConnectionAction} from "types";
 import {
   AddressObj,
-  NetworkConnectionAction,
   getAPTeamOwner,
   getAddresses,
   getAddressesByNetworkId,

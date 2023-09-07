@@ -23,15 +23,13 @@ export default async function cutDiamond(
     networkName,
   ]);
 
-  const cuts = facetCuts.map((x) => x.cut);
-  const tx = await diamondCut.diamondCut(cuts, diamondInit, calldata);
-  logger.out(`Cutting Diamond tx: ${tx.hash}`);
-
-  const receipt = await hre.ethers.provider.waitForTransaction(tx.hash);
-
-  if (!receipt.status) {
-    throw new Error(`Diamond cut failed: ${tx.hash}`);
-  }
+  const tx = await diamondCut.diamondCut(
+    facetCuts.map((x) => x.cut),
+    diamondInit,
+    calldata
+  );
+  logger.out(`Tx hash: ${tx.hash}`);
+  await tx.wait();
 
   logger.out("Completed Diamond cut.");
 }

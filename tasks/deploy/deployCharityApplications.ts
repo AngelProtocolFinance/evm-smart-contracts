@@ -42,7 +42,7 @@ task("deploy:CharityApplications", "Will deploy CharityApplication contract")
       );
 
       await hre.run("manage:registrar:updateConfig", {
-        charityApplications: charityApplications.proxy.address,
+        charityApplications: charityApplications.proxy.contract.address,
         apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });

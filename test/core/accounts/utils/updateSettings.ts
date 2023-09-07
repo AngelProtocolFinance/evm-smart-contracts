@@ -1,11 +1,11 @@
 import {BigNumberish} from "ethers";
+import {wait} from "test/utils";
 import {
   AccountStorage,
   LibAccounts,
   TestFacetProxyContract,
 } from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
-import {DeepPartial} from "utils/types";
-import {wait} from "test/utils";
+import {DeepPartial} from "types";
 
 /**
  * Updates endowment's setting's permissions field in a way that has no side-effects

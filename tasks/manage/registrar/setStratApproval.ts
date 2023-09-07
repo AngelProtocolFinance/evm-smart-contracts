@@ -1,15 +1,9 @@
+import {allStrategyConfigs} from "contracts/integrations/stratConfig";
 import {task, types} from "hardhat/config";
 import {submitMultiSigTx} from "tasks/helpers";
 import {Registrar__factory} from "typechain-types";
-import {
-  StratConfig,
-  StrategyApprovalState,
-  getAPTeamOwner,
-  getAddresses,
-  getEnumKeys,
-  logger,
-} from "utils";
-import {allStrategyConfigs} from "../../../contracts/integrations/stratConfig";
+import {StrategyApprovalState} from "types";
+import {StratConfig, getAPTeamOwner, getAddresses, getEnumKeys, logger} from "utils";
 
 type TaskArgs = {name: string; approvalState: number; apTeamSignerPkey?: string};
 

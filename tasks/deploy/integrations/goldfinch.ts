@@ -78,7 +78,7 @@
 //     logger.divider();
 //     logger.out("Writing to contract-address.json", logger.Level.Info);
 
-//     // update address file & verify contracts
+//     // update address file
 //     await updateAddresses(
 //       {
 //         goldfinch: {

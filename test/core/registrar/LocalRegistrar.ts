@@ -2,11 +2,11 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
 import {BigNumber} from "ethers";
 import hre from "hardhat";
-import {FeeTypes, StrategyApprovalState, getSigners} from "utils";
-
 import {DEFAULT_NETWORK_INFO} from "test/utils";
 import {LocalRegistrar, LocalRegistrar__factory} from "typechain-types";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
+import {FeeTypes, StrategyApprovalState} from "types";
+import {getSigners} from "utils";
 
 describe("Local Registrar", function () {
   const {ethers, upgrades} = hre;

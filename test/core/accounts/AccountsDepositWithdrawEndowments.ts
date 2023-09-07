@@ -1,6 +1,6 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {impersonateAccount, setBalance, time} from "@nomicfoundation/hardhat-network-helpers";
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
 import {BigNumber} from "ethers";
 import hre from "hardhat";
@@ -8,11 +8,11 @@ import {DEFAULT_CHARITY_ENDOWMENT, DEFAULT_REGISTRAR_CONFIG, wait} from "test/ut
 import {
   AccountsDepositWithdrawEndowments,
   AccountsDepositWithdrawEndowments__factory,
-  IERC20,
-  IERC20__factory,
   DummyWMATIC,
   DummyWMATIC__factory,
   IAccountsDepositWithdrawEndowments,
+  IERC20,
+  IERC20__factory,
   Registrar,
   Registrar__factory,
   TestFacetProxyContract,
@@ -20,7 +20,8 @@ import {
 import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsDepositWithdrawEndowments";
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
-import {VaultType, genWallet, getProxyAdminOwner, getSigners} from "utils";
+import {VaultType} from "types";
+import {genWallet, getProxyAdminOwner, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
 
 use(smock.matchers);

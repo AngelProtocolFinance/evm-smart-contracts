@@ -1,4 +1,5 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
+import {time} from "@nomicfoundation/hardhat-network-helpers";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
 import hre from "hardhat";
@@ -24,9 +25,9 @@ import {
   Registrar__factory,
   TestFacetProxyContract,
 } from "typechain-types";
-import {VaultType, genWallet, getProxyAdminOwner, getSigners} from "utils";
+import {VaultType} from "types";
+import {genWallet, getProxyAdminOwner, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
-import {time} from "@nomicfoundation/hardhat-network-helpers";
 
 use(smock.matchers);
 

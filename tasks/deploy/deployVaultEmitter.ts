@@ -28,7 +28,7 @@ task("deploy:VaultEmitter", "Will deploy VaultEmitter contract")
       const deployment = await deployVaultEmitter(addresses.multiSig.proxyAdmin, deployer, hre);
 
       await hre.run("manage:registrar:setVaultEmitterAddress", {
-        to: deployment.proxy.address,
+        to: deployment.proxy.contract.address,
         apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });

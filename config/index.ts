@@ -74,4 +74,5 @@ export const CONFIG: Config = {
   },
 };
 
+export * from "./env.config";
 export * from "./fees";

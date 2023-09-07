@@ -1,6 +1,6 @@
 import {BigNumber} from "ethers";
+import {FeeTypes} from "types";
 import {AddressObj} from "../utils";
-import {FeeTypes} from "../utils";
 
 export type Config = {
   AP_TEAM_MULTISIG_DATA: {
@@ -60,4 +60,16 @@ export type Fees = {
     payoutAddress: string;
     bps: number;
   };
+};
+
+export type EnvConfig = {
+  ETHERSCAN_API_KEY: string;
+  GANACHE_PRIVATE_KEY: string;
+  GANACHE_RPC_URL: string;
+  GOERLI_RPC_URL: string;
+  MAINNET_RPC_URL: string;
+  MUMBAI_RPC_URL: string;
+  POLYGON_RPC_URL: string;
+  POLYSCAN_API_KEY: string;
+  ACCOUNTS: string[];
 };

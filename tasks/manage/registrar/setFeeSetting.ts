@@ -1,9 +1,9 @@
+import {FEES} from "config";
 import {task, types} from "hardhat/config";
 import {submitMultiSigTx} from "tasks/helpers";
 import {Registrar__factory} from "typechain-types";
-import {FeeTypes, getAPTeamOwner, getAddresses, getEnumKeys, logger} from "utils";
-import {FEES} from "config";
-import {Fees} from "config/types";
+import {FeeTypes} from "types";
+import {getAPTeamOwner, getAddresses, getEnumKeys, logger} from "utils";
 
 type TaskArgs = {feeType: number; payoutAddress?: string; bps?: number; apTeamSignerPkey?: string};
 
@@ -43,7 +43,7 @@ task("manage:registrar:setFeeSettings")
     const registrar = Registrar__factory.connect(registrarAddress, apTeamOwner);
     logger.pad(50, "Connected to Registrar at: ", registrar.address);
 
-    let configFee = FEES[taskArguments.feeType as keyof Fees];
+    let configFee = FEES[taskArguments.feeType as FeeTypes];
     const bps = !taskArguments.bps ? configFee.bps : taskArguments.bps;
     const payoutAddress = !taskArguments.payoutAddress
       ? configFee.payoutAddress
