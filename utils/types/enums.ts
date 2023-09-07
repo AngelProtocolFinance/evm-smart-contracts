@@ -42,11 +42,13 @@ export enum FeeTypes {
   Default,
   Harvest,
   Deposit,
-  DepsoitCharity,
+  DepositCharity,
   Withdraw,
   WithdrawCharity,
   EarlyLockedWithdraw,
   EarlyLockedWithdrawCharity,
+  Balance,
+  BalanceCharity,
 }
 
 export enum BeneficiaryEnum {

@@ -1,5 +1,6 @@
 import {BigNumber} from "ethers";
 import {AddressObj} from "../utils";
+import {FeeTypes} from "../utils";
 
 export type Config = {
   AP_TEAM_MULTISIG_DATA: {
@@ -51,5 +52,12 @@ export type Config = {
     CharityApplicationsOwners: string[];
     ProxyAdminMultiSigOwners: string[];
     Treasury: string;
+  };
+};
+
+export type Fees = {
+  [key in FeeTypes]: {
+    payoutAddress: string;
+    bps: number;
   };
 };

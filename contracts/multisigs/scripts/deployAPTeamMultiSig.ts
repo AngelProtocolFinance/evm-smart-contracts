@@ -1,4 +1,4 @@
-import config from "config";
+import {CONFIG} from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {APTeamMultiSig__factory, ProxyContract__factory} from "typechain-types";
@@ -17,7 +17,7 @@ export async function deployAPTeamMultiSig(
   const {apTeamMultisigOwners} = await getSigners(hre);
   const owners = apTeamMultisigOwners
     ? apTeamMultisigOwners.map((x) => x.address)
-    : config.PROD_CONFIG.APTeamMultiSigOwners;
+    : CONFIG.PROD_CONFIG.APTeamMultiSigOwners;
 
   // deploy implementation
   logger.out("Deploying implementation...");
@@ -30,9 +30,9 @@ export async function deployAPTeamMultiSig(
   logger.out("Deploying proxy...");
   const apTeamMultiSigData = apTeamMultiSig.interface.encodeFunctionData("initializeAPTeam", [
     owners,
-    config.AP_TEAM_MULTISIG_DATA.threshold,
-    config.AP_TEAM_MULTISIG_DATA.requireExecution,
-    config.AP_TEAM_MULTISIG_DATA.transactionExpiry,
+    CONFIG.AP_TEAM_MULTISIG_DATA.threshold,
+    CONFIG.AP_TEAM_MULTISIG_DATA.requireExecution,
+    CONFIG.AP_TEAM_MULTISIG_DATA.transactionExpiry,
   ]);
   const proxyFactory = new ProxyContract__factory(deployer);
   const apTeamMultiSigProxy = await proxyFactory.deploy(

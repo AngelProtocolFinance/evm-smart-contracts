@@ -1,5 +1,5 @@
 import {task} from "hardhat/config";
-import config from "config";
+import {CONFIG} from "config";
 import {cliTypes} from "tasks/types";
 import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
 import {ADDRESS_ZERO, connectSignerFromPkey, getAddresses, getSigners, logger} from "utils";
@@ -28,7 +28,7 @@ task(
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       const {treasury} = await getSigners(hre);
-      let treasuryAddress = treasury ? treasury.address : config.PROD_CONFIG.Treasury;
+      let treasuryAddress = treasury ? treasury.address : CONFIG.PROD_CONFIG.Treasury;
 
       const addresses = await getAddresses(hre);
 

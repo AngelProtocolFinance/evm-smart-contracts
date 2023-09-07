@@ -1,4 +1,4 @@
-import config from "config";
+import {CONFIG} from "config";
 import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {task} from "hardhat/config";
 import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
@@ -39,7 +39,7 @@ task(
 
       const {treasury, deployer} = await getSigners(hre);
 
-      let treasuryAddress = treasury ? treasury.address : config.PROD_CONFIG.Treasury;
+      let treasuryAddress = treasury ? treasury.address : CONFIG.PROD_CONFIG.Treasury;
 
       const addresses = await getAddresses(hre);
 

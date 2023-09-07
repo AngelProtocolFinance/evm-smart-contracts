@@ -1,5 +1,5 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import config from "config";
+import {CONFIG} from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {IndexFund__factory, ProxyContract__factory} from "typechain-types";
 import {Deployment, getContractName, logger, updateAddresses} from "utils";
@@ -27,8 +27,8 @@ export async function deployIndexFund(
   logger.out("Deploying proxy...");
   const initData = indexFund.interface.encodeFunctionData("initialize", [
     registrar,
-    config.INDEX_FUND_DATA.fundRotation,
-    config.INDEX_FUND_DATA.fundingGoal,
+    CONFIG.INDEX_FUND_DATA.fundRotation,
+    CONFIG.INDEX_FUND_DATA.fundingGoal,
   ]);
   const proxyFactory = new ProxyContract__factory(deployer);
   const indexFundProxy = await proxyFactory.deploy(indexFund.address, proxyAdmin, initData);

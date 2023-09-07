@@ -1,4 +1,5 @@
 import "./setAccountsChainAndAddress";
+import "./setAllFeeSettings";
 import "./setGasByToken";
 import "./setFeeSetting";
 import "./setRebalParams";

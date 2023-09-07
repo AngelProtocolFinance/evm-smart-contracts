@@ -1,4 +1,4 @@
-import config from "config";
+import {CONFIG} from "config";
 import {deployAPTeamMultiSig, deployProxyAdminMultisig} from "contracts/multisigs/scripts/deploy";
 import {task} from "hardhat/config";
 import {getOrDeployThirdPartyContracts} from "tasks/helpers";
@@ -37,7 +37,7 @@ task("deploy:SideChain", "Will deploy complete side-chain infrastructure")
 
       const proxyAdminMultisigOwnerAddresses = proxyAdminMultisigOwners
         ? proxyAdminMultisigOwners.map((x) => x.address)
-        : config.PROD_CONFIG.ProxyAdminMultiSigOwners;
+        : CONFIG.PROD_CONFIG.ProxyAdminMultiSigOwners;
 
       await resetContractAddresses(hre);
 

@@ -2,9 +2,10 @@ import dotenv from "dotenv";
 import {ethers} from "ethers";
 import {Config} from "./types";
 import {BigNumber} from "ethers";
+
 dotenv.config({path: __dirname + "/./../.env"});
 
-const config: Config = {
+export const CONFIG: Config = {
   AP_TEAM_MULTISIG_DATA: {
     threshold: 1,
     requireExecution: false,
@@ -73,4 +74,4 @@ const config: Config = {
   },
 };
 
-export default config;
+export * from "./fees";

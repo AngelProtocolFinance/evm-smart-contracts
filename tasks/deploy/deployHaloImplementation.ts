@@ -1,5 +1,5 @@
 import {task} from "hardhat/config";
-import config from "config";
+import {CONFIG} from "config";
 import {getContractName, getAddresses, isLocalNetwork, logger, getSigners, verify} from "utils";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {Halo__factory} from "typechain-types";
@@ -56,7 +56,7 @@ export async function deployHaloImplementation(
   hre: HardhatRuntimeEnvironment
 ) {
   try {
-    const {CommunitySpendLimit, distributorSpendLimit} = config.HALO_IMPLEMENTATION_DATA;
+    const {CommunitySpendLimit, distributorSpendLimit} = CONFIG.HALO_IMPLEMENTATION_DATA;
 
     const {ethers, run, network} = hre;
     const {airdropOwner, apTeam1} = await getSigners(hre);
