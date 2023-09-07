@@ -33,8 +33,6 @@ export async function deploy<T extends ContractFactory>(
   } catch (error) {
     logger.out(`Tx hash: ${contract.deployTransaction.hash}`);
     throw error;
-  } finally {
-    logger.divider();
   }
 }
 
