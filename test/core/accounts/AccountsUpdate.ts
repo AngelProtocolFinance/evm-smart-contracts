@@ -7,12 +7,13 @@ import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetP
 import {EndowmentType} from "types";
 import {getProxyAdminOwner, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
+import {Wallet} from "ethers";
 
 describe("AccountsUpdate", function () {
   const {ethers} = hre;
 
   let owner: SignerWithAddress;
-  let proxyAdmin: SignerWithAddress;
+  let proxyAdmin: SignerWithAddress | Wallet;
   let user: SignerWithAddress;
 
   let facet: AccountsUpdate;

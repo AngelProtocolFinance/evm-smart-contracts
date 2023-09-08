@@ -1,6 +1,6 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
-import {BigNumber} from "ethers";
+import {BigNumber, Wallet} from "ethers";
 import hre from "hardhat";
 import {DEFAULT_ACCOUNTS_CONFIG, DEFAULT_CHARITY_ENDOWMENT, wait} from "test/utils";
 import {
@@ -17,7 +17,7 @@ describe("AccountsQueryEndowments", function () {
   const {ethers} = hre;
 
   let owner: SignerWithAddress;
-  let proxyAdmin: SignerWithAddress;
+  let proxyAdmin: SignerWithAddress | Wallet;
 
   let facet: AccountsQueryEndowments;
   let state: TestFacetProxyContract;

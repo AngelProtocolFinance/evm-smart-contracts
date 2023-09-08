@@ -1,7 +1,7 @@
 import {smock} from "@defi-wonderland/smock";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
-import {BigNumberish} from "ethers";
+import {BigNumberish, Wallet} from "ethers";
 import hre from "hardhat";
 import {DEFAULT_CHARITY_ENDOWMENT, wait} from "test/utils";
 import {
@@ -30,7 +30,7 @@ describe("AccountsUpdateEndowments", function () {
   const normalEndowId = 2;
 
   let accOwner: SignerWithAddress;
-  let proxyAdmin: SignerWithAddress;
+  let proxyAdmin: SignerWithAddress | Wallet;
   let endowOwner: SignerWithAddress;
   let delegate: SignerWithAddress;
 
