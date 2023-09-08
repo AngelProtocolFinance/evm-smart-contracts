@@ -1227,7 +1227,9 @@ describe("Router", function () {
       };
 
       registrar.queryNetworkConnection.returns(networkParams);
-      registrar.getAccountsContractAddressByChain.whenCalledWith(originatingChain).returns(owner.address);
+      registrar.getAccountsContractAddressByChain
+        .whenCalledWith(originatingChain)
+        .returns(owner.address);
       registrar.getStrategyApprovalState.returns(StrategyApprovalState.APPROVED);
       registrar.getStrategyParamsById.returns(stratParams);
       registrar.getFeeSettingsByFeeType.returns({payoutAddress: collector.address, bps: 1});
@@ -1248,11 +1250,7 @@ describe("Router", function () {
       lockedVault.harvest.returns(LOCK_AMT);
       liquidVault.harvest.returns(LIQ_AMT);
       expect(
-        await router.connect(owner).executeLocal(
-          originatingChain,
-          owner.address,
-          packedData
-        )
+        await router.connect(owner).executeLocal(originatingChain, owner.address, packedData)
       ).to.emit(router, "RewardsHarvested");
       expect(lockedVault.harvest).to.have.been.calledWith(actionData.accountIds);
       expect(liquidVault.harvest).to.have.been.calledWith(actionData.accountIds);

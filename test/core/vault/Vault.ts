@@ -19,7 +19,7 @@ import {
   APVault_V1__factory,
   DummyERC20,
   DummyERC20__factory,
-  DummyRouter, 
+  DummyRouter,
   DummyRouter__factory,
   DummyStrategy,
   DummyStrategy__factory,
@@ -104,7 +104,7 @@ describe("Vault", function () {
 
     beforeEach(async function () {
       token = await smock.fake<DummyERC20>(new DummyERC20__factory());
-      token.decimals.returns(DECIMALS)
+      token.decimals.returns(DECIMALS);
       vault = await deployVault(
         {
           admin: owner.address,
@@ -208,7 +208,7 @@ describe("Vault", function () {
 
   describe("upon Deposit", async function () {
     let vault: APVault_V1;
-    let baseToken: FakeContract<DummyERC20>;    
+    let baseToken: FakeContract<DummyERC20>;
     let yieldToken: FakeContract<DummyERC20>;
     let strategy: FakeContract<DummyStrategy>;
 
@@ -228,7 +228,7 @@ describe("Vault", function () {
         strategyId: DEFAULT_STRATEGY_ID,
         baseToken: baseToken.address,
         yieldToken: yieldToken.address,
-        admin: owner.address
+        admin: owner.address,
       });
       registrarFake = await smock.fake<LocalRegistrar>(new LocalRegistrar__factory());
       registrarFake.getVaultOperatorApproved.whenCalledWith(owner.address).returns(true);
@@ -285,8 +285,7 @@ describe("Vault", function () {
 
     it("successfully completes the deposit", async function () {
       strategy.deposit.returns(1);
-      await expect(vault.deposit(0, baseToken.address, 1))
-        .to.emit(vault, "DepositERC4626");
+      await expect(vault.deposit(0, baseToken.address, 1)).to.emit(vault, "DepositERC4626");
       expect(baseToken.approve).to.have.been.calledWith(strategy.address, 1);
       expect(yieldToken.transferFrom).to.have.been.calledWith(strategy.address, vault.address, 1);
       let principles = await vault.principleByAccountId(0);
@@ -306,7 +305,7 @@ describe("Vault", function () {
 
     it("allows multiple accounts to deposit and tracks them separately", async function () {
       strategy.deposit.returns(500); // Acct. 0 gets 1:1
-      await vault.deposit(0, baseToken.address, 500); 
+      await vault.deposit(0, baseToken.address, 500);
       expect(baseToken.approve).to.have.been.calledWith(strategy.address, 500);
       expect(yieldToken.transferFrom).to.have.been.calledWith(strategy.address, vault.address, 500);
 
@@ -325,7 +324,7 @@ describe("Vault", function () {
 
   describe("upon Redemption", async function () {
     let vault: APVault_V1;
-    let baseToken: FakeContract<DummyERC20>;    
+    let baseToken: FakeContract<DummyERC20>;
     let yieldToken: FakeContract<DummyERC20>;
     let strategy: FakeContract<DummyStrategy>;
     let router: FakeContract<DummyRouter>;
@@ -351,17 +350,20 @@ describe("Vault", function () {
         strategyId: DEFAULT_STRATEGY_ID,
         baseToken: baseToken.address,
         yieldToken: yieldToken.address,
-        admin: owner.address
+        admin: owner.address,
       });
       const networkParams = {
         ...DEFAULT_NETWORK_INFO,
-        router: router.address
+        router: router.address,
       };
       registrarFake = await smock.fake<LocalRegistrar>(new LocalRegistrar__factory());
-      registrarFake.thisChain.returns(DEFAULT_NETWORK)
+      registrarFake.thisChain.returns(DEFAULT_NETWORK);
       registrarFake.queryNetworkConnection.returns(networkParams);
       registrarFake.getVaultOperatorApproved.whenCalledWith(owner.address).returns(true);
-      registrarFake.getFeeSettingsByFeeType.returns({payoutAddress: collector.address, bps: TAX_RATE});
+      registrarFake.getFeeSettingsByFeeType.returns({
+        payoutAddress: collector.address,
+        bps: TAX_RATE,
+      });
 
       vault = await deployVault(
         {
@@ -375,7 +377,7 @@ describe("Vault", function () {
         vaultEmitterFake.address
       );
 
-      strategy.deposit.returns(DEPOSIT)
+      strategy.deposit.returns(DEPOSIT);
       yieldToken.balanceOf.returns(DEPOSIT);
       await wait(vault.deposit(0, baseToken.address, DEPOSIT));
     });
@@ -413,9 +415,12 @@ describe("Vault", function () {
       strategy.withdraw.returns(DEPOSIT / 2); // no yield
       await expect(vault.redeem(0, shares.div(2))).to.not.be.reverted; // Redeem half the position
       expect(yieldToken.approve).to.have.been.calledWith(strategy.address, shares.div(2));
-      expect(baseToken.transferFrom).to.have.been.calledWith(strategy.address, vault.address, DEPOSIT/2);
+      expect(baseToken.transferFrom).to.have.been.calledWith(
+        strategy.address,
+        vault.address,
+        DEPOSIT / 2
+      );
     });
-
 
     it("taxes if the position is in the black", async function () {
       let shares = await vault.balanceOf(0);
@@ -423,9 +428,13 @@ describe("Vault", function () {
       expect(await vault.redeem(0, shares.div(2))); // Redeem half the position
       let YIELD = DEPOSIT / 2; // half the tokens are yield when position is 100% yield
       let expectedTax = (YIELD * TAX_RATE) / 10000;
-      expect(yieldToken.approve).to.have.been.calledWith(strategy.address, shares.div(2))
-      expect(baseToken.transferFrom).to.have.been.calledWith(strategy.address, vault.address, DEPOSIT)
-      expect(baseToken.approve).to.have.been.calledWith(router.address, expectedTax)
+      expect(yieldToken.approve).to.have.been.calledWith(strategy.address, shares.div(2));
+      expect(baseToken.transferFrom).to.have.been.calledWith(
+        strategy.address,
+        vault.address,
+        DEPOSIT
+      );
+      expect(baseToken.approve).to.have.been.calledWith(router.address, expectedTax);
     });
 
     it("updates the principles accordingly", async function () {
@@ -450,7 +459,7 @@ describe("Vault", function () {
 
   describe("upon Redeem All", async function () {
     let vault: APVault_V1;
-    let baseToken: FakeContract<DummyERC20>;    
+    let baseToken: FakeContract<DummyERC20>;
     let yieldToken: FakeContract<DummyERC20>;
     let strategy: FakeContract<DummyStrategy>;
     let router: FakeContract<DummyRouter>;
@@ -476,17 +485,20 @@ describe("Vault", function () {
         strategyId: DEFAULT_STRATEGY_ID,
         baseToken: baseToken.address,
         yieldToken: yieldToken.address,
-        admin: owner.address
+        admin: owner.address,
       });
       const networkParams = {
         ...DEFAULT_NETWORK_INFO,
-        router: router.address
+        router: router.address,
       };
       registrarFake = await smock.fake<LocalRegistrar>(new LocalRegistrar__factory());
-      registrarFake.thisChain.returns(DEFAULT_NETWORK)
+      registrarFake.thisChain.returns(DEFAULT_NETWORK);
       registrarFake.queryNetworkConnection.returns(networkParams);
       registrarFake.getVaultOperatorApproved.whenCalledWith(owner.address).returns(true);
-      registrarFake.getFeeSettingsByFeeType.returns({payoutAddress: collector.address, bps: TAX_RATE});
+      registrarFake.getFeeSettingsByFeeType.returns({
+        payoutAddress: collector.address,
+        bps: TAX_RATE,
+      });
 
       vault = await deployVault(
         {
@@ -500,25 +512,19 @@ describe("Vault", function () {
         vaultEmitterFake.address
       );
 
-      strategy.deposit.returns(DEPOSIT)
+      strategy.deposit.returns(DEPOSIT);
       yieldToken.balanceOf.returns(DEPOSIT);
       await wait(vault.deposit(0, baseToken.address, DEPOSIT));
     });
 
     it("reverts if the strategy is paused", async function () {
       strategy.paused.returns(true);
-      await expect(vault.redeemAll(0)).to.be.revertedWithCustomError(
-        vault,
-        "OnlyNotPaused"
-      );
+      await expect(vault.redeemAll(0)).to.be.revertedWithCustomError(vault, "OnlyNotPaused");
     });
 
     it("reverts if the caller isn't approved", async function () {
       registrarFake.getVaultOperatorApproved.whenCalledWith(owner.address).returns(false);
-      await expect(vault.redeemAll(0)).to.be.revertedWithCustomError(
-        vault,
-        "OnlyApproved"
-      );
+      await expect(vault.redeemAll(0)).to.be.revertedWithCustomError(vault, "OnlyApproved");
     });
 
     it("does not tax if the position hasn't earned yield", async function () {
@@ -526,25 +532,33 @@ describe("Vault", function () {
       strategy.withdraw.returns(DEPOSIT); // no yield
       await expect(vault.redeemAll(0)).to.not.be.reverted; // Redeem the whole position
       expect(yieldToken.approve).to.have.been.calledWith(strategy.address, DEPOSIT);
-      expect(baseToken.transferFrom).to.have.been.calledWith(strategy.address, vault.address, DEPOSIT);
+      expect(baseToken.transferFrom).to.have.been.calledWith(
+        strategy.address,
+        vault.address,
+        DEPOSIT
+      );
     });
-    
+
     it("taxes if the position is in the black", async function () {
       strategy.withdraw.returns(DEPOSIT * 2); // 100% yield
       yieldToken.balanceOf.returns(DEPOSIT);
-      await expect(vault.redeemAll(0)).to.not.be.reverted; 
+      await expect(vault.redeemAll(0)).to.not.be.reverted;
       let YIELD = DEPOSIT; // the entire original positoin is yield when 100% yield
       let expectedTax = (YIELD * TAX_RATE) / 10000;
-      expect(yieldToken.approve).to.have.been.calledWith(strategy.address, DEPOSIT)
-      expect(baseToken.transferFrom).to.have.been.calledWith(strategy.address, vault.address, (DEPOSIT * 2))
-      expect(baseToken.approve).to.have.been.calledWith(owner.address, DEPOSIT*2 - expectedTax)
-      expect(baseToken.approve).to.have.been.calledWith(router.address, expectedTax)
+      expect(yieldToken.approve).to.have.been.calledWith(strategy.address, DEPOSIT);
+      expect(baseToken.transferFrom).to.have.been.calledWith(
+        strategy.address,
+        vault.address,
+        DEPOSIT * 2
+      );
+      expect(baseToken.approve).to.have.been.calledWith(owner.address, DEPOSIT * 2 - expectedTax);
+      expect(baseToken.approve).to.have.been.calledWith(router.address, expectedTax);
     });
 
     it("updates the principles accordingly", async function () {
       strategy.withdraw.returns(DEPOSIT * 2); // 100% yield
       yieldToken.balanceOf.returns(DEPOSIT * 2);
-      await expect(vault.redeemAll(0)).to.not.be.reverted; 
+      await expect(vault.redeemAll(0)).to.not.be.reverted;
       let principle = await vault.principleByAccountId(0);
       expect(principle.baseToken).to.equal(0); // we zero out princ. on full redemption
       expect(principle.costBasis_withPrecision).to.equal(0);
@@ -552,7 +566,7 @@ describe("Vault", function () {
   });
 
   describe("upon Harvest", async function () {
-    let baseToken: FakeContract<DummyERC20>;    
+    let baseToken: FakeContract<DummyERC20>;
     let yieldToken: FakeContract<DummyERC20>;
     let strategy: FakeContract<DummyStrategy>;
     let router: FakeContract<DummyRouter>;
@@ -578,7 +592,7 @@ describe("Vault", function () {
         strategyId: DEFAULT_STRATEGY_ID,
         baseToken: baseToken.address,
         yieldToken: yieldToken.address,
-        admin: owner.address
+        admin: owner.address,
       });
       registrarFake = await smock.fake<LocalRegistrar>(new LocalRegistrar__factory());
       registrarFake.getVaultOperatorApproved.whenCalledWith(owner.address).returns(true);
@@ -606,7 +620,7 @@ describe("Vault", function () {
           },
           vaultEmitterFake.address
         );
-        strategy.deposit.returns(DEPOSIT)
+        strategy.deposit.returns(DEPOSIT);
         yieldToken.balanceOf.returns(DEPOSIT);
         await wait(vault.deposit(0, baseToken.address, DEPOSIT));
       });
@@ -632,24 +646,24 @@ describe("Vault", function () {
       });
 
       it("reverts if the yieldToken approve to strategy fails", async function () {
-        strategy.previewWithdraw.returns(DEPOSIT*2)
+        strategy.previewWithdraw.returns(DEPOSIT * 2);
         yieldToken.approve.returns(false);
         await expect(vault.harvest([0])).to.be.reverted;
       });
 
       it("reverts if the baseToken transfer fails", async function () {
-        strategy.previewWithdraw.returns(DEPOSIT*2)
+        strategy.previewWithdraw.returns(DEPOSIT * 2);
         baseToken.transfer.returns(false);
         baseToken.transferFrom.returns(false);
         await expect(vault.harvest([0])).to.be.reverted;
       });
 
       it("appropriately harevests yield", async function () {
-        strategy.previewWithdraw.returns(DEPOSIT*2)
+        strategy.previewWithdraw.returns(DEPOSIT * 2);
         let expectedHarvestAmt = (DEPOSIT * TAX_RATE) / 10000; // DEPOSIT = position in yield, apply tax
         strategy.withdraw.returns(expectedHarvestAmt);
         await expect(vault.harvest([0])).to.not.be.reverted;
-        expect(baseToken.approve).to.have.been.calledWith(router.address,expectedHarvestAmt);
+        expect(baseToken.approve).to.have.been.calledWith(router.address, expectedHarvestAmt);
       });
     });
 
@@ -662,9 +676,15 @@ describe("Vault", function () {
       beforeEach(async function () {
         // establish second strategy for liquid vault responses
         liquidStrategy = await smock.fake<DummyStrategy>(new DummyStrategy__factory());
+        liquidStrategy.getStrategyConfig.returns({
+          strategyId: DEFAULT_STRATEGY_ID,
+          baseToken: baseToken.address,
+          yieldToken: yieldToken.address,
+          admin: owner.address,
+        });
         liquidVault = await deployVault(
           {
-            vaultType: 1, // Locked
+            vaultType: 1, // Liquid
             admin: owner.address,
             baseToken: baseToken.address,
             yieldToken: yieldToken.address,
@@ -706,13 +726,13 @@ describe("Vault", function () {
           basis: BASIS,
         });
         registrarFake.getVaultOperatorApproved.whenCalledWith(lockedVault.address).returns(true);
-        strategy.deposit.returns(DEPOSIT)
+        strategy.deposit.returns(DEPOSIT);
         yieldToken.balanceOf.returns(DEPOSIT);
         await wait(lockedVault.deposit(0, baseToken.address, DEPOSIT));
       });
 
       it("reverts if the baseToken transfer fails", async function () {
-        strategy.previewWithdraw.returns(DEPOSIT*2)
+        strategy.previewWithdraw.returns(DEPOSIT * 2);
         let expectedTaxAmt = (DEPOSIT * TAX_RATE) / BASIS; // DEPOSIT = position in yield, apply tax
         let expectedRebalAmt = (DEPOSIT * REBAL_RATE) / BASIS;
         strategy.withdraw.returns(expectedTaxAmt + expectedRebalAmt);
@@ -721,16 +741,16 @@ describe("Vault", function () {
       });
 
       it("appropriately harvests yield and rebalances to the liquid sibling vault", async function () {
-        strategy.previewWithdraw.returns(DEPOSIT*2)
+        strategy.previewWithdraw.returns(DEPOSIT * 2);
         let expectedTaxAmt = (DEPOSIT * TAX_RATE) / BASIS; // DEPOSIT = position in yield, apply tax
         let expectedRebalAmt = (DEPOSIT * REBAL_RATE) / BASIS;
         strategy.withdraw.returns(expectedTaxAmt + expectedRebalAmt);
-        liquidStrategy.withdraw.returns(expectedRebalAmt * 2);
-        baseToken.approve.returns(true);
+        liquidStrategy.deposit.returns(expectedRebalAmt);
+        liquidStrategy.paused.returns(false);
         await expect(lockedVault.harvest([0])).to.not.be.reverted;
         expect(baseToken.approve).to.have.been.calledWith(owner.address, expectedTaxAmt);
         expect(baseToken.transfer).to.have.been.calledWith(liquidVault.address, expectedRebalAmt);
-        expect(lockedVault.deposit).to.have.been.calledWith(0, baseToken.address, expectedRebalAmt);
+        expect(baseToken.approve).to.have.been.calledWith(liquidStrategy.address, expectedRebalAmt);
       });
     });
   });

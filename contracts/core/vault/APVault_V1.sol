@@ -13,7 +13,7 @@ import {IRouter} from "../router/IRouter.sol";
 import {LocalRegistrarLib} from "../registrar/lib/LocalRegistrarLib.sol";
 import {LibAccounts} from "../accounts/lib/LibAccounts.sol";
 import {FixedPointMathLib} from "../../lib/FixedPointMathLib.sol";
-import "hardhat/console.sol";
+
 contract APVault_V1 is IVault, ERC4626AP {
   using FixedPointMathLib for uint256;
   using SafeERC20 for IERC20Metadata;
@@ -93,6 +93,7 @@ contract APVault_V1 is IVault, ERC4626AP {
     uint256 amt
   ) public payable virtual override onlyApproved notPaused onlybaseToken(token) {
     IERC20Metadata(token).safeApprove(vaultConfig.strategy, amt);
+
     uint256 yieldAmt = IStrategy(vaultConfig.strategy).deposit(amt);
 
     _updatePrincipleDeposit(accountId, amt, yieldAmt);
@@ -164,10 +165,10 @@ contract APVault_V1 is IVault, ERC4626AP {
     IVaultEmitter(EMITTER_ADDRESS).redeem(accountId, address(this), returnAmt, balance);
 
     IERC20Metadata(vaultConfig.baseToken).safeTransferFrom(
-        vaultConfig.strategy,
-        address(this),
-        returnAmt
-      );
+      vaultConfig.strategy,
+      address(this),
+      returnAmt
+    );
     // apply tax
     returnAmt -= _taxIfNecessary(accountId, balance, returnAmt);
     // zero out principles
@@ -194,7 +195,8 @@ contract APVault_V1 is IVault, ERC4626AP {
       );
       // no yield, no harvest
       if (baseTokenValue <= principleByAccountId[accountId].baseToken) {
-        return 0;
+        amt += 0;
+        continue;
       }
       // Determine going exchange rate (shares / baseToken)
       uint256 currentExRate_withPrecision = balanceOf(accountId).mulDivDown(
@@ -221,10 +223,12 @@ contract APVault_V1 is IVault, ERC4626AP {
     }
 
     // Approve router for the harvest amt
-    string memory thisChain = IRegistrar(vaultConfig.registrar).thisChain();
-    LocalRegistrarLib.NetworkInfo memory network = IRegistrar(vaultConfig.registrar)
-      .queryNetworkConnection(thisChain);
-    IERC20Metadata(vaultConfig.baseToken).safeApprove(network.router, amt);
+    if (amt > 0) {
+      string memory thisChain = IRegistrar(vaultConfig.registrar).thisChain();
+      LocalRegistrarLib.NetworkInfo memory network = IRegistrar(vaultConfig.registrar)
+        .queryNetworkConnection(thisChain);
+      IERC20Metadata(vaultConfig.baseToken).safeApprove(network.router, amt);
+    }
   }
 
   function _harvestLiquid(
@@ -370,7 +374,6 @@ contract APVault_V1 is IVault, ERC4626AP {
       vaultConfig.strategy,
       accountId
     );
-    console.log(dYieldToken);
     uint256 redemption = IStrategy(vaultConfig.strategy).withdraw(dYieldToken);
     IVaultEmitter(EMITTER_ADDRESS).redeem(
       accountId,
@@ -378,41 +381,38 @@ contract APVault_V1 is IVault, ERC4626AP {
       taxShares + rebalShares,
       redemption
     );
-    console.log("Redemption");
-    console.log(redemption);
-    
+
     IERC20Metadata(vaultConfig.baseToken).safeTransferFrom(
-        vaultConfig.strategy,
-        address(this),
-        redemption
-      );
-    console.log("transfer");
+      vaultConfig.strategy,
+      address(this),
+      redemption
+    );
+
     // Determine proportion owed in tax and approve router
     uint256 taxProportion_withPrecision = taxShares.mulDivDown(
       PRECISION,
       (taxShares + rebalShares)
     );
-    console.log(taxProportion_withPrecision);
+
     uint256 tax = redemption.mulDivUp(taxProportion_withPrecision, PRECISION);
-    console.log("tax");
-    console.log(tax);
+
     IERC20Metadata(vaultConfig.baseToken).safeApprove(msg.sender, tax);
-    console.log("approved");
+
     // Rebalance remainder to liquid
     LocalRegistrarLib.StrategyParams memory stratParams = IRegistrar(vaultConfig.registrar)
       .getStrategyParamsById(vaultConfig.strategyId);
-    console.log("stratParams");
+
     IERC20Metadata(vaultConfig.baseToken).safeTransfer(
-        stratParams.liquidVaultAddr,
-        (redemption - tax)
-      );
-    console.log("transfer to liq");
+      stratParams.liquidVaultAddr,
+      (redemption - tax)
+    );
+
     IVault(stratParams.liquidVaultAddr).deposit(
       accountId,
       vaultConfig.baseToken,
       (redemption - tax)
     );
-    console.log("deposited");
+
     return tax;
   }
 

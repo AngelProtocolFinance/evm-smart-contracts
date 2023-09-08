@@ -240,6 +240,8 @@ contract Router is IRouter, Initializable, AxelarExecutable {
       LibAccounts.FeeTypes.Harvest
     );
     uint256 totalAmt = _action.liqAmt + _action.lockAmt;
+    if (totalAmt == 0) return _action;
+
     // If returning locally
     if (_stringCompare(registrar.thisChain(), _action.destinationChain)) {
       IERC20Metadata(_action.token).safeTransfer(feeSetting.payoutAddress, totalAmt);
