@@ -13,6 +13,7 @@ import {
 import {genWallet, getProxyAdminOwner, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
 import {time} from "@nomicfoundation/hardhat-network-helpers";
+import {Wallet} from "ethers";
 
 describe("AccountsAllowance", function () {
   const {ethers} = hre;
@@ -21,7 +22,7 @@ describe("AccountsAllowance", function () {
 
   let accOwner: SignerWithAddress;
   let endowOwner: SignerWithAddress;
-  let proxyAdmin: SignerWithAddress;
+  let proxyAdmin: SignerWithAddress | Wallet;
   let user: SignerWithAddress;
 
   let facet: AccountsAllowance;

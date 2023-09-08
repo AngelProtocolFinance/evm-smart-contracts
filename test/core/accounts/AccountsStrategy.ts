@@ -1,7 +1,7 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
-import {BigNumber} from "ethers";
+import {BigNumber, Wallet} from "ethers";
 import hre from "hardhat";
 import {
   DEFAULT_ACCOUNTS_CONFIG,
@@ -63,7 +63,7 @@ describe("AccountsStrategy", function () {
   const NET_NAME_THAT = "ThatNet";
 
   let owner: SignerWithAddress;
-  let admin: SignerWithAddress;
+  let admin: SignerWithAddress | Wallet;
   let user: SignerWithAddress;
 
   let gasFwd: FakeContract<GasFwd>;

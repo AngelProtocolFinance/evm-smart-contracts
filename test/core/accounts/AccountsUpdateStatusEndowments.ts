@@ -23,6 +23,7 @@ import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetP
 import {BeneficiaryEnum, EndowmentType} from "types";
 import {genWallet, getProxyAdminOwner, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
+import {Wallet} from "ethers";
 
 use(smock.matchers);
 
@@ -43,7 +44,7 @@ describe("AccountsUpdateStatusEndowments", function () {
   );
 
   let accOwner: SignerWithAddress;
-  let proxyAdmin: SignerWithAddress;
+  let proxyAdmin: SignerWithAddress | Wallet;
   let endowOwner: SignerWithAddress;
 
   let facet: AccountsUpdateStatusEndowments;

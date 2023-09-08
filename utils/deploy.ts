@@ -23,6 +23,7 @@ export async function deploy<T extends ContractFactory>(
   try {
     const contract = await factory.deploy(...(constructorArguments ?? []));
     await contract.deployed();
+    await delay(1000)
     logger.out(`Address: ${contract.address}`);
     return {
       constructorArguments,
@@ -59,6 +60,9 @@ export async function deployBehindProxy<T extends ContractFactory>(
     proxyAdmin,
     initData,
   ]);
-
   return {implementation, proxy};
+}
+
+function delay(ms: number) {
+  return new Promise( resolve => setTimeout(resolve, ms) );
 }

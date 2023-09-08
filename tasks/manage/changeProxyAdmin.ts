@@ -8,6 +8,7 @@ import {
 } from "typechain-types";
 import {AddressObj, confirmAction, getAddresses, getProxyAdminOwner, logger} from "utils";
 import {submitMultiSigTx} from "../helpers";
+import {Wallet} from "ethers";
 
 type TaskArgs = {
   apTeamSignerPkey?: string;
@@ -62,7 +63,7 @@ task("manage:changeProxyAdmin", "Will update the proxy admin for all proxy contr
   });
 
 async function transferAccountOwnership(
-  proxyAdminOwner: SignerWithAddress,
+  proxyAdminOwner: SignerWithAddress | Wallet,
   newProxyAdmin: string,
   addresses: AddressObj,
   hre: HardhatRuntimeEnvironment
@@ -97,7 +98,7 @@ async function transferAccountOwnership(
  * will never revert, but will nevertheless NOT update the admin.
  */
 async function changeProxiesAdmin(
-  proxyAdminOwner: SignerWithAddress,
+  proxyAdminOwner: SignerWithAddress | Wallet,
   newProxyAdmin: string,
   addresses: AddressObj,
   hre: HardhatRuntimeEnvironment
