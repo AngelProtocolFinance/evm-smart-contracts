@@ -79,8 +79,6 @@ abstract contract IVault {
   error OnlyApproved();
   error OnlyBaseToken();
   error OnlyNotPaused();
-  error ApproveFailed();
-  error TransferFailed();
 
   /*////////////////////////////////////////////////
                     EXTERNAL METHODS
