@@ -28,13 +28,14 @@ import {
 import {VaultType} from "types";
 import {genWallet, getProxyAdminOwner, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
+import {Wallet} from "ethers";
 
 use(smock.matchers);
 
 describe("AccountsSwapRouter", function () {
   const {ethers} = hre;
   let owner: SignerWithAddress;
-  let proxyAdmin: SignerWithAddress;
+  let proxyAdmin: SignerWithAddress | Wallet;
   let user: SignerWithAddress;
   let facet: AccountsSwapRouter;
   let facetImpl: AccountsSwapRouter;

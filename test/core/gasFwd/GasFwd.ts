@@ -1,6 +1,7 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
+import {Wallet} from "ethers";
 import hre from "hardhat";
 import {
   GasFwd,
@@ -17,7 +18,7 @@ describe("GasFwd", function () {
   const BALANCE = 1000;
 
   let owner: SignerWithAddress;
-  let admin: SignerWithAddress;
+  let admin: SignerWithAddress | Wallet;
   let accounts: SignerWithAddress;
 
   let token: FakeContract<IERC20>;
@@ -25,7 +26,7 @@ describe("GasFwd", function () {
 
   async function deployGasFwdAsProxy(
     owner: SignerWithAddress,
-    admin: SignerWithAddress,
+    admin: SignerWithAddress | Wallet,
     accounts: SignerWithAddress
   ): Promise<GasFwd> {
     let GasFwd = new GasFwd__factory(admin);

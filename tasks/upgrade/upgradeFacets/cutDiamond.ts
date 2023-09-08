@@ -3,11 +3,12 @@ import {submitMultiSigTx} from "tasks/helpers";
 import {DiamondCutFacet__factory, DiamondInit__factory} from "typechain-types";
 import {logger} from "utils";
 import {FacetCut} from "./types";
+import {Wallet} from "ethers";
 
 export default async function cutDiamond(
   diamondAddress: string,
   proxyAdminMultiSig: string,
-  proxyAdmin: SignerWithAddress,
+  proxyAdmin: SignerWithAddress | Wallet,
   facetCuts: FacetCut[]
 ) {
   logger.out("Updating Diamond with new facet addresses...");

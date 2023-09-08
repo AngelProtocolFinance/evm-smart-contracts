@@ -16,6 +16,7 @@ import {
 } from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {genWallet, getProxyAdminOwner, getSigners} from "utils";
 import {deployFacetAsProxy, updateAllSettings} from "./utils";
+import {Wallet} from "ethers";
 
 use(smock.matchers);
 
@@ -26,7 +27,7 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
   const normalEndowId = 2;
 
   let owner: SignerWithAddress;
-  let proxyAdmin: SignerWithAddress;
+  let proxyAdmin: SignerWithAddress | Wallet;
   let endowOwner: SignerWithAddress;
 
   let facet: AccountsUpdateEndowmentSettingsController;

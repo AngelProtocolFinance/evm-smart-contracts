@@ -2,6 +2,7 @@ import {FakeContract, smock} from "@defi-wonderland/smock";
 import {impersonateAccount, setBalance, time} from "@nomicfoundation/hardhat-network-helpers";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
+import {Wallet} from "ethers";
 import hre from "hardhat";
 import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
 import {DEFAULT_CHARITY_ENDOWMENT, DEFAULT_REGISTRAR_CONFIG, wait} from "test/utils";
@@ -28,7 +29,7 @@ describe("IndexFund", function () {
   const MAX_ENDOWMENT_MEMBERS = 10;
 
   let owner: SignerWithAddress;
-  let proxyAdmin: SignerWithAddress;
+  let proxyAdmin: SignerWithAddress | Wallet;
   let user: SignerWithAddress;
 
   let registrar: FakeContract<Registrar>;

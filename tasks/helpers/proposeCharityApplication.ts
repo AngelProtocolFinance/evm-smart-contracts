@@ -1,5 +1,5 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {BytesLike} from "ethers";
+import {BytesLike, Wallet} from "ethers";
 import {CharityApplications__factory} from "typechain-types";
 import {AccountMessages} from "typechain-types/contracts/multisigs/CharityApplications";
 import {filterEvents, logger} from "utils";
@@ -14,7 +14,7 @@ import {filterEvents, logger} from "utils";
  */
 export async function proposeCharityApplication(
   charAppsAddress: string,
-  owner: SignerWithAddress,
+  owner: SignerWithAddress | Wallet,
   applicationRequest: AccountMessages.CreateEndowmentRequestStruct,
   metadata: BytesLike = "0x"
 ): Promise<boolean> {

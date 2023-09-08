@@ -1,6 +1,6 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
-import {BigNumber} from "ethers";
+import {BigNumber, Wallet} from "ethers";
 import hre from "hardhat";
 import {Halo, Halo__factory} from "typechain-types";
 import {getProxyAdminOwner, getSigners} from "utils";
@@ -9,7 +9,7 @@ describe("Halo token", function () {
   let Halo: Halo__factory;
 
   let deployer: SignerWithAddress;
-  let proxyAdmin: SignerWithAddress;
+  let proxyAdmin: SignerWithAddress | Wallet;
   let user: SignerWithAddress;
 
   describe("upon Deployment", async function () {

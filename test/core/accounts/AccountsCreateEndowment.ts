@@ -1,7 +1,7 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
-import {BigNumber} from "ethers";
+import {BigNumber, Wallet} from "ethers";
 import hre from "hardhat";
 import {DEFAULT_REGISTRAR_CONFIG, wait} from "test/utils";
 import {
@@ -30,7 +30,7 @@ describe("AccountsCreateEndowment", function () {
   const expectedNextAccountId = 1;
 
   let owner: SignerWithAddress;
-  let proxyAdmin: SignerWithAddress;
+  let proxyAdmin: SignerWithAddress | Wallet;
   let charityApplications: SignerWithAddress;
   let facet: AccountsCreateEndowment;
   let state: TestFacetProxyContract;
