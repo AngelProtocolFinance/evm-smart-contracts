@@ -49,6 +49,8 @@ const config: HardhatUserConfig = {
     polygon: {
       url: envConfigProd.POLYGON_RPC_URL,
       accounts: envConfigProd.ACCOUNTS,
+      gasPrice: 120*10**9,
+      gas: 15*10**6,
     },
     hardhat: {
       accounts: hardhatAccounts,
