@@ -2,12 +2,12 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {connectSignerFromPkey} from "./connectSignerFromPkey";
 import {getSigners} from "./getSigners";
-import { Wallet } from "ethers";
+import {Wallet} from "ethers";
 
 export async function getAPTeamOwner(
   hre: HardhatRuntimeEnvironment,
   pkey?: string
-): Promise<SignerWithAddress|Wallet> {
+): Promise<SignerWithAddress | Wallet> {
   if (pkey) {
     return await connectSignerFromPkey(pkey, hre);
   }
