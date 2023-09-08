@@ -21,12 +21,13 @@ import {
 import {VaultType} from "types";
 import {getProxyAdminOwner, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
+import {Wallet} from "ethers";
 
 use(smock.matchers);
 
 describe("AccountsGasManager", function () {
   let owner: SignerWithAddress;
-  let proxyAdmin: SignerWithAddress;
+  let proxyAdmin: SignerWithAddress | Wallet;
   let user: SignerWithAddress;
   let impl: AccountsGasManager;
   let token: FakeContract<IERC20>;

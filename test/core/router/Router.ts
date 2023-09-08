@@ -1,6 +1,7 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
+import {Wallet} from "ethers";
 import hre from "hardhat";
 import {
   DEFAULT_ACTION_DATA,
@@ -32,7 +33,7 @@ use(smock.matchers);
 describe("Router", function () {
   const {ethers} = hre;
   let owner: SignerWithAddress;
-  let admin: SignerWithAddress;
+  let admin: SignerWithAddress | Wallet;
   let user: SignerWithAddress;
   let collector: SignerWithAddress;
   let deadAddr = "0x000000000000000000000000000000000000dead";
@@ -66,7 +67,7 @@ describe("Router", function () {
     return Router__factory.connect(RouterProxy.address, owner);
   }
 
-  async function upgradeProxy(signer: SignerWithAddress, routerProxy: string) {
+  async function upgradeProxy(signer: SignerWithAddress | Wallet, routerProxy: string) {
     const RouterFactory = new Router__factory(owner);
     const RouterImpl = await RouterFactory.deploy();
     await RouterImpl.deployed();

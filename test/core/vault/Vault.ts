@@ -1,7 +1,7 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
-import {BigNumber} from "ethers";
+import {BigNumber, Wallet} from "ethers";
 import hre from "hardhat";
 import {
   DEFAULT_NETWORK,
@@ -38,7 +38,7 @@ describe("Vault", function () {
 
   let owner: SignerWithAddress;
   let user: SignerWithAddress;
-  let admin: SignerWithAddress;
+  let admin: SignerWithAddress | Wallet;
   let collector: SignerWithAddress;
 
   async function deployVault(
