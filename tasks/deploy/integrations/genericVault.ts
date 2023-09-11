@@ -9,6 +9,7 @@ import {deploy, getAddresses, getSigners, logger, verify} from "utils";
 
 task("Deploy:genericVault", "Will deploy a generic vault with the provided params")
   .addOptionalParam("yieldtoken", "The address of the yield token")
+  .addOptionalParam("admin", "The address of the admin, will default to the deployer's address")
   .addFlag("skipVerify", "Skip contract verification")
   .setAction(async (taskArgs, hre) => {
     try {
@@ -43,10 +44,9 @@ task("Deploy:genericVault", "Will deploy a generic vault with the provided param
         yieldToken: yieldTokenAddress,
         apTokenName: "TestVault",
         apTokenSymbol: "TV",
-        admin: deployer.address,
       };
       // deploy
-      const deployment = await deploy(APVault_V1, [vaultConfig, addresses.vaultEmitter.proxy]);
+      const deployment = await deploy(APVault_V1, [vaultConfig, addresses.vaultEmitter.proxy, deployer.address]);
 
       logger.out("Emitting `VaultCreated` event...");
       const vaultEmitter = IVaultEmitter__factory.connect(addresses.vaultEmitter.proxy, deployer);
