@@ -1,4 +1,4 @@
-type Proxied = {
+export type Proxied = {
   implementation: string;
   proxy: string;
 };
@@ -19,7 +19,7 @@ export type AddressObj = {
       accountsUpdateEndowmentSettingsController: string;
       accountsUpdateStatusEndowments: string;
       diamondCutFacet: string;
-      diamondInitFacet: string;
+      diamondInit: string;
       diamondLoupeFacet: string;
       ownershipFacet: string;
     };
