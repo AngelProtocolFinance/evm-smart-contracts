@@ -39,8 +39,9 @@ abstract contract IVault {
   }
 
   /// @notice The struct that can be passed for updating config fields
-  /// @dev Vault type, strategyId and token addresses are explicitly ommitted from being 
-  /// @dev updateable since changing these could lead to the loss of funds
+  /// @dev Vault type, strategyId and token params are explicitly ommitted from being 
+  /// @dev updateable since changing these could lead to the loss of funds 
+  /// @dev or are immutables in parent contracts
   /// @param strategy the new address of the strategy implementation
   /// @param registrar the address of the new registrar
   struct VaultConfigUpdate { 
