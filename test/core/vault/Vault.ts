@@ -174,7 +174,7 @@ describe("Vault", function () {
         strategy: user.address,
         registrar: user.address,
       } as IVault.VaultConfigStruct;
-      await expect(vault.connect(user).setVaultConfig(newConfig)).to.be.reverted
+      await expect(vault.connect(user).setVaultConfig(newConfig)).to.be.reverted;
     });
   });
 

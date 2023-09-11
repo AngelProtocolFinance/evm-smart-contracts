@@ -18,15 +18,15 @@ abstract contract IVault {
     LIQUID
   }
 
-  /// @notice A config struct is stored on each deployed Vault. 
+  /// @notice A config struct is stored on each deployed Vault.
   /// @param vaultType one of LOCKED | LIQUID
   /// @param strategyId the unique identifier for the strategy
-  /// @param strategy the address of the strategy-specific impl. 
+  /// @param strategy the address of the strategy-specific impl.
   /// @param registrar the address of the local registrar
   /// @param baseToken the address of the expected base token
   /// @param yieldToken the address of the expected yield token
   /// @param apTokenName the name of the this vaults ERC20AP token
-  /// @param apTokenSymbol the symbol of this vaults ERC20AP token   
+  /// @param apTokenSymbol the symbol of this vaults ERC20AP token
   struct VaultConfig {
     VaultType vaultType;
     bytes4 strategyId;
@@ -39,12 +39,12 @@ abstract contract IVault {
   }
 
   /// @notice The struct that can be passed for updating config fields
-  /// @dev Vault type, strategyId and token params are explicitly ommitted from being 
-  /// @dev updateable since changing these could lead to the loss of funds 
+  /// @dev Vault type, strategyId and token params are explicitly ommitted from being
+  /// @dev updateable since changing these could lead to the loss of funds
   /// @dev or are immutables in parent contracts
   /// @param strategy the new address of the strategy implementation
   /// @param registrar the address of the new registrar
-  struct VaultConfigUpdate { 
+  struct VaultConfigUpdate {
     address strategy;
     address registrar;
   }
@@ -77,17 +77,17 @@ abstract contract IVault {
   }
 
   enum VaultActionStatus {
-    UNPROCESSED,            // INIT state
-    SUCCESS,                // Ack
-    POSITION_EXITED,        // Position fully exited
-    FAIL_TOKENS_RETURNED,   // Tokens returned to accounts contract
-    FAIL_TOKENS_FALLBACK    // Tokens failed to be returned to accounts contract
+    UNPROCESSED, // INIT state
+    SUCCESS, // Ack
+    POSITION_EXITED, // Position fully exited
+    FAIL_TOKENS_RETURNED, // Tokens returned to accounts contract
+    FAIL_TOKENS_FALLBACK // Tokens failed to be returned to accounts contract
   }
 
-  /// @notice Structure returned upon redemption 
-  /// @param token The address of the token being redeemed 
+  /// @notice Structure returned upon redemption
+  /// @param token The address of the token being redeemed
   /// @param amount The qty of tokens being redeemed
-  /// @param status The status of the redemption request's processing 
+  /// @param status The status of the redemption request's processing
   struct RedemptionResponse {
     address token;
     uint256 amount;

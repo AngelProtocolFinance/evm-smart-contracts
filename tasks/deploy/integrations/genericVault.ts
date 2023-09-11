@@ -46,7 +46,11 @@ task("Deploy:genericVault", "Will deploy a generic vault with the provided param
         apTokenSymbol: "TV",
       };
       // deploy
-      const deployment = await deploy(APVault_V1, [vaultConfig, addresses.vaultEmitter.proxy, deployer.address]);
+      const deployment = await deploy(APVault_V1, [
+        vaultConfig,
+        addresses.vaultEmitter.proxy,
+        deployer.address,
+      ]);
 
       logger.out("Emitting `VaultCreated` event...");
       const vaultEmitter = IVaultEmitter__factory.connect(addresses.vaultEmitter.proxy, deployer);
