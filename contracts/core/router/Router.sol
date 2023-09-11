@@ -236,12 +236,12 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     _action.status = IVault.VaultActionStatus.SUCCESS;
 
     // Send tokens to receiver
-    LibAccounts.FeeSetting memory feeSetting = registrar.getFeeSettingsByFeeType(
-      LibAccounts.FeeTypes.Harvest
-    );
     uint256 totalAmt = _action.liqAmt + _action.lockAmt;
     if (totalAmt == 0) return _action;
 
+    LibAccounts.FeeSetting memory feeSetting = registrar.getFeeSettingsByFeeType(
+      LibAccounts.FeeTypes.Harvest
+    );
     // If returning locally
     if (_stringCompare(registrar.thisChain(), _action.destinationChain)) {
       IERC20Metadata(_action.token).safeTransfer(feeSetting.payoutAddress, totalAmt);
@@ -253,7 +253,7 @@ contract Router is IRouter, Initializable, AxelarExecutable {
         _action.destinationChain,
         AddressToString.toString(feeSetting.payoutAddress),
         IERC20Metadata(_action.token).symbol(),
-        _action.liqAmt + _action.lockAmt
+        totalAmt
       );
     }
     return _action;

@@ -195,7 +195,6 @@ contract APVault_V1 is IVault, ERC4626AP {
       );
       // no yield, no harvest
       if (baseTokenValue <= principleByAccountId[accountId].baseToken) {
-        amt += 0;
         continue;
       }
       // Determine going exchange rate (shares / baseToken)
