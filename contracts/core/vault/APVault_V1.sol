@@ -5,14 +5,16 @@ pragma solidity ^0.8.19;
 import {IVault} from "./interfaces/IVault.sol";
 import {IVaultEmitter} from "./interfaces/IVaultEmitter.sol";
 import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ERC4626AP} from "./ERC4626AP.sol";
 import {IStrategy} from "../strategy/IStrategy.sol";
 import {IRegistrar} from "../registrar/interfaces/IRegistrar.sol";
 import {LocalRegistrarLib} from "../registrar/lib/LocalRegistrarLib.sol";
 import {LibAccounts} from "../accounts/lib/LibAccounts.sol";
 import {FixedPointMathLib} from "../../lib/FixedPointMathLib.sol";
+import {Validator} from "../validator.sol";
 
-contract APVault_V1 is IVault, ERC4626AP {
+contract APVault_V1 is IVault, ERC4626AP, Ownable {
   using FixedPointMathLib for uint256;
 
   address public immutable EMITTER_ADDRESS;
@@ -22,22 +24,17 @@ contract APVault_V1 is IVault, ERC4626AP {
 
   constructor(
     VaultConfig memory _config,
-    address _emitter
+    address _emitter,
+    address _admin
   ) ERC4626AP(IERC20Metadata(_config.yieldToken), _config.apTokenName, _config.apTokenSymbol) {
     EMITTER_ADDRESS = _emitter;
     vaultConfig = _config;
+    transferOwnership(_admin);
   }
 
   /*//////////////////////////////////////////////////////////////
                                 MODIFIERS
   //////////////////////////////////////////////////////////////*/
-
-  modifier onlyAdmin() {
-    if (!(_msgSender() == vaultConfig.admin)) {
-      revert OnlyAdmin();
-    }
-    _;
-  }
 
   modifier onlyApprovedRouter() {
     if (!_isApprovedRouter()) {
@@ -71,8 +68,9 @@ contract APVault_V1 is IVault, ERC4626AP {
                                 CONFIG
   //////////////////////////////////////////////////////////////*/
 
-  function setVaultConfig(VaultConfig memory _newConfig) external virtual override onlyAdmin {
-    vaultConfig = _newConfig;
+  function setVaultConfig(VaultConfigUpdate memory _newConfig) external virtual override onlyOwner {
+    vaultConfig.strategy = _newConfig.strategy;
+    vaultConfig.registrar = _newConfig.registrar;
     IVaultEmitter(EMITTER_ADDRESS).vaultConfigUpdated(address(this), _newConfig);
   }
 

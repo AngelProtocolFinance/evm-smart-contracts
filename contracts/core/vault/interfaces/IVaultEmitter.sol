@@ -27,7 +27,7 @@ interface IVaultEmitter {
   /// @notice Event emited on each Harvest call
   /// @param vault Address of the Vault
   /// @param config New Vault config values
-  event VaultConfigUpdated(address vault, IVault.VaultConfig config);
+  event VaultConfigUpdated(address vault, IVault.VaultConfigUpdate config);
 
   /// @notice Event emited on each Harvest call
   /// @param vault Address of the new Vault
@@ -51,7 +51,7 @@ interface IVaultEmitter {
   /// @notice emits the VaultConfigUpdated event
   /// @param vault Address of the Vault
   /// @param config New Vault config values
-  function vaultConfigUpdated(address vault, IVault.VaultConfig memory config) external;
+  function vaultConfigUpdated(address vault, IVault.VaultConfigUpdate memory config) external;
 
   /// @notice emits the VaultCreated event
   /// @param vault Address of the new Vault
