@@ -3,6 +3,7 @@ import {BytesLike, Wallet} from "ethers";
 import {parseUnits} from "ethers/lib/utils";
 import {IMultiSigGeneric__factory} from "typechain-types";
 import {filterEvents, logger} from "utils";
+import {Wallet} from "ethers";
 
 /**
  * Submits a transaction to the designated Multisig contract and executes it if possible.
