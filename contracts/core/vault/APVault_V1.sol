@@ -5,10 +5,12 @@ pragma solidity ^0.8.19;
 import {IVault} from "./interfaces/IVault.sol";
 import {IVaultEmitter} from "./interfaces/IVaultEmitter.sol";
 import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ERC4626AP} from "./ERC4626AP.sol";
 import {IStrategy} from "../strategy/IStrategy.sol";
 import {IRegistrar} from "../registrar/interfaces/IRegistrar.sol";
+import {IRouter} from "../router/IRouter.sol";
 import {LocalRegistrarLib} from "../registrar/lib/LocalRegistrarLib.sol";
 import {LibAccounts} from "../accounts/lib/LibAccounts.sol";
 import {FixedPointMathLib} from "../../lib/FixedPointMathLib.sol";
@@ -16,6 +18,7 @@ import {Validator} from "../validator.sol";
 
 contract APVault_V1 is IVault, ERC4626AP, Ownable {
   using FixedPointMathLib for uint256;
+  using SafeERC20 for IERC20Metadata;
 
   address public immutable EMITTER_ADDRESS;
 
@@ -87,9 +90,8 @@ contract APVault_V1 is IVault, ERC4626AP, Ownable {
     address token,
     uint256 amt
   ) public payable virtual override onlyApproved notPaused onlybaseToken(token) {
-    if (!IERC20Metadata(token).approve(vaultConfig.strategy, amt)) {
-      revert ApproveFailed();
-    }
+    IERC20Metadata(token).safeApprove(vaultConfig.strategy, amt);
+
     uint256 yieldAmt = IStrategy(vaultConfig.strategy).deposit(amt);
 
     _updatePrincipleDeposit(accountId, amt, yieldAmt);
@@ -120,22 +122,16 @@ contract APVault_V1 is IVault, ERC4626AP, Ownable {
       uint256 returnAmt = IStrategy(vaultConfig.strategy).withdraw(yieldTokenAmt);
       IVaultEmitter(EMITTER_ADDRESS).redeem(accountId, address(this), shares, returnAmt);
 
-      if (
-        !IERC20Metadata(vaultConfig.baseToken).transferFrom(
-          vaultConfig.strategy,
-          address(this),
-          returnAmt
-        )
-      ) {
-        revert TransferFailed();
-      }
+      IERC20Metadata(vaultConfig.baseToken).safeTransferFrom(
+        vaultConfig.strategy,
+        address(this),
+        returnAmt
+      );
       // apply tax and deduct from returned shares
       returnAmt -= _taxIfNecessary(accountId, shares, returnAmt);
       // update principles and approve txfer of redeemed tokens
       _updatePrincipleRedemption(accountId, shares);
-      if (!IERC20Metadata(vaultConfig.baseToken).approve(_msgSender(), returnAmt)) {
-        revert ApproveFailed();
-      }
+      IERC20Metadata(vaultConfig.baseToken).safeApprove(_msgSender(), returnAmt);
       // generate and return redemption response
       return
         RedemptionResponse({
@@ -166,24 +162,18 @@ contract APVault_V1 is IVault, ERC4626AP, Ownable {
 
     IVaultEmitter(EMITTER_ADDRESS).redeem(accountId, address(this), returnAmt, balance);
 
-    if (
-      !IERC20Metadata(vaultConfig.baseToken).transferFrom(
-        vaultConfig.strategy,
-        address(this),
-        returnAmt
-      )
-    ) {
-      revert TransferFailed();
-    }
+    IERC20Metadata(vaultConfig.baseToken).safeTransferFrom(
+      vaultConfig.strategy,
+      address(this),
+      returnAmt
+    );
     // apply tax
     returnAmt -= _taxIfNecessary(accountId, balance, returnAmt);
     // zero out principles
     principleByAccountId[accountId].baseToken = 0;
     principleByAccountId[accountId].costBasis_withPrecision = 0;
     // approve txfer back to sender
-    if (!IERC20Metadata(vaultConfig.baseToken).approve(_msgSender(), returnAmt)) {
-      revert ApproveFailed();
-    }
+    IERC20Metadata(vaultConfig.baseToken).safeApprove(_msgSender(), returnAmt);
     // generate redemption response
     RedemptionResponse memory response = RedemptionResponse({
       token: vaultConfig.baseToken,
@@ -193,7 +183,9 @@ contract APVault_V1 is IVault, ERC4626AP, Ownable {
     return response;
   }
 
-  function harvest(uint32[] calldata accountIds) public virtual override notPaused onlyApproved {
+  function harvest(
+    uint32[] calldata accountIds
+  ) public virtual override notPaused onlyApproved returns (uint256 amt) {
     for (uint32 i; i < accountIds.length; i++) {
       uint32 accountId = accountIds[i];
       uint256 baseTokenValue = IStrategy(vaultConfig.strategy).previewWithdraw(
@@ -201,7 +193,7 @@ contract APVault_V1 is IVault, ERC4626AP, Ownable {
       );
       // no yield, no harvest
       if (baseTokenValue <= principleByAccountId[accountId].baseToken) {
-        return;
+        continue;
       }
       // Determine going exchange rate (shares / baseToken)
       uint256 currentExRate_withPrecision = balanceOf(accountId).mulDivDown(
@@ -221,10 +213,18 @@ contract APVault_V1 is IVault, ERC4626AP, Ownable {
 
       // Call appropriate harvest method
       if (vaultConfig.vaultType == VaultType.LIQUID) {
-        _harvestLiquid(accountId, yieldBaseTokens, currentExRate_withPrecision, feeSetting);
+        amt += _harvestLiquid(accountId, yieldBaseTokens, currentExRate_withPrecision, feeSetting);
       } else {
-        _harvestLocked(accountId, yieldBaseTokens, currentExRate_withPrecision, feeSetting);
+        amt += _harvestLocked(accountId, yieldBaseTokens, currentExRate_withPrecision, feeSetting);
       }
+    }
+
+    // Approve router for the harvest amt
+    if (amt > 0) {
+      string memory thisChain = IRegistrar(vaultConfig.registrar).thisChain();
+      LocalRegistrarLib.NetworkInfo memory network = IRegistrar(vaultConfig.registrar)
+        .queryNetworkConnection(thisChain);
+      IERC20Metadata(vaultConfig.baseToken).safeApprove(network.router, amt);
     }
   }
 
@@ -233,7 +233,7 @@ contract APVault_V1 is IVault, ERC4626AP, Ownable {
     uint256 yield,
     uint256 exchageRate,
     LibAccounts.FeeSetting memory feeSetting
-  ) internal {
+  ) internal returns (uint256) {
     // Determine tax denominated in shares
     // tax (shares) = yield * exchangeRate * feeRate
     uint256 taxShares = yield.mulDivDown(exchageRate, PRECISION).mulDivDown(
@@ -244,19 +244,12 @@ contract APVault_V1 is IVault, ERC4626AP, Ownable {
     uint256 dYieldToken = super.redeemERC4626(taxShares, vaultConfig.strategy, accountId);
     uint256 redemption = IStrategy(vaultConfig.strategy).withdraw(dYieldToken);
     IVaultEmitter(EMITTER_ADDRESS).redeem(accountId, address(this), taxShares, redemption);
-    if (
-      !IERC20Metadata(vaultConfig.baseToken).transferFrom(
-        vaultConfig.strategy,
-        address(this),
-        redemption
-      )
-    ) {
-      revert TransferFailed();
-    }
-    // Pay tax to tax collector
-    if (!IERC20Metadata(vaultConfig.baseToken).transfer(feeSetting.payoutAddress, redemption)) {
-      revert TransferFailed();
-    }
+    IERC20Metadata(vaultConfig.baseToken).safeTransferFrom(
+      vaultConfig.strategy,
+      address(this),
+      redemption
+    );
+    return redemption;
   }
 
   function _harvestLocked(
@@ -264,7 +257,7 @@ contract APVault_V1 is IVault, ERC4626AP, Ownable {
     uint256 yield,
     uint256 exchageRate,
     LibAccounts.FeeSetting memory feeSetting
-  ) internal {
+  ) internal returns (uint256) {
     // Get rebal params
     LocalRegistrarLib.RebalanceParams memory rbParams = IRegistrar(vaultConfig.registrar)
       .getRebalanceParams();
@@ -279,14 +272,14 @@ contract APVault_V1 is IVault, ERC4626AP, Ownable {
       rbParams.basis
     );
 
-    _sendRebalAndTax(accountId, taxShares, rebalShares, feeSetting.payoutAddress);
+    return _sendRebalAndTax(accountId, taxShares, rebalShares);
   }
 
   /*//////////////////////////////////////////////////////////////
                         ACCOUNTING
   //////////////////////////////////////////////////////////////*/
 
-  /// @notice Determine if a tax can be applied and send if so
+  /// @notice Determine if a tax can be applied and send to router if so
   /// @dev Apply the tax and send it to the payee, return the value of the tax
   /// @param sharesRedeemedAmt number of shares redeemed for redemption value
   /// @param baseTokensReturnedAmt number of tokens returned by redemption
@@ -313,9 +306,13 @@ contract APVault_V1 is IVault, ERC4626AP, Ownable {
     // tax = taxableAmt * yieldRate * feeRate
     uint256 tax = yieldBaseTokens.mulDivDown(feeSetting.bps, LibAccounts.FEE_BASIS);
 
-    if (!IERC20Metadata(vaultConfig.baseToken).transfer(feeSetting.payoutAddress, tax)) {
-      revert TransferFailed();
-    }
+    // Approve router for paying fee and call `sendTax`
+    string memory thisChain = IRegistrar(vaultConfig.registrar).thisChain();
+    LocalRegistrarLib.NetworkInfo memory network = IRegistrar(vaultConfig.registrar)
+      .queryNetworkConnection(thisChain);
+    IERC20Metadata(vaultConfig.baseToken).safeApprove(network.router, tax);
+    IRouter(network.router).sendTax(vaultConfig.baseToken, tax, feeSetting.payoutAddress);
+
     return tax;
   }
 
@@ -366,9 +363,8 @@ contract APVault_V1 is IVault, ERC4626AP, Ownable {
   function _sendRebalAndTax(
     uint32 accountId,
     uint256 taxShares,
-    uint256 rebalShares,
-    address feeRecipient
-  ) internal {
+    uint256 rebalShares
+  ) internal returns (uint256) {
     // Shares -> Yield Asset -> Base Asset
     uint256 dYieldToken = super.redeemERC4626(
       (taxShares + rebalShares),
@@ -382,40 +378,39 @@ contract APVault_V1 is IVault, ERC4626AP, Ownable {
       taxShares + rebalShares,
       redemption
     );
-    if (
-      !IERC20Metadata(vaultConfig.baseToken).transferFrom(
-        vaultConfig.strategy,
-        address(this),
-        redemption
-      )
-    ) {
-      revert TransferFailed();
-    }
-    // Determine proportion owed in tax and send to payee
+
+    IERC20Metadata(vaultConfig.baseToken).safeTransferFrom(
+      vaultConfig.strategy,
+      address(this),
+      redemption
+    );
+
+    // Determine proportion owed in tax and approve router
     uint256 taxProportion_withPrecision = taxShares.mulDivDown(
       PRECISION,
       (taxShares + rebalShares)
     );
+
     uint256 tax = redemption.mulDivUp(taxProportion_withPrecision, PRECISION);
-    if (!IERC20Metadata(vaultConfig.baseToken).transfer(feeRecipient, tax)) {
-      revert TransferFailed();
-    }
+
+    IERC20Metadata(vaultConfig.baseToken).safeApprove(msg.sender, tax);
+
     // Rebalance remainder to liquid
     LocalRegistrarLib.StrategyParams memory stratParams = IRegistrar(vaultConfig.registrar)
       .getStrategyParamsById(vaultConfig.strategyId);
-    if (
-      !IERC20Metadata(vaultConfig.baseToken).transfer(
-        stratParams.liquidVaultAddr,
-        (redemption - tax)
-      )
-    ) {
-      revert TransferFailed();
-    }
+
+    IERC20Metadata(vaultConfig.baseToken).safeTransfer(
+      stratParams.liquidVaultAddr,
+      (redemption - tax)
+    );
+
     IVault(stratParams.liquidVaultAddr).deposit(
       accountId,
       vaultConfig.baseToken,
       (redemption - tax)
     );
+
+    return tax;
   }
 
   /*//////////////////////////////////////////////////////////////

@@ -35,4 +35,6 @@ interface IRouter is IAxelarExecutable {
     string calldata tokenSymbol,
     uint256 amount
   ) external returns (IVault.VaultActionData memory);
+
+  function sendTax(address token, uint256 amount, address payee) external;
 }
