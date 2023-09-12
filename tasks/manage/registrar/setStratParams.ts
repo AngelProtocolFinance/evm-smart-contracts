@@ -1,8 +1,8 @@
+import {allStrategyConfigs} from "contracts/integrations/stratConfig";
 import {task, types} from "hardhat/config";
 import {submitMultiSigTx} from "tasks/helpers";
 import {Registrar__factory} from "typechain-types";
 import {StratConfig, getAPTeamOwner, getAddresses, logger} from "utils";
-import {allStrategyConfigs} from "../../../contracts/integrations/stratConfig";
 
 type TaskArgs = {
   name: string;
@@ -50,6 +50,7 @@ task("manage:registrar:setStratParams")
     } else {
       logger.out("A strategy has already been set at this selctor", logger.Level.Warn);
       logger.pad(50, "Current strategy state:", currentStratParams.approvalState);
+      logger.pad(50, "Current network:", currentStratParams.network);
       logger.pad(50, "Current Locked vault address:", currentStratParams.lockedVaultAddr);
       logger.pad(50, "Current Liquid vault address:", currentStratParams.liquidVaultAddr);
       if (!taskArguments.modifyExisting) {
@@ -62,6 +63,7 @@ task("manage:registrar:setStratParams")
     logger.out("Setting strategy params to: ");
     logger.pad(50, "New strategy selector", config.id);
     logger.pad(50, "New approval state", config.params.approvalState);
+    logger.pad(50, "New network", config.params.network);
     logger.pad(50, "New locked vault address", config.params.lockedVaultAddr);
     logger.pad(50, "New liquid vault address", config.params.liquidVaultAddr);
     const updateData = registrar.interface.encodeFunctionData("setStrategyParams", [
