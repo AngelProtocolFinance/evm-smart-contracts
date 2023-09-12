@@ -1,6 +1,7 @@
 import {CONFIG, FEES} from "config";
 import {task, types} from "hardhat/config";
-import {POLYGON, getAddresses, getChainId, getKeysTyped} from "utils";
+import {ChainID} from "types";
+import {getAddresses, getChainId, getKeysTyped} from "utils";
 
 type TaskArgs = {payoutAddress?: string; bps?: number; apTeamSignerPkey?: string};
 
@@ -27,7 +28,7 @@ task("manage:registrar:setAllFeeSettings")
       // If Network == Polygon -> PROD_CONFIG.Treasury
       // else, set to AP Team Multisig
       if (payoutAddress == "") {
-        if ((await getChainId(hre)) == POLYGON) {
+        if ((await getChainId(hre)) == ChainID.polygon) {
           payoutAddress = CONFIG.PROD_CONFIG.Treasury;
         } else {
           const addresses = await getAddresses(hre);
