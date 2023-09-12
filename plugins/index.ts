@@ -3,12 +3,10 @@
  * @description created based on unmaintained repo https://www.npmjs.com/package/hardhat-change-network
  */
 
-// To extend one of Hardhat's types, you need to import the module where it has been defined, and redeclare it.
 import {extendEnvironment} from "hardhat/config";
 import {createProvider} from "hardhat/internal/core/providers/construction";
 import {lazyFunction} from "hardhat/plugins";
 import {EthereumProvider} from "hardhat/types/provider";
-import "hardhat/types/runtime";
 
 // This import is needed to let the TypeScript compiler know that it should include your type
 // extensions in your npm package's types file.
@@ -16,8 +14,6 @@ import "./type-extensions";
 
 extendEnvironment((hre) => {
   // We add a field to the Hardhat Runtime Environment here.
-  // We use lazyObject to avoid initializing things until they are actually
-  // needed.
   const providers: {[name: string]: EthereumProvider} = {};
 
   hre.getProvider = lazyFunction(
@@ -33,18 +29,22 @@ extendEnvironment((hre) => {
   hre.changeNetwork = lazyFunction(
     () =>
       async function (newNetwork: string) {
+        // check if network config is set
         if (!hre.config.networks[newNetwork]) {
           throw new Error(`changeNetwork: Couldn't find network '${newNetwork}'`);
         }
 
+        // remember current network's provider for faster future changes
         if (!providers[hre.network.name]) {
           providers[hre.network.name] = hre.network.provider;
         }
 
+        // update hardhat's network data
         hre.network.name = newNetwork;
         hre.network.config = hre.config.networks[newNetwork];
         hre.network.provider = await hre.getProvider(newNetwork);
 
+        // update ethers's provider data
         if (hre.ethers) {
           const {
             EthersProviderWrapper,
