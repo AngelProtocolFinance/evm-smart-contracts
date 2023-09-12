@@ -5,6 +5,7 @@ import {
   IVault,
   IVaultEmitter__factory,
 } from "typechain-types";
+import {ChainID} from "types";
 import {deploy, getAddresses, getSigners, logger, verify} from "utils";
 
 task("Deploy:genericVault", "Will deploy a generic vault with the provided params")
@@ -21,7 +22,7 @@ task("Deploy:genericVault", "Will deploy a generic vault with the provided param
       let baseTokenAddress: string;
       let yieldTokenAddress: string;
       // For localhost/hardhat, we deploy 2 dummy tokens so that the ERC20 interface calls dont revert
-      if (network.chainId == 31337) {
+      if (network.chainId == ChainID.hardhat) {
         let BaseToken = new DummyERC20__factory(deployer);
         let baseToken = await BaseToken.deploy(0);
         baseTokenAddress = baseToken.address;

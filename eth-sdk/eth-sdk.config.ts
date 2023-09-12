@@ -4,6 +4,7 @@ import type {ZodTypeDef} from "zod";
 import {z} from "zod";
 
 import {AddressObj, getAddressesByNetworkId} from "../utils";
+import {ChainID} from "types";
 
 type AddressInput = `0x${string}`;
 type Address = Opaque<AddressInput, "Address">;
@@ -30,8 +31,8 @@ export function parseAddress(address: string): Address {
  * Loads and parses the Contract addresses from the contract-address.json
  * file based on the network ID passed
  */
-const mumbaiData: AddressObj = getAddressesByNetworkId(80001);
-// const polygonData: AddressObj = getAddressesByNetworkId(137);
+const mumbaiData: AddressObj = getAddressesByNetworkId(ChainID.mumbai);
+// const polygonData: AddressObj = getAddressesByNetworkId(ChainID.polygon);
 
 export default defineConfig({
   contracts: {
