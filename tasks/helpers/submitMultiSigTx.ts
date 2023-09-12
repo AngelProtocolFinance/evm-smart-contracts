@@ -20,8 +20,9 @@ export async function submitMultiSigTx(
 ): Promise<boolean> {
   logger.out(`Submitting transaction to Multisig at address: ${msAddress}...`);
   const multisig = IMultiSigGeneric__factory.connect(msAddress, owner);
+  const feeData = await multisig.provider.getFeeData();
   const tx = await multisig.submitTransaction(destination, 0, data, "0x", {
-    gasPrice: parseUnits("120", "gwei"),
+    gasPrice: feeData.gasPrice ?? undefined,
   });
   logger.out(`Tx hash: ${tx.hash}`);
   const receipt = await tx.wait();
