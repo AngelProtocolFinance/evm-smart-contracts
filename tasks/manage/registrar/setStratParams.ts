@@ -21,12 +21,7 @@ task("manage:registrar:setStratParams")
     "",
     types.string
   )
-  .addOptionalParam(
-    "modifyExisting",
-    "Whether to modify an existing strategy",
-    false,
-    types.boolean
-  )
+  .addFlag("modifyExisting", "Whether to modify an existing strategy")
   .addOptionalParam(
     "apTeamSignerPkey",
     "If running on prod, provide a pkey for a valid APTeam Multisig Owner."
@@ -61,12 +56,7 @@ subtask(
     0,
     cliTypes.enums(ChainID, "ChainID")
   )
-  .addOptionalParam(
-    "modifyExisting",
-    "Whether to modify an existing strategy",
-    false,
-    types.boolean
-  )
+  .addFlag("modifyExisting", "Whether to modify an existing strategy")
   .addOptionalParam(
     "apTeamSignerPkey",
     "If running on prod, provide a pkey for a valid APTeam Multisig Owner."
