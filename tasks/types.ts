@@ -1,3 +1,6 @@
+import {HardhatError} from "hardhat/internal/core/errors";
+import {ERRORS} from "hardhat/internal/core/errors-list";
+import {int} from "hardhat/internal/core/params/argumentTypes";
 import {CLIArgumentType} from "hardhat/types";
 
 const booleanArray: CLIArgumentType<Array<boolean>> = {
@@ -56,9 +59,72 @@ const stringArray: CLIArgumentType<Array<string>> = {
   },
 };
 
+function enums<T extends {[key in string]: string | number}>(
+  enumObj: T,
+  fieldName: string
+): CLIArgumentType<string | number> {
+  const cliArgType: CLIArgumentType<string | number> = {
+    name: fieldName,
+    parse: (argName, strValue) => {
+      if (strValue in enumObj) {
+        return strValue;
+      }
+      try {
+        const val = int.parse(argName, strValue);
+        if (val in enumObj) {
+          return val;
+        }
+      } catch (error) {
+        if (!(error instanceof HardhatError)) {
+          throw error;
+        }
+      }
+      throw new HardhatError(ERRORS.ARGUMENTS.INVALID_VALUE_FOR_TYPE, {
+        value: strValue,
+        name: argName,
+        type: cliArgType.name,
+      });
+    },
+    /**
+     * Check if argument value is of type "string[]"
+     *
+     * @param argName {string} argument's name - used for context in case of error.
+     * @param value {any} argument's value to validate.
+     *
+     * @throws HH301 if value is not of type "string[]"
+     */
+    validate: (argName: string, value: any): void => {
+      if (value in enumObj) {
+        return;
+      }
+      try {
+        int.validate(argName, value);
+      } catch (error) {
+        if (error instanceof HardhatError) {
+          throw new HardhatError(ERRORS.ARGUMENTS.INVALID_VALUE_FOR_TYPE, {
+            value,
+            name: argName,
+            type: cliArgType.name,
+          });
+        }
+        throw error;
+      }
+      if (!(value in enumObj)) {
+        throw new HardhatError(ERRORS.ARGUMENTS.INVALID_VALUE_FOR_TYPE, {
+          value,
+          name: argName,
+          type: cliArgType.name,
+        });
+      }
+    },
+  };
+  return cliArgType;
+}
+
 export const cliTypes = {
   array: {
     boolean: booleanArray,
     string: stringArray,
   },
+  enums,
 };
