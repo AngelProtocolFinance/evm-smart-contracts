@@ -1,9 +1,5 @@
-import dotenv from "dotenv";
-import {ethers} from "ethers";
+import {BigNumber, ethers} from "ethers";
 import {Config} from "./types";
-import {BigNumber} from "ethers";
-
-dotenv.config({path: __dirname + "/./../.env"});
 
 export const CONFIG: Config = {
   AP_TEAM_MULTISIG_DATA: {
