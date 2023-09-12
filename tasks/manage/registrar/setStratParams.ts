@@ -1,8 +1,10 @@
 import {allStrategyConfigs} from "contracts/integrations/stratConfig";
-import {task, types} from "hardhat/config";
+import {subtask, task, types} from "hardhat/config";
 import {submitMultiSigTx} from "tasks/helpers";
+import {cliTypes} from "tasks/types";
 import {Registrar__factory} from "typechain-types";
-import {StratConfig, getAPTeamOwner, getAddresses, logger} from "utils";
+import {ChainID} from "types";
+import {StratConfig, getAPTeamOwner, getAddressesByNetworkId, logger} from "utils";
 
 type TaskArgs = {
   name: string;
@@ -30,9 +32,52 @@ task("manage:registrar:setStratParams")
     "If running on prod, provide a pkey for a valid APTeam Multisig Owner."
   )
   .setAction(async function (taskArguments: TaskArgs, hre) {
+    const config: StratConfig = allStrategyConfigs[taskArguments.name];
+    await hre.run("manage:registrar:setStratParams:on-network", {
+      ...taskArguments,
+      chainId: ChainID.polygon,
+    });
+    await hre.run("manage:registrar:setStratParams:on-network", {
+      ...taskArguments,
+      chainId: config.chainId,
+    });
+  });
+
+subtask(
+  "manage:registrar:setStratParams:on-network",
+  "Updates strat params on the network specified by the 'chainId' param"
+)
+  .addParam(
+    "name",
+    `The name of the strategy according to StratConfig, possible values: ${Object.keys(
+      allStrategyConfigs
+    ).join(", ")}`,
+    "",
+    types.string
+  )
+  .addParam(
+    "chainId",
+    "Chain ID of the network on which to run the task",
+    0,
+    cliTypes.enums(ChainID, "ChainID")
+  )
+  .addOptionalParam(
+    "modifyExisting",
+    "Whether to modify an existing strategy",
+    false,
+    types.boolean
+  )
+  .addOptionalParam(
+    "apTeamSignerPkey",
+    "If running on prod, provide a pkey for a valid APTeam Multisig Owner."
+  )
+  .setAction(async function (taskArguments: TaskArgs & {chainId: ChainID}, hre) {
     logger.divider();
-    logger.out("Connecting to registrar on specified network...");
-    const addresses = await getAddresses(hre);
+    const targetNetwork = ChainID[taskArguments.chainId];
+    logger.out(`Updating strat params on ${targetNetwork}`);
+    await hre.changeNetwork(targetNetwork);
+    logger.out(`Connecting to registrar on ${hre.network.name}...`);
+    const addresses = getAddressesByNetworkId(taskArguments.chainId);
     const apTeamOwner = await getAPTeamOwner(hre, taskArguments.apTeamSignerPkey);
 
     const registrar = Registrar__factory.connect(addresses.registrar.proxy, apTeamOwner);
