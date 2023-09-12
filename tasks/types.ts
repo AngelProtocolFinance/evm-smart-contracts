@@ -66,7 +66,7 @@ function enums<T extends {[key in string]: string | number}>(
   const cliArgType: CLIArgumentType<string | number> = {
     name: fieldName,
     parse: (argName, strValue) => {
-      if (strValue in enumObj) {
+      if (Object.values(enumObj).includes(strValue)) {
         return strValue;
       }
       try {
@@ -94,7 +94,7 @@ function enums<T extends {[key in string]: string | number}>(
      * @throws HH301 if value is not of type "string[]"
      */
     validate: (argName: string, value: any): void => {
-      if (value in enumObj) {
+      if (Object.values(enumObj).includes(value)) {
         return;
       }
       try {
