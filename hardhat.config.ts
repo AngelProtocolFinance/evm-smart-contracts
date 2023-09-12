@@ -10,6 +10,9 @@ require("tsconfig-paths/register"); // must use `require`, otherwise TS complain
 import "./tasks";
 import * as tdly from "@tenderly/hardhat-tenderly";
 
+// custom plugins
+import "./plugins";
+
 var hardhatAccounts: HardhatNetworkAccountsUserConfig = getHardhatAccounts(envConfigDev.ACCOUNTS);
 
 tdly.setup({
