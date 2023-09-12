@@ -87,7 +87,7 @@ export function createEmptyAddressObj(): AddressObj {
         accountsUpdateEndowmentSettingsController: "",
         accountsUpdateStatusEndowments: "",
         diamondCutFacet: "",
-        diamondInitFacet: "",
+        diamondInit: "",
         diamondLoupeFacet: "",
         ownershipFacet: "",
       },

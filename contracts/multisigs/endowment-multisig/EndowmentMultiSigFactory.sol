@@ -3,13 +3,14 @@ pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import {IEndowmentMultiSigEmitter} from "./interfaces/IEndowmentMultiSigEmitter.sol";
+import {IEndowmentMultiSigFactory} from "./interfaces/IEndowmentMultiSigFactory.sol";
 import {ProxyContract} from "../../core/proxy.sol";
 import {IRegistrar} from "../../core/registrar/interfaces/IRegistrar.sol";
 import {RegistrarStorage} from "../../core/registrar/storage.sol";
 
 /// @title Multisignature wallet factory - Allows creation of multisigs wallet.
 /// @author Stefan George - <stefan.george@consensys.net>
-contract EndowmentMultiSigFactory is Ownable {
+contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable {
   /*
    *  Events
    */
