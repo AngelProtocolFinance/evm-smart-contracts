@@ -36,7 +36,6 @@ export async function deployDummyVault(
     yieldToken: yieldToken,
     apTokenName: apTokenName,
     apTokenSymbol: apTokenSymbol,
-    admin: deployer.address,
   };
   const vault = await Vault.deploy(vaultInitConfig);
   await vault.deployed();

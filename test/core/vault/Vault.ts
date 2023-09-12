@@ -75,9 +75,8 @@ describe("Vault", function () {
       yieldToken: yieldToken,
       apTokenName: apTokenName,
       apTokenSymbol: apTokenSymbol,
-      admin: admin,
     };
-    const vault = await Vault.deploy(vaultInitConfig, vaultEmitter);
+    const vault = await Vault.deploy(vaultInitConfig, vaultEmitter, admin);
     await vault.deployed();
     return vault;
   }
@@ -149,6 +148,7 @@ describe("Vault", function () {
     });
     it("should set the config as specified on deployment", async function () {
       let config = await vault.getVaultConfig();
+      let admin = await vault.owner();
       expect(config.vaultType).to.equal(0);
       expect(config.strategyId).to.equal(DEFAULT_STRATEGY_ID);
       expect(config.strategy).to.equal(ethers.constants.AddressZero);
@@ -157,48 +157,24 @@ describe("Vault", function () {
       expect(config.yieldToken).to.equal(token.address);
       expect(config.apTokenName).to.equal(DEFAULT_VAULT_NAME);
       expect(config.apTokenSymbol).to.equal(DEFAULT_VAULT_SYMBOL);
-      expect(config.admin).to.equal(owner.address);
+      expect(admin).to.equal(owner.address);
     });
     it("should accept new config values", async function () {
       let newConfig = {
-        vaultType: 1,
-        strategyId: "0x87654321",
         strategy: user.address,
         registrar: user.address,
-        baseToken: token.address,
-        yieldToken: token.address,
-        apTokenName: "NewName",
-        apTokenSymbol: "NN",
-        admin: user.address,
       } as IVault.VaultConfigStruct;
       await vault.setVaultConfig(newConfig);
       let queriedConfig = await vault.getVaultConfig();
-      expect(queriedConfig.vaultType).to.equal(newConfig.vaultType);
-      expect(queriedConfig.strategyId).to.equal(newConfig.strategyId);
       expect(queriedConfig.strategy).to.equal(newConfig.strategy);
       expect(queriedConfig.registrar).to.equal(newConfig.registrar);
-      expect(queriedConfig.baseToken).to.equal(newConfig.baseToken);
-      expect(queriedConfig.yieldToken).to.equal(newConfig.yieldToken);
-      expect(queriedConfig.apTokenName).to.equal(newConfig.apTokenName);
-      expect(queriedConfig.apTokenSymbol).to.equal(newConfig.apTokenSymbol);
-      expect(queriedConfig.admin).to.equal(newConfig.admin);
     });
     it("should revert when a non-admin calls the set method", async function () {
       let newConfig = {
-        vaultType: 1,
-        strategyId: "0x87654321",
         strategy: user.address,
         registrar: user.address,
-        baseToken: token.address,
-        yieldToken: token.address,
-        apTokenName: "NewName",
-        apTokenSymbol: "NN",
-        admin: user.address,
       } as IVault.VaultConfigStruct;
-      await expect(vault.connect(user).setVaultConfig(newConfig)).to.be.revertedWithCustomError(
-        vault,
-        "OnlyAdmin"
-      );
+      await expect(vault.connect(user).setVaultConfig(newConfig)).to.be.reverted;
     });
   });
 

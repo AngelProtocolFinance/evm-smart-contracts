@@ -18,6 +18,15 @@ abstract contract IVault {
     LIQUID
   }
 
+  /// @notice A config struct is stored on each deployed Vault.
+  /// @param vaultType one of LOCKED | LIQUID
+  /// @param strategyId the unique identifier for the strategy
+  /// @param strategy the address of the strategy-specific impl.
+  /// @param registrar the address of the local registrar
+  /// @param baseToken the address of the expected base token
+  /// @param yieldToken the address of the expected yield token
+  /// @param apTokenName the name of the this vaults ERC20AP token
+  /// @param apTokenSymbol the symbol of this vaults ERC20AP token
   struct VaultConfig {
     VaultType vaultType;
     bytes4 strategyId;
@@ -27,7 +36,17 @@ abstract contract IVault {
     address yieldToken;
     string apTokenName;
     string apTokenSymbol;
-    address admin;
+  }
+
+  /// @notice The struct that can be passed for updating config fields
+  /// @dev Vault type, strategyId and token params are explicitly ommitted from being
+  /// @dev updateable since changing these could lead to the loss of funds
+  /// @dev or are immutables in parent contracts
+  /// @param strategy the new address of the strategy implementation
+  /// @param registrar the address of the new registrar
+  struct VaultConfigUpdate {
+    address strategy;
+    address registrar;
   }
 
   /// @notice Gerneric AP Vault action data
@@ -65,6 +84,10 @@ abstract contract IVault {
     FAIL_TOKENS_FALLBACK // Tokens failed to be returned to accounts contract
   }
 
+  /// @notice Structure returned upon redemption
+  /// @param token The address of the token being redeemed
+  /// @param amount The qty of tokens being redeemed
+  /// @param status The status of the redemption request's processing
   struct RedemptionResponse {
     address token;
     uint256 amount;
@@ -74,7 +97,6 @@ abstract contract IVault {
   /*////////////////////////////////////////////////
                         ERRORS
   */ ////////////////////////////////////////////////
-  error OnlyAdmin();
   error OnlyRouter();
   error OnlyApproved();
   error OnlyBaseToken();
@@ -90,7 +112,7 @@ abstract contract IVault {
   function getVaultConfig() external view virtual returns (VaultConfig memory);
 
   /// @notice set the vault config
-  function setVaultConfig(VaultConfig memory _newConfig) external virtual;
+  function setVaultConfig(VaultConfigUpdate memory _newConfig) external virtual;
 
   /// @notice deposit tokens into vault position of specified Account
   /// @dev the deposit method allows the Vault contract to create or add to an existing

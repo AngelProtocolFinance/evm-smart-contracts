@@ -25,11 +25,11 @@ contract DummyVault is IVault {
   /// Vault impl
   constructor(VaultConfig memory _config) {
     vaultConfig = _config;
-    IVaultEmitter(emitterAddress).vaultConfigUpdated(address(this), _config);
   }
 
-  function setVaultConfig(VaultConfig memory _newConfig) external override {
-    vaultConfig = _newConfig;
+  function setVaultConfig(VaultConfigUpdate memory _newConfig) external override {
+    vaultConfig.strategy = _newConfig.strategy;
+    vaultConfig.registrar = _newConfig.registrar;
     IVaultEmitter(emitterAddress).vaultConfigUpdated(address(this), _newConfig);
   }
 
