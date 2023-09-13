@@ -1,1 +1,2 @@
+import "./updateProxyAdmin";
 import "./updateRegistrar";
