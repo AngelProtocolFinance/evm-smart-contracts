@@ -24,9 +24,15 @@ contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable {
   IRegistrar registrar;
 
   constructor(address _implementationAddress, address _proxyAdmin, address _registrar) {
-    require(Validator.addressChecker(_implementationAddress), "Invalid Address");
-    require(Validator.addressChecker(_proxyAdmin), "Invalid Address");
-    require(Validator.addressChecker(_registrar), "Invalid Address");
+    if (!Validator.addressChecker(_implementationAddress)) {
+      revert InvalidAddress("_implementationAddress");
+    }
+    if (!Validator.addressChecker(_proxyAdmin)) {
+      revert InvalidAddress("_proxyAdmin");
+    }
+    if (!Validator.addressChecker(_registrar)) {
+      revert InvalidAddress("_registrar");
+    }
 
     registrar = IRegistrar(_registrar);
     implementationAddress = _implementationAddress;
@@ -57,7 +63,9 @@ contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable {
    * @param _implementationAddress The address of the new implementation
    */
   function updateImplementation(address _implementationAddress) public onlyOwner {
-    require(Validator.addressChecker(_implementationAddress), "Invalid Address");
+    if (!Validator.addressChecker(_implementationAddress)) {
+      revert InvalidAddress("_implementationAddress");
+    }
     implementationAddress = _implementationAddress;
     emit ImplementationUpdated(_implementationAddress);
   }
@@ -67,7 +75,9 @@ contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable {
    * @param _proxyAdmin The address of the new proxy admin
    */
   function updateProxyAdmin(address _proxyAdmin) public onlyOwner {
-    require(Validator.addressChecker(_proxyAdmin), "Invalid Address");
+    if (!Validator.addressChecker(_proxyAdmin)) {
+      revert InvalidAddress("_proxyAdmin");
+    }
     proxyAdmin = _proxyAdmin;
     emit ProxyAdminUpdated(_proxyAdmin);
   }

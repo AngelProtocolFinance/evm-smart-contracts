@@ -9,6 +9,11 @@ interface IEndowmentMultiSigFactory {
   event ImplementationUpdated(address implementationAddress);
   event ProxyAdminUpdated(address admin);
 
+  /*
+   * Errors
+   */
+  error InvalidAddress(string param);
+
   function create(
     uint256 endowmentId,
     address emitterAddress,
