@@ -16,7 +16,6 @@ contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable {
    *  Storage
    */
   mapping(address => bool) public isInstantiation;
-  mapping(address => address[]) public instantiations;
 
   address public implementationAddress;
   address public proxyAdmin;
@@ -51,12 +50,6 @@ contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable {
   /*
    * Public functions
    */
-  /// @dev Returns number of instantiations by creator.
-  /// @param creator Contract creator.
-  /// @return Returns number of instantiations by creator.
-  function getInstantiationCount(address creator) public view returns (uint256) {
-    return instantiations[creator].length;
-  }
 
   /// @notice Returns the stored registrar address.
   /// @return address registrar address.
@@ -144,7 +137,6 @@ contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable {
   /// @param instantiation Address of contract instantiation.
   function register(address instantiation) internal {
     isInstantiation[instantiation] = true;
-    instantiations[msg.sender].push(instantiation);
     emit ContractInstantiated(msg.sender, instantiation);
   }
 }
