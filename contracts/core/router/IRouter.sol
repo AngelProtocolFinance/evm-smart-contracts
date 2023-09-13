@@ -14,13 +14,24 @@ interface IRouter is IAxelarExecutable {
   event Refund(IVault.VaultActionData action, uint256 amount);
   event Deposit(IVault.VaultActionData action);
   event Redeem(IVault.VaultActionData action, uint256 amount);
-  event RewardsHarvested(IVault.VaultActionData action);
   event ErrorLogged(IVault.VaultActionData action, string message);
   event ErrorBytesLogged(IVault.VaultActionData action, bytes data);
 
   /*////////////////////////////////////////////////
                     CUSTOM TYPES
-  */ ////////////////////////////////////////////////
+  */////////////////////////////////////////////////
+
+  /// @notice Harvest request
+  /// @param strategyId The 4 byte truncated keccak256 hash of the strategy name, i.e. bytes4(keccak256("Goldfinch"))
+  /// @param accountIds The endowment uids
+  struct HarvestRequest {
+    bytes4 strategyId;
+    uint32[] accountIds;
+  }
+
+  /*////////////////////////////////////////////////
+                    METHODS
+  */////////////////////////////////////////////////
 
   function executeLocal(
     string calldata sourceChain,
@@ -35,6 +46,8 @@ interface IRouter is IAxelarExecutable {
     string calldata tokenSymbol,
     uint256 amount
   ) external returns (IVault.VaultActionData memory);
+
+  function harvest(HarvestRequest memory _action) external;
 
   function sendTax(address token, uint256 amount, address payee) external;
 }

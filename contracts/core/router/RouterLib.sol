@@ -17,14 +17,14 @@ library RouterLib {
       string memory destinationChain,
       bytes4 strategyId,
       bytes4 selector,
-      uint32[] memory accountIds,
+      uint32 accountId,
       address token,
       uint256 lockAmt,
       uint256 liqAmt,
       IVault.VaultActionStatus status
     ) = abi.decode(
         _calldata,
-        (string, bytes4, bytes4, uint32[], address, uint256, uint256, IVault.VaultActionStatus)
+        (string, bytes4, bytes4, uint32, address, uint256, uint256, IVault.VaultActionStatus)
       );
 
     return
@@ -32,7 +32,7 @@ library RouterLib {
         destinationChain,
         strategyId,
         selector,
-        accountIds,
+        accountId,
         token,
         lockAmt,
         liqAmt,
@@ -48,7 +48,7 @@ library RouterLib {
         _calldata.destinationChain,
         _calldata.strategyId,
         _calldata.selector,
-        _calldata.accountIds,
+        _calldata.accountId,
         _calldata.token,
         _calldata.lockAmt,
         _calldata.liqAmt,

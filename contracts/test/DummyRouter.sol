@@ -54,4 +54,6 @@ contract DummyRouter is IRouter {
   ) external {}
 
   function sendTax(address token, uint256 amount, address payee) external {}
+
+  function harvest(HarvestRequest memory _action) external {}
 }

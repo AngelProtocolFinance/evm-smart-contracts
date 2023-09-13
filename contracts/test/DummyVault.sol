@@ -66,11 +66,15 @@ contract DummyVault is IVault {
       });
   }
 
-  function harvest(uint32[] calldata accountIds) public override returns (uint256) {
+  function harvest(uint32[] calldata accountIds) public override returns (RedemptionResponse memory) {
     for (uint32 i; i < accountIds.length; i++) {
       IVaultEmitter(emitterAddress).redeem(accountIds[i], address(this), dummyAmt, dummyAmt);
     }
-    return dummyAmt;
+    return RedemptionResponse({
+      token: vaultConfig.baseToken,
+      amount: dummyAmt,
+      status: VaultActionStatus.UNPROCESSED
+    });
   }
 
   function _isApprovedRouter() internal view override returns (bool) {}
