@@ -50,9 +50,9 @@ contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable, Iterabl
     return endowmentMultiSigs.keys;
   }
 
-  /// @notice Returns the stored registrar address.
-  /// @return address registrar address.
-  function getRegistrarAddress() external view returns (address) {
+  /// @notice Get stored registrar address.
+  /// @return address of the stored registrar.
+  function getRegistrar() external view returns (address) {
     return address(registrar);
   }
 

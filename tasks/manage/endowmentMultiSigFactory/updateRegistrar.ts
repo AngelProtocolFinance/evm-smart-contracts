@@ -42,7 +42,7 @@ task(
         addresses.multiSig.endowment.factory,
         hre.ethers.provider
       );
-      if ((await endowmentMultiSigFactory.getRegistrarAddress()) === registrarAddress) {
+      if ((await endowmentMultiSigFactory.getRegistrar()) === registrarAddress) {
         return logger.out(`"${registrarAddress}" is already the stored registrar address.`);
       }
 
@@ -61,7 +61,7 @@ task(
       if (!isExecuted) {
         return;
       }
-      const newRegAddr = await endowmentMultiSigFactory.getRegistrarAddress();
+      const newRegAddr = await endowmentMultiSigFactory.getRegistrar();
       if (newRegAddr !== registrarAddress) {
         throw new Error(
           `Unexpected: expected new registrar address "${registrarAddress}", but got "${newRegAddr}"`
