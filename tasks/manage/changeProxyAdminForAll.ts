@@ -2,26 +2,19 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {Wallet} from "ethers";
 import {task} from "hardhat/config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {
-  ITransparentUpgradeableProxy__factory,
-  OwnershipFacet__factory,
-  ProxyContract__factory,
-} from "typechain-types";
+import {OwnershipFacet__factory} from "typechain-types";
 import {AddressObj, confirmAction, getAddresses, getProxyAdminOwner, logger} from "utils";
 import {submitMultiSigTx} from "../helpers";
 
 type TaskArgs = {
+  to: string;
   apTeamSignerPkey?: string;
   proxyAdminPkey?: string;
-  newProxyAdmin: string;
   yes: boolean;
 };
 
 task("manage:changeProxyAdminForAll", "Will update the proxy admin for all proxy contracts")
-  .addParam(
-    "newProxyAdmin",
-    "New admin address. Make sure to use an address of an account you control."
-  )
+  .addParam("to", "New proxy admin address. Make sure to use an address of an account you control.")
   .addOptionalParam(
     "proxyAdminPkey",
     "The pkey for one of the current ProxyAdminMultiSig's owners."
@@ -33,7 +26,7 @@ task("manage:changeProxyAdminForAll", "Will update the proxy admin for all proxy
   .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
-      logger.out(`Change all contracts' admin to: ${taskArgs.newProxyAdmin}...`);
+      logger.out(`Change all contracts' admin to: ${taskArgs.to}...`);
 
       const isConfirmed = taskArgs.yes || (await confirmAction());
       if (!isConfirmed) {
@@ -44,16 +37,16 @@ task("manage:changeProxyAdminForAll", "Will update the proxy admin for all proxy
 
       const proxyAdminOwner = await getProxyAdminOwner(hre, taskArgs.proxyAdminPkey);
 
-      if (addresses.multiSig.proxyAdmin === taskArgs.newProxyAdmin) {
-        return logger.out(`"${taskArgs.newProxyAdmin}" is already the proxy admin.`);
+      if (addresses.multiSig.proxyAdmin === taskArgs.to) {
+        return logger.out(`"${taskArgs.to}" is already the proxy admin.`);
       }
 
-      await transferAccountOwnership(proxyAdminOwner, taskArgs.newProxyAdmin, addresses, hre);
+      await transferAccountOwnership(proxyAdminOwner, taskArgs.to, addresses, hre);
 
-      await changeProxiesAdmin(proxyAdminOwner, taskArgs.newProxyAdmin, addresses, hre);
+      await changeProxiesAdmin(taskArgs.proxyAdminPkey, taskArgs.to, addresses, hre);
 
       await hre.run("manage:registrar:updateConfig", {
-        proxyAdmin: taskArgs.newProxyAdmin,
+        proxyAdmin: taskArgs.to,
         apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });
@@ -69,7 +62,7 @@ async function transferAccountOwnership(
   hre: HardhatRuntimeEnvironment
 ) {
   try {
-    logger.out("Transferring Account diamond ownership...");
+    logger.out("Transferring Account diamond ownership (admin)...");
 
     const ownershipFacet = OwnershipFacet__factory.connect(
       addresses.accounts.diamond,
@@ -86,6 +79,11 @@ async function transferAccountOwnership(
 
     if (isExecuted) {
       const newOwner = await ownershipFacet.owner();
+      if (newOwner !== newProxyAdmin) {
+        throw new Error(
+          `Unexpected: expected new proxy admin "${newProxyAdmin}", but got "${newOwner}"`
+        );
+      }
       logger.out(`Owner is now set to: ${newOwner}`);
     }
   } catch (error) {
@@ -98,7 +96,7 @@ async function transferAccountOwnership(
  * implement `fallback` function will never revert, but will nevertheless NOT update the admin.
  */
 async function changeProxiesAdmin(
-  proxyAdminOwner: SignerWithAddress | Wallet,
+  proxyAdminPkey: string | undefined,
   newProxyAdmin: string,
   addresses: AddressObj,
   hre: HardhatRuntimeEnvironment
@@ -107,33 +105,12 @@ async function changeProxiesAdmin(
   const proxies = extractProxyContractAddresses("", addresses);
 
   for (const proxy of proxies) {
-    try {
-      logger.divider();
-      logger.out(`Changing admin for ${proxy.name} at "${proxy.address}"...`);
-
-      const proxyContract = ProxyContract__factory.connect(proxy.address, hre.ethers.provider);
-      const curAdmin = await proxyContract.getAdmin();
-      logger.out(`Current Admin: ${curAdmin}`);
-
-      const data = ITransparentUpgradeableProxy__factory.createInterface().encodeFunctionData(
-        "changeAdmin",
-        [newProxyAdmin]
-      );
-      const isExecuted = await submitMultiSigTx(
-        addresses.multiSig.proxyAdmin,
-        proxyAdminOwner,
-        proxy.address,
-        data
-      );
-
-      if (isExecuted) {
-        const proxyContract = ProxyContract__factory.connect(proxy.address, hre.ethers.provider);
-        const newAdmin = await proxyContract.getAdmin();
-        logger.out(`New admin: ${newAdmin}`);
-      }
-    } catch (error) {
-      logger.out(`Failed to change admin, reason: ${error}`, logger.Level.Error);
-    }
+    await hre.run("manage:changeProxyAdmin", {
+      to: newProxyAdmin,
+      proxy: proxy.address,
+      proxyAdminPkey: proxyAdminPkey,
+      yes: true,
+    });
   }
 }
 
