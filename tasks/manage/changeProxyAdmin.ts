@@ -18,13 +18,13 @@ type TaskArgs = {
 };
 
 task("manage:changeProxyAdmin", "Will update the proxy admin for all proxy contracts")
+  .addParam(
+    "newProxyAdmin",
+    "New admin address. Make sure to use an address of an account you control."
+  )
   .addOptionalParam(
     "proxyAdminPkey",
     "The pkey for one of the current ProxyAdminMultiSig's owners."
-  )
-  .addParam(
-    "newProxyAdmin",
-    "New admin address. Make sure to use an address of an account listed in the hardhat configuration for the target network."
   )
   .addOptionalParam(
     "apTeamSignerPkey",
