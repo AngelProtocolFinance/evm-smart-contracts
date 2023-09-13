@@ -2,6 +2,7 @@ import "./accounts";
 import "./addMultisigOwners";
 import "./changeProxyAdmin";
 import "./charityApplications";
+import "./endowmentMultiSigFactory";
 import "./createEndowment";
 import "./createIndexFund";
 import "./gasFwdFactory";
