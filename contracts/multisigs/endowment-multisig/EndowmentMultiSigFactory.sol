@@ -130,9 +130,9 @@ contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable, Iterabl
    * Internal functions
    */
   /// @dev Registers contract in factory registry.
-  /// @param endowmentMultiSigProxy Address of EndowmentMultiSig proxy contract instantiation.
-  function register(address endowmentMultiSigProxy) internal {
-    IterableMappingAddr.set(endowmentMultiSigs, endowmentMultiSigProxy, true);
-    emit ContractInstantiated(msg.sender, endowmentMultiSigProxy);
+  /// @param instantiation Address of EndowmentMultiSig proxy contract instantiation.
+  function register(address instantiation) internal {
+    IterableMappingAddr.set(endowmentMultiSigs, instantiation, true);
+    emit ContractInstantiated(msg.sender, instantiation);
   }
 }
