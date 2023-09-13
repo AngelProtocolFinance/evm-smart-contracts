@@ -2,6 +2,7 @@ import {Signer} from "ethers";
 import {task} from "hardhat/config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {
+  IEndowmentMultiSigFactory__factory,
   ITransparentUpgradeableProxy__factory,
   OwnershipFacet__factory,
   ProxyContract__factory,
@@ -103,13 +104,17 @@ async function changeProxiesAdmin(
   hre: HardhatRuntimeEnvironment
 ) {
   logger.out("Reading proxy contract addresses...");
-
   const proxies = extractProxyContractAddresses("", addresses);
 
-  for (const proxy of proxies) {
+  logger.out("Fetching EndowmentMultiSig Proxies's addresses...");
+  const endowmentProxies = await getEndowmentMultiSigProxies(addresses, hre);
+
+  const allProxies = proxies.concat(endowmentProxies);
+
+  for (const proxy of allProxies) {
     try {
       logger.divider();
-      logger.out(`Changing admin for ${proxy.name}...`);
+      logger.out(`Changing admin for ${proxy.name} at "${proxy.address}"...`);
 
       const proxyContract = ProxyContract__factory.connect(proxy.address, hre.ethers.provider);
       const curAdmin = await proxyContract.getAdmin();
@@ -147,4 +152,21 @@ function extractProxyContractAddresses(key: string, value: any): {name: string; 
   }
 
   return Object.entries(value).flatMap(([key, val]) => extractProxyContractAddresses(key, val));
+}
+
+async function getEndowmentMultiSigProxies(
+  addresses: AddressObj,
+  hre: HardhatRuntimeEnvironment
+): Promise<{name: string; address: string}[]> {
+  const endowmentMultiSigFactory = IEndowmentMultiSigFactory__factory.connect(
+    addresses.multiSig.endowment.factory,
+    hre.ethers.provider
+  );
+
+  const endowmentMultiSigAddresses = await endowmentMultiSigFactory.getInstantiations();
+
+  return endowmentMultiSigAddresses.map((address) => ({
+    name: "EndowmentMultiSig",
+    address,
+  }));
 }
