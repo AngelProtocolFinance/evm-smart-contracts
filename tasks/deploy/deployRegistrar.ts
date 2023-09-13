@@ -106,6 +106,11 @@ task(
         apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });
+      await hre.run("manage:endowmentMultiSigFactory:updateRegistrar", {
+        registrar: registrar.proxy.contract.address,
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
+        yes: true,
+      });
 
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
         await verify(hre, registrar.implementation);
