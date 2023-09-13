@@ -19,7 +19,7 @@ contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable, Iterabl
   IterableMappingAddr.Map endowmentMultiSigs;
 
   address public implementationAddress;
-  address public proxyAdmin;
+  address proxyAdmin;
   IRegistrar registrar;
 
   constructor(address _implementationAddress, address _proxyAdmin, address registrarAddress) {
@@ -54,6 +54,12 @@ contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable, Iterabl
   /// @return address of the stored registrar.
   function getRegistrar() external view returns (address) {
     return address(registrar);
+  }
+
+  /// @notice Get proxy admin address.
+  /// @return address of the proxy admin.
+  function getProxyAdmin() external view returns (address) {
+    return proxyAdmin;
   }
 
   /// @notice Checks whether a given address is an EndowmentMultiSig proxy contract that this factory instantiated.

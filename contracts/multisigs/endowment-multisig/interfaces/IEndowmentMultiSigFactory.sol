@@ -41,6 +41,10 @@ interface IEndowmentMultiSigFactory {
   /// @return address of the stored registrar.
   function getRegistrar() external view returns (address);
 
+  /// @notice Get proxy admin address.
+  /// @return address of the proxy admin.
+  function getProxyAdmin() external view returns (address);
+
   /// @notice Checks whether a given address is an EndowmentMultiSig proxy contract that this factory instantiated.
   /// @param instantiation address to check.
   /// @return boolean value indicating whether the given address was instantiated by the factory.
