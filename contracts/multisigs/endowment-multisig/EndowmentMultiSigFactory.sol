@@ -22,22 +22,10 @@ contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable, Iterabl
   address public proxyAdmin;
   IRegistrar registrar;
 
-  constructor(address _implementationAddress, address _proxyAdmin, address _registrar) {
-    if (!Validator.addressChecker(_implementationAddress)) {
-      revert InvalidAddress("_implementationAddress");
-    }
-    if (!Validator.addressChecker(_proxyAdmin)) {
-      revert InvalidAddress("_proxyAdmin");
-    }
-    if (!Validator.addressChecker(_registrar)) {
-      revert InvalidAddress("_registrar");
-    }
-
-    implementationAddress = _implementationAddress;
-    proxyAdmin = _proxyAdmin;
-    registrar = IRegistrar(_registrar);
-
-    emit Initialized(_implementationAddress, _proxyAdmin, _registrar);
+  constructor(address _implementationAddress, address _proxyAdmin, address registrarAddress) {
+    updateImplementation(_implementationAddress);
+    updateProxyAdmin(_proxyAdmin);
+    updateRegistrar(registrarAddress);
   }
 
   modifier onlyAccountsContract() {

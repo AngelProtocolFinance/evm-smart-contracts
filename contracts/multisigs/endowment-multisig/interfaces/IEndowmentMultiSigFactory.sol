@@ -6,7 +6,6 @@ interface IEndowmentMultiSigFactory {
    *  Events
    */
   event ContractInstantiated(address sender, address instantiation);
-  event Initialized(address implementation, address proxyAdmin, address registrar);
   event ImplementationUpdated(address implementationAddress);
   event ProxyAdminUpdated(address admin);
   event RegistrarUpdated(address registrar);
