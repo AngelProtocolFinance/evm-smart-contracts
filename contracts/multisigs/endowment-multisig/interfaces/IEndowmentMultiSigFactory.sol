@@ -13,6 +13,7 @@ interface IEndowmentMultiSigFactory {
    * Errors
    */
   error InvalidAddress(string param);
+  error OnlyAccountsContract();
 
   function create(
     uint256 endowmentId,

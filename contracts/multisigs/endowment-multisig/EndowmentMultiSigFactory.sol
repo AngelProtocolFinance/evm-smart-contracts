@@ -44,7 +44,9 @@ contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable {
 
   modifier onlyAccountsContract() {
     RegistrarStorage.Config memory registrarConfig = registrar.queryConfig();
-    require(msg.sender == registrarConfig.accountsContract, "Only Accounts Contract");
+    if (msg.sender != registrarConfig.accountsContract) {
+      revert OnlyAccountsContract();
+    }
     _;
   }
 
