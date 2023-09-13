@@ -58,6 +58,13 @@ contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable, Iterabl
     return address(registrar);
   }
 
+  /// @notice Checks whether a given address is an EndowmentMultiSig proxy contract that this factory instantiated.
+  /// @param instantiation address to check.
+  /// @return bool a boolean value indicating whether the given address was instantiated by the factory.
+  function isInstantiation(address instantiation) external view returns (bool) {
+    return IterableMappingAddr.get(endowmentMultiSigs, instantiation);
+  }
+
   /**
    * @dev Updates the implementation address
    * @param _implementationAddress The address of the new implementation
