@@ -45,6 +45,13 @@ task("manage:changeProxyAdminForAll", "Will update the proxy admin for all proxy
 
       await changeProxiesAdmin(taskArgs.proxyAdminPkey, taskArgs.to, addresses, hre);
 
+      await hre.run("manage:endowmentMultiSigFactory:updateProxyAdmin", {
+        to: taskArgs.to,
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
+        proxyAdminPkey: taskArgs.proxyAdminPkey,
+        yes: true,
+      });
+
       await hre.run("manage:registrar:updateConfig", {
         proxyAdmin: taskArgs.to,
         apTeamSignerPkey: taskArgs.apTeamSignerPkey,
