@@ -44,6 +44,12 @@ contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable, Iterabl
                         IMPLEMENTATION
   */ ///////////////////////////////////////////////
 
+  /// @notice Get all EndowmentMultiSig proxy contract instantiations.
+  /// @return Array of instantiation addresses.
+  function getInstantiations() external view returns (address[] memory) {
+    return endowmentMultiSigs.keys;
+  }
+
   /// @notice Returns the stored registrar address.
   /// @return address registrar address.
   function getRegistrarAddress() external view returns (address) {

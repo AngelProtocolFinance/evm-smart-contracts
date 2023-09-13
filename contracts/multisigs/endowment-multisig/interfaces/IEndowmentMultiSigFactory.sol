@@ -33,10 +33,14 @@ interface IEndowmentMultiSigFactory {
 
   function updateRegistrar(address registrarAddress) external;
 
+  /// @notice Get all EndowmentMultiSig proxy contract instantiations.
+  /// @return Array of instantiation addresses.
+  function getInstantiations() external view returns (address[] memory);
+
   function getRegistrarAddress() external view returns (address);
 
   /// @notice Checks whether a given address is an EndowmentMultiSig proxy contract that this factory instantiated.
   /// @param instantiation address to check.
-  /// @return bool a boolean value indicating whether the given address was instantiated by the factory.
+  /// @return boolean value indicating whether the given address was instantiated by the factory.
   function isInstantiation(address instantiation) external view returns (bool);
 }
