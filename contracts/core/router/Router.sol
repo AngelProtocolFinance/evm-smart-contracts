@@ -64,17 +64,12 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     _;
   }
 
-  modifier operatorOnly {
-    require(
-      registrar.getVaultOperatorApproved(msg.sender), "Operator only"
-    );
+  modifier operatorOnly() {
+    require(registrar.getVaultOperatorApproved(msg.sender), "Operator only");
     _;
   }
 
-  modifier validateDeposit(
-    IVault.VaultActionData memory action,
-    uint256 amount
-  ) {
+  modifier validateDeposit(IVault.VaultActionData memory action, uint256 amount) {
     // deposit only
     require(action.selector == IVault.deposit.selector, "Only deposit accepts tokens");
     // amt fwd equal expected amt
@@ -190,7 +185,7 @@ contract Router is IRouter, Initializable, AxelarExecutable {
 
     // Pack and send the tokens back to Accounts contract
     uint256 redeemedAmt = lockResponse.amount + liqResponse.amount;
-  
+
     if (
       (lockResponse.status == IVault.VaultActionStatus.POSITION_EXITED) &&
       (liqResponse.status == IVault.VaultActionStatus.POSITION_EXITED)
@@ -247,9 +242,7 @@ contract Router is IRouter, Initializable, AxelarExecutable {
   }
 
   // Vault action::Harvest
-  function harvest(
-    HarvestRequest memory _action
-  ) external operatorOnly {
+  function harvest(HarvestRequest memory _action) external operatorOnly {
     LocalRegistrarLib.StrategyParams memory params = registrar.getStrategyParamsById(
       _action.strategyId
     );

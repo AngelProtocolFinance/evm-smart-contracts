@@ -214,9 +214,19 @@ contract APVault_V1 is IVault, ERC4626AP, Ownable {
 
       // Call appropriate harvest method
       if (vaultConfig.vaultType == VaultType.LIQUID) {
-        response.amount += _harvestLiquid(accountId, yieldBaseTokens, currentExRate_withPrecision, feeSetting);
+        response.amount += _harvestLiquid(
+          accountId,
+          yieldBaseTokens,
+          currentExRate_withPrecision,
+          feeSetting
+        );
       } else {
-        response.amount += _harvestLocked(accountId, yieldBaseTokens, currentExRate_withPrecision, feeSetting);
+        response.amount += _harvestLocked(
+          accountId,
+          yieldBaseTokens,
+          currentExRate_withPrecision,
+          feeSetting
+        );
       }
     }
 

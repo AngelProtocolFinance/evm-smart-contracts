@@ -478,8 +478,10 @@ contract AccountsStrategy is
       response.selector == IVault.deposit.selector &&
       response.status == IVault.VaultActionStatus.FAIL_TOKENS_RETURNED
     ) {
-      state.Balances[response.accountId][IVault.VaultType.LOCKED][response.token] += response.lockAmt;
-      state.Balances[response.accountId][IVault.VaultType.LIQUID][response.token] += response.liqAmt;
+      state.Balances[response.accountId][IVault.VaultType.LOCKED][response.token] += response
+        .lockAmt;
+      state.Balances[response.accountId][IVault.VaultType.LIQUID][response.token] += response
+        .liqAmt;
       emit EndowmentRedeemed(
         response.accountId,
         response.strategyId,
@@ -499,8 +501,10 @@ contract AccountsStrategy is
       (response.selector == IVault.redeemAll.selector)
     ) {
       if (response.status == IVault.VaultActionStatus.SUCCESS) {
-        state.Balances[response.accountId][IVault.VaultType.LOCKED][response.token] += response.lockAmt;
-        state.Balances[response.accountId][IVault.VaultType.LIQUID][response.token] += response.liqAmt;
+        state.Balances[response.accountId][IVault.VaultType.LOCKED][response.token] += response
+          .lockAmt;
+        state.Balances[response.accountId][IVault.VaultType.LIQUID][response.token] += response
+          .liqAmt;
         emit EndowmentRedeemed(
           response.accountId,
           response.strategyId,
@@ -511,9 +515,14 @@ contract AccountsStrategy is
         );
         return true;
       } else if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
-        state.Balances[response.accountId][IVault.VaultType.LOCKED][response.token] += response.lockAmt;
-        state.Balances[response.accountId][IVault.VaultType.LIQUID][response.token] += response.liqAmt;
-        IterableMappingStrategy.remove(state.ActiveStrategies[response.accountId], response.strategyId);
+        state.Balances[response.accountId][IVault.VaultType.LOCKED][response.token] += response
+          .lockAmt;
+        state.Balances[response.accountId][IVault.VaultType.LIQUID][response.token] += response
+          .liqAmt;
+        IterableMappingStrategy.remove(
+          state.ActiveStrategies[response.accountId],
+          response.strategyId
+        );
         emit EndowmentRedeemed(
           response.accountId,
           response.strategyId,

@@ -1065,7 +1065,7 @@ describe("Router", function () {
     const TOTAL_AMT = LOCK_AMT + LIQ_AMT;
     const getDefaultHarvestRequest = () => ({
       ...DEFAULT_HARVEST_REQUEST,
-      accountIds: [1]
+      accountIds: [1],
     });
 
     beforeEach(async function () {
@@ -1121,9 +1121,7 @@ describe("Router", function () {
         amount: LIQ_AMT,
         status: VaultActionStatus.SUCCESS,
       });
-      expect(
-        await router.harvest(requestData)
-      ).to.not.be.reverted;
+      expect(await router.harvest(requestData)).to.not.be.reverted;
       expect(lockedVault.harvest).to.have.been.calledWith(requestData.accountIds);
       expect(liquidVault.harvest).to.have.been.calledWith(requestData.accountIds);
       expect(token.transfer).to.have.been.calledWith(router.address, LOCK_AMT);
@@ -1143,7 +1141,7 @@ describe("Router", function () {
     const TOTAL_AMT = LOCK_AMT + LIQ_AMT;
     const getDefaultHarvestRequest = () => ({
       ...DEFAULT_HARVEST_REQUEST,
-      accountIds: [1]
+      accountIds: [1],
     });
 
     beforeEach(async function () {
@@ -1192,10 +1190,8 @@ describe("Router", function () {
         amount: LIQ_AMT,
         status: VaultActionStatus.SUCCESS,
       });
-      await expect(
-        router.connect(user).harvest(requestData)
-      ).to.be.revertedWith("Operator only");
-    })
+      await expect(router.connect(user).harvest(requestData)).to.be.revertedWith("Operator only");
+    });
 
     it("Harvests the targeted account and forwards tokens to the local collector", async function () {
       let requestData = getDefaultHarvestRequest();
@@ -1209,9 +1205,7 @@ describe("Router", function () {
         amount: LIQ_AMT,
         status: VaultActionStatus.SUCCESS,
       });
-      expect(
-        await router.harvest(requestData)
-      ).to.not.be.reverted;
+      expect(await router.harvest(requestData)).to.not.be.reverted;
       expect(lockedVault.harvest).to.have.been.calledWith(requestData.accountIds);
       expect(liquidVault.harvest).to.have.been.calledWith(requestData.accountIds);
       expect(token.transfer).to.have.been.calledWith(router.address, LOCK_AMT);
