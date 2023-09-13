@@ -40,7 +40,7 @@ task("manage:changeProxyAdmin", "Will update the proxy admin the target proxy co
       const curAdmin = await proxyContract.getAdmin();
       logger.out(`Current Admin: ${curAdmin}`);
 
-      logger.out("Submitting Tx...");
+      // submitting the Tx
       const data = ITransparentUpgradeableProxy__factory.createInterface().encodeFunctionData(
         "changeAdmin",
         [taskArgs.to]

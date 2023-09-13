@@ -47,7 +47,7 @@ task(
 
       const apTeamOwner = await getAPTeamOwner(hre, taskArgs.apTeamSignerPkey);
 
-      logger.out("Submitting Tx...");
+      // submitting the Tx
       const data = endowmentMultiSigFactory.interface.encodeFunctionData("updateProxyAdmin", [
         taskArgs.to,
       ]);
