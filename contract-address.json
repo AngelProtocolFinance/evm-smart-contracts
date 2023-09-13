@@ -14,7 +14,7 @@
         "accountsUpdateEndowmentSettingsController": "",
         "accountsUpdateStatusEndowments": "",
         "diamondCutFacet": "",
-        "diamondInitFacet": "",
+        "diamondInit": "",
         "diamondLoupeFacet": "",
         "ownershipFacet": ""
       }
@@ -281,7 +281,7 @@
         "accountsUpdateEndowmentSettingsController": "0x053d1190081dC68ED544D5A2788878E823F64a69",
         "accountsUpdateStatusEndowments": "0x03Bb663AccB9FD14aD3c37B2D66B025bbd4Fc533",
         "diamondCutFacet": "0x42f293b5D45C0a949639EE229E4c9acD51DF904D",
-        "diamondInitFacet": "0x730EEB14F27B5D6132b9BF7D62eF877D89600F55",
+        "diamondInit": "0x730EEB14F27B5D6132b9BF7D62eF877D89600F55",
         "diamondLoupeFacet": "0x22a1B036322472baC663A4d741d87829c30b8E4e",
         "ownershipFacet": "0x658E94B5FfBDe68b99203BBbBAef618D36862766"
       }
@@ -417,7 +417,7 @@
         "accountsUpdateEndowmentSettingsController": "0x3A90040cdfB5CF553c4E907D529DaAE6d32Ff096",
         "accountsUpdateStatusEndowments": "0x2cC9270A9AFFCd842D49da955b445AC7B2C032d0",
         "diamondCutFacet": "0x0d6895AeA05A8CA4E7d35BbdD8c3a86F5778C844",
-        "diamondInitFacet": "0x565edE93A8f394041B0125Ed7d1b51Fc1269974F",
+        "diamondInit": "0x565edE93A8f394041B0125Ed7d1b51Fc1269974F",
         "diamondLoupeFacet": "0xE75dFF8601646a92df97E07618c19bd5083971aD",
         "ownershipFacet": "0x37aEa84270705e52793294e1ed566C6FD8E3503e"
       }
