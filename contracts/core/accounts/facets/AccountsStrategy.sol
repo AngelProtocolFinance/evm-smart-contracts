@@ -109,9 +109,6 @@ contract AccountsStrategy is
 
     uint256 investAmt = investRequest.lockAmt + investRequest.liquidAmt;
 
-    uint32[] memory accts = new uint32[](1);
-    accts[0] = id;
-
     state.Balances[id][IVault.VaultType.LOCKED][tokenAddress] -= investRequest.lockAmt;
     state.Balances[id][IVault.VaultType.LIQUID][tokenAddress] -= investRequest.liquidAmt;
     IterableMappingStrategy.set(state.ActiveStrategies[id], investRequest.strategy, true);
@@ -130,7 +127,7 @@ contract AccountsStrategy is
         destinationChain: state.config.networkName,
         strategyId: investRequest.strategy,
         selector: IVault.deposit.selector,
-        accountIds: accts,
+        accountId: id,
         token: tokenAddress,
         lockAmt: investRequest.lockAmt,
         liqAmt: investRequest.liquidAmt,
@@ -159,7 +156,7 @@ contract AccountsStrategy is
         destinationChain: stratParams.network,
         strategyId: investRequest.strategy,
         selector: IVault.deposit.selector,
-        accountIds: accts,
+        accountId: id,
         token: tokenAddress,
         lockAmt: investRequest.lockAmt,
         liqAmt: investRequest.liquidAmt,
@@ -252,8 +249,6 @@ contract AccountsStrategy is
     address tokenAddress = IAxelarGateway(thisNetwork.axelarGateway).tokenAddresses(
       redeemRequest.token
     );
-    uint32[] memory accts = new uint32[](1);
-    accts[0] = id;
 
     // Strategy exists on the local network
     if (Validator.compareStrings(state.config.networkName, stratParams.network)) {
@@ -261,7 +256,7 @@ contract AccountsStrategy is
         destinationChain: state.config.networkName,
         strategyId: redeemRequest.strategy,
         selector: IVault.redeem.selector,
-        accountIds: accts,
+        accountId: id,
         token: tokenAddress,
         lockAmt: redeemRequest.lockAmt,
         liqAmt: redeemRequest.liquidAmt,
@@ -300,7 +295,7 @@ contract AccountsStrategy is
         destinationChain: stratParams.network,
         strategyId: redeemRequest.strategy,
         selector: IVault.redeem.selector,
-        accountIds: accts,
+        accountId: id,
         token: tokenAddress,
         lockAmt: redeemRequest.lockAmt,
         liqAmt: redeemRequest.liquidAmt,
@@ -390,15 +385,13 @@ contract AccountsStrategy is
     address tokenAddress = IAxelarGateway(thisNetwork.axelarGateway).tokenAddresses(
       redeemAllRequest.token
     );
-    uint32[] memory accts = new uint32[](1);
-    accts[0] = id;
 
     if (Validator.compareStrings(state.config.networkName, stratParams.network)) {
       IVault.VaultActionData memory payload = IVault.VaultActionData({
         destinationChain: state.config.networkName,
         strategyId: redeemAllRequest.strategy,
         selector: IVault.redeemAll.selector,
-        accountIds: accts,
+        accountId: id,
         token: tokenAddress,
         lockAmt: redeemAllRequest.redeemLocked ? 1 : 0,
         liqAmt: redeemAllRequest.redeemLiquid ? 1 : 0,
@@ -436,7 +429,7 @@ contract AccountsStrategy is
         destinationChain: stratParams.network,
         strategyId: redeemAllRequest.strategy,
         selector: IVault.redeemAll.selector,
-        accountIds: accts,
+        accountId: id,
         token: tokenAddress,
         lockAmt: redeemAllRequest.redeemLocked ? 1 : 0,
         liqAmt: redeemAllRequest.redeemLiquid ? 1 : 0,
@@ -477,7 +470,6 @@ contract AccountsStrategy is
     IVault.VaultActionData memory response
   ) internal returns (bool success_) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    uint32 id = response.accountIds[0];
 
     // Invest Cases
     // FAIL_TOKENS_RETURNED => Refund upon failed invest call
@@ -486,10 +478,10 @@ contract AccountsStrategy is
       response.selector == IVault.deposit.selector &&
       response.status == IVault.VaultActionStatus.FAIL_TOKENS_RETURNED
     ) {
-      state.Balances[id][IVault.VaultType.LOCKED][response.token] += response.lockAmt;
-      state.Balances[id][IVault.VaultType.LIQUID][response.token] += response.liqAmt;
+      state.Balances[response.accountId][IVault.VaultType.LOCKED][response.token] += response.lockAmt;
+      state.Balances[response.accountId][IVault.VaultType.LIQUID][response.token] += response.liqAmt;
       emit EndowmentRedeemed(
-        id,
+        response.accountId,
         response.strategyId,
         response.destinationChain,
         response.token,
@@ -507,10 +499,10 @@ contract AccountsStrategy is
       (response.selector == IVault.redeemAll.selector)
     ) {
       if (response.status == IVault.VaultActionStatus.SUCCESS) {
-        state.Balances[id][IVault.VaultType.LOCKED][response.token] += response.lockAmt;
-        state.Balances[id][IVault.VaultType.LIQUID][response.token] += response.liqAmt;
+        state.Balances[response.accountId][IVault.VaultType.LOCKED][response.token] += response.lockAmt;
+        state.Balances[response.accountId][IVault.VaultType.LIQUID][response.token] += response.liqAmt;
         emit EndowmentRedeemed(
-          id,
+          response.accountId,
           response.strategyId,
           response.destinationChain,
           response.token,
@@ -519,11 +511,11 @@ contract AccountsStrategy is
         );
         return true;
       } else if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
-        state.Balances[id][IVault.VaultType.LOCKED][response.token] += response.lockAmt;
-        state.Balances[id][IVault.VaultType.LIQUID][response.token] += response.liqAmt;
-        IterableMappingStrategy.remove(state.ActiveStrategies[id], response.strategyId);
+        state.Balances[response.accountId][IVault.VaultType.LOCKED][response.token] += response.lockAmt;
+        state.Balances[response.accountId][IVault.VaultType.LIQUID][response.token] += response.liqAmt;
+        IterableMappingStrategy.remove(state.ActiveStrategies[response.accountId], response.strategyId);
         emit EndowmentRedeemed(
-          id,
+          response.accountId,
           response.strategyId,
           response.destinationChain,
           response.token,

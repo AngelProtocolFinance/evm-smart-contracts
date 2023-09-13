@@ -260,29 +260,29 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     IVault lockedVault = IVault(params.lockedVaultAddr);
 
     // Harvest token, transfer to self and update action data
-    IVault.RedemptionResponse memory _harvestLiq = liquidVault.harvest(_action.accountIds);
-    IERC20Metadata(_harvestLiq.token).safeTransfer(address(this), _harvestLiq.liqAmt);
-    IVault.RedemptionResponse memory _harvestLock = lockedVault.harvest(_action.accountIds);
-    IERC20Metadata(_harvestLock.token).safeTransfer(address(this), _harvestLock.lockAmt);
+    IVault.RedemptionResponse memory liqResponse = liquidVault.harvest(_action.accountIds);
+    IERC20Metadata(liqResponse.token).safeTransfer(address(this), liqResponse.amount);
+    IVault.RedemptionResponse memory lockResponse = lockedVault.harvest(_action.accountIds);
+    IERC20Metadata(lockResponse.token).safeTransfer(address(this), lockResponse.amount);
 
     // Send tokens to receiver
-    uint256 totalAmt = _harvestLiq.amount + _harvestLock.amount;
+    uint256 totalAmt = liqResponse.amount + lockResponse.amount;
     if (totalAmt == 0) return;
 
     LibAccounts.FeeSetting memory feeSetting = registrar.getFeeSettingsByFeeType(
       LibAccounts.FeeTypes.Harvest
     );
     // If returning locally
-    if (_stringCompare(registrar.thisChain(), _action.destinationChain)) {
-      IERC20Metadata(_action.token).safeTransfer(feeSetting.payoutAddress, totalAmt);
+    if (_stringCompare(registrar.thisChain(), PRIMARY_CHAIN)) {
+      IERC20Metadata(lockResponse.token).safeTransfer(feeSetting.payoutAddress, totalAmt);
     }
     // Or return via GMP
     else {
-      IERC20Metadata(_action.token).safeApprove(address(_gateway()), totalAmt);
+      IERC20Metadata(lockResponse.token).safeApprove(address(_gateway()), totalAmt);
       _gateway().sendToken(
-        _action.destinationChain,
+        PRIMARY_CHAIN,
         AddressToString.toString(feeSetting.payoutAddress),
-        IERC20Metadata(_action.token).symbol(),
+        IERC20Metadata(lockResponse.token).symbol(),
         totalAmt
       );
     }
