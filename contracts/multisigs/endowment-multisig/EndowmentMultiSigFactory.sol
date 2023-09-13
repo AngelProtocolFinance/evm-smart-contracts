@@ -17,7 +17,6 @@ contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable {
    */
   mapping(address => bool) public isInstantiation;
   mapping(address => address[]) public instantiations;
-  mapping(uint256 => address) public endowmentIdToMultisig;
 
   address public implementationAddress;
   address public proxyAdmin;
@@ -136,8 +135,6 @@ contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable {
     );
 
     register(wallet);
-    // also store address of multisig in endowmentIdToMultisig
-    endowmentIdToMultisig[endowmentId] = wallet;
   }
 
   /*
