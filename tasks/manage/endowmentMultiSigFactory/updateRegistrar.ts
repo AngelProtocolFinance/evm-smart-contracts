@@ -29,11 +29,9 @@ task(
       const addresses = await getAddresses(hre);
       const registrarAddress = taskArgs.registrar || addresses.registrar.proxy;
 
-      const isConfirmed =
-        taskArgs.yes ||
-        (await confirmAction(
-          `Updating EndowmentMultiSigFactory's registrar address to ${registrarAddress}...`
-        ));
+      logger.out(`Updating EndowmentMultiSigFactory's registrar address to ${registrarAddress}...`);
+
+      const isConfirmed = taskArgs.yes || (await confirmAction());
       if (!isConfirmed) {
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
@@ -68,9 +66,6 @@ task(
         );
       }
     } catch (error) {
-      logger.out(
-        `Updating EndowmentMultiSigFactory's registrar address failed, reason: ${error}`,
-        logger.Level.Error
-      );
+      logger.out(error, logger.Level.Error);
     }
   });

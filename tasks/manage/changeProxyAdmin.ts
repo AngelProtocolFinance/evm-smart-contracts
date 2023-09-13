@@ -24,11 +24,11 @@ task("manage:changeProxyAdmin", "Will update the proxy admin the target proxy co
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       logger.divider();
-      const isConfirmed =
-        taskArgs.yes ||
-        (await confirmAction(
-          `Change admin of proxy contract at "${taskArgs.proxyContract}" to: ${taskArgs.newProxyAdmin}`
-        ));
+      logger.out(
+        `Change admin of proxy contract at "${taskArgs.proxyContract}" to: ${taskArgs.newProxyAdmin}...`
+      );
+
+      const isConfirmed = taskArgs.yes || (await confirmAction());
       if (!isConfirmed) {
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }

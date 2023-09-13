@@ -33,9 +33,9 @@ task("manage:changeProxyAdminForAll", "Will update the proxy admin for all proxy
   .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
-      const isConfirmed =
-        taskArgs.yes ||
-        (await confirmAction(`Change all contracts' admin to: ${taskArgs.newProxyAdmin}`));
+      logger.out(`Change all contracts' admin to: ${taskArgs.newProxyAdmin}...`);
+
+      const isConfirmed = taskArgs.yes || (await confirmAction());
       if (!isConfirmed) {
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
