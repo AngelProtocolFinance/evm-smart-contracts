@@ -1,3 +1,12 @@
+export enum ChainID {
+  none = 0,
+  ethereum = 1,
+  goerli = 5,
+  polygon = 137,
+  hardhat = 31337,
+  mumbai = 80001,
+}
+
 export enum StrategyApprovalState {
   NOT_APPROVED,
   APPROVED,

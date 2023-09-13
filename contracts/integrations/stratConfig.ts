@@ -1,10 +1,10 @@
-import {StrategyApprovalState, VaultType} from "types";
+import {ChainID, StrategyApprovalState, VaultType} from "types";
 import {AllStratConfigs, StratConfig, getVaultAddress} from "utils";
 
 export const dummy: StratConfig = {
   name: "dummy",
   id: "0x12345678",
-  chainId: 5,
+  chainId: ChainID.goerli,
   params: {
     approvalState: StrategyApprovalState.APPROVED,
     network: "ethereum-2",

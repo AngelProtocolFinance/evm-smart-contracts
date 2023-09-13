@@ -1,9 +1,10 @@
 import fs from "fs";
+import {ChainID} from "types";
 import {DEFAULT_CONTRACT_ADDRESS_FILE_PATH} from "../constants";
 import {AddressObj} from "./types";
 
 export function getAddressesByNetworkId(
-  networkId: string | symbol | number,
+  networkId: string | symbol | number | ChainID,
   filePath = DEFAULT_CONTRACT_ADDRESS_FILE_PATH
 ): AddressObj {
   const addresses = readAllAddresses(filePath);
