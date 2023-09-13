@@ -34,12 +34,11 @@ contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable {
       revert InvalidAddress("_registrar");
     }
 
-    registrar = IRegistrar(_registrar);
     implementationAddress = _implementationAddress;
-    emit ImplementationUpdated(_implementationAddress);
-
     proxyAdmin = _proxyAdmin;
-    emit ProxyAdminUpdated(_proxyAdmin);
+    registrar = IRegistrar(_registrar);
+
+    emit Initialized(_implementationAddress, _proxyAdmin, _registrar);
   }
 
   modifier onlyAccountsContract() {
