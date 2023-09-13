@@ -8,6 +8,7 @@ interface IEndowmentMultiSigFactory {
   event ContractInstantiated(address sender, address instantiation);
   event ImplementationUpdated(address implementationAddress);
   event ProxyAdminUpdated(address admin);
+  event RegistrarUpdated(address registrar);
 
   /*
    * Errors
@@ -26,6 +27,8 @@ interface IEndowmentMultiSigFactory {
   function updateImplementation(address implementationAddress) external;
 
   function updateProxyAdmin(address proxyAdminAddress) external;
+
+  function updateRegistrar(address registrarAddress) external;
 
   function endowmentIdToMultisig(uint256 endowmentId) external returns (address);
 }

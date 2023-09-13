@@ -84,6 +84,18 @@ contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable {
     emit ProxyAdminUpdated(_proxyAdmin);
   }
 
+  /**
+   * @dev Updates the registrar address
+   * @param registrarAddress The address of the new registrar
+   */
+  function updateRegistrar(address registrarAddress) public onlyOwner {
+    if (!Validator.addressChecker(registrarAddress)) {
+      revert InvalidAddress("registrarAddress");
+    }
+    registrar = IRegistrar(registrarAddress);
+    emit RegistrarUpdated(registrarAddress);
+  }
+
   /** @dev Create a new multisig wallet for an endowment
    * @param endowmentId the endowment id
    * @param emitterAddress the emitter of the multisig
