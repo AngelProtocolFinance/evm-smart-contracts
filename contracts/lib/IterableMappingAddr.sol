@@ -2,9 +2,6 @@
 pragma solidity ^0.8.19;
 
 contract IterableMappingAddr {
-  error NonExistentKey(address key);
-  error DecrAmountExceedsValue(address key, uint256 currVal, uint256 decrVal);
-
   struct Map {
     address[] keys;
     mapping(address => bool) values;
