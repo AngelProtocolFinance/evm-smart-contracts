@@ -7,14 +7,17 @@ import {AddressObj, confirmAction, getAddresses, getProxyAdminOwner, logger} fro
 import {submitMultiSigTx} from "../helpers";
 
 type TaskArgs = {
-  to: string;
+  to?: string;
   apTeamSignerPkey?: string;
   proxyAdminPkey?: string;
   yes: boolean;
 };
 
 task("manage:changeProxyAdminForAll", "Will update the proxy admin for all proxy contracts")
-  .addParam("to", "New proxy admin address. Make sure to use an address of an account you control.")
+  .addOptionalParam(
+    "to",
+    "New proxy admin address. Make sure to use an address of an account you control. Will do a local lookup from contract-address.json if none is provided."
+  )
   .addOptionalParam(
     "proxyAdminPkey",
     "The pkey for one of the current ProxyAdminMultiSig's owners."
@@ -26,34 +29,37 @@ task("manage:changeProxyAdminForAll", "Will update the proxy admin for all proxy
   .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
-      logger.out(`Change all contracts' admin to: ${taskArgs.to}...`);
+      logger.divider();
+
+      const addresses = await getAddresses(hre);
+      const targetAddress = taskArgs.to || addresses.multiSig.proxyAdmin;
+
+      logger.out(`Change all contracts' admin to: ${targetAddress}...`);
 
       const isConfirmed = taskArgs.yes || (await confirmAction());
       if (!isConfirmed) {
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      const addresses = await getAddresses(hre);
-
       const proxyAdminOwner = await getProxyAdminOwner(hre, taskArgs.proxyAdminPkey);
 
-      if (addresses.multiSig.proxyAdmin === taskArgs.to) {
-        return logger.out(`"${taskArgs.to}" is already the proxy admin.`);
+      if (addresses.multiSig.proxyAdmin === targetAddress) {
+        return logger.out(`"${targetAddress}" is already the proxy admin.`);
       }
 
-      await transferAccountOwnership(proxyAdminOwner, taskArgs.to, addresses, hre);
+      await transferAccountOwnership(proxyAdminOwner, targetAddress, addresses, hre);
 
-      await changeProxiesAdmin(taskArgs.proxyAdminPkey, taskArgs.to, addresses, hre);
+      await changeProxiesAdmin(taskArgs.proxyAdminPkey, targetAddress, addresses, hre);
 
       await hre.run("manage:endowmentMultiSigFactory:updateProxyAdmin", {
-        to: taskArgs.to,
+        to: targetAddress,
         apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         proxyAdminPkey: taskArgs.proxyAdminPkey,
         yes: true,
       });
 
       await hre.run("manage:registrar:updateConfig", {
-        proxyAdmin: taskArgs.to,
+        proxyAdmin: targetAddress,
         apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });

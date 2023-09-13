@@ -4,14 +4,17 @@ import {confirmAction, getAddresses, getProxyAdminOwner, logger} from "utils";
 import {submitMultiSigTx} from "../helpers";
 
 type TaskArgs = {
-  to: string;
+  to?: string;
   proxy: string;
   proxyAdminPkey?: string;
   yes: boolean;
 };
 
 task("manage:changeProxyAdmin", "Will update the proxy admin the target proxy contract")
-  .addParam("to", "New proxy admin address. Make sure to use an address of an account you control.")
+  .addOptionalParam(
+    "to",
+    "New proxy admin address. Make sure to use an address of an account you control. Will do a local lookup from contract-address.json if none is provided."
+  )
   .addParam("proxy", "Target Proxy Contract. Must be owned by the ProxyAdminMultiSig.")
   .addOptionalParam(
     "proxyAdminPkey",
@@ -21,19 +24,21 @@ task("manage:changeProxyAdmin", "Will update the proxy admin the target proxy co
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       logger.divider();
-      logger.out(`Change admin of proxy contract at "${taskArgs.proxy}" to: ${taskArgs.to}...`);
+
+      const addresses = await getAddresses(hre);
+      const targetAddress = taskArgs.to || addresses.multiSig.proxyAdmin;
+
+      logger.out(`Change admin of proxy contract at "${taskArgs.proxy}" to: ${targetAddress}...`);
 
       const isConfirmed = taskArgs.yes || (await confirmAction());
       if (!isConfirmed) {
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      const addresses = await getAddresses(hre);
-
       const proxyAdminOwner = await getProxyAdminOwner(hre, taskArgs.proxyAdminPkey);
 
-      if (addresses.multiSig.proxyAdmin === taskArgs.to) {
-        return logger.out(`"${taskArgs.to}" is already the proxy admin.`);
+      if (addresses.multiSig.proxyAdmin === targetAddress) {
+        return logger.out(`"${targetAddress}" is already the proxy admin.`);
       }
 
       const proxyContract = ProxyContract__factory.connect(taskArgs.proxy, hre.ethers.provider);
@@ -43,7 +48,7 @@ task("manage:changeProxyAdmin", "Will update the proxy admin the target proxy co
       // submitting the Tx
       const data = ITransparentUpgradeableProxy__factory.createInterface().encodeFunctionData(
         "changeAdmin",
-        [taskArgs.to]
+        [targetAddress]
       );
       const isExecuted = await submitMultiSigTx(
         addresses.multiSig.proxyAdmin,
@@ -54,9 +59,9 @@ task("manage:changeProxyAdmin", "Will update the proxy admin the target proxy co
 
       if (isExecuted) {
         const newProxyAdmin = await proxyContract.getAdmin();
-        if (newProxyAdmin !== taskArgs.to) {
+        if (newProxyAdmin !== targetAddress) {
           throw new Error(
-            `Unexpected: expected new proxy admin "${taskArgs.to}", but got "${newProxyAdmin}"`
+            `Unexpected: expected new proxy admin "${targetAddress}", but got "${newProxyAdmin}"`
           );
         }
       }

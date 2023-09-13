@@ -380,7 +380,7 @@
         "factory": "0x790094B9fdC8C8a83507f7Eb275DEe903Ffd71eD",
         "implementation": "0x562EcE7daE572a5352D50562C472CBd41402F310"
       },
-      "proxyAdmin": "0x03d1823DCE06d5bD225cB18773bb090b2aD33b5D"
+      "proxyAdmin": "0x0d60924d99B5C75Ce8A6698b44Fa864fdC84A2C9"
     },
     "registrar": {
       "implementation": "0xfC8caFA21dc76a1065494E213dE9F94E788DaAC9",
