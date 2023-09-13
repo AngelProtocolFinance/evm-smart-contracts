@@ -48,7 +48,7 @@ task(
 
       const apTeamOwner = await getAPTeamOwner(hre, taskArgs.apTeamSignerPkey);
 
-      logger.out("Updating registrar address...");
+      logger.out("Submitting Tx...");
       const data = endowmentMultiSigFactory.interface.encodeFunctionData("updateRegistrar", [
         registrarAddress,
       ]);
