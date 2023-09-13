@@ -8,14 +8,15 @@ import {ProxyContract} from "../../core/proxy.sol";
 import {IRegistrar} from "../../core/registrar/interfaces/IRegistrar.sol";
 import {RegistrarStorage} from "../../core/registrar/storage.sol";
 import {Validator} from "../../core/validator.sol";
+import {IterableMappingAddr} from "../../lib/IterableMappingAddr.sol";
 
 /// @title Multisignature wallet factory - Allows creation of multisigs wallet.
 /// @author Stefan George - <stefan.george@consensys.net>
-contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable {
+contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable, IterableMappingAddr {
   /*
    *  Storage
    */
-  mapping(address => bool) public isInstantiation;
+  IterableMappingAddr.Map endowmentMultiSigs;
 
   address public implementationAddress;
   address public proxyAdmin;
@@ -134,9 +135,9 @@ contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable {
    * Internal functions
    */
   /// @dev Registers contract in factory registry.
-  /// @param instantiation Address of contract instantiation.
-  function register(address instantiation) internal {
-    isInstantiation[instantiation] = true;
-    emit ContractInstantiated(msg.sender, instantiation);
+  /// @param endowmentMultiSigProxy Address of EndowmentMultiSig proxy contract instantiation.
+  function register(address endowmentMultiSigProxy) internal {
+    IterableMappingAddr.set(endowmentMultiSigs, endowmentMultiSigProxy, true);
+    emit ContractInstantiated(msg.sender, endowmentMultiSigProxy);
   }
 }
