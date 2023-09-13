@@ -14,7 +14,7 @@ export type AddressObj = {
       accountsUpdateEndowmentSettingsController: string;
       accountsUpdateStatusEndowments: string;
       diamondCutFacet: string;
-      diamondInitFacet: string;
+      diamondInit: string;
       diamondLoupeFacet: string;
       ownershipFacet: string;
     };

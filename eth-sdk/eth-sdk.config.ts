@@ -58,7 +58,7 @@ export default defineConfig({
           ),
           accountsStrategy: parseAddress(mumbaiData.accounts.facets.accountsStrategy),
           diamondCutFacet: parseAddress(mumbaiData.accounts.facets.diamondCutFacet),
-          diamondInitFacet: parseAddress(mumbaiData.accounts.facets.diamondInitFacet),
+          diamondInitFacet: parseAddress(mumbaiData.accounts.facets.diamondInit),
           diamondLoupeFacet: parseAddress(mumbaiData.accounts.facets.diamondLoupeFacet),
           ownershipFacet: parseAddress(mumbaiData.accounts.facets.ownershipFacet),
         },

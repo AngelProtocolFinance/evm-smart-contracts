@@ -58,7 +58,10 @@ contract VaultEmitter is IVaultEmitter, Initializable, OwnableUpgradeable {
   /// @notice emits the VaultConfigUpdated event
   /// @param vault Address of the Vault
   /// @param config New Vault config values
-  function vaultConfigUpdated(address vault, IVault.VaultConfig memory config) public isEmitter {
+  function vaultConfigUpdated(
+    address vault,
+    IVault.VaultConfigUpdate memory config
+  ) public isEmitter {
     emit VaultConfigUpdated(vault, config);
   }
 

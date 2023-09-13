@@ -9,4 +9,4 @@ import "./indexFund";
 import "./queryEndowments";
 import "./registrar";
 import "./updateRegistrar";
-import "./verifyRegistrar";
+import "./verifyAll";

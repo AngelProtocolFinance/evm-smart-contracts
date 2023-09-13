@@ -91,10 +91,7 @@ async function deployDiamondInit(
 ): Promise<Deployment<DiamondInit__factory>> {
   const diamondInit = await deploy(new DiamondInit__factory(admin));
 
-  await updateAddresses(
-    {accounts: {facets: {diamondInitFacet: diamondInit.contract.address}}},
-    hre
-  );
+  await updateAddresses({accounts: {facets: {diamondInit: diamondInit.contract.address}}}, hre);
 
   return diamondInit;
 }

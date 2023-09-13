@@ -1,8 +1,8 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {BytesLike} from "ethers";
+import {BytesLike, Wallet} from "ethers";
+import {parseUnits} from "ethers/lib/utils";
 import {IMultiSigGeneric__factory} from "typechain-types";
 import {filterEvents, logger} from "utils";
-import { Wallet } from "ethers";
 
 /**
  * Submits a transaction to the designated Multisig contract and executes it if possible.
@@ -20,7 +20,9 @@ export async function submitMultiSigTx(
 ): Promise<boolean> {
   logger.out(`Submitting transaction to Multisig at address: ${msAddress}...`);
   const multisig = IMultiSigGeneric__factory.connect(msAddress, owner);
-  const tx = await multisig.submitTransaction(destination, 0, data, "0x", {gasPrice: 120*10**9});
+  const tx = await multisig.submitTransaction(destination, 0, data, "0x", {
+    gasPrice: parseUnits("120", "gwei"),
+  });
   logger.out(`Tx hash: ${tx.hash}`);
   const receipt = await tx.wait();
 

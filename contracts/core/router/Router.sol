@@ -8,7 +8,7 @@ import {RouterLib} from "./RouterLib.sol";
 import {IVault} from "../vault/interfaces/IVault.sol";
 import {ILocalRegistrar} from "../registrar/interfaces/ILocalRegistrar.sol";
 import {LocalRegistrarLib} from "../registrar/lib/LocalRegistrarLib.sol";
-import {StringToAddress} from "../../lib/StringAddressUtils.sol";
+import {StringToAddress, AddressToString} from "../../lib/StringAddressUtils.sol";
 import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {AxelarExecutable} from "../../axelar/AxelarExecutable.sol";
@@ -21,6 +21,7 @@ contract Router is IRouter, Initializable, AxelarExecutable {
   using SafeERC20 for IERC20Metadata;
   ILocalRegistrar public registrar;
   uint256 constant PRECISION = 10 ** 6;
+  string constant PRIMARY_CHAIN = "Polygon";
 
   /*///////////////////////////////////////////////
                         PROXY INIT
@@ -225,9 +226,36 @@ contract Router is IRouter, Initializable, AxelarExecutable {
   ) internal returns (IVault.VaultActionData memory) {
     IVault liquidVault = IVault(_params.liquidVaultAddr);
     IVault lockedVault = IVault(_params.lockedVaultAddr);
-    liquidVault.harvest(_action.accountIds);
-    lockedVault.harvest(_action.accountIds);
+
+    // Harvest token, transfer to self and update action data
+    _action.liqAmt = liquidVault.harvest(_action.accountIds);
+    IERC20Metadata(_action.token).safeTransfer(address(this), _action.liqAmt);
+    _action.lockAmt = lockedVault.harvest(_action.accountIds);
+    IERC20Metadata(_action.token).safeTransfer(address(this), _action.lockAmt);
     emit RewardsHarvested(_action);
+    _action.status = IVault.VaultActionStatus.SUCCESS;
+
+    // Send tokens to receiver
+    uint256 totalAmt = _action.liqAmt + _action.lockAmt;
+    if (totalAmt == 0) return _action;
+
+    LibAccounts.FeeSetting memory feeSetting = registrar.getFeeSettingsByFeeType(
+      LibAccounts.FeeTypes.Harvest
+    );
+    // If returning locally
+    if (_stringCompare(registrar.thisChain(), _action.destinationChain)) {
+      IERC20Metadata(_action.token).safeTransfer(feeSetting.payoutAddress, totalAmt);
+    }
+    // Or return via GMP
+    else {
+      IERC20Metadata(_action.token).safeApprove(address(_gateway()), totalAmt);
+      _gateway().sendToken(
+        _action.destinationChain,
+        AddressToString.toString(feeSetting.payoutAddress),
+        IERC20Metadata(_action.token).symbol(),
+        totalAmt
+      );
+    }
     return _action;
   }
 
@@ -281,7 +309,7 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     IVault.VaultActionData memory _action,
     uint256 _sendAmt
   ) internal returns (IVault.VaultActionData memory) {
-    if (keccak256(bytes(_action.destinationChain)) == keccak256(bytes(registrar.thisChain()))) {
+    if (_stringCompare(_action.destinationChain, registrar.thisChain())) {
       return _prepareAndSendTokensLocal(_action, _sendAmt);
     } else {
       return _prepareAndSendTokensGMP(_action, _sendAmt);
@@ -382,6 +410,27 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     _gateway().callContractWithToken(destinationChain, destinationAddress, payload, symbol, amount);
   }
 
+  /// @notice Send determine if the tax tokens should be sent cross-chain or not, and then send them
+  /// @dev public method usage here allow Vaults to call this method without network or Axelar context
+  /// @dev the caller must have approved this contract for spending the `amount`
+  /// @param token the token to be sent to the payee
+  /// @param amount the amount of said token
+  /// @param payee the address of who should receive the tokens
+  function sendTax(address token, uint256 amount, address payee) public {
+    if (_stringCompare(registrar.thisChain(), PRIMARY_CHAIN)) {
+      IERC20Metadata(token).safeTransfer(msg.sender, amount);
+      IERC20Metadata(token).safeTransfer(payee, amount);
+    } else {
+      IERC20Metadata(token).safeApprove(address(_gateway()), amount);
+      _gateway().sendToken(
+        PRIMARY_CHAIN,
+        AddressToString.toString(payee),
+        IERC20Metadata(token).symbol(),
+        amount
+      );
+    }
+  }
+
   function _executeWithToken(
     string calldata sourceChain,
     string calldata sourceAddress,
@@ -463,5 +512,9 @@ contract Router is IRouter, Initializable, AxelarExecutable {
       registrar.thisChain()
     );
     return IAxelarGasService(network.gasReceiver);
+  }
+
+  function _stringCompare(string memory s1, string memory s2) internal pure returns (bool result) {
+    result = (keccak256(abi.encodePacked(s1)) == keccak256(abi.encodePacked(s2)));
   }
 }
