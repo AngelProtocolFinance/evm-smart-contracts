@@ -2,6 +2,13 @@
 pragma solidity ^0.8.19;
 
 interface IEndowmentMultiSigFactory {
+  /*
+   *  Events
+   */
+  event ContractInstantiated(address sender, address instantiation);
+  event ImplementationUpdated(address implementationAddress);
+  event ProxyAdminUpdated(address admin);
+
   function create(
     uint256 endowmentId,
     address emitterAddress,

@@ -13,13 +13,6 @@ import {Validator} from "../../core/validator.sol";
 /// @author Stefan George - <stefan.george@consensys.net>
 contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable {
   /*
-   *  Events
-   */
-  event ContractInstantiated(address sender, address instantiation);
-  event ImplementationUpdated(address implementationAddress);
-  event ProxyAdminUpdated(address admin);
-
-  /*
    *  Storage
    */
   mapping(address => bool) public isInstantiation;
