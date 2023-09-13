@@ -37,12 +37,13 @@ task("manage:changeProxyAdmin", "Will update the proxy admin the target proxy co
 
       const proxyAdminOwner = await getProxyAdminOwner(hre, taskArgs.proxyAdminPkey);
 
-      if (addresses.multiSig.proxyAdmin === targetAddress) {
+      const proxyContract = ProxyContract__factory.connect(taskArgs.proxy, hre.ethers.provider);
+      const curAdmin = await proxyContract.getAdmin();
+
+      if (curAdmin === targetAddress) {
         return logger.out(`"${targetAddress}" is already the proxy admin.`);
       }
 
-      const proxyContract = ProxyContract__factory.connect(taskArgs.proxy, hre.ethers.provider);
-      const curAdmin = await proxyContract.getAdmin();
       logger.out(`Current Admin: ${curAdmin}`);
 
       // submitting the Tx
