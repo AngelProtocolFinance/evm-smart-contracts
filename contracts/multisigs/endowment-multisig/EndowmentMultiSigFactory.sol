@@ -7,6 +7,7 @@ import {IEndowmentMultiSigFactory} from "./interfaces/IEndowmentMultiSigFactory.
 import {ProxyContract} from "../../core/proxy.sol";
 import {IRegistrar} from "../../core/registrar/interfaces/IRegistrar.sol";
 import {RegistrarStorage} from "../../core/registrar/storage.sol";
+import {Validator} from "../../core/validator.sol";
 
 /// @title Multisignature wallet factory - Allows creation of multisigs wallet.
 /// @author Stefan George - <stefan.george@consensys.net>
@@ -30,9 +31,9 @@ contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable {
   IRegistrar registrar;
 
   constructor(address _implementationAddress, address _proxyAdmin, address _registrar) {
-    require(_implementationAddress != address(0), "Invalid Address");
-    require(_proxyAdmin != address(0), "Invalid Address");
-    require(_registrar != address(0), "Invalid Address");
+    require(Validator.addressChecker(_implementationAddress), "Invalid Address");
+    require(Validator.addressChecker(_proxyAdmin), "Invalid Address");
+    require(Validator.addressChecker(_registrar), "Invalid Address");
 
     registrar = IRegistrar(_registrar);
     implementationAddress = _implementationAddress;
@@ -63,7 +64,7 @@ contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable {
    * @param _implementationAddress The address of the new implementation
    */
   function updateImplementation(address _implementationAddress) public onlyOwner {
-    require(_implementationAddress != address(0), "Invalid Address");
+    require(Validator.addressChecker(_implementationAddress), "Invalid Address");
     implementationAddress = _implementationAddress;
     emit ImplementationUpdated(_implementationAddress);
   }
@@ -73,7 +74,7 @@ contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable {
    * @param _proxyAdmin The address of the new proxy admin
    */
   function updateProxyAdmin(address _proxyAdmin) public onlyOwner {
-    require(_proxyAdmin != address(0), "Invalid Address");
+    require(Validator.addressChecker(_proxyAdmin), "Invalid Address");
     proxyAdmin = _proxyAdmin;
     emit ProxyAdminUpdated(_proxyAdmin);
   }
