@@ -13,9 +13,9 @@ import {IterableMappingAddr} from "../../lib/IterableMappingAddr.sol";
 /// @title Multisignature wallet factory - Allows creation of multisigs wallet.
 /// @author Stefan George - <stefan.george@consensys.net>
 contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable, IterableMappingAddr {
-  /*
-   *  Storage
-   */
+  /*////////////////////////////////////////////////
+                        STORAGE
+  */ ///////////////////////////////////////////////
   IterableMappingAddr.Map endowmentMultiSigs;
 
   address public implementationAddress;
@@ -28,6 +28,10 @@ contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable, Iterabl
     updateRegistrar(registrarAddress);
   }
 
+  /*////////////////////////////////////////////////
+                        MODIFIERS
+  */ ///////////////////////////////////////////////
+
   modifier onlyAccountsContract() {
     RegistrarStorage.Config memory registrarConfig = registrar.queryConfig();
     if (msg.sender != registrarConfig.accountsContract) {
@@ -36,9 +40,9 @@ contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable, Iterabl
     _;
   }
 
-  /*
-   * Public functions
-   */
+  /*////////////////////////////////////////////////
+                        IMPLEMENTATION
+  */ ///////////////////////////////////////////////
 
   /// @notice Returns the stored registrar address.
   /// @return address registrar address.
