@@ -1,6 +1,7 @@
 import "./accounts";
 import "./addMultisigOwners";
 import "./changeProxyAdmin";
+import "./changeProxyAdminForAll";
 import "./charityApplications";
 import "./endowmentMultiSigFactory";
 import "./createEndowment";
