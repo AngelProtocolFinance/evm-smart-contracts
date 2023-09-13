@@ -17,7 +17,6 @@ import {
 } from "utils";
 
 type TaskArgs = {
-  factory?: string;
   skipVerify: boolean;
   yes: boolean;
   proxyAdminPkey?: string;
