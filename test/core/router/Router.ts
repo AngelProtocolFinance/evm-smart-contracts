@@ -5,6 +5,7 @@ import {Wallet} from "ethers";
 import hre from "hardhat";
 import {
   DEFAULT_ACTION_DATA,
+  DEFAULT_HARVEST_REQUEST,
   DEFAULT_NETWORK_INFO,
   DEFAULT_STRATEGY_ID,
   packActionData,
@@ -207,7 +208,7 @@ describe("Router", function () {
     const TOTAL_AMT = LOCK_AMT + LIQ_AMT;
     const getDefaultActionData = () => ({
       ...DEFAULT_ACTION_DATA,
-      accountIds: [1],
+      accountId: 1,
       lockAmt: LOCK_AMT,
       liqAmt: LIQ_AMT,
     });
@@ -246,28 +247,6 @@ describe("Router", function () {
     });
 
     describe("and the refund call is successful back through axelar", function () {
-      it("when more than one account is specified", async function () {
-        let actionData = getDefaultActionData();
-        actionData.selector = liquidVault.interface.getSighash("deposit");
-        actionData.token = token.address;
-        actionData.accountIds = [1, 2, 3];
-        let packedData = await packActionData(actionData, hre);
-        await expect(
-          router.executeWithToken(
-            ethers.utils.formatBytes32String("true"),
-            originatingChain,
-            accountsContract,
-            packedData,
-            "TKN",
-            TOTAL_AMT
-          )
-        )
-          .to.emit(router, "ErrorLogged")
-          .withArgs(Array<any>, "Only one account allowed");
-        expect(token.approve).to.have.been.calledWith(gateway.address, TOTAL_AMT - GAS_COST);
-        expect(token.approve).to.have.been.calledWith(gasService.address, GAS_COST);
-      });
-
       it("when an action other than deposit is called", async function () {
         let actionData = getDefaultActionData();
         actionData.token = token.address;
@@ -403,7 +382,7 @@ describe("Router", function () {
       const TOTAL_AMT = LOCK_AMT + LIQ_AMT;
       const getDefaultActionData = () => ({
         ...DEFAULT_ACTION_DATA,
-        accountIds: [1],
+        accountId: 1,
         lockAmt: LOCK_AMT,
         liqAmt: LIQ_AMT,
       });
@@ -441,27 +420,6 @@ describe("Router", function () {
         token.approveFor.returns(false);
         token.symbol.returns("TKN");
         router = await deployRouterAsProxy(registrar.address);
-      });
-
-      it("when more than one account is specified", async function () {
-        let actionData = getDefaultActionData();
-        actionData.selector = liquidVault.interface.getSighash("deposit");
-        actionData.token = token.address;
-        actionData.accountIds = [1, 2, 3];
-        let packedData = await packActionData(actionData, hre);
-        await expect(
-          router.executeWithToken(
-            ethers.utils.formatBytes32String("true"),
-            originatingChain,
-            accountsContract,
-            packedData,
-            await token.symbol(),
-            TOTAL_AMT
-          )
-        )
-          .to.emit(router, "ErrorLogged")
-          .withArgs(Array<any>, "Only one account allowed");
-        expect(token.transfer).to.have.been.calledWith(collector.address, TOTAL_AMT);
       });
 
       it("when an action other than deposit is called", async function () {
@@ -597,7 +555,7 @@ describe("Router", function () {
     const TOTAL_AMT = LOCK_AMT + LIQ_AMT;
     const getDefaultActionData = () => ({
       ...DEFAULT_ACTION_DATA,
-      accountIds: [1],
+      accountId: 1,
       lockAmt: LOCK_AMT,
       liqAmt: LIQ_AMT,
     });
@@ -649,7 +607,7 @@ describe("Router", function () {
       let actionData = getDefaultActionData();
       actionData.selector = liquidVault.interface.getSighash("deposit");
       actionData.token = token.address;
-      let packedData = await packActionData(actionData, hre);
+      let packedData = packActionData(actionData, hre);
       expect(
         await router.executeWithToken(
           ethers.utils.formatBytes32String("true"),
@@ -717,23 +675,6 @@ describe("Router", function () {
       expect(lockedVault.redeemAll).to.have.been.called;
       expect(liquidVault.redeemAll).to.have.been.called;
     });
-
-    it("correctly calls harvest via execute", async function () {
-      let actionData = getDefaultActionData();
-      actionData.selector = liquidVault.interface.getSighash("harvest");
-      actionData.token = token.address;
-      let packedData = await packActionData(actionData, hre);
-      expect(
-        await router.execute(
-          ethers.utils.formatBytes32String("true"),
-          originatingChain,
-          accountsContract,
-          packedData
-        )
-      );
-      expect(lockedVault.harvest).to.have.been.called;
-      expect(liquidVault.harvest).to.have.been.called;
-    });
   });
 
   describe("Deposit", function () {
@@ -750,7 +691,7 @@ describe("Router", function () {
     const TOTAL_AMT = LOCK_AMT + LIQ_AMT;
     const getDefaultActionData = () => ({
       ...DEFAULT_ACTION_DATA,
-      accountIds: [1],
+      accountId: 1,
       lockAmt: LOCK_AMT,
       liqAmt: LIQ_AMT,
     });
@@ -828,7 +769,7 @@ describe("Router", function () {
     const TOTAL_AMT = LOCK_AMT + LIQ_AMT;
     const getDefaultActionData = () => ({
       ...DEFAULT_ACTION_DATA,
-      accountIds: [1],
+      accountId: 1,
       lockAmt: LOCK_AMT,
       liqAmt: LIQ_AMT,
     });
@@ -908,7 +849,7 @@ describe("Router", function () {
           destinationChain: originatingChain,
           strategyId: DEFAULT_STRATEGY_ID,
           selector: liquidVault.interface.getSighash("redeem"),
-          accountIds: [1],
+          accountId: 1,
           token: token.address,
           lockAmt: LOCK_AMT - 2, // less weighted gas
           liqAmt: LIQ_AMT - 3, // less weighted gas
@@ -977,7 +918,7 @@ describe("Router", function () {
     const TOTAL_AMT = LOCK_AMT + LIQ_AMT;
     const getDefaultActionData = () => ({
       ...DEFAULT_ACTION_DATA,
-      accountIds: [1],
+      accountId: 1,
       lockAmt: LOCK_AMT,
       liqAmt: LIQ_AMT,
     });
@@ -1057,7 +998,7 @@ describe("Router", function () {
           destinationChain: originatingChain,
           strategyId: DEFAULT_STRATEGY_ID,
           selector: liquidVault.interface.getSighash("redeemAll"),
-          accountIds: [1],
+          accountId: 1,
           token: token.address,
           lockAmt: LOCK_AMT - 2, // less weighted gas
           liqAmt: LIQ_AMT - 3, // less weighted gas
@@ -1086,6 +1027,7 @@ describe("Router", function () {
     });
 
     it("Reverts if the redemption amount is less than the gas fee", async function () {
+      registrar.getGasByToken.whenCalledWith(token.address).returns(TOTAL_AMT + 1);
       let actionData = getDefaultActionData();
       actionData.token = token.address;
       actionData.selector = liquidVault.interface.getSighash("redeemAll");
@@ -1095,12 +1037,11 @@ describe("Router", function () {
         amount: LOCK_AMT,
         status: VaultActionStatus.POSITION_EXITED,
       });
-      liquidVault.redeem.returns({
+      liquidVault.redeemAll.returns({
         token: token.address,
         amount: LIQ_AMT,
         status: VaultActionStatus.POSITION_EXITED,
       });
-      registrar.getGasByToken.whenCalledWith(token.address).returns(TOTAL_AMT + 1);
       await expect(
         router.execute(
           ethers.utils.formatBytes32String("true"),
@@ -1122,11 +1063,9 @@ describe("Router", function () {
     const LOCK_AMT = 111;
     const LIQ_AMT = 222;
     const TOTAL_AMT = LOCK_AMT + LIQ_AMT;
-    const getDefaultActionData = () => ({
-      ...DEFAULT_ACTION_DATA,
-      accountIds: [1],
-      lockAmt: LOCK_AMT,
-      liqAmt: LIQ_AMT,
+    const getDefaultHarvestRequest = () => ({
+      ...DEFAULT_HARVEST_REQUEST,
+      accountIds: [1]
     });
 
     beforeEach(async function () {
@@ -1159,6 +1098,7 @@ describe("Router", function () {
       registrar.getAccountsContractAddressByChain.whenCalledWith(localChain).returns(owner.address);
       registrar.getStrategyApprovalState.returns(StrategyApprovalState.APPROVED);
       registrar.getStrategyParamsById.returns(stratParams);
+      registrar.getVaultOperatorApproved.whenCalledWith(owner.address).returns(true);
       registrar.getFeeSettingsByFeeType.returns({payoutAddress: collector.address, bps: 1});
       registrar.thisChain.returns(localChain);
       token.transfer.returns(true);
@@ -1170,22 +1110,22 @@ describe("Router", function () {
     });
 
     it("Harvests the targeted accounts and forwards tokens cross-chain", async function () {
-      let actionData = getDefaultActionData();
-      actionData.token = token.address;
-      actionData.selector = liquidVault.interface.getSighash("harvest");
-      let packedData = packActionData(actionData, hre);
-      lockedVault.harvest.returns(LOCK_AMT);
-      liquidVault.harvest.returns(LIQ_AMT);
+      let requestData = getDefaultHarvestRequest();
+      lockedVault.harvest.returns({
+        token: token.address,
+        amount: LOCK_AMT,
+        status: VaultActionStatus.SUCCESS,
+      });
+      liquidVault.harvest.returns({
+        token: token.address,
+        amount: LIQ_AMT,
+        status: VaultActionStatus.SUCCESS,
+      });
       expect(
-        await router.execute(
-          ethers.utils.formatBytes32String("true"),
-          originatingChain,
-          accountsContract,
-          packedData
-        )
-      ).to.emit(router, "RewardsHarvested");
-      expect(lockedVault.harvest).to.have.been.calledWith(actionData.accountIds);
-      expect(liquidVault.harvest).to.have.been.calledWith(actionData.accountIds);
+        await router.harvest(requestData)
+      ).to.not.be.reverted;
+      expect(lockedVault.harvest).to.have.been.calledWith(requestData.accountIds);
+      expect(liquidVault.harvest).to.have.been.calledWith(requestData.accountIds);
       expect(token.transfer).to.have.been.calledWith(router.address, LOCK_AMT);
       expect(token.transfer).to.have.been.calledWith(router.address, LIQ_AMT);
       expect(token.approve).to.have.been.calledWith(gateway.address, TOTAL_AMT);
@@ -1196,17 +1136,14 @@ describe("Router", function () {
     let lockedVault: FakeContract<DummyVault>;
     let liquidVault: FakeContract<DummyVault>;
     let registrar: FakeContract<Registrar>;
-    let gateway: FakeContract<DummyGateway>;
     let token: FakeContract<DummyERC20>;
     let router: Router;
     const LOCK_AMT = 111;
     const LIQ_AMT = 222;
     const TOTAL_AMT = LOCK_AMT + LIQ_AMT;
-    const getDefaultActionData = () => ({
-      ...DEFAULT_ACTION_DATA,
-      accountIds: [1],
-      lockAmt: LOCK_AMT,
-      liqAmt: LIQ_AMT,
+    const getDefaultHarvestRequest = () => ({
+      ...DEFAULT_HARVEST_REQUEST,
+      accountIds: [1]
     });
 
     beforeEach(async function () {
@@ -1232,6 +1169,7 @@ describe("Router", function () {
         .returns(owner.address);
       registrar.getStrategyApprovalState.returns(StrategyApprovalState.APPROVED);
       registrar.getStrategyParamsById.returns(stratParams);
+      registrar.getVaultOperatorApproved.whenCalledWith(owner.address).returns(true);
       registrar.getFeeSettingsByFeeType.returns({payoutAddress: collector.address, bps: 1});
       registrar.thisChain.returns(originatingChain);
       token.transfer.returns(true);
@@ -1242,18 +1180,40 @@ describe("Router", function () {
       router = await deployRouterAsProxy(registrar.address);
     });
 
+    it("Reverts if the caller is not a valid operator", async function () {
+      let requestData = getDefaultHarvestRequest();
+      lockedVault.harvest.returns({
+        token: token.address,
+        amount: LOCK_AMT,
+        status: VaultActionStatus.SUCCESS,
+      });
+      liquidVault.harvest.returns({
+        token: token.address,
+        amount: LIQ_AMT,
+        status: VaultActionStatus.SUCCESS,
+      });
+      await expect(
+        router.connect(user).harvest(requestData)
+      ).to.be.revertedWith("Operator only");
+    })
+
     it("Harvests the targeted account and forwards tokens to the local collector", async function () {
-      let actionData = getDefaultActionData();
-      actionData.token = token.address;
-      actionData.selector = liquidVault.interface.getSighash("harvest");
-      let packedData = packActionData(actionData, hre);
-      lockedVault.harvest.returns(LOCK_AMT);
-      liquidVault.harvest.returns(LIQ_AMT);
+      let requestData = getDefaultHarvestRequest();
+      lockedVault.harvest.returns({
+        token: token.address,
+        amount: LOCK_AMT,
+        status: VaultActionStatus.SUCCESS,
+      });
+      liquidVault.harvest.returns({
+        token: token.address,
+        amount: LIQ_AMT,
+        status: VaultActionStatus.SUCCESS,
+      });
       expect(
-        await router.connect(owner).executeLocal(originatingChain, owner.address, packedData)
-      ).to.emit(router, "RewardsHarvested");
-      expect(lockedVault.harvest).to.have.been.calledWith(actionData.accountIds);
-      expect(liquidVault.harvest).to.have.been.calledWith(actionData.accountIds);
+        await router.harvest(requestData)
+      ).to.not.be.reverted;
+      expect(lockedVault.harvest).to.have.been.calledWith(requestData.accountIds);
+      expect(liquidVault.harvest).to.have.been.calledWith(requestData.accountIds);
       expect(token.transfer).to.have.been.calledWith(router.address, LOCK_AMT);
       expect(token.transfer).to.have.been.calledWith(router.address, LIQ_AMT);
       expect(token.transfer).to.have.been.calledWith(collector.address, TOTAL_AMT);

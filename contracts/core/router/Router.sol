@@ -66,14 +66,13 @@ contract Router is IRouter, Initializable, AxelarExecutable {
 
   modifier operatorOnly {
     require(
-      registrar.getVaultOperatorApproved(msg.sender)
+      registrar.getVaultOperatorApproved(msg.sender), "Operator only"
     );
     _;
   }
 
   modifier validateDeposit(
     IVault.VaultActionData memory action,
-    string calldata tokenSymbol,
     uint256 amount
   ) {
     // deposit only
@@ -83,8 +82,7 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     // check that at least one vault is expected to receive a deposit
     require(action.lockAmt > 0 || action.liqAmt > 0, "No vault deposit specified");
     // check that token is accepted by angel protocol
-    address tokenAddress = _gateway().tokenAddresses(tokenSymbol);
-    require(registrar.isTokenAccepted(tokenAddress), "Token not accepted");
+    require(registrar.isTokenAccepted(action.token), "Token not accepted");
     // Get parameters from registrar if approved
     require(
       registrar.getStrategyApprovalState(action.strategyId) ==
@@ -132,9 +130,8 @@ contract Router is IRouter, Initializable, AxelarExecutable {
   /// @dev onlySelf restricted public method to enable try/catch in caller
   function deposit(
     IVault.VaultActionData memory action,
-    string calldata tokenSymbol,
     uint256 amount
-  ) public onlySelf validateDeposit(action, tokenSymbol, amount) {
+  ) public onlySelf validateDeposit(action, amount) {
     LocalRegistrarLib.StrategyParams memory params = registrar.getStrategyParamsById(
       action.strategyId
     );
@@ -466,7 +463,7 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     action.destinationChain = sourceChain;
 
     // Leverage this.call() to enable try/catch logic
-    try this.deposit(action, tokenSymbol, amount) {
+    try this.deposit(action, amount) {
       emit Deposit(action);
       action.status = IVault.VaultActionStatus.SUCCESS;
       return action;
