@@ -59,6 +59,12 @@ contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable {
     return instantiations[creator].length;
   }
 
+  /// @notice Returns the stored registrar address.
+  /// @return address registrar address.
+  function getRegistrarAddress() external view returns (address) {
+    return address(registrar);
+  }
+
   /**
    * @dev Updates the implementation address
    * @param _implementationAddress The address of the new implementation

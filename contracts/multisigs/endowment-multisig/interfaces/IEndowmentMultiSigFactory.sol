@@ -34,4 +34,6 @@ interface IEndowmentMultiSigFactory {
   function endowmentIdToMultisig(uint256 endowmentId) external view returns (address);
 
   function getInstantiationCount(address creator) external view returns (uint256);
+
+  function getRegistrarAddress() external view returns (address);
 }
