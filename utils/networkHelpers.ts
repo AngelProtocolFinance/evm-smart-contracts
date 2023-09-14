@@ -44,7 +44,10 @@ export async function getChainId(hre: HardhatRuntimeEnvironment): Promise<number
   return chainId;
 }
 
-export async function isProdNetwork(hre: HardhatRuntimeEnvironment): Promise<boolean> {
-  const thisChainId = await getChainId(hre);
+export async function isProdNetwork(
+  hreOrChainId: HardhatRuntimeEnvironment | number
+): Promise<boolean> {
+  const thisChainId =
+    typeof hreOrChainId === "number" ? hreOrChainId : await getChainId(hreOrChainId);
   return PROD_NETWORKS.includes(thisChainId);
 }
