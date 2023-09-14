@@ -51,6 +51,8 @@ task("manage:changeProxyAdmin", "Will update the proxy admin the target proxy co
         "changeAdmin",
         [targetAddress]
       );
+      // make sure to use current proxy admin MultiSig, as the task might be run with the proxyAdmin address
+      // already updated in contract-address.json
       const isExecuted = await submitMultiSigTx(
         curAdmin,
         proxyAdminOwner,
