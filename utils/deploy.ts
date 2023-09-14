@@ -87,8 +87,10 @@ export async function upgradeProxy<T extends ContractFactory>(
   const deployment = await deploy(factory);
 
   logger.out(`Upgrading proxy at: ${proxyToUpgrade}...`);
-  const proxy = ITransparentUpgradeableProxy__factory.connect(proxyToUpgrade, proxyAdminOwner);
-  const payload = proxy.interface.encodeFunctionData("upgradeTo", [deployment.contract.address]);
+  const payload = ITransparentUpgradeableProxy__factory.createInterface().encodeFunctionData(
+    "upgradeTo",
+    [deployment.contract.address]
+  );
 
   const isExecuted = await submitMultiSigTx(
     proxyAdminMultiSig,
@@ -101,7 +103,8 @@ export async function upgradeProxy<T extends ContractFactory>(
     return;
   }
 
-  const newImplAddr = await proxy.implementation();
+  const proxy = ProxyContract__factory.connect(proxyToUpgrade, proxyAdminOwner);
+  const newImplAddr = await proxy.getImplementation();
   if (newImplAddr !== deployment.contract.address) {
     throw new Error(
       `Unexpected: expected value "${deployment.contract.address}", but got "${newImplAddr}"`
