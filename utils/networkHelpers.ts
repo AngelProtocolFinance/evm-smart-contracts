@@ -3,7 +3,7 @@ import {TwoWayMap} from "./twoWayMap";
 import {ChainID} from "types";
 import {logger} from "utils";
 
-export const PROD_NETWORKS = [ChainID.ethereum, ChainID.polygon];
+const PROD_NETWORKS = [ChainID.ethereum, ChainID.polygon];
 
 // There are errors/mismatches in the axelar sdk jsons, so we just implement a lightweight
 // version here and use this instead.
