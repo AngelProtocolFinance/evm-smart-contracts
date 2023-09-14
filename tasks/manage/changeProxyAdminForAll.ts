@@ -119,6 +119,7 @@ async function changeProxiesAdmin(
   addresses: AddressObj,
   hre: HardhatRuntimeEnvironment
 ) {
+  logger.divider();
   logger.out("Reading proxy contract addresses...");
   const proxies = extractProxyContractAddresses("", addresses);
 
