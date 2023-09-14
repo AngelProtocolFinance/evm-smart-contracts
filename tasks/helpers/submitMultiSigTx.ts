@@ -1,6 +1,5 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {BytesLike, Wallet} from "ethers";
-import {parseUnits} from "ethers/lib/utils";
 import {IMultiSigGeneric__factory} from "typechain-types";
 import {filterEvents, logger} from "utils";
 
@@ -33,6 +32,7 @@ export async function submitMultiSigTx(
     multisig.filters.TransactionExecuted()
   ).at(0);
   if (transactionExecutedEvent) {
+    logger.out("Tx executed.");
     return true;
   }
 
@@ -54,7 +54,7 @@ export async function submitMultiSigTx(
   }
 
   // is confirmed but not executed -> requires manual execution
-  logger.out(`Executing the new charity endowment with transaction ID: ${txId}...`);
+  logger.out(`Manual execution required, executing transaction: ${txId}...`);
   const tx2 = await multisig.executeTransaction(txId);
   logger.out(`Tx hash: ${tx2.hash}`);
   const execReceipt = await tx2.wait();
@@ -68,5 +68,6 @@ export async function submitMultiSigTx(
     throw new Error(`Unexpected: ${multisig.filters.TransactionExecuted.name} not emitted.`);
   }
 
+  logger.out("Tx executed.");
   return true;
 }
