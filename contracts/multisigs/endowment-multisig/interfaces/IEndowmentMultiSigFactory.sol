@@ -44,9 +44,4 @@ interface IEndowmentMultiSigFactory {
   /// @notice Get proxy admin address.
   /// @return address of the proxy admin.
   function getProxyAdmin() external view returns (address);
-
-  /// @notice Checks whether a given address is an EndowmentMultiSig proxy contract that this factory instantiated.
-  /// @param instantiation address to check.
-  /// @return boolean value indicating whether the given address was instantiated by the factory.
-  function isInstantiation(address instantiation) external view returns (bool);
 }
