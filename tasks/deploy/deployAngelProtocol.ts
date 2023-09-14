@@ -5,7 +5,11 @@ import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
 import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {deployVaultEmitter} from "contracts/core/vault/scripts/deployVaultEmitter";
-import {deployEndowmentMultiSig} from "contracts/multisigs/endowment-multisig/scripts/deploy";
+import {
+  deployEndowmentMultiSig,
+  deployEndowmentMultiSigEmitter,
+  deployEndowmentMultiSigFactory,
+} from "contracts/multisigs/endowment-multisig/scripts/deploy";
 import {
   deployAPTeamMultiSig,
   deployCharityApplications,
@@ -132,10 +136,18 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
         hre
       );
 
-      const endowmentMultiSig = await deployEndowmentMultiSig(
+      const endowmentMultiSig = await deployEndowmentMultiSig(deployer, hre);
+      const endowmentMultiSigFactory = await deployEndowmentMultiSigFactory(
+        endowmentMultiSig.contract.address,
         registrar.proxy.contract.address,
         proxyAdminMultisig.contract.address,
         apTeamMultisig.proxy.contract.address,
+        deployer,
+        hre
+      );
+      const endowmentMultiSigEmitter = await deployEndowmentMultiSigEmitter(
+        endowmentMultiSigFactory.contract.address,
+        proxyAdminMultisig.contract.address,
         deployer,
         hre
       );
@@ -152,8 +164,8 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
         treasury: treasuryAddress,
         uniswapRouter: thirdPartyAddresses.uniswap.swapRouter.address, //address
         uniswapFactory: thirdPartyAddresses.uniswap.factory.address, //address
-        multisigFactory: endowmentMultiSig.factory.contract.address, //address
-        multisigEmitter: endowmentMultiSig.emitter.proxy.contract.address, //address
+        multisigFactory: endowmentMultiSigFactory.contract.address, //address
+        multisigEmitter: endowmentMultiSigEmitter.proxy.contract.address, //address
         charityApplications: charityApplications.proxy.contract.address, //address
         proxyAdmin: proxyAdminMultisig.contract.address, //address
         usdcAddress: thirdPartyAddresses.usdcToken.address,
@@ -187,10 +199,10 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
           charityApplications.proxy,
           indexFund.implementation,
           indexFund.proxy,
-          endowmentMultiSig.emitter.implementation,
-          endowmentMultiSig.emitter.proxy,
-          endowmentMultiSig.factory,
-          endowmentMultiSig.implementation,
+          endowmentMultiSigEmitter.implementation,
+          endowmentMultiSigEmitter.proxy,
+          endowmentMultiSigFactory,
+          endowmentMultiSig,
           gasFwd.factory,
           gasFwd.implementation,
           vaultEmitter.implementation,
