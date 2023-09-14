@@ -129,6 +129,6 @@ contract AccountsCreateEndowment is
       );
     }
 
-    emit EndowmentCreated(newEndowId, details.endowType);
+    emit EndowmentCreated(newEndowId, details.endowType, details.name);
   }
 }
