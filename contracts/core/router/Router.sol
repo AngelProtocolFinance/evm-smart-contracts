@@ -35,23 +35,41 @@ contract Router is IRouter, Initializable, AxelarExecutable {
                     MODIFIERS
     */ ///////////////////////////////////////////////
 
-  modifier onlyOneAccount(IVault.VaultActionData memory _action) {
-    require(_action.accountIds.length == 1, "Only one account allowed");
-    _;
-  }
-
   modifier onlySelf() {
     require(msg.sender == address(this));
     _;
   }
 
-  modifier validateDeposit(
-    IVault.VaultActionData memory action,
-    string calldata tokenSymbol,
-    uint256 amount
-  ) {
-    // Only one account accepted for deposit calls
-    require(action.accountIds.length == 1, "Only one account allowed");
+  modifier onlyLocalAccountsContract() {
+    string memory accountAddress = registrar.getAccountsContractAddressByChain(
+      registrar.thisChain()
+    );
+    require(StringToAddress.toAddress(accountAddress) == msg.sender, "Unauthorized local call");
+    _;
+  }
+
+  modifier onlyAccountsContract(string calldata _sourceChain, string calldata _sourceAddress) {
+    string memory accountsContractAddress = registrar.getAccountsContractAddressByChain(
+      _sourceChain
+    );
+    require(
+      keccak256(bytes(_sourceAddress)) == keccak256(bytes(accountsContractAddress)),
+      "Unauthorized Call"
+    );
+    _;
+  }
+
+  modifier notZeroAddress(string calldata _sourceAddress) {
+    require(StringToAddress.toAddress(_sourceAddress) != address(0), "Unauthorized Call");
+    _;
+  }
+
+  modifier operatorOnly() {
+    require(registrar.getVaultOperatorApproved(msg.sender), "Operator only");
+    _;
+  }
+
+  modifier validateDeposit(IVault.VaultActionData memory action, uint256 amount) {
     // deposit only
     require(action.selector == IVault.deposit.selector, "Only deposit accepts tokens");
     // amt fwd equal expected amt
@@ -59,8 +77,7 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     // check that at least one vault is expected to receive a deposit
     require(action.lockAmt > 0 || action.liqAmt > 0, "No vault deposit specified");
     // check that token is accepted by angel protocol
-    address tokenAddress = _gateway().tokenAddresses(tokenSymbol);
-    require(registrar.isTokenAccepted(tokenAddress), "Token not accepted");
+    require(registrar.isTokenAccepted(action.token), "Token not accepted");
     // Get parameters from registrar if approved
     require(
       registrar.getStrategyApprovalState(action.strategyId) ==
@@ -97,10 +114,6 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     else if (_action.selector == IVault.redeemAll.selector) {
       return _redeemAll(_params, _action);
     }
-    // HARVEST
-    else if (_action.selector == IVault.harvest.selector) {
-      return _harvest(_params, _action);
-    }
     // INVALID SELCTOR
     else {
       revert("Invalid function selector provided");
@@ -112,9 +125,8 @@ contract Router is IRouter, Initializable, AxelarExecutable {
   /// @dev onlySelf restricted public method to enable try/catch in caller
   function deposit(
     IVault.VaultActionData memory action,
-    string calldata tokenSymbol,
     uint256 amount
-  ) public onlySelf validateDeposit(action, tokenSymbol, amount) {
+  ) public onlySelf validateDeposit(action, amount) {
     LocalRegistrarLib.StrategyParams memory params = registrar.getStrategyParamsById(
       action.strategyId
     );
@@ -122,13 +134,13 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     if (action.lockAmt > 0) {
       // Send tokens to locked vault and call deposit
       IERC20Metadata(action.token).safeTransfer(params.lockedVaultAddr, action.lockAmt);
-      IVault(params.lockedVaultAddr).deposit(action.accountIds[0], action.token, action.lockAmt);
+      IVault(params.lockedVaultAddr).deposit(action.accountId, action.token, action.lockAmt);
     }
 
     if (action.liqAmt > 0) {
       // Send tokens to liquid vault and call deposit
       IERC20Metadata(action.token).safeTransfer(params.liquidVaultAddr, action.liqAmt);
-      IVault(params.liquidVaultAddr).deposit(action.accountIds[0], action.token, action.liqAmt);
+      IVault(params.liquidVaultAddr).deposit(action.accountId, action.token, action.liqAmt);
     }
   }
 
@@ -136,49 +148,55 @@ contract Router is IRouter, Initializable, AxelarExecutable {
   function _redeem(
     LocalRegistrarLib.StrategyParams memory _params,
     IVault.VaultActionData memory _action
-  ) internal onlyOneAccount(_action) returns (IVault.VaultActionData memory) {
+  ) internal returns (IVault.VaultActionData memory) {
     IVault lockedVault = IVault(_params.lockedVaultAddr);
     IVault liquidVault = IVault(_params.liquidVaultAddr);
 
-    // Redeem tokens from vaults which sends them from the vault to this contract
-    IVault.RedemptionResponse memory _redemptionLock = lockedVault.redeem(
-      _action.accountIds[0],
+    // Redeem tokens from vaults and then txfer to this contract
+    IVault.RedemptionResponse memory lockResponse = lockedVault.redeem(
+      _action.accountId,
       _action.lockAmt
     );
-    IERC20Metadata(_redemptionLock.token).safeTransferFrom(
-      _params.lockedVaultAddr,
-      address(this),
-      _redemptionLock.amount
-    );
+    if (lockResponse.amount > 0) {
+      IERC20Metadata(lockResponse.token).safeTransferFrom(
+        _params.lockedVaultAddr,
+        address(this),
+        lockResponse.amount
+      );
+    }
+    _action.lockAmt = lockResponse.amount;
 
-    IVault.RedemptionResponse memory _redemptionLiquid = liquidVault.redeem(
-      _action.accountIds[0],
+    IVault.RedemptionResponse memory liqResponse = liquidVault.redeem(
+      _action.accountId,
       _action.liqAmt
     );
-    IERC20Metadata(_redemptionLiquid.token).safeTransferFrom(
-      _params.liquidVaultAddr,
-      address(this),
-      _redemptionLiquid.amount
-    );
+    if (liqResponse.amount > 0) {
+      IERC20Metadata(liqResponse.token).safeTransferFrom(
+        _params.liquidVaultAddr,
+        address(this),
+        liqResponse.amount
+      );
+    }
+    _action.liqAmt = liqResponse.amount;
 
     // Update _action with this chain's token address.
     // Liquid token should ALWAYS == Locked token
-    _action.token = _redemptionLiquid.token;
+    _action.token = liqResponse.token;
 
     // Pack and send the tokens back to Accounts contract
-    uint256 _redeemedAmt = _redemptionLock.amount + _redemptionLiquid.amount;
-    _action.lockAmt = _redemptionLock.amount;
-    _action.liqAmt = _redemptionLiquid.amount;
+    uint256 redeemedAmt = lockResponse.amount + liqResponse.amount;
+
     if (
-      (_redemptionLock.status == IVault.VaultActionStatus.POSITION_EXITED) &&
-      (_redemptionLiquid.status == IVault.VaultActionStatus.POSITION_EXITED)
+      (lockResponse.status == IVault.VaultActionStatus.POSITION_EXITED) &&
+      (liqResponse.status == IVault.VaultActionStatus.POSITION_EXITED)
     ) {
       _action.status = IVault.VaultActionStatus.POSITION_EXITED;
     } else {
       _action.status = IVault.VaultActionStatus.SUCCESS;
     }
-    _action = _prepareToSendTokens(_action, _redeemedAmt);
-    emit Redeem(_action, _redeemedAmt);
+
+    _action = _prepareToSendTokens(_action, redeemedAmt);
+    emit Redeem(_action, redeemedAmt);
     return _action;
   }
 
@@ -186,12 +204,12 @@ contract Router is IRouter, Initializable, AxelarExecutable {
   function _redeemAll(
     LocalRegistrarLib.StrategyParams memory _params,
     IVault.VaultActionData memory _action
-  ) internal onlyOneAccount(_action) returns (IVault.VaultActionData memory) {
+  ) internal returns (IVault.VaultActionData memory) {
     IVault lockedVault = IVault(_params.lockedVaultAddr);
     IVault liquidVault = IVault(_params.liquidVaultAddr);
 
-    // Redeem tokens from vaults and txfer them to the Router
-    IVault.RedemptionResponse memory lockResponse = lockedVault.redeemAll(_action.accountIds[0]);
+    // Redeem tokens from vaults and then txfer to this contract
+    IVault.RedemptionResponse memory lockResponse = lockedVault.redeemAll(_action.accountId);
     if (lockResponse.amount > 0) {
       IERC20Metadata(_action.token).safeTransferFrom(
         _params.lockedVaultAddr,
@@ -201,7 +219,7 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     }
     _action.lockAmt = lockResponse.amount;
 
-    IVault.RedemptionResponse memory liqResponse = liquidVault.redeemAll(_action.accountIds[0]);
+    IVault.RedemptionResponse memory liqResponse = liquidVault.redeemAll(_action.accountId);
     if (liqResponse.amount > 0) {
       IERC20Metadata(_action.token).safeTransferFrom(
         _params.liquidVaultAddr,
@@ -210,6 +228,10 @@ contract Router is IRouter, Initializable, AxelarExecutable {
       );
     }
     _action.liqAmt = liqResponse.amount;
+
+    // Update _action with this chain's token address.
+    // Liquid token should ALWAYS == Locked token
+    _action.token = liqResponse.token;
 
     // Pack and send the tokens back
     uint256 _redeemedAmt = lockResponse.amount + liqResponse.amount;
@@ -220,43 +242,40 @@ contract Router is IRouter, Initializable, AxelarExecutable {
   }
 
   // Vault action::Harvest
-  function _harvest(
-    LocalRegistrarLib.StrategyParams memory _params,
-    IVault.VaultActionData memory _action
-  ) internal returns (IVault.VaultActionData memory) {
-    IVault liquidVault = IVault(_params.liquidVaultAddr);
-    IVault lockedVault = IVault(_params.lockedVaultAddr);
+  function harvest(HarvestRequest memory _action) external operatorOnly {
+    LocalRegistrarLib.StrategyParams memory params = registrar.getStrategyParamsById(
+      _action.strategyId
+    );
+    IVault liquidVault = IVault(params.liquidVaultAddr);
+    IVault lockedVault = IVault(params.lockedVaultAddr);
 
     // Harvest token, transfer to self and update action data
-    _action.liqAmt = liquidVault.harvest(_action.accountIds);
-    IERC20Metadata(_action.token).safeTransfer(address(this), _action.liqAmt);
-    _action.lockAmt = lockedVault.harvest(_action.accountIds);
-    IERC20Metadata(_action.token).safeTransfer(address(this), _action.lockAmt);
-    emit RewardsHarvested(_action);
-    _action.status = IVault.VaultActionStatus.SUCCESS;
+    IVault.RedemptionResponse memory liqResponse = liquidVault.harvest(_action.accountIds);
+    IERC20Metadata(liqResponse.token).safeTransfer(address(this), liqResponse.amount);
+    IVault.RedemptionResponse memory lockResponse = lockedVault.harvest(_action.accountIds);
+    IERC20Metadata(lockResponse.token).safeTransfer(address(this), lockResponse.amount);
 
     // Send tokens to receiver
-    uint256 totalAmt = _action.liqAmt + _action.lockAmt;
-    if (totalAmt == 0) return _action;
+    uint256 totalAmt = liqResponse.amount + lockResponse.amount;
+    if (totalAmt == 0) return;
 
     LibAccounts.FeeSetting memory feeSetting = registrar.getFeeSettingsByFeeType(
       LibAccounts.FeeTypes.Harvest
     );
     // If returning locally
-    if (_stringCompare(registrar.thisChain(), _action.destinationChain)) {
-      IERC20Metadata(_action.token).safeTransfer(feeSetting.payoutAddress, totalAmt);
+    if (_stringCompare(registrar.thisChain(), PRIMARY_CHAIN)) {
+      IERC20Metadata(lockResponse.token).safeTransfer(feeSetting.payoutAddress, totalAmt);
     }
     // Or return via GMP
     else {
-      IERC20Metadata(_action.token).safeApprove(address(_gateway()), totalAmt);
+      IERC20Metadata(lockResponse.token).safeApprove(address(_gateway()), totalAmt);
       _gateway().sendToken(
-        _action.destinationChain,
+        PRIMARY_CHAIN,
         AddressToString.toString(feeSetting.payoutAddress),
-        IERC20Metadata(_action.token).symbol(),
+        IERC20Metadata(lockResponse.token).symbol(),
         totalAmt
       );
     }
-    return _action;
   }
 
   /*////////////////////////////////////////////////
@@ -279,30 +298,6 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     uint256 amount
   ) external override onlyLocalAccountsContract returns (IVault.VaultActionData memory) {
     return _executeWithToken(sourceChain, sourceAddress, payload, tokenSymbol, amount);
-  }
-
-  modifier onlyLocalAccountsContract() {
-    string memory accountAddress = registrar.getAccountsContractAddressByChain(
-      registrar.thisChain()
-    );
-    require(StringToAddress.toAddress(accountAddress) == msg.sender, "Unauthorized local call");
-    _;
-  }
-
-  modifier onlyAccountsContract(string calldata _sourceChain, string calldata _sourceAddress) {
-    string memory accountsContractAddress = registrar.getAccountsContractAddressByChain(
-      _sourceChain
-    );
-    require(
-      keccak256(bytes(_sourceAddress)) == keccak256(bytes(accountsContractAddress)),
-      "Unauthorized Call"
-    );
-    _;
-  }
-
-  modifier notZeroAddress(string calldata _sourceAddress) {
-    require(StringToAddress.toAddress(_sourceAddress) != address(0), "Unauthorized Call");
-    _;
   }
 
   function _prepareToSendTokens(
@@ -461,7 +456,7 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     action.destinationChain = sourceChain;
 
     // Leverage this.call() to enable try/catch logic
-    try this.deposit(action, tokenSymbol, amount) {
+    try this.deposit(action, amount) {
       emit Deposit(action);
       action.status = IVault.VaultActionStatus.SUCCESS;
       return action;
@@ -513,6 +508,10 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     );
     return IAxelarGasService(network.gasReceiver);
   }
+
+  /*////////////////////////////////////////////////
+                      HELPERS
+  */ ////////////////////////////////////////////////
 
   function _stringCompare(string memory s1, string memory s2) internal pure returns (bool result) {
     result = (keccak256(abi.encodePacked(s1)) == keccak256(abi.encodePacked(s2)));

@@ -7,6 +7,7 @@ import {IVault} from "typechain-types/contracts/core/accounts/facets/AccountsStr
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
 import {ADDRESS_ZERO} from "utils";
 import {DEFAULT_NETWORK} from "../../constants";
+import {IRouter} from "typechain-types";
 
 export const DEFAULT_PERMISSIONS_STRUCT: LibAccounts.SettingsPermissionStruct = {
   locked: false,
@@ -144,9 +145,14 @@ export const DEFAULT_ACTION_DATA: IVault.VaultActionDataStruct = {
   destinationChain: "",
   strategyId: DEFAULT_STRATEGY_ID,
   selector: "",
-  accountIds: [],
+  accountId: 0,
   token: "",
   lockAmt: 0,
   liqAmt: 0,
   status: 0,
+};
+
+export const DEFAULT_HARVEST_REQUEST: IRouter.HarvestRequestStruct = {
+  strategyId: DEFAULT_STRATEGY_ID,
+  accountIds: [],
 };

@@ -61,7 +61,7 @@ abstract contract IVault {
     string destinationChain;
     bytes4 strategyId;
     bytes4 selector;
-    uint32[] accountIds;
+    uint32 accountId;
     address token;
     uint256 lockAmt;
     uint256 liqAmt;
@@ -145,7 +145,10 @@ abstract contract IVault {
   /// on the target yield strategy and VaultType. Only callable by an Angel Protocol Keeper
   /// @param accountIds Used to specify which accounts to call harvest against. Structured so that this can
   /// be called in batches to avoid running out of gas.
-  function harvest(uint32[] calldata accountIds) external virtual returns (uint256);
+  /// @return address and qty of tokens harvested
+  function harvest(
+    uint32[] calldata accountIds
+  ) external virtual returns (RedemptionResponse memory);
 
   /*////////////////////////////////////////////////
                 INTERNAL HELPER METHODS

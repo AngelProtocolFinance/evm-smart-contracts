@@ -185,7 +185,8 @@ contract APVault_V1 is IVault, ERC4626AP, Ownable {
 
   function harvest(
     uint32[] calldata accountIds
-  ) public virtual override notPaused onlyApproved returns (uint256 amt) {
+  ) public virtual override notPaused onlyApproved returns (RedemptionResponse memory response) {
+    response.token = vaultConfig.baseToken; // always harvest the base token
     for (uint32 i; i < accountIds.length; i++) {
       uint32 accountId = accountIds[i];
       uint256 baseTokenValue = IStrategy(vaultConfig.strategy).previewWithdraw(
@@ -213,18 +214,28 @@ contract APVault_V1 is IVault, ERC4626AP, Ownable {
 
       // Call appropriate harvest method
       if (vaultConfig.vaultType == VaultType.LIQUID) {
-        amt += _harvestLiquid(accountId, yieldBaseTokens, currentExRate_withPrecision, feeSetting);
+        response.amount += _harvestLiquid(
+          accountId,
+          yieldBaseTokens,
+          currentExRate_withPrecision,
+          feeSetting
+        );
       } else {
-        amt += _harvestLocked(accountId, yieldBaseTokens, currentExRate_withPrecision, feeSetting);
+        response.amount += _harvestLocked(
+          accountId,
+          yieldBaseTokens,
+          currentExRate_withPrecision,
+          feeSetting
+        );
       }
     }
 
     // Approve router for the harvest amt
-    if (amt > 0) {
+    if (response.amount > 0) {
       string memory thisChain = IRegistrar(vaultConfig.registrar).thisChain();
       LocalRegistrarLib.NetworkInfo memory network = IRegistrar(vaultConfig.registrar)
         .queryNetworkConnection(thisChain);
-      IERC20Metadata(vaultConfig.baseToken).safeApprove(network.router, amt);
+      IERC20Metadata(vaultConfig.baseToken).safeApprove(network.router, response.amount);
     }
   }
 

@@ -10,8 +10,6 @@ import {
   DEFAULT_STRATEGY_PARAMS,
   DEFAULT_VAULT_NAME,
   DEFAULT_VAULT_SYMBOL,
-  deployDummyERC20,
-  deployDummyStrategy,
   wait,
 } from "test/utils";
 import {
