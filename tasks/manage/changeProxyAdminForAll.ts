@@ -32,9 +32,9 @@ task("manage:changeProxyAdminForAll", "Will update the proxy admin for all proxy
       logger.divider();
 
       const addresses = await getAddresses(hre);
-      const targetAddress = taskArgs.to || addresses.multiSig.proxyAdmin;
+      const toAddress = taskArgs.to || addresses.multiSig.proxyAdmin;
 
-      logger.out(`Change all contracts' admin to: ${targetAddress}...`);
+      logger.out(`Change all contracts' admin to: ${toAddress}...`);
 
       const isConfirmed = taskArgs.yes || (await confirmAction());
       if (!isConfirmed) {
@@ -43,23 +43,19 @@ task("manage:changeProxyAdminForAll", "Will update the proxy admin for all proxy
 
       const proxyAdminOwner = await getProxyAdminOwner(hre, taskArgs.proxyAdminPkey);
 
-      if (addresses.multiSig.proxyAdmin === targetAddress) {
-        return logger.out(`"${targetAddress}" is already the proxy admin.`);
-      }
+      await transferAccountOwnership(proxyAdminOwner, toAddress, addresses, hre);
 
-      await transferAccountOwnership(proxyAdminOwner, targetAddress, addresses, hre);
-
-      await changeProxiesAdmin(taskArgs.proxyAdminPkey, targetAddress, addresses, hre);
+      await changeProxiesAdmin(taskArgs.proxyAdminPkey, toAddress, addresses, hre);
 
       await hre.run("manage:endowmentMultiSigFactory:updateProxyAdmin", {
-        to: targetAddress,
+        to: toAddress,
         apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         proxyAdminPkey: taskArgs.proxyAdminPkey,
         yes: true,
       });
 
       await hre.run("manage:registrar:updateConfig", {
-        proxyAdmin: targetAddress,
+        proxyAdmin: toAddress,
         apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });
@@ -81,10 +77,19 @@ async function transferAccountOwnership(
       addresses.accounts.diamond,
       hre.ethers.provider
     );
+    const curOwner = await ownershipFacet.owner();
+    logger.out(`Current owner: ${curOwner}`);
+
+    if (curOwner === newProxyAdmin) {
+      return logger.out(`"${newProxyAdmin}" is already the owner.`);
+    }
+
     const data = ownershipFacet.interface.encodeFunctionData("transferOwnership", [newProxyAdmin]);
 
+    // make sure to use current proxy admin MultiSig, as the task might be run with the proxyAdmin address
+    // already updated in contract-address.json
     const isExecuted = await submitMultiSigTx(
-      addresses.multiSig.proxyAdmin,
+      curOwner,
       proxyAdminOwner,
       ownershipFacet.address,
       data
