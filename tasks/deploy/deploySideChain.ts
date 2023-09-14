@@ -65,6 +65,16 @@ task("deploy:SideChain", "Will deploy complete side-chain infrastructure")
         yes: true,
       });
 
+      await hre.run("deploy:VaultEmitter", {
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
+        skipVerify: taskArgs.skipVerify,
+        yes: true,
+      });
+
+      await hre.run("manage:registrar:setAllFeeSettings", {
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
+      });
+
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
         const deployments: Array<Deployment<ContractFactory>> = [
           proxyAdminMultisig,

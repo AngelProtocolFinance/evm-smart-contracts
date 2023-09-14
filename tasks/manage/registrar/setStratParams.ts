@@ -4,7 +4,7 @@ import {submitMultiSigTx} from "tasks/helpers";
 import {cliTypes} from "tasks/types";
 import {Registrar__factory} from "typechain-types";
 import {ChainID} from "types";
-import {StratConfig, getAPTeamOwner, getAddressesByNetworkId, logger} from "utils";
+import {StratConfig, getAPTeamOwner, getAddressesByNetworkId, isProdNetwork, logger} from "utils";
 
 type TaskArgs = {
   name: string;
@@ -28,14 +28,26 @@ task("manage:registrar:setStratParams")
   )
   .setAction(async function (taskArguments: TaskArgs, hre) {
     const config: StratConfig = allStrategyConfigs[taskArguments.name];
-    await hre.run("manage:registrar:setStratParams:on-network", {
-      ...taskArguments,
-      chainId: ChainID.polygon,
-    });
-    await hre.run("manage:registrar:setStratParams:on-network", {
-      ...taskArguments,
-      chainId: config.chainId,
-    });
+    if(await isProdNetwork(hre)) {
+      await hre.run("manage:registrar:setStratParams:on-network", {
+        ...taskArguments,
+        chainId: ChainID.polygon,
+      });
+      await hre.run("manage:registrar:setStratParams:on-network", {
+        ...taskArguments,
+        chainId: config.chainId,
+      });
+    }
+    else {
+      await hre.run("manage:registrar:setStratParams:on-network", {
+        ...taskArguments,
+        chainId: ChainID.mumbai,
+      });
+      await hre.run("manage:registrar:setStratParams:on-network", {
+        ...taskArguments,
+        chainId: config.chainId,
+      });
+    }
   });
 
 subtask(

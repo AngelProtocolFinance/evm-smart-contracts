@@ -6,6 +6,7 @@
         "accountsDepositWithdrawEndowments": "",
         "accountsAllowance": "",
         "accountsCreateEndowment": "",
+        "accountsGasManager": "",
         "accountsQueryEndowments": "",
         "accountsStrategy": "",
         "accountsSwapRouter": "",
@@ -96,8 +97,8 @@
         "proxy": ""
       },
       "apTeam": {
-        "implementation": "0x39e698a2e9Dc5D65C42f9C0cd50904F9b46b42A3",
-        "proxy": "0x68E73152a3B6Fa0652d5EA5D977adEe4e168b145"
+        "implementation": "0xacE2a31e8B8d66C24DAea008d1eDaf571369A728",
+        "proxy": "0x33F76554d1474061482Bfa858f35AFD9BAb4D1C5"
       },
       "endowment": {
         "emitter": {
@@ -106,15 +107,16 @@
         },
         "factory": "",
         "implementation": ""
-      }
+      },
+      "proxyAdmin": "0xb463AFC0b3A499a2D826155fc6E6E73061BEF826"
     },
     "registrar": {
-      "implementation": "0x45CCb6251F3500c7EE3219eE47C213fB239346cB",
-      "proxy": "0xD3d0B4fFF90c36e1a31d478e35d699f432428Ae5"
+      "implementation": "0x053d1190081dC68ED544D5A2788878E823F64a69",
+      "proxy": "0xA8b73E610095A61de646eD06334c61b94318df52"
     },
     "router": {
-      "implementation": "0x8747cF2bd9BB0F46ced4adA1b472E995d1A3174A",
-      "proxy": "0xbc37e909abCB8cb443Cf30957154D37364b633B6"
+      "implementation": "0xB1A33A8f6cD8572976004C3653AbCEb3E697b9ad",
+      "proxy": "0x74C615649f260850c0702ca2aDAEDC0eb3F312a6"
     },
     "tokens": {
       "dai": "",
@@ -127,6 +129,10 @@
     "uniswap": {
       "factory": "",
       "swapRouter": ""
+    },
+    "vaultEmitter": {
+      "implementation": "0xbc6Fe0a018266F9F02C0E21cb21388cf1D09a560",
+      "proxy": "0xB4B13f54690D297b73291456e027b33aA303f744"
     }
   },
   "137": {
@@ -397,8 +403,8 @@
       "swapRouter": "0x40B5D836dBeAf26c652210D8f07169B99E77C994"
     },
     "vaultEmitter": {
-      "implementation": "0x402e14f3f9118A3745d8554EC4106450fB91aE23",
-      "proxy": "0x7Eb691CaD47e698642Ac507aC0383d8Ef1A20C7D"
+      "implementation": "0x1BE9451496bfB6aDcFfbc308b673018a8972AFFE",
+      "proxy": "0x2e3c2536E1349e0E18d057f61499Ef64BB4B23E8"
     }
   },
   "80001": {
@@ -410,7 +416,7 @@
         "accountsCreateEndowment": "0xb9B2b1a49020216fC5715AE05132dda968A06023",
         "accountsGasManager": "0xe224BcDd0aa37C262C7D9865d6fC9F8974996Ca4",
         "accountsQueryEndowments": "0xD1159b23003Db899801022c06dC09C00528fe20A",
-        "accountsStrategy": "0x51B51fA42802129a1e215300C8bfEE54879e5A31",
+        "accountsStrategy": "0x499272b4A1Cb3f6Ba622b34b666E40623b373817",
         "accountsSwapRouter": "0x23013c2a8E03Af04e23788789676E240654cc60d",
         "accountsUpdate": "0x4ba1Dff21DD94b1c87a4f2866eAEe90D7FfeFF57",
         "accountsUpdateEndowments": "0xC1d957Ee8EA1B44734b4Db056f96B37580Bd258E",
