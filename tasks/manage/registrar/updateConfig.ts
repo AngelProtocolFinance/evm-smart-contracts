@@ -114,10 +114,10 @@ task("manage:registrar:updateConfig", "Will update Accounts Diamond config")
   )
   .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {
-    logger.divider();
-    logger.out("Updating Registrar config...");
-
     try {
+      logger.divider();
+      logger.out("Updating Registrar config...");
+
       const addresses = await getAddresses(hre);
 
       const apTeamOwner = await getAPTeamOwner(hre, taskArgs.apTeamSignerPkey);
