@@ -307,7 +307,7 @@ describe("AccountsCreateEndowment", function () {
 
     await expect(facet.connect(charityApplications).createEndowment(request))
       .to.emit(facet, "EndowmentCreated")
-      .withArgs(expectedNextAccountId, request.endowType);
+      .withArgs(expectedNextAccountId, request.endowType, request.name);
 
     const result = await state.getEndowmentDetails(expectedNextAccountId);
 
@@ -400,7 +400,7 @@ describe("AccountsCreateEndowment", function () {
 
     await expect(facet.connect(charityApplications).createEndowment(request))
       .to.emit(facet, "EndowmentCreated")
-      .withArgs(expectedNextAccountId, 0);
+      .withArgs(expectedNextAccountId, 0, request.name);
 
     const result = await state.getEndowmentDetails(expectedNextAccountId);
 
