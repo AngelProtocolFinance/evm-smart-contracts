@@ -52,7 +52,7 @@ task("manage:changeProxyAdmin", "Will update the proxy admin the target proxy co
         [targetAddress]
       );
       const isExecuted = await submitMultiSigTx(
-        addresses.multiSig.proxyAdmin,
+        curAdmin,
         proxyAdminOwner,
         proxyContract.address,
         data
