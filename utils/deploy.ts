@@ -1,7 +1,9 @@
-import {BytesLike, ContractFactory} from "ethers";
-import {ProxyContract__factory} from "typechain-types";
+import {BytesLike, ContractFactory, Wallet} from "ethers";
+import {ITransparentUpgradeableProxy__factory, ProxyContract__factory} from "typechain-types";
 import {Deployment, ProxyDeployment} from "types";
 import {getContractName, logger} from ".";
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {submitMultiSigTx} from "tasks/helpers";
 
 /**
  * Deploys a contract; includes logging of the relevant data
@@ -65,4 +67,48 @@ export async function deployBehindProxy<T extends ContractFactory>(
 
 function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Upgrades a proxy with a new implementation contract a contract behind a proxy; includes logging of the relevant data.
+ *
+ * Note: Deployment tx hash is logged only if the deployment fails.
+ * Otherwise the tx hash can be obtained by using the contract address to search the relevant Tx explorer.
+ *
+ * @param factory contract factory used to deploy the contract
+ * @param proxyAdmin proxy admin address
+ * @param initData data used to initialize the contract
+ * @returns object containing both implementation and proxy deployment data (including the contract instances)
+ */
+export async function upgradeProxy<T extends ContractFactory>(
+  factory: T,
+  proxyAdminMultiSig: string,
+  proxyAdminOwner: SignerWithAddress | Wallet,
+  proxyToUpgrade: string
+): Promise<Deployment<T> | undefined> {
+  const deployment = await deploy(factory);
+
+  logger.out(`Upgrading proxy at: ${proxyToUpgrade}...`);
+  const proxy = ITransparentUpgradeableProxy__factory.connect(proxyToUpgrade, proxyAdminOwner);
+  const payload = proxy.interface.encodeFunctionData("upgradeTo", [deployment.contract.address]);
+
+  const isExecuted = await submitMultiSigTx(
+    proxyAdminMultiSig,
+    proxyAdminOwner,
+    proxyToUpgrade,
+    payload
+  );
+  if (!isExecuted) {
+    // The deployment will be considered valid only once the upgrade is confirmed by other ProxyAdminMultiSig owners
+    return;
+  }
+
+  const newImplAddr = await proxy.implementation();
+  if (newImplAddr !== deployment.contract.address) {
+    throw new Error(
+      `Unexpected: expected value "${deployment.contract.address}", but got "${newImplAddr}"`
+    );
+  }
+
+  return deployment;
 }
