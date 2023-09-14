@@ -7,3 +7,4 @@ import "./upgradeEndowmentMultiSig";
 import "./upgradeEndowmentMultiSigEmitter";
 import "./upgradeRegistrar";
 import "./upgradeRouter";
+import "./upgradeVaultEmitter";
