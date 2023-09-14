@@ -1,9 +1,9 @@
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {BytesLike, ContractFactory, Wallet} from "ethers";
+import {submitMultiSigTx} from "tasks/helpers";
 import {ITransparentUpgradeableProxy__factory, ProxyContract__factory} from "typechain-types";
 import {Deployment, ProxyDeployment} from "types";
 import {getContractName, isProdNetwork, logger} from ".";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {submitMultiSigTx} from "tasks/helpers";
 
 /**
  * Deploys a contract; includes logging of the relevant data
@@ -26,7 +26,7 @@ export async function deploy<T extends ContractFactory>(
     const contract = await factory.deploy(...(constructorArguments ?? []));
     await contract.deployed();
     if (await isProdNetwork(contract.deployTransaction.chainId)) {
-      await delay(1000);
+      await contract.deployTransaction.wait(2);
     }
     logger.out(`Address: ${contract.address}`);
     return {
@@ -65,10 +65,6 @@ export async function deployBehindProxy<T extends ContractFactory>(
     initData,
   ]);
   return {implementation, proxy};
-}
-
-function delay(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**
