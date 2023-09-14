@@ -140,7 +140,7 @@ task("manage:registrar:updateConfig", "Will update Accounts Diamond config")
       logger.out("Config data to update:");
       logger.out(updateConfigRequest);
 
-      const isConfirmed = taskArgs.yes || (await confirmAction(`Updating Registrar config...`));
+      const isConfirmed = taskArgs.yes || (await confirmAction());
       if (!isConfirmed) {
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
