@@ -1,7 +1,6 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
-import {BigNumber, Wallet} from "ethers";
+import {BigNumber, Signer} from "ethers";
 import hre from "hardhat";
 import {
   DEFAULT_ACCOUNTS_CONFIG,
@@ -62,9 +61,9 @@ describe("AccountsStrategy", function () {
   const NET_NAME_THIS = "ThisNet";
   const NET_NAME_THAT = "ThatNet";
 
-  let owner: SignerWithAddress;
-  let admin: SignerWithAddress | Wallet;
-  let user: SignerWithAddress;
+  let owner: Signer;
+  let admin: Signer;
+  let user: Signer;
 
   let gasFwd: FakeContract<GasFwd>;
   let gasService: FakeContract<IAxelarGasService>;
@@ -128,14 +127,14 @@ describe("AccountsStrategy", function () {
         liquidInvestmentManagement: {
           locked: false,
           delegate: {
-            addr: owner.address,
+            addr: await owner.getAddress(),
             expires: 0,
           },
         },
         lockedInvestmentManagement: {
           locked: false,
           delegate: {
-            addr: owner.address,
+            addr: await owner.getAddress(),
             expires: 0,
           },
         },
@@ -152,7 +151,7 @@ describe("AccountsStrategy", function () {
       axelarGateway: gateway.address,
       gasReceiver: gasService.address,
       router: router.address,
-      refundAddr: user.address,
+      refundAddr: await user.getAddress(),
     };
     netInfoThat = {
       ...DEFAULT_NETWORK_INFO,
@@ -1571,7 +1570,7 @@ describe("AccountsStrategy", function () {
           facet.executeWithToken(
             ethers.utils.formatBytes32String("true"),
             NET_NAME_THIS,
-            owner.address,
+            await owner.getAddress(),
             payload,
             await token.symbol(),
             1
@@ -1625,14 +1624,14 @@ describe("AccountsStrategy", function () {
           facet.executeWithToken(
             ethers.utils.formatBytes32String("true"),
             NET_NAME_THAT,
-            owner.address,
+            await owner.getAddress(),
             payload,
             await token.symbol(),
             1
           )
         )
           .to.be.revertedWithCustomError(facet, "UnexpectedCaller")
-          .withArgs(returnedAction, NET_NAME_THAT, owner.address);
+          .withArgs(returnedAction, NET_NAME_THAT, await owner.getAddress());
       });
 
       it("reverts if the call didn't originate from the chain's router", async function () {

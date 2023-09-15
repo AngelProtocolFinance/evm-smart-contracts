@@ -1,4 +1,4 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {Signer} from "ethers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {EndowmentMultiSigFactory__factory} from "typechain-types";
 import {Deployment} from "types";
@@ -9,7 +9,7 @@ export async function deployEndowmentMultiSigFactory(
   registrar: string,
   proxyAdmin: string,
   factoryOwner: string,
-  deployer: SignerWithAddress,
+  deployer: Signer,
   hre: HardhatRuntimeEnvironment
 ): Promise<Deployment<EndowmentMultiSigFactory__factory>> {
   logger.out("Deploying EndowmentMultiSigFactory...");

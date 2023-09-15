@@ -1,7 +1,6 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
-import {BigNumber, Wallet} from "ethers";
+import {BigNumber, Signer} from "ethers";
 import hre from "hardhat";
 import {DEFAULT_REGISTRAR_CONFIG, wait} from "test/utils";
 import {
@@ -29,9 +28,9 @@ describe("AccountsCreateEndowment", function () {
 
   const expectedNextAccountId = 1;
 
-  let owner: SignerWithAddress;
-  let proxyAdmin: SignerWithAddress | Wallet;
-  let charityApplications: SignerWithAddress;
+  let owner: Signer;
+  let proxyAdmin: Signer;
+  let charityApplications: Signer;
   let facet: AccountsCreateEndowment;
   let state: TestFacetProxyContract;
   let createEndowmentRequest: AccountMessages.CreateEndowmentRequestStruct;
@@ -48,13 +47,13 @@ describe("AccountsCreateEndowment", function () {
     const defaultSettingsPermissionsStruct = {
       locked: false,
       delegate: {
-        addr: owner.address,
+        addr: await owner.getAddress(),
         expires: 0,
       },
     };
 
     const defaultFeeStruct = {
-      payoutAddress: owner.address,
+      payoutAddress: await owner.getAddress(),
       bps: 1000,
     };
 
@@ -69,7 +68,7 @@ describe("AccountsCreateEndowment", function () {
       endowType: 1, // Endowment
       logo: "",
       image: "",
-      members: [owner.address],
+      members: [await owner.getAddress()],
       threshold: 1,
       allowlistedBeneficiaries: [],
       allowlistedContributors: [],
@@ -123,7 +122,7 @@ describe("AccountsCreateEndowment", function () {
     });
     const config: RegistrarStorage.ConfigStruct = {
       ...DEFAULT_REGISTRAR_CONFIG,
-      charityApplications: charityApplications.address,
+      charityApplications: await charityApplications.getAddress(),
       multisigFactory: endowmentFactoryFake.address,
       gasFwdFactory: gasFwdFactoryFake.address,
     };
@@ -137,7 +136,7 @@ describe("AccountsCreateEndowment", function () {
 
     await wait(
       state.setConfig({
-        owner: owner.address,
+        owner: await owner.getAddress(),
         version: "1",
         networkName: "Polygon",
         registrarContract: registrarFake.address,
@@ -176,7 +175,7 @@ describe("AccountsCreateEndowment", function () {
       ...createEndowmentRequest,
       earlyLockedWithdrawFee: {
         bps: 100000,
-        payoutAddress: owner.address,
+        payoutAddress: await owner.getAddress(),
       },
     };
 
@@ -204,7 +203,7 @@ describe("AccountsCreateEndowment", function () {
       ...createEndowmentRequest,
       withdrawFee: {
         bps: 100000,
-        payoutAddress: owner.address,
+        payoutAddress: await owner.getAddress(),
       },
     };
 
@@ -232,7 +231,7 @@ describe("AccountsCreateEndowment", function () {
       ...createEndowmentRequest,
       depositFee: {
         bps: 100000,
-        payoutAddress: owner.address,
+        payoutAddress: await owner.getAddress(),
       },
     };
 
@@ -260,7 +259,7 @@ describe("AccountsCreateEndowment", function () {
       ...createEndowmentRequest,
       balanceFee: {
         bps: 100000,
-        payoutAddress: owner.address,
+        payoutAddress: await owner.getAddress(),
       },
     };
 

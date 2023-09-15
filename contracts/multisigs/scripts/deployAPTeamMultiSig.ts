@@ -1,5 +1,5 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {CONFIG} from "config";
+import {Signer} from "ethers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {APTeamMultiSig__factory} from "typechain-types";
 import {ProxyDeployment} from "types";
@@ -7,12 +7,12 @@ import {deployBehindProxy, getSigners, updateAddresses} from "utils";
 
 export async function deployAPTeamMultiSig(
   proxyAdmin: string,
-  deployer: SignerWithAddress,
+  deployer: Signer,
   hre: HardhatRuntimeEnvironment
 ): Promise<ProxyDeployment<APTeamMultiSig__factory>> {
   const {apTeamMultisigOwners} = await getSigners(hre);
   const owners = apTeamMultisigOwners
-    ? apTeamMultisigOwners.map((x) => x.address)
+    ? await Promise.all(apTeamMultisigOwners.map((x) => x.getAddress()))
     : CONFIG.PROD_CONFIG.APTeamMultiSigOwners;
 
   // data setup

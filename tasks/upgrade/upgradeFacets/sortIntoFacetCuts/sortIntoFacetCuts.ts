@@ -1,6 +1,5 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {FacetCutAction} from "contracts/core/accounts/scripts/libraries/diamond";
-import {ContractFactory} from "ethers";
+import {ContractFactory, Signer} from "ethers";
 import {DiamondLoupeFacet__factory} from "typechain-types";
 import {Deployment} from "types";
 import {ADDRESS_ZERO, logger} from "utils";
@@ -10,7 +9,7 @@ import getFacetSelectors from "./getFacetSelectors";
 export default async function sortIntoFacetCuts(
   facetDeployments: Deployment<ContractFactory>[],
   diamondAddress: string,
-  diamondOwner: SignerWithAddress
+  diamondOwner: Signer
 ): Promise<FacetCut[]> {
   logger.out("Creating facet cuts...");
 

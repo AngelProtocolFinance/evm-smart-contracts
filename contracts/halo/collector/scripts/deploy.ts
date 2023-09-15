@@ -25,7 +25,7 @@ export async function deployCollector(
     // deploy
     const {implementation, proxy} = await deployBehindProxy(
       Collector,
-      proxyAdmin.address,
+      await proxyAdmin.getAddress(),
       initData
     );
 

@@ -1,5 +1,4 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {BytesLike, Wallet} from "ethers";
+import {BytesLike, Signer} from "ethers";
 import {IMultiSigGeneric__factory} from "typechain-types";
 import {filterEvents, logger} from "utils";
 
@@ -13,7 +12,7 @@ import {filterEvents, logger} from "utils";
  */
 export async function submitMultiSigTx(
   msAddress: string,
-  owner: SignerWithAddress | Wallet,
+  owner: Signer,
   destination: string,
   data: BytesLike
 ): Promise<boolean> {

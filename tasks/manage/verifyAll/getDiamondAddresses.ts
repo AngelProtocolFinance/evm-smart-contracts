@@ -17,7 +17,7 @@ export default async function getDiamondAddresses(
     {
       contract: Diamond__factory.connect(accounts.diamond, hre.ethers.provider),
       contractName: getContractName(Diamond__factory),
-      constructorArguments: [deployer.address, accounts.facets.diamondCutFacet],
+      constructorArguments: [await deployer.getAddress(), accounts.facets.diamondCutFacet],
     },
   ];
 

@@ -1,4 +1,4 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {Signer} from "ethers";
 import {expect} from "chai";
 import hre from "hardhat";
 import {DEFAULT_CHARITY_ENDOWMENT, wait} from "test/utils";
@@ -7,14 +7,13 @@ import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetP
 import {EndowmentType} from "types";
 import {getProxyAdminOwner, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
-import {Wallet} from "ethers";
 
 describe("AccountsUpdate", function () {
   const {ethers} = hre;
 
-  let owner: SignerWithAddress;
-  let proxyAdmin: SignerWithAddress | Wallet;
-  let user: SignerWithAddress;
+  let owner: Signer;
+  let proxyAdmin: Signer;
+  let user: Signer;
 
   let facet: AccountsUpdate;
   let state: TestFacetProxyContract;
@@ -29,8 +28,8 @@ describe("AccountsUpdate", function () {
 
     proxyAdmin = await getProxyAdminOwner(hre);
 
-    newRegistrar = signers.apTeam1.address;
-    endowment = {...DEFAULT_CHARITY_ENDOWMENT, owner: owner.address};
+    newRegistrar = await signers.apTeam1.getAddress();
+    endowment = {...DEFAULT_CHARITY_ENDOWMENT, owner: await owner.getAddress()};
   });
 
   beforeEach(async function () {
@@ -44,7 +43,7 @@ describe("AccountsUpdate", function () {
 
     await wait(
       state.setConfig({
-        owner: owner.address,
+        owner: await owner.getAddress(),
         version: "1",
         networkName: "Polygon",
         registrarContract: ethers.constants.AddressZero,
@@ -58,17 +57,17 @@ describe("AccountsUpdate", function () {
 
   describe("updateOwner", () => {
     it("should update the owner when called by the current owner", async () => {
-      await expect(facet.updateOwner(user.address))
+      await expect(facet.updateOwner(await user.getAddress()))
         .to.emit(facet, "OwnerUpdated")
-        .withArgs(user.address);
+        .withArgs(await user.getAddress());
 
       const {owner} = await state.getConfig();
 
-      expect(owner).to.equal(user.address);
+      expect(owner).to.equal(await user.getAddress());
     });
 
     it("should revert when called by a non-owner address", async () => {
-      await expect(facet.connect(user).updateOwner(user.address)).to.be.revertedWith(
+      await expect(facet.connect(user).updateOwner(await user.getAddress())).to.be.revertedWith(
         "Unauthorized"
       );
     });

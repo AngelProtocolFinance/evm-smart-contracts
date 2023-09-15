@@ -1,5 +1,5 @@
 import {smock} from "@defi-wonderland/smock";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {Signer} from "ethers";
 import {time} from "@nomicfoundation/hardhat-network-helpers";
 import {expect, use} from "chai";
 import hre from "hardhat";
@@ -16,7 +16,6 @@ import {
 } from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {genWallet, getProxyAdminOwner, getSigners} from "utils";
 import {deployFacetAsProxy, updateAllSettings} from "./utils";
-import {Wallet} from "ethers";
 
 use(smock.matchers);
 
@@ -26,9 +25,9 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
   const charityId = 1;
   const normalEndowId = 2;
 
-  let owner: SignerWithAddress;
-  let proxyAdmin: SignerWithAddress | Wallet;
-  let endowOwner: SignerWithAddress;
+  let owner: Signer;
+  let proxyAdmin: Signer;
+  let endowOwner: Signer;
 
   let facet: AccountsUpdateEndowmentSettingsController;
   let state: TestFacetProxyContract;
@@ -46,7 +45,7 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
     charity = {
       ...DEFAULT_CHARITY_ENDOWMENT,
       maturityTime: 0,
-      owner: endowOwner.address,
+      owner: await endowOwner.getAddress(),
     };
     normalEndow = {
       ...charity,
@@ -61,7 +60,7 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
 
     await wait(
       state.setConfig({
-        owner: owner.address,
+        owner: await owner.getAddress(),
         version: "1",
         networkName: "",
         registrarContract: ethers.constants.AddressZero,

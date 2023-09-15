@@ -1,8 +1,7 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
 import {impersonateAccount, setBalance, time} from "@nomicfoundation/hardhat-network-helpers";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
-import {BigNumber, Wallet} from "ethers";
+import {BigNumber, Signer} from "ethers";
 import hre from "hardhat";
 import {DEFAULT_CHARITY_ENDOWMENT, DEFAULT_REGISTRAR_CONFIG, wait} from "test/utils";
 import {
@@ -52,10 +51,10 @@ describe("AccountsDepositWithdrawEndowments", function () {
     donationMatch: ethers.constants.AddressZero,
   };
 
-  let accOwner: SignerWithAddress;
-  let proxyAdmin: SignerWithAddress | Wallet;
-  let endowOwner: SignerWithAddress;
-  let indexFund: SignerWithAddress;
+  let accOwner: Signer;
+  let proxyAdmin: Signer;
+  let endowOwner: Signer;
+  let indexFund: Signer;
 
   let facet: AccountsDepositWithdrawEndowments;
   let state: TestFacetProxyContract;
@@ -81,7 +80,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
     charity = {
       ...DEFAULT_CHARITY_ENDOWMENT,
-      owner: endowOwner.address,
+      owner: await endowOwner.getAddress(),
       splitToLiquid: {defaultSplit: 25, max: 90, min: 10},
     };
     normalEndow = {
@@ -116,7 +115,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
     const registrarConfig: RegistrarStorage.ConfigStruct = {
       ...DEFAULT_REGISTRAR_CONFIG,
       haloToken: genWallet().address,
-      indexFundContract: indexFund.address,
+      indexFundContract: await indexFund.getAddress(),
       wMaticAddress: wmaticFake.address,
       treasury: treasury,
     };
@@ -129,7 +128,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
     await wait(
       state.setConfig({
-        owner: accOwner.address,
+        owner: await accOwner.getAddress(),
         version: "1",
         networkName: "Polygon",
         registrarContract: registrarFake.address,
@@ -567,7 +566,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
         it("deposit with endowment-level deposit fee only", async () => {
           const depositBps: AccountStorage.EndowmentStruct = {
             ...normalEndow,
-            depositFee: {payoutAddress: endowOwner.address, bps: 100},
+            depositFee: {payoutAddress: await endowOwner.getAddress(), bps: 100},
           };
           await wait(state.setEndowmentDetails(depositToNormalEndow.id, depositBps));
 
@@ -608,7 +607,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
           const depositBps: AccountStorage.EndowmentStruct = {
             ...normalEndow,
-            depositFee: {payoutAddress: endowOwner.address, bps: 100},
+            depositFee: {payoutAddress: await endowOwner.getAddress(), bps: 100},
           };
           await wait(state.setEndowmentDetails(depositToNormalEndow.id, depositBps));
 
@@ -956,7 +955,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
           // set endowment-level withdraw fee to 0.1%
           const normalWithFee: AccountStorage.EndowmentStruct = {
             ...normalEndow,
-            withdrawFee: {payoutAddress: endowOwner.address, bps: 10},
+            withdrawFee: {payoutAddress: await endowOwner.getAddress(), bps: 10},
           };
           await wait(state.setEndowmentDetails(normalEndowId, normalWithFee));
 
@@ -977,7 +976,10 @@ describe("AccountsDepositWithdrawEndowments", function () {
               beneficiaryId
             );
 
-          expect(tokenFake.transfer).to.have.been.calledWith(endowOwner.address, expectedFeeEndow);
+          expect(tokenFake.transfer).to.have.been.calledWith(
+            await endowOwner.getAddress(),
+            expectedFeeEndow
+          );
           expect(tokenFake.transfer).to.have.been.calledWith(
             beneficiaryAddress,
             finalAmountLeftover
@@ -1064,7 +1066,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
           // set Endowment allowlist & withdraw fee
           const normalWithAllowlist: AccountStorage.EndowmentStruct = {
             ...normalEndow,
-            withdrawFee: {payoutAddress: endowOwner.address, bps: 10}, // 0.1%
+            withdrawFee: {payoutAddress: await endowOwner.getAddress(), bps: 10}, // 0.1%
           };
           await wait(state.setEndowmentDetails(normalEndowId, normalWithAllowlist));
 
@@ -1088,7 +1090,10 @@ describe("AccountsDepositWithdrawEndowments", function () {
             );
 
           expect(tokenFake.transfer).to.have.been.calledWith(treasury, expectedFeeAp);
-          expect(tokenFake.transfer).to.have.been.calledWith(endowOwner.address, expectedFeeEndow);
+          expect(tokenFake.transfer).to.have.been.calledWith(
+            await endowOwner.getAddress(),
+            expectedFeeEndow
+          );
           expect(tokenFake.transfer).to.have.been.calledWith(
             beneficiaryAddress,
             finalAmountLeftover
@@ -1112,7 +1117,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
           // set Endowment allowlist & withdraw fee
           const normalWithAllowlist: AccountStorage.EndowmentStruct = {
             ...normalEndow,
-            withdrawFee: {payoutAddress: endowOwner.address, bps: 10}, // 0.1%
+            withdrawFee: {payoutAddress: await endowOwner.getAddress(), bps: 10}, // 0.1%
           };
           await wait(state.setEndowmentDetails(normalEndowId, normalWithAllowlist));
           await wait(state.setAllowlist(normalEndowId, 0, [beneficiaryAddress]));
@@ -1144,7 +1149,10 @@ describe("AccountsDepositWithdrawEndowments", function () {
           let expectedFeeEndow = amount.mul(10).div(10000);
           let finalAmountLeftover = amount.sub(expectedFeeEndow);
 
-          expect(tokenFake.transfer).to.have.been.calledWith(endowOwner.address, expectedFeeEndow);
+          expect(tokenFake.transfer).to.have.been.calledWith(
+            await endowOwner.getAddress(),
+            expectedFeeEndow
+          );
           expect(tokenFake.transfer).to.have.been.calledWith(
             beneficiaryAddress,
             finalAmountLeftover
@@ -1161,7 +1169,10 @@ describe("AccountsDepositWithdrawEndowments", function () {
           expectedFeeEndow = amount.mul(10).div(10000);
           finalAmountLeftover = amount.sub(expectedFeeEndow);
 
-          expect(wmaticFake.transfer).to.have.been.calledWith(endowOwner.address, expectedFeeEndow);
+          expect(wmaticFake.transfer).to.have.been.calledWith(
+            await endowOwner.getAddress(),
+            expectedFeeEndow
+          );
           expect(wmaticFake.transfer).to.have.been.calledWith(
             beneficiaryAddress,
             finalAmountLeftover
@@ -1181,7 +1192,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
           const normalEndowWithFee: AccountStorage.EndowmentStruct = {
             ...normalEndow,
-            withdrawFee: {bps: 10, payoutAddress: endowOwner.address},
+            withdrawFee: {bps: 10, payoutAddress: await endowOwner.getAddress()},
           };
           await wait(state.setEndowmentDetails(normalEndowId, normalEndowWithFee));
 
@@ -1216,7 +1227,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
           expect(tokenFake.transfer).to.have.been.calledWith(treasury, protocolWithdrawFee);
           expect(tokenFake.transfer).to.have.been.calledWith(treasury, protocolEarlyWithdrawFee);
           expect(tokenFake.transfer).to.have.been.calledWith(
-            endowOwner.address,
+            await endowOwner.getAddress(),
             endowmentWithdrawFee
           );
           expect(tokenFake.transfer).to.have.been.calledWith(
@@ -1349,7 +1360,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
             maturityTime: currTime,
           };
           await wait(state.setEndowmentDetails(normalEndowId, matureEndowment));
-          await wait(state.setAllowlist(normalEndowId, 2, [indexFund.address]));
+          await wait(state.setAllowlist(normalEndowId, 2, [await indexFund.getAddress()]));
 
           const acctType = VaultType.LOCKED;
           const beneficiaryAddress = ethers.constants.AddressZero;

@@ -1,7 +1,6 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {Signer} from "ethers";
 import {expect, use} from "chai";
-import {Wallet} from "ethers";
 import hre from "hardhat";
 import {
   DEFAULT_ACTION_DATA,
@@ -33,10 +32,10 @@ use(smock.matchers);
 
 describe("Router", function () {
   const {ethers} = hre;
-  let owner: SignerWithAddress;
-  let admin: SignerWithAddress | Wallet;
-  let user: SignerWithAddress;
-  let collector: SignerWithAddress;
+  let owner: Signer;
+  let admin: Signer;
+  let user: Signer;
+  let collector: Signer;
   let deadAddr = "0x000000000000000000000000000000000000dead";
   const originatingChain = "Polygon";
   const localChain = "Ethereum";
@@ -61,14 +60,14 @@ describe("Router", function () {
 
     const RouterProxy = await ProxyContract.deploy(
       RouterImpl.address,
-      admin.address,
+      await admin.getAddress(),
       RouterInitData
     );
     await RouterProxy.deployed();
     return Router__factory.connect(RouterProxy.address, owner);
   }
 
-  async function upgradeProxy(signer: SignerWithAddress | Wallet, routerProxy: string) {
+  async function upgradeProxy(signer: Signer, routerProxy: string) {
     const RouterFactory = new Router__factory(owner);
     const RouterImpl = await RouterFactory.deploy();
     await RouterImpl.deployed();
@@ -108,7 +107,7 @@ describe("Router", function () {
         ...DEFAULT_NETWORK_INFO,
         axelarGateway: gateway.address,
         gasReceiver: gasService.address,
-        refundAddr: collector.address,
+        refundAddr: await collector.getAddress(),
       };
 
       gateway.validateContractCall.returns(true);
@@ -118,7 +117,9 @@ describe("Router", function () {
       registrar.getAccountsContractAddressByChain
         .whenCalledWith(originatingChain)
         .returns(accountsContract);
-      registrar.getAccountsContractAddressByChain.whenCalledWith(localChain).returns(owner.address);
+      registrar.getAccountsContractAddressByChain
+        .whenCalledWith(localChain)
+        .returns(await owner.getAddress());
       registrar.thisChain.returns(localChain);
       router = await deployRouterAsProxy(registrar.address);
     });
@@ -128,7 +129,7 @@ describe("Router", function () {
         router.executeWithToken(
           ethers.utils.formatBytes32String("true"),
           originatingChain,
-          owner.address,
+          await owner.getAddress(),
           ethers.utils.formatBytes32String("payload"),
           "USDC",
           1
@@ -142,7 +143,7 @@ describe("Router", function () {
           .connect(user)
           .executeWithTokenLocal(
             localChain,
-            user.address,
+            await user.getAddress(),
             ethers.utils.formatBytes32String("payload"),
             "USDC",
             1
@@ -155,7 +156,7 @@ describe("Router", function () {
         router.execute(
           ethers.utils.formatBytes32String("true"),
           originatingChain,
-          owner.address,
+          await owner.getAddress(),
           ethers.utils.formatBytes32String("payload")
         )
       ).to.be.revertedWith("Unauthorized Call");
@@ -165,7 +166,11 @@ describe("Router", function () {
       await expect(
         router
           .connect(user)
-          .executeLocal(localChain, user.address, ethers.utils.formatBytes32String("payload"))
+          .executeLocal(
+            localChain,
+            await user.getAddress(),
+            ethers.utils.formatBytes32String("payload")
+          )
       ).to.be.revertedWith("Unauthorized local call");
     });
 
@@ -224,7 +229,7 @@ describe("Router", function () {
         ...DEFAULT_NETWORK_INFO,
         axelarGateway: gateway.address,
         gasReceiver: gasService.address,
-        refundAddr: collector.address,
+        refundAddr: await collector.getAddress(),
       };
 
       gateway.validateContractCall.returns(true);
@@ -235,7 +240,9 @@ describe("Router", function () {
       registrar.getAccountsContractAddressByChain
         .whenCalledWith(originatingChain)
         .returns(accountsContract);
-      registrar.getAccountsContractAddressByChain.whenCalledWith(localChain).returns(owner.address);
+      registrar.getAccountsContractAddressByChain
+        .whenCalledWith(localChain)
+        .returns(await owner.getAddress());
       registrar.getGasByToken.whenCalledWith(token.address).returns(GAS_COST);
       registrar.thisChain.returns(localChain);
       token.transfer.returns(true);
@@ -398,7 +405,7 @@ describe("Router", function () {
           ...DEFAULT_NETWORK_INFO,
           axelarGateway: gateway.address,
           gasReceiver: gasService.address,
-          refundAddr: collector.address,
+          refundAddr: await collector.getAddress(),
         };
 
         gateway.validateContractCall.returns(true);
@@ -411,7 +418,7 @@ describe("Router", function () {
           .returns(accountsContract);
         registrar.getAccountsContractAddressByChain
           .whenCalledWith(localChain)
-          .returns(owner.address);
+          .returns(await owner.getAddress());
         registrar.getGasByToken.whenCalledWith(token.address).returns(GAS_COST);
         registrar.thisChain.returns(localChain);
         token.transfer.returns(true);
@@ -439,7 +446,7 @@ describe("Router", function () {
         )
           .to.emit(router, "ErrorLogged")
           .withArgs(Array<any>, "Only deposit accepts tokens");
-        expect(token.transfer).to.have.been.calledWith(collector.address, TOTAL_AMT);
+        expect(token.transfer).to.have.been.calledWith(await collector.getAddress(), TOTAL_AMT);
       });
 
       it("when the payload amt doesn't match the GMP amt", async function () {
@@ -459,7 +466,7 @@ describe("Router", function () {
         )
           .to.emit(router, "ErrorLogged")
           .withArgs(Array<any>, "Amount mismatch");
-        expect(token.transfer).to.have.been.calledWith(collector.address, TOTAL_AMT - 1);
+        expect(token.transfer).to.have.been.calledWith(await collector.getAddress(), TOTAL_AMT - 1);
       });
 
       it("when the vault values are both zero", async function () {
@@ -501,7 +508,7 @@ describe("Router", function () {
         )
           .to.emit(router, "ErrorLogged")
           .withArgs(Array<any>, "Token not accepted");
-        expect(token.transfer).to.have.been.calledWith(collector.address, TOTAL_AMT);
+        expect(token.transfer).to.have.been.calledWith(await collector.getAddress(), TOTAL_AMT);
       });
 
       it("when the strategy is not approved", async function () {
@@ -521,7 +528,7 @@ describe("Router", function () {
         )
           .to.emit(router, "ErrorLogged")
           .withArgs(Array<any>, "Strategy not approved");
-        expect(token.transfer).to.have.been.calledWith(collector.address, TOTAL_AMT);
+        expect(token.transfer).to.have.been.calledWith(await collector.getAddress(), TOTAL_AMT);
       });
 
       it("when the strategy is not approved for execute", async function () {
@@ -572,7 +579,7 @@ describe("Router", function () {
         ...DEFAULT_NETWORK_INFO,
         axelarGateway: gateway.address,
         gasReceiver: gasService.address,
-        refundAddr: collector.address,
+        refundAddr: await collector.getAddress(),
       };
 
       const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
@@ -590,7 +597,9 @@ describe("Router", function () {
       registrar.getAccountsContractAddressByChain
         .whenCalledWith(originatingChain)
         .returns(accountsContract);
-      registrar.getAccountsContractAddressByChain.whenCalledWith(localChain).returns(owner.address);
+      registrar.getAccountsContractAddressByChain
+        .whenCalledWith(localChain)
+        .returns(await owner.getAddress());
       registrar.getGasByToken.whenCalledWith(token.address).returns(GAS_COST);
       registrar.getStrategyApprovalState.returns(StrategyApprovalState.APPROVED);
       registrar.getStrategyParamsById.returns(stratParams);
@@ -708,7 +717,7 @@ describe("Router", function () {
         ...DEFAULT_NETWORK_INFO,
         axelarGateway: gateway.address,
         gasReceiver: gasService.address,
-        refundAddr: collector.address,
+        refundAddr: await collector.getAddress(),
       };
 
       const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
@@ -726,7 +735,9 @@ describe("Router", function () {
       registrar.getAccountsContractAddressByChain
         .whenCalledWith(originatingChain)
         .returns(accountsContract);
-      registrar.getAccountsContractAddressByChain.whenCalledWith(localChain).returns(owner.address);
+      registrar.getAccountsContractAddressByChain
+        .whenCalledWith(localChain)
+        .returns(await owner.getAddress());
       registrar.getStrategyApprovalState.returns(StrategyApprovalState.APPROVED);
       registrar.getStrategyParamsById.returns(stratParams);
       token.transfer.returns(true);
@@ -786,7 +797,7 @@ describe("Router", function () {
         ...DEFAULT_NETWORK_INFO,
         axelarGateway: gateway.address,
         gasReceiver: gasService.address,
-        refundAddr: collector.address,
+        refundAddr: await collector.getAddress(),
       };
 
       const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
@@ -803,11 +814,16 @@ describe("Router", function () {
       registrar.getAccountsContractAddressByChain
         .whenCalledWith(originatingChain)
         .returns(accountsContract);
-      registrar.getAccountsContractAddressByChain.whenCalledWith(localChain).returns(owner.address);
+      registrar.getAccountsContractAddressByChain
+        .whenCalledWith(localChain)
+        .returns(await owner.getAddress());
       registrar.getGasByToken.whenCalledWith(token.address).returns(GAS_COST);
       registrar.getStrategyApprovalState.returns(StrategyApprovalState.APPROVED);
       registrar.getStrategyParamsById.returns(stratParams);
-      registrar.getFeeSettingsByFeeType.returns({payoutAddress: collector.address, bps: 1});
+      registrar.getFeeSettingsByFeeType.returns({
+        payoutAddress: await collector.getAddress(),
+        bps: 1,
+      });
       registrar.thisChain.returns(localChain);
       token.transfer.returns(true);
       token.transferFrom.returns(true);
@@ -866,7 +882,7 @@ describe("Router", function () {
         TOTAL_AMT - GAS_COST,
         token.address,
         GAS_COST,
-        collector.address
+        await collector.getAddress()
       );
       expect(gateway.callContractWithToken).to.have.been.calledWith(
         originatingChain,
@@ -935,7 +951,7 @@ describe("Router", function () {
         ...DEFAULT_NETWORK_INFO,
         axelarGateway: gateway.address,
         gasReceiver: gasService.address,
-        refundAddr: collector.address,
+        refundAddr: await collector.getAddress(),
       };
 
       const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
@@ -952,11 +968,16 @@ describe("Router", function () {
       registrar.getAccountsContractAddressByChain
         .whenCalledWith(originatingChain)
         .returns(accountsContract);
-      registrar.getAccountsContractAddressByChain.whenCalledWith(localChain).returns(owner.address);
+      registrar.getAccountsContractAddressByChain
+        .whenCalledWith(localChain)
+        .returns(await owner.getAddress());
       registrar.getGasByToken.whenCalledWith(token.address).returns(GAS_COST);
       registrar.getStrategyApprovalState.returns(StrategyApprovalState.APPROVED);
       registrar.getStrategyParamsById.returns(stratParams);
-      registrar.getFeeSettingsByFeeType.returns({payoutAddress: collector.address, bps: 1});
+      registrar.getFeeSettingsByFeeType.returns({
+        payoutAddress: await collector.getAddress(),
+        bps: 1,
+      });
       registrar.thisChain.returns(localChain);
       token.transfer.returns(true);
       token.transferFrom.returns(true);
@@ -1015,7 +1036,7 @@ describe("Router", function () {
         TOTAL_AMT - GAS_COST,
         token.address,
         GAS_COST,
-        collector.address
+        await collector.getAddress()
       );
       expect(gateway.callContractWithToken).to.have.been.calledWith(
         originatingChain,
@@ -1078,7 +1099,7 @@ describe("Router", function () {
       const networkParams = {
         ...DEFAULT_NETWORK_INFO,
         axelarGateway: gateway.address,
-        refundAddr: collector.address,
+        refundAddr: await collector.getAddress(),
       };
 
       const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
@@ -1095,11 +1116,16 @@ describe("Router", function () {
       registrar.getAccountsContractAddressByChain
         .whenCalledWith(originatingChain)
         .returns(accountsContract);
-      registrar.getAccountsContractAddressByChain.whenCalledWith(localChain).returns(owner.address);
+      registrar.getAccountsContractAddressByChain
+        .whenCalledWith(localChain)
+        .returns(await owner.getAddress());
       registrar.getStrategyApprovalState.returns(StrategyApprovalState.APPROVED);
       registrar.getStrategyParamsById.returns(stratParams);
-      registrar.getVaultOperatorApproved.whenCalledWith(owner.address).returns(true);
-      registrar.getFeeSettingsByFeeType.returns({payoutAddress: collector.address, bps: 1});
+      registrar.getVaultOperatorApproved.whenCalledWith(await owner.getAddress()).returns(true);
+      registrar.getFeeSettingsByFeeType.returns({
+        payoutAddress: await collector.getAddress(),
+        bps: 1,
+      });
       registrar.thisChain.returns(localChain);
       token.transfer.returns(true);
       token.transferFrom.returns(true);
@@ -1164,11 +1190,14 @@ describe("Router", function () {
       registrar.queryNetworkConnection.returns(networkParams);
       registrar.getAccountsContractAddressByChain
         .whenCalledWith(originatingChain)
-        .returns(owner.address);
+        .returns(await owner.getAddress());
       registrar.getStrategyApprovalState.returns(StrategyApprovalState.APPROVED);
       registrar.getStrategyParamsById.returns(stratParams);
-      registrar.getVaultOperatorApproved.whenCalledWith(owner.address).returns(true);
-      registrar.getFeeSettingsByFeeType.returns({payoutAddress: collector.address, bps: 1});
+      registrar.getVaultOperatorApproved.whenCalledWith(await owner.getAddress()).returns(true);
+      registrar.getFeeSettingsByFeeType.returns({
+        payoutAddress: await collector.getAddress(),
+        bps: 1,
+      });
       registrar.thisChain.returns(originatingChain);
       token.transfer.returns(true);
       token.transferFrom.returns(true);
@@ -1210,7 +1239,7 @@ describe("Router", function () {
       expect(liquidVault.harvest).to.have.been.calledWith(requestData.accountIds);
       expect(token.transfer).to.have.been.calledWith(router.address, LOCK_AMT);
       expect(token.transfer).to.have.been.calledWith(router.address, LIQ_AMT);
-      expect(token.transfer).to.have.been.calledWith(collector.address, TOTAL_AMT);
+      expect(token.transfer).to.have.been.calledWith(await collector.getAddress(), TOTAL_AMT);
     });
   });
 });

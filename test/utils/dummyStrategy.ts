@@ -1,9 +1,9 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {Signer} from "ethers";
 import {DummyStrategy, DummyStrategy__factory, IStrategy} from "typechain-types";
 import {DEFAULT_STRATEGY_ID} from "./constants";
 
 export async function deployDummyStrategy(
-  deployer: SignerWithAddress,
+  deployer: Signer,
   {
     baseToken,
     yieldToken,

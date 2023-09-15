@@ -54,16 +54,16 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
 
       let {deployer, proxyAdminMultisigOwners, treasury} = await getSigners(hre);
 
-      let treasuryAddress = treasury ? treasury.address : CONFIG.PROD_CONFIG.Treasury;
+      let treasuryAddress = treasury ? await treasury.getAddress() : CONFIG.PROD_CONFIG.Treasury;
 
       const proxyAdminMultisigOwnerAddresses = proxyAdminMultisigOwners
-        ? proxyAdminMultisigOwners.map((x) => x.address)
+        ? await Promise.all(proxyAdminMultisigOwners.map((x) => x.getAddress()))
         : CONFIG.PROD_CONFIG.ProxyAdminMultiSigOwners;
 
       // Reset the contract address object for all contracts that will be deployed here
       await resetContractAddresses(hre);
 
-      logger.out(`Deploying the contracts with the account: ${deployer.address}`);
+      logger.out(`Deploying the contracts with the account: ${await deployer.getAddress()}`);
 
       const proxyAdminMultisig = await deployProxyAdminMultisig(
         proxyAdminMultisigOwnerAddresses,

@@ -1,18 +1,18 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {Signer} from "ethers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {isProdNetwork} from "../networkHelpers";
 
 type Result = {
-  airdropOwner?: SignerWithAddress;
-  apTeam1: SignerWithAddress;
-  apTeam2: SignerWithAddress;
-  apTeam3: SignerWithAddress;
-  charityApplicationsOwners?: SignerWithAddress[];
-  apTeamMultisigOwners?: SignerWithAddress[];
-  proxyAdminMultisigOwners?: SignerWithAddress[];
-  deployer: SignerWithAddress;
-  timeLockAdmin?: SignerWithAddress;
-  treasury?: SignerWithAddress;
+  airdropOwner?: Signer;
+  apTeam1: Signer;
+  apTeam2: Signer;
+  apTeam3: Signer;
+  charityApplicationsOwners?: Signer[];
+  apTeamMultisigOwners?: Signer[];
+  proxyAdminMultisigOwners?: Signer[];
+  deployer: Signer;
+  timeLockAdmin?: Signer;
+  treasury?: Signer;
 };
 
 export async function getSigners(hre: HardhatRuntimeEnvironment): Promise<Result> {

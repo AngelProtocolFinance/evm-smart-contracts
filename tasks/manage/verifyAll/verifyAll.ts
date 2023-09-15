@@ -71,7 +71,7 @@ task("manage:verifyAll", "Will verify all the contracts").setAction(async (_, hr
       contractName: getContractName(ProxyAdminMultiSig__factory),
       constructorArguments: [
         proxyAdminMultisigOwners
-          ? proxyAdminMultisigOwners.map((x) => x.address)
+          ? await Promise.all(proxyAdminMultisigOwners.map((x) => x.getAddress()))
           : CONFIG.PROD_CONFIG.ProxyAdminMultiSigOwners,
         CONFIG.PROXY_ADMIN_MULTISIG_DATA.threshold,
         CONFIG.PROXY_ADMIN_MULTISIG_DATA.requireExecution,

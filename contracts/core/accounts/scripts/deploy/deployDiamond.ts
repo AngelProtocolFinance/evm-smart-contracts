@@ -1,4 +1,4 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {Signer} from "ethers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {
   Diamond,
@@ -9,7 +9,7 @@ import {
 import {logger, updateAddresses} from "utils";
 
 export default async function deployDiamond(
-  admin: SignerWithAddress,
+  admin: Signer,
   hre: HardhatRuntimeEnvironment
 ): Promise<{diamond: Diamond; diamondCutFacet: DiamondCutFacet}> {
   const DiamondCutFacet = new DiamondCutFacet__factory(admin);
@@ -18,7 +18,7 @@ export default async function deployDiamond(
   logger.out(`DiamondCutFacet deployed at: ${diamondCutFacet.address}`);
 
   const Diamond = new Diamond__factory(admin);
-  const diamond = await Diamond.deploy(admin.address, diamondCutFacet.address);
+  const diamond = await Diamond.deploy(await admin.getAddress(), diamondCutFacet.address);
   await diamond.deployed();
   logger.out(`Diamond deployed at: ${diamond.address}`);
 

@@ -1,11 +1,11 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {Signer} from "ethers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {GasFwdFactory__factory, GasFwd__factory} from "typechain-types";
 import {Deployment} from "types";
 import {deploy, logger, updateAddresses} from "utils";
 
 type Data = {
-  deployer: SignerWithAddress;
+  deployer: Signer;
   proxyAdmin: string;
   factoryOwner: string;
   registrar: string;

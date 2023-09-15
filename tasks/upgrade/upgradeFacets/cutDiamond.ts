@@ -1,14 +1,13 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {Signer} from "ethers";
 import {submitMultiSigTx} from "tasks/helpers";
 import {DiamondCutFacet__factory, DiamondInit__factory} from "typechain-types";
 import {logger} from "utils";
 import {FacetCut} from "./types";
-import {Wallet} from "ethers";
 
 export default async function cutDiamond(
   diamondAddress: string,
   proxyAdminMultiSig: string,
-  proxyAdmin: SignerWithAddress | Wallet,
+  proxyAdmin: Signer,
   facetCuts: FacetCut[]
 ) {
   logger.out("Updating Diamond with new facet addresses...");

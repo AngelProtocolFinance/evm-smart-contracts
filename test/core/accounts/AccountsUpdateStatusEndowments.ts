@@ -1,5 +1,5 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {Signer} from "ethers";
 import {expect, use} from "chai";
 import hre from "hardhat";
 import {
@@ -23,7 +23,6 @@ import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetP
 import {BeneficiaryEnum, EndowmentType} from "types";
 import {genWallet, getProxyAdminOwner, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
-import {Wallet} from "ethers";
 
 use(smock.matchers);
 
@@ -43,9 +42,9 @@ describe("AccountsUpdateStatusEndowments", function () {
     (x) => ethers.utils.id(x).slice(0, 10) // map to bytes4 selectors
   );
 
-  let accOwner: SignerWithAddress;
-  let proxyAdmin: SignerWithAddress | Wallet;
-  let endowOwner: SignerWithAddress;
+  let accOwner: Signer;
+  let proxyAdmin: Signer;
+  let endowOwner: Signer;
 
   let facet: AccountsUpdateStatusEndowments;
   let state: TestFacetProxyContract;
@@ -63,20 +62,20 @@ describe("AccountsUpdateStatusEndowments", function () {
     const signers = await getSigners(hre);
     accOwner = signers.apTeam1;
     endowOwner = signers.deployer;
-    treasuryAddress = signers.apTeam2.address;
+    treasuryAddress = await signers.apTeam2.getAddress();
 
     proxyAdmin = await getProxyAdminOwner(hre);
 
-    charity_endowment = {...DEFAULT_CHARITY_ENDOWMENT, owner: endowOwner.address};
+    charity_endowment = {...DEFAULT_CHARITY_ENDOWMENT, owner: await endowOwner.getAddress()};
     ast_endowment = {
       ...DEFAULT_CHARITY_ENDOWMENT,
       endowType: EndowmentType.Ast,
-      owner: endowOwner.address,
+      owner: await endowOwner.getAddress(),
     };
     daf_endowment = {
       ...DEFAULT_CHARITY_ENDOWMENT,
       endowType: EndowmentType.Daf,
-      owner: endowOwner.address,
+      owner: await endowOwner.getAddress(),
     };
   });
 
@@ -108,7 +107,7 @@ describe("AccountsUpdateStatusEndowments", function () {
 
     await wait(
       state.setConfig({
-        owner: accOwner.address,
+        owner: await accOwner.getAddress(),
         version: "1",
         networkName: "Polygon",
         registrarContract: registrarFake.address,

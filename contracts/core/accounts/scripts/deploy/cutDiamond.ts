@@ -1,4 +1,4 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {Signer} from "ethers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {DiamondCutFacet__factory, DiamondInit__factory} from "typechain-types";
 import {getAxlNetworkName, logger} from "utils";
@@ -7,7 +7,7 @@ import {FacetCut} from "./types";
 export default async function cutDiamond(
   address: string,
   diamondInit: string,
-  admin: SignerWithAddress,
+  admin: Signer,
   owner: string,
   registrar: string,
   facetCuts: FacetCut[],

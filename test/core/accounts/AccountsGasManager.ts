@@ -1,6 +1,6 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
+import {Signer} from "ethers";
 import hre from "hardhat";
 import {
   DEFAULT_ACCOUNTS_CONFIG,
@@ -21,14 +21,13 @@ import {
 import {VaultType} from "types";
 import {getProxyAdminOwner, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
-import {Wallet} from "ethers";
 
 use(smock.matchers);
 
 describe("AccountsGasManager", function () {
-  let owner: SignerWithAddress;
-  let proxyAdmin: SignerWithAddress | Wallet;
-  let user: SignerWithAddress;
+  let owner: Signer;
+  let proxyAdmin: Signer;
+  let user: Signer;
   let impl: AccountsGasManager;
   let token: FakeContract<IERC20>;
   let gasFwd: FakeContract<GasFwd>;
@@ -98,13 +97,13 @@ describe("AccountsGasManager", function () {
 
       let config = {
         ...DEFAULT_ACCOUNTS_CONFIG,
-        owner: owner.address,
+        owner: await owner.getAddress(),
       };
       await wait(state.setConfig(config));
 
       let endowment = {
         ...DEFAULT_CHARITY_ENDOWMENT,
-        owner: user.address,
+        owner: await user.getAddress(),
         gasFwd: gasFwd.address,
       };
       await wait(state.setEndowmentDetails(ACCOUNT_ID, endowment));
@@ -150,7 +149,7 @@ describe("AccountsGasManager", function () {
       let lockedPerms = {
         ...DEFAULT_PERMISSIONS_STRUCT,
         delegate: {
-          addr: user.address,
+          addr: await user.getAddress(),
           expires: 0,
         },
       };
@@ -179,7 +178,7 @@ describe("AccountsGasManager", function () {
       let liquidPerms = {
         ...DEFAULT_PERMISSIONS_STRUCT,
         delegate: {
-          addr: user.address,
+          addr: await user.getAddress(),
           expires: 0,
         },
       };
@@ -207,7 +206,7 @@ describe("AccountsGasManager", function () {
     it("allows the owner to call", async function () {
       let endowment = {
         ...DEFAULT_CHARITY_ENDOWMENT,
-        owner: user.address,
+        owner: await user.getAddress(),
         gasFwd: gasFwd.address,
       };
       await wait(state.setEndowmentDetails(ACCOUNT_ID, endowment));

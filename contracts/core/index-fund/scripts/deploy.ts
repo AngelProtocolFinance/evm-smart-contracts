@@ -1,5 +1,5 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {CONFIG} from "config";
+import {Signer} from "ethers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {IndexFund__factory} from "typechain-types";
 import {ProxyDeployment} from "types";
@@ -9,7 +9,7 @@ export async function deployIndexFund(
   registrar: string,
   owner: string,
   proxyAdmin: string,
-  deployer: SignerWithAddress,
+  deployer: Signer,
   hre: HardhatRuntimeEnvironment
 ): Promise<ProxyDeployment<IndexFund__factory>> {
   // data setup

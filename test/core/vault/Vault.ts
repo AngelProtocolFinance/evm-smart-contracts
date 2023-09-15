@@ -1,7 +1,6 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
-import {BigNumber, Wallet} from "ethers";
+import {BigNumber, Signer} from "ethers";
 import hre from "hardhat";
 import {
   DEFAULT_NETWORK,
@@ -38,10 +37,10 @@ describe("Vault", function () {
   let registrarFake: FakeContract<LocalRegistrar>;
   let vaultEmitterFake: FakeContract<IVaultEmitter>;
 
-  let owner: SignerWithAddress;
-  let user: SignerWithAddress;
-  let admin: SignerWithAddress | Wallet;
-  let collector: SignerWithAddress;
+  let owner: Signer;
+  let user: Signer;
+  let admin: Signer;
+  let collector: Signer;
 
   async function deployVault(
     {
@@ -104,7 +103,7 @@ describe("Vault", function () {
       token.decimals.returns(DECIMALS);
       vault = await deployVault(
         {
-          admin: owner.address,
+          admin: await owner.getAddress(),
           baseToken: token.address,
           yieldToken: token.address,
         },
@@ -123,7 +122,7 @@ describe("Vault", function () {
       await expect(
         deployVault(
           {
-            admin: owner.address,
+            admin: await owner.getAddress(),
             baseToken: ethers.constants.AddressZero,
             yieldToken: ethers.constants.AddressZero,
           },
@@ -141,7 +140,7 @@ describe("Vault", function () {
       token = await smock.fake<DummyERC20>(new DummyERC20__factory());
       vault = await deployVault(
         {
-          admin: owner.address,
+          admin: await owner.getAddress(),
           baseToken: token.address,
           yieldToken: token.address,
         },
@@ -159,12 +158,12 @@ describe("Vault", function () {
       expect(config.yieldToken).to.equal(token.address);
       expect(config.apTokenName).to.equal(DEFAULT_VAULT_NAME);
       expect(config.apTokenSymbol).to.equal(DEFAULT_VAULT_SYMBOL);
-      expect(admin).to.equal(owner.address);
+      expect(admin).to.equal(await owner.getAddress());
     });
     it("should accept new config values", async function () {
       let newConfig = {
-        strategy: user.address,
-        registrar: user.address,
+        strategy: await user.getAddress(),
+        registrar: await user.getAddress(),
       } as IVault.VaultConfigStruct;
       await vault.setVaultConfig(newConfig);
       let queriedConfig = await vault.getVaultConfig();
@@ -173,8 +172,8 @@ describe("Vault", function () {
     });
     it("should revert when a non-admin calls the set method", async function () {
       let newConfig = {
-        strategy: user.address,
-        registrar: user.address,
+        strategy: await user.getAddress(),
+        registrar: await user.getAddress(),
       } as IVault.VaultConfigStruct;
       await expect(vault.connect(user).setVaultConfig(newConfig)).to.be.reverted;
     });
@@ -202,14 +201,14 @@ describe("Vault", function () {
         strategyId: DEFAULT_STRATEGY_ID,
         baseToken: baseToken.address,
         yieldToken: yieldToken.address,
-        admin: owner.address,
+        admin: await owner.getAddress(),
       });
       registrarFake = await smock.fake<LocalRegistrar>(new LocalRegistrar__factory());
-      registrarFake.getVaultOperatorApproved.whenCalledWith(owner.address).returns(true);
+      registrarFake.getVaultOperatorApproved.whenCalledWith(await owner.getAddress()).returns(true);
       vault = await deployVault(
         {
           vaultType: 1, // Liquid
-          admin: owner.address,
+          admin: await owner.getAddress(),
           baseToken: baseToken.address,
           yieldToken: yieldToken.address,
           strategy: strategy.address,
@@ -221,15 +220,17 @@ describe("Vault", function () {
       registrarFake.thisChain.returns(DEFAULT_NETWORK);
       registrarFake.queryNetworkConnection.whenCalledWith(DEFAULT_NETWORK).returns({
         ...DEFAULT_NETWORK_INFO,
-        router: owner.address,
+        router: await owner.getAddress(),
       });
     });
 
     it("reverts if the operator isn't approved as an operator, sibling vault, or approved router", async function () {
-      registrarFake.getVaultOperatorApproved.whenCalledWith(owner.address).returns(false);
+      registrarFake.getVaultOperatorApproved
+        .whenCalledWith(await owner.getAddress())
+        .returns(false);
       registrarFake.queryNetworkConnection.whenCalledWith(DEFAULT_NETWORK).returns({
         ...DEFAULT_NETWORK_INFO,
-        router: user.address,
+        router: await user.getAddress(),
       });
       await expect(vault.deposit(0, baseToken.address, 1)).to.be.revertedWithCustomError(
         vault,
@@ -324,7 +325,7 @@ describe("Vault", function () {
         strategyId: DEFAULT_STRATEGY_ID,
         baseToken: baseToken.address,
         yieldToken: yieldToken.address,
-        admin: owner.address,
+        admin: await owner.getAddress(),
       });
       const networkParams = {
         ...DEFAULT_NETWORK_INFO,
@@ -333,16 +334,16 @@ describe("Vault", function () {
       registrarFake = await smock.fake<LocalRegistrar>(new LocalRegistrar__factory());
       registrarFake.thisChain.returns(DEFAULT_NETWORK);
       registrarFake.queryNetworkConnection.returns(networkParams);
-      registrarFake.getVaultOperatorApproved.whenCalledWith(owner.address).returns(true);
+      registrarFake.getVaultOperatorApproved.whenCalledWith(await owner.getAddress()).returns(true);
       registrarFake.getFeeSettingsByFeeType.returns({
-        payoutAddress: collector.address,
+        payoutAddress: await collector.getAddress(),
         bps: TAX_RATE,
       });
 
       vault = await deployVault(
         {
           vaultType: 0, // Locked
-          admin: owner.address,
+          admin: await owner.getAddress(),
           baseToken: baseToken.address,
           yieldToken: yieldToken.address,
           strategy: strategy.address,
@@ -365,7 +366,9 @@ describe("Vault", function () {
     });
 
     it("reverts if the caller isn't approved", async function () {
-      registrarFake.getVaultOperatorApproved.whenCalledWith(owner.address).returns(false);
+      registrarFake.getVaultOperatorApproved
+        .whenCalledWith(await owner.getAddress())
+        .returns(false);
       await expect(vault.redeem(0, DEPOSIT / 2)).to.be.revertedWithCustomError(
         vault,
         "OnlyApproved"
@@ -459,7 +462,7 @@ describe("Vault", function () {
         strategyId: DEFAULT_STRATEGY_ID,
         baseToken: baseToken.address,
         yieldToken: yieldToken.address,
-        admin: owner.address,
+        admin: await owner.getAddress(),
       });
       const networkParams = {
         ...DEFAULT_NETWORK_INFO,
@@ -468,16 +471,16 @@ describe("Vault", function () {
       registrarFake = await smock.fake<LocalRegistrar>(new LocalRegistrar__factory());
       registrarFake.thisChain.returns(DEFAULT_NETWORK);
       registrarFake.queryNetworkConnection.returns(networkParams);
-      registrarFake.getVaultOperatorApproved.whenCalledWith(owner.address).returns(true);
+      registrarFake.getVaultOperatorApproved.whenCalledWith(await owner.getAddress()).returns(true);
       registrarFake.getFeeSettingsByFeeType.returns({
-        payoutAddress: collector.address,
+        payoutAddress: await collector.getAddress(),
         bps: TAX_RATE,
       });
 
       vault = await deployVault(
         {
           vaultType: 0, // Locked
-          admin: owner.address,
+          admin: await owner.getAddress(),
           baseToken: baseToken.address,
           yieldToken: yieldToken.address,
           strategy: strategy.address,
@@ -497,7 +500,9 @@ describe("Vault", function () {
     });
 
     it("reverts if the caller isn't approved", async function () {
-      registrarFake.getVaultOperatorApproved.whenCalledWith(owner.address).returns(false);
+      registrarFake.getVaultOperatorApproved
+        .whenCalledWith(await owner.getAddress())
+        .returns(false);
       await expect(vault.redeemAll(0)).to.be.revertedWithCustomError(vault, "OnlyApproved");
     });
 
@@ -525,7 +530,10 @@ describe("Vault", function () {
         vault.address,
         DEPOSIT * 2
       );
-      expect(baseToken.approve).to.have.been.calledWith(owner.address, DEPOSIT * 2 - expectedTax);
+      expect(baseToken.approve).to.have.been.calledWith(
+        await owner.getAddress(),
+        DEPOSIT * 2 - expectedTax
+      );
       expect(baseToken.approve).to.have.been.calledWith(router.address, expectedTax);
     });
 
@@ -566,13 +574,13 @@ describe("Vault", function () {
         strategyId: DEFAULT_STRATEGY_ID,
         baseToken: baseToken.address,
         yieldToken: yieldToken.address,
-        admin: owner.address,
+        admin: await owner.getAddress(),
       });
       registrarFake = await smock.fake<LocalRegistrar>(new LocalRegistrar__factory());
-      registrarFake.getVaultOperatorApproved.whenCalledWith(owner.address).returns(true);
+      registrarFake.getVaultOperatorApproved.whenCalledWith(await owner.getAddress()).returns(true);
       registrarFake.getFeeSettingsByFeeType
         .whenCalledWith(1)
-        .returns({payoutAddress: collector.address, bps: TAX_RATE});
+        .returns({payoutAddress: await collector.getAddress(), bps: TAX_RATE});
       registrarFake.thisChain.returns(DEFAULT_NETWORK);
       registrarFake.queryNetworkConnection.whenCalledWith(DEFAULT_NETWORK).returns({
         ...DEFAULT_NETWORK_INFO,
@@ -586,7 +594,7 @@ describe("Vault", function () {
         vault = await deployVault(
           {
             vaultType: 1, // Locked
-            admin: owner.address,
+            admin: await owner.getAddress(),
             baseToken: baseToken.address,
             yieldToken: yieldToken.address,
             strategy: strategy.address,
@@ -605,11 +613,13 @@ describe("Vault", function () {
       });
 
       it("reverts if the caller isn't approved", async function () {
-        registrarFake.getVaultOperatorApproved.whenCalledWith(owner.address).returns(false);
+        registrarFake.getVaultOperatorApproved
+          .whenCalledWith(await owner.getAddress())
+          .returns(false);
         registrarFake.thisChain.returns(DEFAULT_NETWORK);
         registrarFake.queryNetworkConnection.whenCalledWith(DEFAULT_NETWORK).returns({
           ...DEFAULT_NETWORK_INFO,
-          router: user.address,
+          router: await user.getAddress(),
         });
         await expect(vault.harvest([0])).to.be.revertedWithCustomError(vault, "OnlyApproved");
       });
@@ -654,12 +664,12 @@ describe("Vault", function () {
           strategyId: DEFAULT_STRATEGY_ID,
           baseToken: baseToken.address,
           yieldToken: yieldToken.address,
-          admin: owner.address,
+          admin: await owner.getAddress(),
         });
         liquidVault = await deployVault(
           {
             vaultType: 1, // Liquid
-            admin: owner.address,
+            admin: await owner.getAddress(),
             baseToken: baseToken.address,
             yieldToken: yieldToken.address,
             strategy: liquidStrategy.address,
@@ -670,7 +680,7 @@ describe("Vault", function () {
         lockedVault = await deployVault(
           {
             vaultType: 0, // Locked
-            admin: owner.address,
+            admin: await owner.getAddress(),
             baseToken: baseToken.address,
             yieldToken: yieldToken.address,
             strategy: strategy.address,
@@ -689,7 +699,7 @@ describe("Vault", function () {
         registrarFake.thisChain.returns(DEFAULT_NETWORK);
         registrarFake.queryNetworkConnection.whenCalledWith(DEFAULT_NETWORK).returns({
           ...DEFAULT_NETWORK_INFO,
-          router: owner.address,
+          router: await owner.getAddress(),
         });
         registrarFake.getRebalanceParams.returns({
           rebalanceLiquidProfits: false,
@@ -722,7 +732,7 @@ describe("Vault", function () {
         liquidStrategy.deposit.returns(expectedRebalAmt);
         liquidStrategy.paused.returns(false);
         await expect(lockedVault.harvest([0])).to.not.be.reverted;
-        expect(baseToken.approve).to.have.been.calledWith(owner.address, expectedTaxAmt);
+        expect(baseToken.approve).to.have.been.calledWith(await owner.getAddress(), expectedTaxAmt);
         expect(baseToken.transfer).to.have.been.calledWith(liquidVault.address, expectedRebalAmt);
         expect(baseToken.approve).to.have.been.calledWith(liquidStrategy.address, expectedRebalAmt);
       });

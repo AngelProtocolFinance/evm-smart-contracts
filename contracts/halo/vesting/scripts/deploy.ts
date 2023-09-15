@@ -23,7 +23,11 @@ export async function deployVesting(
     const Vesting = new Vesting__factory(deployer);
     const initData = Vesting.interface.encodeFunctionData("initialize", [VestingDataInput]);
     // deploy
-    const {implementation, proxy} = await deployBehindProxy(Vesting, proxyAdmin.address, initData);
+    const {implementation, proxy} = await deployBehindProxy(
+      Vesting,
+      await proxyAdmin.getAddress(),
+      initData
+    );
 
     // update address file
     await updateAddresses(

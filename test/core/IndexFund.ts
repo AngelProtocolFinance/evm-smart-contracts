@@ -1,8 +1,7 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
 import {impersonateAccount, setBalance, time} from "@nomicfoundation/hardhat-network-helpers";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
-import {Wallet} from "ethers";
+import {Signer} from "ethers";
 import hre from "hardhat";
 import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
 import {DEFAULT_CHARITY_ENDOWMENT, DEFAULT_REGISTRAR_CONFIG, wait} from "test/utils";
@@ -28,9 +27,9 @@ describe("IndexFund", function () {
 
   const MAX_ENDOWMENT_MEMBERS = 10;
 
-  let owner: SignerWithAddress;
-  let proxyAdmin: SignerWithAddress | Wallet;
-  let user: SignerWithAddress;
+  let owner: Signer;
+  let proxyAdmin: Signer;
+  let user: Signer;
 
   let registrar: FakeContract<Registrar>;
   let wmatic: FakeContract<DummyWMATIC>;
@@ -57,7 +56,7 @@ describe("IndexFund", function () {
     ]);
     const IndexFundProxy = await ProxyContract.deploy(
       IndexFundImpl.address,
-      proxyAdmin.address,
+      await proxyAdmin.getAddress(),
       IndexFundInitData
     );
     await IndexFundProxy.deployed();
@@ -127,7 +126,7 @@ describe("IndexFund", function () {
 
     await wait(
       state.setConfig({
-        owner: owner.address,
+        owner: await owner.getAddress(),
         version: "1",
         networkName: "Polygon",
         registrarContract: registrar.address,
@@ -147,7 +146,7 @@ describe("IndexFund", function () {
       wMaticAddress: wmatic.address,
       accountsContract: accountsDepositWithdrawEndowments.address,
       indexFundContract: facet.address,
-      treasury: owner.address,
+      treasury: await owner.getAddress(),
     };
     registrar.queryConfig.returns(registrarConfig);
     registrar.isTokenAccepted.whenCalledWith(token.address).returns(true);

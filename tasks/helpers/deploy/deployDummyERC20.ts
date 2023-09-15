@@ -1,9 +1,9 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {Signer} from "ethers";
 import {wait} from "test/utils";
 import {DummyERC20__factory} from "typechain-types";
 
 export async function deployDummyERC20(
-  deployer: SignerWithAddress,
+  deployer: Signer,
   recipients?: string[],
   amounts?: number[],
   decimals?: number

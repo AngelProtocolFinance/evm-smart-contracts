@@ -1,6 +1,5 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
-import {BigNumber, Wallet} from "ethers";
+import {BigNumber, Signer} from "ethers";
 import hre from "hardhat";
 import {DEFAULT_ACCOUNTS_CONFIG, DEFAULT_CHARITY_ENDOWMENT, wait} from "test/utils";
 import {
@@ -16,8 +15,8 @@ import {deployFacetAsProxy} from "./utils";
 describe("AccountsQueryEndowments", function () {
   const {ethers} = hre;
 
-  let owner: SignerWithAddress;
-  let proxyAdmin: SignerWithAddress | Wallet;
+  let owner: Signer;
+  let proxyAdmin: Signer;
 
   let facet: AccountsQueryEndowments;
   let state: TestFacetProxyContract;
@@ -43,7 +42,7 @@ describe("AccountsQueryEndowments", function () {
   before(async function () {
     const signers = await getSigners(hre);
     owner = signers.apTeam1;
-    tokenAddress = signers.deployer.address;
+    tokenAddress = await signers.deployer.getAddress();
 
     proxyAdmin = await getProxyAdminOwner(hre);
 
@@ -65,7 +64,7 @@ describe("AccountsQueryEndowments", function () {
 
     config = {
       ...DEFAULT_ACCOUNTS_CONFIG,
-      owner: owner.address,
+      owner: await owner.getAddress(),
       nextAccountId: accountId + 1, // endowment was created in previous step
     };
     await wait(state.setConfig(config));
