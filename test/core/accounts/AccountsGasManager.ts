@@ -1,6 +1,7 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
 import {expect, use} from "chai";
 import {Signer} from "ethers";
+import {SnapshotRestorer, takeSnapshot} from "@nomicfoundation/hardhat-network-helpers";
 import hre from "hardhat";
 import {
   DEFAULT_ACCOUNTS_CONFIG,
@@ -25,14 +26,19 @@ import {deployFacetAsProxy} from "./utils";
 use(smock.matchers);
 
 describe("AccountsGasManager", function () {
+  const ACCOUNT_ID = 1;
+  const BALANCE = 1000;
+  const GAS_COST = 400;
+
   let owner: Signer;
   let proxyAdmin: Signer;
   let user: Signer;
-  let impl: AccountsGasManager;
+
+  let facet: AccountsGasManager;
+  let state: TestFacetProxyContract;
+
   let token: FakeContract<IERC20>;
   let gasFwd: FakeContract<GasFwd>;
-  const ACCOUNT_ID = 1;
-  const BALANCE = 1000;
 
   before(async function () {
     const signers = await getSigners(hre);
@@ -41,34 +47,45 @@ describe("AccountsGasManager", function () {
 
     proxyAdmin = await getProxyAdminOwner(hre);
 
-    let Facet = new AccountsGasManager__factory(owner);
-    impl = await Facet.deploy();
-  });
+    const Facet = new AccountsGasManager__factory(owner);
+    const facetImpl = await Facet.deploy();
+    state = await deployFacetAsProxy(hre, owner, proxyAdmin, facetImpl.address);
 
-  beforeEach(async () => {
+    facet = AccountsGasManager__factory.connect(state.address, owner);
+
     token = await smock.fake<IERC20>(IERC20__factory.createInterface());
     gasFwd = await smock.fake<GasFwd>(new GasFwd__factory());
 
+    let config = {
+      ...DEFAULT_ACCOUNTS_CONFIG,
+      owner: await owner.getAddress(),
+    };
+    await wait(state.setConfig(config));
+
+    let endowment = {
+      ...DEFAULT_CHARITY_ENDOWMENT,
+      owner: await user.getAddress(),
+      gasFwd: gasFwd.address,
+    };
+    await wait(state.setEndowmentDetails(ACCOUNT_ID, endowment));
+  });
+
+  let snapshot: SnapshotRestorer;
+
+  beforeEach(async () => {
+    snapshot = await takeSnapshot();
+
     token.transfer.returns(true);
     token.transferFrom.returns(true);
+
     gasFwd.sweep.returns(BALANCE);
   });
 
+  afterEach(async () => {
+    await snapshot.restore();
+  });
+
   describe("upon `sweepForClosure`", async function () {
-    let facet: AccountsGasManager;
-    let state: TestFacetProxyContract;
-
-    beforeEach(async function () {
-      state = await deployFacetAsProxy(hre, owner, proxyAdmin, impl.address);
-      facet = AccountsGasManager__factory.connect(state.address, owner);
-
-      let endowment = {
-        ...DEFAULT_CHARITY_ENDOWMENT,
-        gasFwd: gasFwd.address,
-      };
-      await wait(state.setEndowmentDetails(ACCOUNT_ID, endowment));
-    });
-
     it("reverts if not called by self", async function () {
       await expect(facet.sweepForClosure(ACCOUNT_ID, token.address)).to.be.revertedWithCustomError(
         facet,
@@ -88,27 +105,6 @@ describe("AccountsGasManager", function () {
   });
 
   describe("upon `sweepForEndowment`", async function () {
-    let facet: AccountsGasManager;
-    let state: TestFacetProxyContract;
-
-    beforeEach(async function () {
-      state = await deployFacetAsProxy(hre, owner, proxyAdmin, impl.address);
-      facet = AccountsGasManager__factory.connect(state.address, owner);
-
-      let config = {
-        ...DEFAULT_ACCOUNTS_CONFIG,
-        owner: await owner.getAddress(),
-      };
-      await wait(state.setConfig(config));
-
-      let endowment = {
-        ...DEFAULT_CHARITY_ENDOWMENT,
-        owner: await user.getAddress(),
-        gasFwd: gasFwd.address,
-      };
-      await wait(state.setEndowmentDetails(ACCOUNT_ID, endowment));
-    });
-
     it("reverts if not called by admin", async function () {
       await expect(
         facet.connect(user).sweepForEndowment(ACCOUNT_ID, VaultType.LOCKED, token.address)
@@ -129,16 +125,6 @@ describe("AccountsGasManager", function () {
   });
 
   describe("upon `addGas`", async function () {
-    let facet: AccountsGasManager;
-    let state: TestFacetProxyContract;
-    const BALANCE = 1000;
-    const GAS_COST = 400;
-
-    beforeEach(async function () {
-      state = await deployFacetAsProxy(hre, owner, proxyAdmin, impl.address);
-      facet = AccountsGasManager__factory.connect(state.address, owner);
-    });
-
     it("reverts if not called by an approved caller", async function () {
       await expect(
         facet.connect(owner).addGas(ACCOUNT_ID, VaultType.LOCKED, token.address, GAS_COST)
