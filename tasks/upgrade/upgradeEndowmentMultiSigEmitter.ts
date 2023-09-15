@@ -24,7 +24,7 @@ type TaskArgs = {
 };
 
 task(
-  "upgrade:endowmentMultiSig:emitter",
+  "upgrade:EndowmentMultiSigEmitter",
   "Will upgrade the EndowmentMultiSigEmitter implementation contract"
 )
   .addFlag("skipVerify", "Skip contract verification")

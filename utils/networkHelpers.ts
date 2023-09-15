@@ -3,7 +3,7 @@ import {TwoWayMap} from "./twoWayMap";
 import {ChainID} from "types";
 import {logger} from "utils";
 
-export const PROD_NETWORKS = [ChainID.ethereum, ChainID.polygon];
+const PROD_NETWORKS = [ChainID.ethereum, ChainID.polygon];
 
 // There are errors/mismatches in the axelar sdk jsons, so we just implement a lightweight
 // version here and use this instead.
@@ -44,7 +44,10 @@ export async function getChainId(hre: HardhatRuntimeEnvironment): Promise<number
   return chainId;
 }
 
-export async function isProdNetwork(hre: HardhatRuntimeEnvironment): Promise<boolean> {
-  const thisChainId = await getChainId(hre);
+export async function isProdNetwork(
+  hreOrChainId: HardhatRuntimeEnvironment | number
+): Promise<boolean> {
+  const thisChainId =
+    typeof hreOrChainId === "number" ? hreOrChainId : await getChainId(hreOrChainId);
   return PROD_NETWORKS.includes(thisChainId);
 }
