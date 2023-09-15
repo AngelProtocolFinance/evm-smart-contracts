@@ -3,8 +3,14 @@ import {submitMultiSigTx} from "tasks/helpers";
 import {IEndowmentMultiSigFactory__factory} from "typechain-types";
 import {getAPTeamOwner, getAddresses, logger} from "utils";
 
+/**
+ * @param newProxyAdmin Address of the new proxy admin.
+ * @param apTeamSignerPkey Private key of one of the APTeamMultiSig owners
+ * @param hre @see HardhatRuntimeEnvironment
+ * @returns boolean value indicating whether proxy admin was updated to `newProxyAdmin` or not
+ */
 export default async function updateEndowmentMultiSigFactory(
-  targetAddress: string,
+  newProxyAdmin: string,
   apTeamSignerPkey: string | undefined,
   hre: HardhatRuntimeEnvironment
 ): Promise<boolean> {
@@ -15,8 +21,8 @@ export default async function updateEndowmentMultiSigFactory(
     hre.ethers.provider
   );
   const oldProxyAdmin = await endowmentMultiSigFactory.getProxyAdmin();
-  if (oldProxyAdmin === targetAddress) {
-    logger.out(`"${targetAddress}" is already the proxy admin.`);
+  if (oldProxyAdmin === newProxyAdmin) {
+    logger.out(`"${newProxyAdmin}" is already the proxy admin.`);
     return true;
   }
 
@@ -24,7 +30,7 @@ export default async function updateEndowmentMultiSigFactory(
 
   // submitting the Tx
   const data = endowmentMultiSigFactory.interface.encodeFunctionData("updateProxyAdmin", [
-    targetAddress,
+    newProxyAdmin,
   ]);
   const isExecuted = await submitMultiSigTx(
     addresses.multiSig.apTeam.proxy,
@@ -35,10 +41,10 @@ export default async function updateEndowmentMultiSigFactory(
   if (!isExecuted) {
     return false;
   }
-  const newProxyAdmin = await endowmentMultiSigFactory.getProxyAdmin();
-  if (newProxyAdmin !== targetAddress) {
+  const updatedProxyAdmin = await endowmentMultiSigFactory.getProxyAdmin();
+  if (updatedProxyAdmin !== newProxyAdmin) {
     throw new Error(
-      `Unexpected: expected new proxy admin "${targetAddress}", but got "${newProxyAdmin}"`
+      `Unexpected: expected new proxy admin "${newProxyAdmin}", but got "${updatedProxyAdmin}"`
     );
   }
 
