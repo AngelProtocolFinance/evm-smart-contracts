@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
+import {IterableMappingAddr} from "../../../lib/IterableMappingAddr.sol";
 import {AccountStorage} from "../storage.sol";
 
 library LibAccounts {
