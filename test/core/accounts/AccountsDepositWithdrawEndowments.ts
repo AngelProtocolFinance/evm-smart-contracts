@@ -1,5 +1,11 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
-import {impersonateAccount, setBalance, time} from "@nomicfoundation/hardhat-network-helpers";
+import {
+  SnapshotRestorer,
+  impersonateAccount,
+  setBalance,
+  takeSnapshot,
+  time,
+} from "@nomicfoundation/hardhat-network-helpers";
 import {expect, use} from "chai";
 import {BigNumber, Signer} from "ethers";
 import hre from "hardhat";
@@ -40,12 +46,6 @@ describe("AccountsDepositWithdrawEndowments", function () {
   };
   const depositToNormalEndow: AccountMessages.DepositRequestStruct = {
     id: normalEndowId,
-    liquidPercentage: 60,
-    lockedPercentage: 40,
-    donationMatch: ethers.constants.AddressZero,
-  };
-  const depositToDafEndow: AccountMessages.DepositRequestStruct = {
-    id: dafEndowId,
     liquidPercentage: 60,
     lockedPercentage: 40,
     donationMatch: ethers.constants.AddressZero,
@@ -94,9 +94,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
     };
 
     treasury = genWallet().address;
-  });
 
-  beforeEach(async () => {
     const Facet = new AccountsDepositWithdrawEndowments__factory(accOwner);
     const facetImpl = await Facet.deploy();
     state = await deployFacetAsProxy(hre, accOwner, proxyAdmin, facetImpl.address);
@@ -106,21 +104,6 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
     tokenFake = await smock.fake<IERC20>(IERC20__factory.createInterface());
     wmaticFake = await smock.fake<DummyWMATIC>(new DummyWMATIC__factory());
-
-    tokenFake.transferFrom.returns(true);
-    tokenFake.transfer.returns(true);
-    wmaticFake.transferFrom.returns(true);
-    wmaticFake.transfer.returns(true);
-
-    const registrarConfig: RegistrarStorage.ConfigStruct = {
-      ...DEFAULT_REGISTRAR_CONFIG,
-      haloToken: genWallet().address,
-      indexFundContract: await indexFund.getAddress(),
-      wMaticAddress: wmaticFake.address,
-      treasury: treasury,
-    };
-    registrarFake.queryConfig.returns(registrarConfig);
-    registrarFake.isTokenAccepted.whenCalledWith(tokenFake.address).returns(true);
 
     await wait(state.setEndowmentDetails(charityId, charity));
     await wait(state.setEndowmentDetails(normalEndowId, normalEndow));
@@ -136,6 +119,37 @@ describe("AccountsDepositWithdrawEndowments", function () {
         reentrancyGuardLocked: false,
       })
     );
+  });
+
+  let snapshot: SnapshotRestorer;
+
+  beforeEach(async () => {
+    snapshot = await takeSnapshot();
+
+    const registrarConfig: RegistrarStorage.ConfigStruct = {
+      ...DEFAULT_REGISTRAR_CONFIG,
+      haloToken: genWallet().address,
+      indexFundContract: await indexFund.getAddress(),
+      wMaticAddress: wmaticFake.address,
+      treasury: treasury,
+    };
+    registrarFake.queryConfig.returns(registrarConfig);
+    registrarFake.isTokenAccepted.whenCalledWith(tokenFake.address).returns(true);
+    registrarFake.getFeeSettingsByFeeType.returns({
+      payoutAddress: ethers.constants.AddressZero,
+      bps: 0,
+    });
+
+    tokenFake.transferFrom.returns(true);
+    tokenFake.transfer.returns(true);
+
+    wmaticFake.transferFrom.returns(true);
+    wmaticFake.transfer.returns(true);
+    wmaticFake.deposit.returns();
+  });
+
+  afterEach(async () => {
+    await snapshot.restore();
   });
 
   describe("upon deposit", () => {
@@ -654,7 +668,11 @@ describe("AccountsDepositWithdrawEndowments", function () {
     const lockBal = BigNumber.from(9000);
     const beneficiaryAddress = genWallet().address;
 
-    beforeEach(async () => {
+    let rootSnapshot: SnapshotRestorer;
+
+    before(async () => {
+      rootSnapshot = await takeSnapshot();
+
       await wait(state.setEndowmentTokenBalance(charityId, tokenFake.address, lockBal, liqBal));
       await wait(state.setEndowmentTokenBalance(charityId, wmaticFake.address, lockBal, liqBal));
       await wait(state.setEndowmentTokenBalance(normalEndowId, tokenFake.address, lockBal, liqBal));
@@ -663,6 +681,10 @@ describe("AccountsDepositWithdrawEndowments", function () {
       );
       await wait(state.setEndowmentTokenBalance(dafEndowId, tokenFake.address, lockBal, liqBal));
       await wait(state.setEndowmentTokenBalance(dafEndowId, wmaticFake.address, lockBal, liqBal));
+    });
+
+    after(async () => {
+      await rootSnapshot.restore();
     });
 
     it("reverts if the endowment is closed", async () => {
