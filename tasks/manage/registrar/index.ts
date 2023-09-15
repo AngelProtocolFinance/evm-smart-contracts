@@ -11,3 +11,4 @@ import "./setVaultOperatorStatus";
 import "./transferOwnership";
 import "./updateConfig";
 import "./updateNetworkConnections";
+import "./updateTokenPriceFeed";
