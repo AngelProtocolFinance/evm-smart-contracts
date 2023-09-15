@@ -1,4 +1,5 @@
-import {FakeContract, smock} from "@defi-wonderland/smock";
+import {smock} from "@defi-wonderland/smock";
+import {SnapshotRestorer, takeSnapshot} from "@nomicfoundation/hardhat-network-helpers";
 import {expect, use} from "chai";
 import {BigNumber, Signer} from "ethers";
 import hre from "hardhat";
@@ -33,9 +34,8 @@ describe("AccountsCreateEndowment", function () {
   let charityApplications: Signer;
   let facet: AccountsCreateEndowment;
   let state: TestFacetProxyContract;
+
   let createEndowmentRequest: AccountMessages.CreateEndowmentRequestStruct;
-  let registrarFake: FakeContract<Registrar>;
-  let gasFwdFactoryFake: FakeContract<GasFwdFactory>;
 
   before(async function () {
     const signers = await getSigners(hre);
@@ -114,10 +114,10 @@ describe("AccountsCreateEndowment", function () {
     );
     endowmentFactoryFake.create.returns(endowmentOwner);
 
-    gasFwdFactoryFake = await smock.fake<GasFwdFactory>(new GasFwdFactory__factory());
+    const gasFwdFactoryFake = await smock.fake<GasFwdFactory>(new GasFwdFactory__factory());
     gasFwdFactoryFake.create.returns(ethers.constants.AddressZero);
 
-    registrarFake = await smock.fake<Registrar>(new Registrar__factory(), {
+    const registrarFake = await smock.fake<Registrar>(new Registrar__factory(), {
       address: genWallet().address,
     });
     const config: RegistrarStorage.ConfigStruct = {
@@ -127,9 +127,7 @@ describe("AccountsCreateEndowment", function () {
       gasFwdFactory: gasFwdFactoryFake.address,
     };
     registrarFake.queryConfig.returns(config);
-  });
 
-  beforeEach(async function () {
     let Facet = new AccountsCreateEndowment__factory(owner);
     let facetImpl = await Facet.deploy();
     state = await deployFacetAsProxy(hre, owner, proxyAdmin, facetImpl.address);
@@ -146,6 +144,16 @@ describe("AccountsCreateEndowment", function () {
     );
 
     facet = AccountsCreateEndowment__factory.connect(state.address, owner);
+  });
+
+  let snapshot: SnapshotRestorer;
+
+  beforeEach(async () => {
+    snapshot = await takeSnapshot();
+  });
+
+  afterEach(async () => {
+    await snapshot.restore();
   });
 
   it("should revert if the caller is not authorized to create a charity endowment", async () => {
