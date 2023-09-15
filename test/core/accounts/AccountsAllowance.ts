@@ -1,5 +1,5 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
-import {time} from "@nomicfoundation/hardhat-network-helpers";
+import {SnapshotRestorer, takeSnapshot, time} from "@nomicfoundation/hardhat-network-helpers";
 import {expect} from "chai";
 import {Signer} from "ethers";
 import hre from "hardhat";
@@ -36,9 +36,7 @@ describe("AccountsAllowance", function () {
     user = signers.apTeam2;
 
     proxyAdmin = await getProxyAdminOwner(hre);
-  });
 
-  beforeEach(async function () {
     tokenFake = await smock.fake<IERC20>(IERC20__factory.createInterface());
 
     const Facet = new AccountsAllowance__factory(accOwner);
@@ -70,6 +68,16 @@ describe("AccountsAllowance", function () {
     // Beneficiaries & Maturity Allowlists set for endowment user
     await wait(state.setAllowlist(ACCOUNT_ID, 0, [await user.getAddress()])); // beneficiaries
     await wait(state.setAllowlist(ACCOUNT_ID, 2, [await user.getAddress()])); // maturity
+  });
+
+  let snapshot: SnapshotRestorer;
+
+  beforeEach(async () => {
+    snapshot = await takeSnapshot();
+  });
+
+  afterEach(async () => {
+    await snapshot.restore();
   });
 
   describe("Test cases for `manageAllowances`", function () {
@@ -124,9 +132,18 @@ describe("AccountsAllowance", function () {
           10
         )
       ).to.be.revertedWith("Invalid Token");
+    });
 
+    it("reverts when the token dne", async function () {
       await expect(
         facet.manageAllowances(ACCOUNT_ID, await user.getAddress(), genWallet().address, 10)
+      ).to.be.revertedWith("Invalid Token");
+    });
+
+    it("reverts when the token liquid balance is 0", async function () {
+      await wait(state.setEndowmentTokenBalance(ACCOUNT_ID, tokenFake.address, 100, 0));
+      await expect(
+        facet.manageAllowances(ACCOUNT_ID, await user.getAddress(), tokenFake.address, 10)
       ).to.be.revertedWith("Invalid Token");
     });
 
@@ -181,22 +198,22 @@ describe("AccountsAllowance", function () {
     [true, false].forEach((isMature) => {
       const maturityStatus = isMature ? "mature" : "non-mature";
 
-      beforeEach(async () => {
-        if (!isMature) {
-          return;
+      async function setMaturityTimeIfNecessary() {
+        if (isMature) {
+          let currTime = await time.latest();
+          const endow = await state.getEndowmentDetails(ACCOUNT_ID);
+          await wait(
+            state.setEndowmentDetails(ACCOUNT_ID, {
+              ...endow,
+              maturityTime: currTime,
+            })
+          );
         }
-
-        let currTime = await time.latest();
-        const endow = await state.getEndowmentDetails(ACCOUNT_ID);
-        await wait(
-          state.setEndowmentDetails(ACCOUNT_ID, {
-            ...endow,
-            maturityTime: currTime,
-          })
-        );
-      });
+      }
 
       it(`passes when try to increase a valid token's allowance within range of liquid balance available for a ${maturityStatus} endowment`, async function () {
+        await setMaturityTimeIfNecessary();
+
         await expect(
           facet.manageAllowances(ACCOUNT_ID, await user.getAddress(), tokenFake.address, 10)
         )
@@ -222,6 +239,8 @@ describe("AccountsAllowance", function () {
       });
 
       it(`passes when try to decrease an existing spender's allowance for a ${maturityStatus} endowment`, async function () {
+        await setMaturityTimeIfNecessary();
+
         // now we allocate some token allowance to the user address to spend from
         await wait(
           state.setTokenAllowance(ACCOUNT_ID, await user.getAddress(), tokenFake.address, 10, 10)
@@ -255,24 +274,32 @@ describe("AccountsAllowance", function () {
   });
 
   describe("Test cases for `spendAllowance`", function () {
-    it("reverts when try to spend token that is invalid(zero address) or dne in allowances", async function () {
-      // try to spend an allowance that is invalid (Zero Address)
+    let rootSnapshot: SnapshotRestorer;
+
+    before(async () => {
+      rootSnapshot = await takeSnapshot();
+      await wait(
+        state.setTokenAllowance(ACCOUNT_ID, await user.getAddress(), tokenFake.address, 10, 10)
+      );
+    });
+
+    after(async () => {
+      await rootSnapshot.restore();
+    });
+
+    it("reverts when try to spend token that is invalid (zero address)", async function () {
       await expect(
         facet.spendAllowance(ACCOUNT_ID, ethers.constants.AddressZero, 10, await user.getAddress())
       ).to.be.revertedWith("Invalid Token");
+    });
 
-      // try to spend an allowance for a token that dne
+    it("reverts when try to spend token that dne in allowances", async function () {
       await expect(
         facet.spendAllowance(ACCOUNT_ID, genWallet().address, 10, await user.getAddress())
       ).to.be.revertedWith("Invalid Token");
     });
 
     it("reverts when try to spend zero amount of allowance", async function () {
-      // now we allocate some token allowance to the user address to spend from
-      await wait(
-        state.setTokenAllowance(ACCOUNT_ID, await user.getAddress(), tokenFake.address, 10, 10)
-      );
-
       // try to spend zero allowance
       await expect(
         facet.spendAllowance(ACCOUNT_ID, tokenFake.address, 0, await user.getAddress())
@@ -280,11 +307,6 @@ describe("AccountsAllowance", function () {
     });
 
     it("reverts when try to spend more allowance than is available for token", async function () {
-      // now we allocate some token allowance to the user address to spend from
-      await wait(
-        state.setTokenAllowance(ACCOUNT_ID, await user.getAddress(), tokenFake.address, 10, 10)
-      );
-
       // try to spend more allowance than user was allocated
       await expect(
         facet
@@ -294,11 +316,6 @@ describe("AccountsAllowance", function () {
     });
 
     it("passes when spend less than or equal to the allowance available for token", async function () {
-      // now we allocate some token allowance to the user address to spend from
-      await wait(
-        state.setTokenAllowance(ACCOUNT_ID, await user.getAddress(), tokenFake.address, 10, 10)
-      );
-
       // mint tokens so that the contract can transfer them to recipient
       tokenFake.transfer.returns(true);
 
@@ -328,10 +345,17 @@ describe("AccountsAllowance", function () {
   });
 
   describe("upon queryAllowance", function () {
-    beforeEach(async () => {
+    let rootSnapshot: SnapshotRestorer;
+
+    before(async () => {
+      rootSnapshot = await takeSnapshot();
       await wait(
         state.setTokenAllowance(ACCOUNT_ID, await user.getAddress(), tokenFake.address, 10, 10)
       );
+    });
+
+    after(async () => {
+      await rootSnapshot.restore();
     });
 
     it("returns 0 (zero) for non-existent endowment", async () => {
