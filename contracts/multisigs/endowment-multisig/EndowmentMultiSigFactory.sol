@@ -11,7 +11,6 @@ import {Validator} from "../../core/validator.sol";
 import {IterableMappingAddr} from "../../lib/IterableMappingAddr.sol";
 
 /// @title Multisignature wallet factory - Allows creation of multisigs wallet.
-/// @author Stefan George - <stefan.george@consensys.net>
 contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable, IterableMappingAddr {
   /*////////////////////////////////////////////////
                         STORAGE
