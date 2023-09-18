@@ -1,6 +1,7 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
-import {Signer} from "ethers";
+import {SnapshotRestorer, takeSnapshot} from "@nomicfoundation/hardhat-network-helpers";
 import {expect, use} from "chai";
+import {Signer} from "ethers";
 import hre from "hardhat";
 import {
   GasFwd,
@@ -23,36 +24,30 @@ describe("GasFwd", function () {
   let token: FakeContract<IERC20>;
   let gasFwd: GasFwd;
 
-  async function deployGasFwdAsProxy(
-    owner: Signer,
-    admin: Signer,
-    accounts: Signer
-  ): Promise<GasFwd> {
-    let GasFwd = new GasFwd__factory(admin);
-    let gasFwdImpl = await GasFwd.deploy();
-    await gasFwdImpl.deployed();
-    const data = gasFwdImpl.interface.encodeFunctionData("initialize", [
-      accounts ? await accounts.getAddress() : await owner.getAddress(),
-    ]);
-    let proxyFactory = new ProxyContract__factory(owner);
-    let proxy = await proxyFactory.deploy(gasFwdImpl.address, await admin.getAddress(), data);
-    await proxy.deployed();
-    return GasFwd__factory.connect(proxy.address, accounts);
-  }
-
   before(async function () {
     const {deployer, apTeam1} = await getSigners(hre);
     owner = deployer;
     accounts = apTeam1;
 
     admin = await getProxyAdminOwner(hre);
+
+    token = await smock.fake<IERC20>(IERC20__factory.createInterface());
+
+    gasFwd = await deployGasFwdAsProxy(owner, admin, accounts);
   });
 
+  let snapshot: SnapshotRestorer;
+
   beforeEach(async function () {
-    token = await smock.fake<IERC20>(IERC20__factory.createInterface());
-    gasFwd = await deployGasFwdAsProxy(owner, admin, accounts);
+    snapshot = await takeSnapshot();
+
     token.balanceOf.returns(BALANCE);
+    token.transfer.reset();
     token.transfer.returns(true);
+  });
+
+  afterEach(async () => {
+    await snapshot.restore();
   });
 
   describe("upon payForGas", async function () {
@@ -105,7 +100,6 @@ describe("GasFwd", function () {
       expect(token.transfer).to.not.be.called;
     });
     it("transfers the token balance", async function () {
-      token.transfer.returns(true);
       await expect(gasFwd.sweep(token.address))
         .to.emit(gasFwd, "Sweep")
         .withArgs(token.address, BALANCE);
@@ -113,3 +107,20 @@ describe("GasFwd", function () {
     });
   });
 });
+
+async function deployGasFwdAsProxy(
+  owner: Signer,
+  admin: Signer,
+  accounts: Signer
+): Promise<GasFwd> {
+  let GasFwd = new GasFwd__factory(admin);
+  let gasFwdImpl = await GasFwd.deploy();
+  await gasFwdImpl.deployed();
+  const data = gasFwdImpl.interface.encodeFunctionData("initialize", [
+    accounts ? await accounts.getAddress() : await owner.getAddress(),
+  ]);
+  let proxyFactory = new ProxyContract__factory(owner);
+  let proxy = await proxyFactory.deploy(gasFwdImpl.address, await admin.getAddress(), data);
+  await proxy.deployed();
+  return GasFwd__factory.connect(proxy.address, accounts);
+}
