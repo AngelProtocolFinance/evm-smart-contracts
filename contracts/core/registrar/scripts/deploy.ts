@@ -1,4 +1,4 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {Signer} from "ethers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {LocalRegistrar__factory, Registrar__factory} from "typechain-types";
 import {ProxyDeployment} from "types";
@@ -9,7 +9,7 @@ type RegistrarDeployData = {
   axelarGasService: string;
   router: string;
   owner: string;
-  deployer: SignerWithAddress;
+  deployer: Signer;
   proxyAdmin: string;
   treasury: string;
   apTeamMultisig: string;
@@ -75,7 +75,7 @@ export async function deployRegistrar(
 
 type LocalRegistrarDeployData = {
   owner: string;
-  deployer: SignerWithAddress;
+  deployer: Signer;
   proxyAdmin: string;
 };
 

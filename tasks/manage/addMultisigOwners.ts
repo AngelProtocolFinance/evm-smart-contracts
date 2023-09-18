@@ -22,7 +22,8 @@ task("manage:addMultisigOwners", "Will add the specified address to the multisig
       const msOwner = await connectSignerFromPkey(taskArguments.multisigOwnerPkey, hre);
 
       const isConfirmed =
-        taskArguments.yes || (await confirmAction(`Adding new owner: ${msOwner.address}`));
+        taskArguments.yes ||
+        (await confirmAction(`Adding new owner: ${await msOwner.getAddress()}`));
       if (!isConfirmed) {
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }

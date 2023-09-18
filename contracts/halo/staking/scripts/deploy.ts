@@ -23,7 +23,11 @@ export async function deployStaking(
     const Staking = new Staking__factory(deployer);
     const initData = Staking.interface.encodeFunctionData("initialize", [StakingDataInput]);
     // deploy
-    const {implementation, proxy} = await deployBehindProxy(Staking, proxyAdmin.address, initData);
+    const {implementation, proxy} = await deployBehindProxy(
+      Staking,
+      await proxyAdmin.getAddress(),
+      initData
+    );
 
     // update address file
     await updateAddresses(

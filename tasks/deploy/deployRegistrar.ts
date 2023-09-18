@@ -39,7 +39,7 @@ task(
 
       const {treasury, deployer} = await getSigners(hre);
 
-      let treasuryAddress = treasury ? treasury.address : CONFIG.PROD_CONFIG.Treasury;
+      let treasuryAddress = treasury ? await treasury.getAddress() : CONFIG.PROD_CONFIG.Treasury;
 
       const addresses = await getAddresses(hre);
 

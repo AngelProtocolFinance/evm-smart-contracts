@@ -37,14 +37,14 @@ task("deploy:SideChain", "Will deploy complete side-chain infrastructure")
       let {deployer, proxyAdminMultisigOwners} = await getSigners(hre);
 
       const proxyAdminMultisigOwnerAddresses = proxyAdminMultisigOwners
-        ? proxyAdminMultisigOwners.map((x) => x.address)
+        ? await Promise.all(proxyAdminMultisigOwners.map((x) => x.getAddress()))
         : CONFIG.PROD_CONFIG.ProxyAdminMultiSigOwners;
 
       await resetContractAddresses(hre);
 
       await getOrDeployThirdPartyContracts(deployer, hre);
 
-      logger.out(`Deploying the contracts with the account: ${deployer.address}`);
+      logger.out(`Deploying the contracts with the account: ${await deployer.getAddress()}`);
 
       const proxyAdminMultisig = await deployProxyAdminMultisig(
         proxyAdminMultisigOwnerAddresses,

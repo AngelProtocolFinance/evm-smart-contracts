@@ -1,6 +1,6 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
 import {time} from "@nomicfoundation/hardhat-network-helpers";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {Signer} from "ethers";
 import {expect, use} from "chai";
 import hre from "hardhat";
 import {deployDummyERC20} from "tasks/helpers";
@@ -28,15 +28,14 @@ import {
 import {VaultType} from "types";
 import {genWallet, getProxyAdminOwner, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
-import {Wallet} from "ethers";
 
 use(smock.matchers);
 
 describe("AccountsSwapRouter", function () {
   const {ethers} = hre;
-  let owner: SignerWithAddress;
-  let proxyAdmin: SignerWithAddress | Wallet;
-  let user: SignerWithAddress;
+  let owner: Signer;
+  let proxyAdmin: Signer;
+  let user: Signer;
   let facet: AccountsSwapRouter;
   let facetImpl: AccountsSwapRouter;
   let state: TestFacetProxyContract;
@@ -271,7 +270,7 @@ describe("AccountsSwapRouter", function () {
           ...DEFAULT_PERMISSIONS_STRUCT,
           delegate: {
             expires: 0,
-            addr: user.address,
+            addr: await user.getAddress(),
           },
         };
         await wait(state.setEndowmentDetails(ACCOUNT_ID, endow));
@@ -294,7 +293,7 @@ describe("AccountsSwapRouter", function () {
           ...DEFAULT_PERMISSIONS_STRUCT,
           delegate: {
             expires: 0,
-            addr: user.address,
+            addr: await user.getAddress(),
           },
         };
         await wait(state.setEndowmentDetails(ACCOUNT_ID, endow));
@@ -315,7 +314,7 @@ describe("AccountsSwapRouter", function () {
         registrar.isTokenAccepted.returns(true);
         const endow = {
           ...DEFAULT_CHARITY_ENDOWMENT,
-          owner: owner.address,
+          owner: await owner.getAddress(),
         };
         await wait(state.setEndowmentDetails(ACCOUNT_ID, endow));
         registrar.queryTokenPriceFeed.returns(ethers.constants.AddressZero);
@@ -340,7 +339,7 @@ describe("AccountsSwapRouter", function () {
         registrar.isTokenAccepted.returns(true);
         const endow = {
           ...DEFAULT_CHARITY_ENDOWMENT,
-          owner: owner.address,
+          owner: await owner.getAddress(),
         };
         await wait(state.setEndowmentDetails(ACCOUNT_ID, endow));
         registrar.queryTokenPriceFeed.returns(chainlink.address);
@@ -367,7 +366,7 @@ describe("AccountsSwapRouter", function () {
 
         const endow = {
           ...DEFAULT_CHARITY_ENDOWMENT,
-          owner: owner.address,
+          owner: await owner.getAddress(),
         };
         token1 = await deployDummyERC20(owner);
         token2 = await deployDummyERC20(owner);

@@ -26,7 +26,7 @@ export async function deployCommunity(
     // deploy
     const {implementation, proxy} = await deployBehindProxy(
       Community,
-      proxyAdmin.address,
+      await proxyAdmin.getAddress(),
       initData
     );
 

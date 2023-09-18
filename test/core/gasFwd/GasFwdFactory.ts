@@ -1,7 +1,6 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {Signer} from "ethers";
 import {expect, use} from "chai";
-import {Wallet} from "ethers";
 import hre from "hardhat";
 import {DEFAULT_REGISTRAR_CONFIG} from "test/utils";
 import {
@@ -17,21 +16,21 @@ use(smock.matchers);
 
 describe("GasFwdFactory", function () {
   const {ethers} = hre;
-  let owner: SignerWithAddress;
-  let admin: SignerWithAddress | Wallet;
-  let user: SignerWithAddress;
+  let owner: Signer;
+  let admin: Signer;
+  let user: Signer;
   let registrarFake: FakeContract<Registrar>;
 
   async function deployGasFwdFactory(
-    owner: SignerWithAddress,
-    admin: SignerWithAddress | Wallet,
+    owner: Signer,
+    admin: Signer,
     registrar: string
   ): Promise<GasFwdFactory> {
     let GasFwd = new GasFwd__factory(admin);
     let gasFwdImpl = await GasFwd.deploy();
     await gasFwdImpl.deployed();
     let GFF = new GasFwdFactory__factory(owner);
-    let gff = await GFF.deploy(gasFwdImpl.address, admin.address, registrar);
+    let gff = await GFF.deploy(gasFwdImpl.address, await admin.getAddress(), registrar);
     await gff.deployed();
     return gff;
   }

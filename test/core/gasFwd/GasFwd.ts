@@ -1,7 +1,6 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {Signer} from "ethers";
 import {expect, use} from "chai";
-import {Wallet} from "ethers";
 import hre from "hardhat";
 import {
   GasFwd,
@@ -17,26 +16,26 @@ use(smock.matchers);
 describe("GasFwd", function () {
   const BALANCE = 1000;
 
-  let owner: SignerWithAddress;
-  let admin: SignerWithAddress | Wallet;
-  let accounts: SignerWithAddress;
+  let owner: Signer;
+  let admin: Signer;
+  let accounts: Signer;
 
   let token: FakeContract<IERC20>;
   let gasFwd: GasFwd;
 
   async function deployGasFwdAsProxy(
-    owner: SignerWithAddress,
-    admin: SignerWithAddress | Wallet,
-    accounts: SignerWithAddress
+    owner: Signer,
+    admin: Signer,
+    accounts: Signer
   ): Promise<GasFwd> {
     let GasFwd = new GasFwd__factory(admin);
     let gasFwdImpl = await GasFwd.deploy();
     await gasFwdImpl.deployed();
     const data = gasFwdImpl.interface.encodeFunctionData("initialize", [
-      accounts ? accounts.address : owner.address,
+      accounts ? await accounts.getAddress() : await owner.getAddress(),
     ]);
     let proxyFactory = new ProxyContract__factory(owner);
-    let proxy = await proxyFactory.deploy(gasFwdImpl.address, admin.address, data);
+    let proxy = await proxyFactory.deploy(gasFwdImpl.address, await admin.getAddress(), data);
     await proxy.deployed();
     return GasFwd__factory.connect(proxy.address, accounts);
   }
@@ -77,19 +76,19 @@ describe("GasFwd", function () {
       await expect(gasFwd.payForGas(token.address, amount))
         .to.emit(gasFwd, "GasPay")
         .withArgs(token.address, amount);
-      expect(token.transfer).to.have.been.calledWith(accounts.address, amount);
+      expect(token.transfer).to.have.been.calledWith(await accounts.getAddress(), amount);
     });
     it("transfers tokens when amount to transfer is equal to balance", async function () {
       await expect(gasFwd.payForGas(token.address, BALANCE))
         .to.emit(gasFwd, "GasPay")
         .withArgs(token.address, BALANCE);
-      expect(token.transfer).to.have.been.calledWith(accounts.address, BALANCE);
+      expect(token.transfer).to.have.been.calledWith(await accounts.getAddress(), BALANCE);
     });
     it("transfers tokens when the call exceeds the balance", async function () {
       await expect(gasFwd.payForGas(token.address, BALANCE + 1))
         .to.emit(gasFwd, "GasPay")
         .withArgs(token.address, BALANCE);
-      expect(token.transfer).to.have.been.calledWith(accounts.address, BALANCE);
+      expect(token.transfer).to.have.been.calledWith(await accounts.getAddress(), BALANCE);
     });
   });
 
@@ -110,7 +109,7 @@ describe("GasFwd", function () {
       await expect(gasFwd.sweep(token.address))
         .to.emit(gasFwd, "Sweep")
         .withArgs(token.address, BALANCE);
-      expect(token.transfer).to.have.been.calledWith(accounts.address, BALANCE);
+      expect(token.transfer).to.have.been.calledWith(await accounts.getAddress(), BALANCE);
     });
   });
 });

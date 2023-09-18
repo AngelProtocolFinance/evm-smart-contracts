@@ -1,7 +1,6 @@
 import {smock} from "@defi-wonderland/smock";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
-import {BigNumberish, Wallet} from "ethers";
+import {BigNumberish, Signer} from "ethers";
 import hre from "hardhat";
 import {DEFAULT_CHARITY_ENDOWMENT, wait} from "test/utils";
 import {
@@ -29,10 +28,10 @@ describe("AccountsUpdateEndowments", function () {
   const charityId = 1;
   const normalEndowId = 2;
 
-  let accOwner: SignerWithAddress;
-  let proxyAdmin: SignerWithAddress | Wallet;
-  let endowOwner: SignerWithAddress;
-  let delegate: SignerWithAddress;
+  let accOwner: Signer;
+  let proxyAdmin: Signer;
+  let endowOwner: Signer;
+  let delegate: Signer;
 
   let facet: AccountsUpdateEndowments;
   let state: TestFacetProxyContract;
@@ -51,9 +50,9 @@ describe("AccountsUpdateEndowments", function () {
     oldCharity = {
       ...DEFAULT_CHARITY_ENDOWMENT,
       dao: genWallet().address,
-      owner: endowOwner.address,
+      owner: await endowOwner.getAddress(),
       // maturityAllowlist: [genWallet().address],
-      multisig: endowOwner.address,
+      multisig: await endowOwner.getAddress(),
     };
     oldNormalEndow = {
       ...oldCharity,
@@ -197,7 +196,7 @@ describe("AccountsUpdateEndowments", function () {
         await updateAllSettings(
           charityReq.id,
           {
-            delegate: {addr: delegate.address, expires: blockTimestamp - 1},
+            delegate: {addr: await delegate.getAddress(), expires: blockTimestamp - 1},
           },
           state
         );
@@ -214,7 +213,7 @@ describe("AccountsUpdateEndowments", function () {
         await updateAllSettings(
           normalEndowReq.id,
           {
-            delegate: {addr: delegate.address, expires: blockTimestamp - 1},
+            delegate: {addr: await delegate.getAddress(), expires: blockTimestamp - 1},
           },
           state
         );
@@ -243,7 +242,7 @@ describe("AccountsUpdateEndowments", function () {
     it("updates all charity settings except those updateable only by owner", async () => {
       await updateAllSettings(
         charityReq.id,
-        {delegate: {addr: delegate.address, expires: 0}},
+        {delegate: {addr: await delegate.getAddress(), expires: 0}},
         state
       );
 
@@ -265,7 +264,7 @@ describe("AccountsUpdateEndowments", function () {
     it("updates all normal endowment settings except those updateable only by owner", async () => {
       await updateAllSettings(
         normalEndowReq.id,
-        {delegate: {addr: delegate.address, expires: 0}},
+        {delegate: {addr: await delegate.getAddress(), expires: 0}},
         state
       );
 
@@ -476,7 +475,7 @@ describe("AccountsUpdateEndowments", function () {
               field,
               {
                 delegate: {
-                  addr: delegate.address,
+                  addr: await delegate.getAddress(),
                   expires: blockTimestamp - 1,
                 },
               },
@@ -548,7 +547,7 @@ describe("AccountsUpdateEndowments", function () {
         "acceptedTokens",
         {
           delegate: {
-            addr: delegate.address,
+            addr: await delegate.getAddress(),
             expires: blockTimestamp - 1,
           },
         },
@@ -605,7 +604,7 @@ describe("AccountsUpdateEndowments", function () {
       await wait(
         state.setConfig({
           networkName: "test",
-          owner: accOwner.address,
+          owner: await accOwner.getAddress(),
           version: "1",
           registrarContract: registrarFake.address,
           nextAccountId: 1,

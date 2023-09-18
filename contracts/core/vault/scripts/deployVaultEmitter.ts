@@ -1,4 +1,4 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {Signer} from "ethers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {VaultEmitter__factory} from "typechain-types";
 import {ProxyDeployment} from "types";
@@ -6,7 +6,7 @@ import {deployBehindProxy, updateAddresses} from "utils";
 
 export async function deployVaultEmitter(
   proxyAdmin: string,
-  deployer: SignerWithAddress,
+  deployer: Signer,
   hre: HardhatRuntimeEnvironment
 ): Promise<ProxyDeployment<VaultEmitter__factory>> {
   // data setup

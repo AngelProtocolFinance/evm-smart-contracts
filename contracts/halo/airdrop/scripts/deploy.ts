@@ -23,7 +23,11 @@ export async function deployAirdrop(
     const Airdrop = new Airdrop__factory(deployer);
     const initData = Airdrop.interface.encodeFunctionData("initialize", [AirdropDataInput]);
     // deploy
-    const {implementation, proxy} = await deployBehindProxy(Airdrop, proxyAdmin.address, initData);
+    const {implementation, proxy} = await deployBehindProxy(
+      Airdrop,
+      await proxyAdmin.getAddress(),
+      initData
+    );
 
     // update address file
     await updateAddresses(

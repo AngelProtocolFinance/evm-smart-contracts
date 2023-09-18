@@ -62,7 +62,7 @@ export async function deployHaloImplementation(
     const {airdropOwner, apTeam1} = await getSigners(hre);
 
     const halo = await deployHalo(verify_contracts, hre);
-    const gov = await deployGov(halo, apTeam1.address, verify_contracts, hre);
+    const gov = await deployGov(halo, await apTeam1.getAddress(), verify_contracts, hre);
     var response = {
       Halo: halo,
       Gov: gov,

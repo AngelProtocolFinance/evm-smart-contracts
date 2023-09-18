@@ -1,5 +1,4 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {ContractFactory} from "ethers";
+import {ContractFactory, Signer} from "ethers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {
   DiamondCutFacet__factory,
@@ -16,7 +15,7 @@ export async function deployAccountsDiamond(
   owner: string,
   registrar: string,
   diamondAdmin: string,
-  deployer: SignerWithAddress,
+  deployer: Signer,
   hre: HardhatRuntimeEnvironment
 ): Promise<{
   diamond: Deployment<Diamond__factory>;
@@ -51,7 +50,7 @@ export async function deployAccountsDiamond(
 }
 
 async function deployDiamond(
-  deployer: SignerWithAddress,
+  deployer: Signer,
   hre: HardhatRuntimeEnvironment
 ): Promise<{
   diamond: Deployment<Diamond__factory>;
@@ -60,7 +59,7 @@ async function deployDiamond(
   const diamondCutFacet = await deploy(new DiamondCutFacet__factory(deployer));
 
   const diamond = await deploy(new Diamond__factory(deployer), [
-    deployer.address,
+    await deployer.getAddress(),
     diamondCutFacet.contract.address,
   ]);
 
@@ -86,7 +85,7 @@ async function deployDiamond(
  * @param admin signer representing administrator of the contract
  */
 async function deployDiamondInit(
-  admin: SignerWithAddress,
+  admin: Signer,
   hre: HardhatRuntimeEnvironment
 ): Promise<Deployment<DiamondInit__factory>> {
   const diamondInit = await deploy(new DiamondInit__factory(admin));
@@ -96,11 +95,7 @@ async function deployDiamondInit(
   return diamondInit;
 }
 
-async function setDiamondContractOwner(
-  address: string,
-  newOwner: string,
-  curOwner: SignerWithAddress
-) {
+async function setDiamondContractOwner(address: string, newOwner: string, curOwner: Signer) {
   logger.out(`Transferring ownership from "${curOwner}" to "${newOwner}"...`);
   const accountsDiamond = IERC173__factory.connect(address, curOwner);
   const tx = await accountsDiamond.transferOwnership(newOwner);

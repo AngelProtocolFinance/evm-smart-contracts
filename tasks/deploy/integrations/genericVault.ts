@@ -50,7 +50,7 @@ task("Deploy:genericVault", "Will deploy a generic vault with the provided param
       const deployment = await deploy(APVault_V1, [
         vaultConfig,
         addresses.vaultEmitter.proxy,
-        deployer.address,
+        await deployer.getAddress(),
       ]);
 
       logger.out("Emitting `VaultCreated` event...");

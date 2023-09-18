@@ -1,6 +1,5 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
-import {BigNumber, Wallet} from "ethers";
+import {BigNumber, Signer} from "ethers";
 import hre from "hardhat";
 import {Halo, Halo__factory} from "typechain-types";
 import {getProxyAdminOwner, getSigners} from "utils";
@@ -8,9 +7,9 @@ import {getProxyAdminOwner, getSigners} from "utils";
 describe("Halo token", function () {
   let Halo: Halo__factory;
 
-  let deployer: SignerWithAddress;
-  let proxyAdmin: SignerWithAddress | Wallet;
-  let user: SignerWithAddress;
+  let deployer: Signer;
+  let proxyAdmin: Signer;
+  let user: Signer;
 
   describe("upon Deployment", async function () {
     let halo: Halo;
@@ -28,10 +27,10 @@ describe("Halo token", function () {
     });
 
     it("Sends the specified amount to the specified recipient", async function () {
-      expect(await halo.balanceOf(deployer.address)).to.equal(INITIALSUPPLY);
+      expect(await halo.balanceOf(await deployer.getAddress())).to.equal(INITIALSUPPLY);
     });
     it("Does not mint tokens for the deployer implicitly", async function () {
-      expect(await halo.balanceOf(user.address)).to.equal(0);
+      expect(await halo.balanceOf(await user.getAddress())).to.equal(0);
     });
     it("Creates initial tokens only for the contract deployer", async function () {
       expect(await halo.totalSupply()).to.equal(INITIALSUPPLY);

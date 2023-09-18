@@ -1,5 +1,4 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {BytesLike, ContractFactory, Wallet} from "ethers";
+import {BytesLike, ContractFactory, Signer} from "ethers";
 import {submitMultiSigTx} from "tasks/helpers";
 import {ITransparentUpgradeableProxy__factory, ProxyContract__factory} from "typechain-types";
 import {Deployment, ProxyDeployment} from "types";
@@ -81,7 +80,7 @@ export async function deployBehindProxy<T extends ContractFactory>(
 export async function upgradeProxy<T extends ContractFactory>(
   factory: T,
   proxyAdminMultiSig: string,
-  proxyAdminOwner: SignerWithAddress | Wallet,
+  proxyAdminOwner: Signer,
   proxyToUpgrade: string
 ): Promise<Deployment<T> | undefined> {
   const deployment = await deploy(factory);

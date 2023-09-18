@@ -1,4 +1,4 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {Signer} from "ethers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {
   DummyGasService,
@@ -35,7 +35,7 @@ type Result = {
 };
 
 export async function getOrDeployThirdPartyContracts(
-  signer: SignerWithAddress,
+  signer: Signer,
   hre: HardhatRuntimeEnvironment
 ): Promise<Result> {
   if (isLocalNetwork(hre)) {
@@ -43,9 +43,9 @@ export async function getOrDeployThirdPartyContracts(
       axelarGasService: await deployDummyGasService(signer),
       axelarGateway: await deployDummyGateway(signer),
       uniswap: await deployDummyUniswap(signer, hre),
-      seedAsset: await deployDummyERC20(signer, [signer.address], [100]),
-      usdcToken: await deployDummyERC20(signer, [signer.address], [100], 6),
-      wmaticToken: await deployDummyERC20(signer, [signer.address], [1]),
+      seedAsset: await deployDummyERC20(signer, [await signer.getAddress()], [100]),
+      usdcToken: await deployDummyERC20(signer, [await signer.getAddress()], [100], 6),
+      wmaticToken: await deployDummyERC20(signer, [await signer.getAddress()], [1]),
     };
 
     await updateAddresses(

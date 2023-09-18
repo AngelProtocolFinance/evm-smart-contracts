@@ -1,4 +1,4 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {Signer} from "ethers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {Router__factory} from "typechain-types";
 import {ProxyDeployment} from "types";
@@ -7,7 +7,7 @@ import {deployBehindProxy, updateAddresses} from "utils";
 export async function deployRouter(
   registrar: string,
   proxyAdmin: string,
-  deployer: SignerWithAddress,
+  deployer: Signer,
   hre: HardhatRuntimeEnvironment
 ): Promise<ProxyDeployment<Router__factory>> {
   // data setup

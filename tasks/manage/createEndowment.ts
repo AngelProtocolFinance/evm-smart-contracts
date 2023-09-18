@@ -36,7 +36,7 @@ task("manage:createEndowment", "Will create a new endowment")
       const defaultSettingsPermissionsStruct = {
         locked: false,
         delegate: {
-          addr: appsSigner.address,
+          addr: await appsSigner.getAddress(),
           expires: 0,
         },
       };
@@ -57,7 +57,7 @@ task("manage:createEndowment", "Will create a new endowment")
         endowType: taskArgs.endowType, // Charity
         logo: "",
         image: "",
-        members: [appsSigner.address],
+        members: [await appsSigner.getAddress()],
         threshold: 1,
         allowlistedBeneficiaries: [],
         allowlistedContributors: [],

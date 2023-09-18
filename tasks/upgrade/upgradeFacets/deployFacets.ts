@@ -1,13 +1,12 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import getFacetFactoryEntries from "contracts/core/accounts/scripts/deploy/getFacetFactoryEntries";
-import {ContractFactory} from "ethers";
+import {ContractFactory, Signer} from "ethers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {Deployment} from "types";
 import {deploy, getContractName, logger, updateAddresses} from "utils";
 
 export default async function deployFacets(
   facetNames: string[],
-  diamondOwner: SignerWithAddress,
+  diamondOwner: Signer,
   hre: HardhatRuntimeEnvironment
 ): Promise<Deployment<ContractFactory>[]> {
   logger.out("Deploying facets...");
@@ -34,7 +33,7 @@ export default async function deployFacets(
   return facetDeployments;
 }
 
-function getFacetsToUpgrade(facetNames: string[], diamondOwner: SignerWithAddress) {
+function getFacetsToUpgrade(facetNames: string[], diamondOwner: Signer) {
   const factoryEntries = getFacetFactoryEntries(diamondOwner);
   const facetsToUpgrade = facetNames.map((facetName) => {
     const factoryEntry = factoryEntries.find(

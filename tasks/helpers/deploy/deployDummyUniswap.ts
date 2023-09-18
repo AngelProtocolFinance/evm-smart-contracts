@@ -1,4 +1,4 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {Signer} from "ethers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {
   ISwapRouter,
@@ -9,12 +9,12 @@ import {
 import {logger} from "utils";
 
 export async function deployDummyUniswap(
-  signer: SignerWithAddress,
+  signer: Signer,
   hre: HardhatRuntimeEnvironment
 ): Promise<{factory: IUniswapV3Factory; swapRouter: ISwapRouter}> {
   // just use some placeholder address until actual mock deployment is created
   // TODO: create a real mock contract for the swap router
-  const address = signer.address;
+  const address = await signer.getAddress();
 
   logger.out("Deploying dummy Uniswap Factory...");
   logger.out(`Address: ${address}`);

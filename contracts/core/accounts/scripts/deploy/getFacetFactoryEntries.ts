@@ -1,5 +1,4 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {ContractFactory} from "ethers";
+import {ContractFactory, Signer} from "ethers";
 import {
   AccountsDepositWithdrawEndowments__factory,
   AccountsAllowance__factory,
@@ -18,7 +17,7 @@ import {
 import {AddressObj} from "utils";
 
 // Getting factories instantiated in bulk as they share the deploy/cut creation logic.
-export default function getFacetFactoryEntries(diamondOwner: SignerWithAddress): {
+export default function getFacetFactoryEntries(diamondOwner: Signer): {
   factory: ContractFactory;
   addressField: keyof AddressObj["accounts"]["facets"];
 }[] {

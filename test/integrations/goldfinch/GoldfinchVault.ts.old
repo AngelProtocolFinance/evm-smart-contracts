@@ -17,9 +17,9 @@ import {StrategyApprovalState, getSigners} from "utils";
 
 describe("Goldfinch Vault", function () {
   const {ethers, upgrades} = hre;
-  let owner: SignerWithAddress;
-  let taxCollector: SignerWithAddress;
-  let user: SignerWithAddress;
+  let owner: Signer;
+  let taxCollector: Signer;
+  let user: Signer;
   let Registrar: LocalRegistrar__factory;
   let Vault: GoldfinchVault__factory;
   let StakingToken: DummyERC20__factory; // FIDU
@@ -73,7 +73,7 @@ describe("Goldfinch Vault", function () {
     let configuredApParams = defaultApParams;
     configuredApParams.protocolTaxCollector = taxCollector.address;
     // Set the owner address as the router for ease of test
-    configuredApParams.routerAddr = owner.address;
+    configuredApParams.routerAddr = await owner.getAddress();
     await registrar.setAngelProtocolParams(configuredApParams);
 
     // Set the strategy params in the registrar for Goldfinch
@@ -458,7 +458,7 @@ describe("Goldfinch Vault", function () {
       await liquidVault.redeem(ACCOUNTID1, stableToken.address, STABLETOKENAMOUNT);
       expect(await stableToken.balanceOf(liquidVault.address)).to.equal(STABLETOKENAMOUNT);
       expect(await stableToken.balanceOf(taxCollector.address)).to.equal(0);
-      expect(await stableToken.allowance(liquidVault.address, owner.address)).to.equal(
+      expect(await stableToken.allowance(liquidVault.address, await owner.getAddress())).to.equal(
         STABLETOKENAMOUNT
       );
     });
@@ -483,7 +483,7 @@ describe("Goldfinch Vault", function () {
 
       expect(await stableToken.balanceOf(liquidVault.address)).to.equal(REDUCEDSTABLETOKENAMOUNT);
       expect(await stableToken.balanceOf(taxCollector.address)).to.equal(0);
-      expect(await stableToken.allowance(liquidVault.address, owner.address)).to.equal(
+      expect(await stableToken.allowance(liquidVault.address, await owner.getAddress())).to.equal(
         REDUCEDSTABLETOKENAMOUNT
       );
     });
@@ -507,7 +507,7 @@ describe("Goldfinch Vault", function () {
       let redemptionAmt = STABLETOKENAMOUNT.sub(expectedTax);
       expect(await stableToken.balanceOf(taxCollector.address)).to.equal(expectedTax);
       expect(await stableToken.balanceOf(liquidVault.address)).to.equal(redemptionAmt);
-      expect(await stableToken.allowance(liquidVault.address, owner.address)).to.equal(
+      expect(await stableToken.allowance(liquidVault.address, await owner.getAddress())).to.equal(
         redemptionAmt
       );
     });
@@ -621,7 +621,7 @@ describe("Goldfinch Vault", function () {
       await liquidVault.redeemAll(ACCOUNTID1);
       expect(await stableToken.balanceOf(liquidVault.address)).to.equal(STABLETOKENAMOUNT);
       expect(await stableToken.balanceOf(taxCollector.address)).to.equal(0);
-      expect(await stableToken.allowance(liquidVault.address, owner.address)).to.equal(
+      expect(await stableToken.allowance(liquidVault.address, await owner.getAddress())).to.equal(
         STABLETOKENAMOUNT
       );
     });
@@ -645,7 +645,7 @@ describe("Goldfinch Vault", function () {
       let redemptionAmt = STABLETOKENWITHYIELD.sub(expectedTax);
       expect(await stableToken.balanceOf(taxCollector.address)).to.equal(expectedTax);
       expect(await stableToken.balanceOf(liquidVault.address)).to.equal(redemptionAmt);
-      expect(await stableToken.allowance(liquidVault.address, owner.address)).to.equal(
+      expect(await stableToken.allowance(liquidVault.address, await owner.getAddress())).to.equal(
         redemptionAmt
       );
     });

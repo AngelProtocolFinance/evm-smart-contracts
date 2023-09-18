@@ -1,5 +1,5 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {CONFIG} from "config";
+import {Signer} from "ethers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {CharityApplications__factory} from "typechain-types";
 import {ProxyDeployment} from "types";
@@ -9,13 +9,13 @@ export async function deployCharityApplications(
   accountsDiamond: string,
   proxyAdmin: string,
   seedAsset: string,
-  deployer: SignerWithAddress,
+  deployer: Signer,
   hre: HardhatRuntimeEnvironment
 ): Promise<ProxyDeployment<CharityApplications__factory>> {
   const {charityApplicationsOwners} = await getSigners(hre);
   const owners = !charityApplicationsOwners
     ? CONFIG.PROD_CONFIG.CharityApplicationsOwners
-    : charityApplicationsOwners.map((x) => x.address);
+    : await Promise.all(charityApplicationsOwners.map((x) => x.getAddress()));
 
   // data setup
   const CharityApplications = new CharityApplications__factory(deployer);

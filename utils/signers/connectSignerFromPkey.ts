@@ -1,9 +1,9 @@
-import {Wallet} from "ethers";
+import {Signer, Wallet} from "ethers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 
 export async function connectSignerFromPkey(
   pkey: string,
   hre: HardhatRuntimeEnvironment
-): Promise<Wallet> {
+): Promise<Signer> {
   return new Wallet(pkey, hre.ethers.provider);
 }

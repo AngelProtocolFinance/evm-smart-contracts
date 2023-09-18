@@ -1,6 +1,5 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
-import {BigNumber} from "ethers";
+import {BigNumber, Signer} from "ethers";
 import hre from "hardhat";
 import {DEFAULT_NETWORK_INFO} from "test/utils";
 import {LocalRegistrar, LocalRegistrar__factory} from "typechain-types";
@@ -11,8 +10,8 @@ import {getSigners} from "utils";
 describe("Local Registrar", function () {
   const {ethers, upgrades} = hre;
 
-  let owner: SignerWithAddress;
-  let user: SignerWithAddress;
+  let owner: Signer;
+  let user: Signer;
   let Registrar: LocalRegistrar__factory;
 
   let defaultRebalParams = {
@@ -63,7 +62,7 @@ describe("Local Registrar", function () {
     });
 
     it("Should set the right owner", async function () {
-      expect(await registrar.owner()).to.equal(owner.address);
+      expect(await registrar.owner()).to.equal(await owner.getAddress());
     });
 
     it("Should set the default parameters as specified by the Registrar Config", async function () {
@@ -157,24 +156,26 @@ describe("Local Registrar", function () {
 
     describe("setTokenAccepted and isTokenAccepted", async function () {
       it("Should be an owner restricted method", async function () {
-        await expect(registrar.connect(user).setTokenAccepted(user.address, true)).to.be.reverted;
+        await expect(registrar.connect(user).setTokenAccepted(await user.getAddress(), true)).to.be
+          .reverted;
       });
 
       it("Should accept and set the new value", async function () {
-        await expect(registrar.setTokenAccepted(user.address, true)).to.not.be.reverted;
-        let returnedValue = await registrar.isTokenAccepted(user.address);
+        await expect(registrar.setTokenAccepted(await user.getAddress(), true)).to.not.be.reverted;
+        let returnedValue = await registrar.isTokenAccepted(await user.getAddress());
         expect(returnedValue).to.be.true;
       });
     });
 
     describe("setGasByToken and getGasByToken", async function () {
       it("Should be an owner restricted method", async function () {
-        await expect(registrar.connect(user).setGasByToken(user.address, 1)).to.be.reverted;
+        await expect(registrar.connect(user).setGasByToken(await user.getAddress(), 1)).to.be
+          .reverted;
       });
 
       it("Should accept and set the new value", async function () {
-        await expect(registrar.setGasByToken(user.address, 1)).to.not.be.reverted;
-        let returnedValue = await registrar.getGasByToken(user.address);
+        await expect(registrar.setGasByToken(await user.getAddress(), 1)).to.not.be.reverted;
+        let returnedValue = await registrar.getGasByToken(await user.getAddress());
         expect(returnedValue.toNumber()).to.equal(1);
       });
     });
@@ -308,13 +309,15 @@ describe("Local Registrar", function () {
 
     describe("set and get vaultOperatorApproved", async function () {
       it("Should be an owner restricted method", async function () {
-        await expect(registrar.connect(user).setVaultOperatorApproved(user.address, true)).to.be
-          .reverted;
+        await expect(
+          registrar.connect(user).setVaultOperatorApproved(await user.getAddress(), true)
+        ).to.be.reverted;
       });
       it("Should set and get the vault operator approval status", async function () {
-        expect(await registrar.getVaultOperatorApproved(user.address)).to.be.false;
-        await expect(registrar.setVaultOperatorApproved(user.address, true)).to.not.be.reverted;
-        expect(await registrar.getVaultOperatorApproved(user.address)).to.be.true;
+        expect(await registrar.getVaultOperatorApproved(await user.getAddress())).to.be.false;
+        await expect(registrar.setVaultOperatorApproved(await user.getAddress(), true)).to.not.be
+          .reverted;
+        expect(await registrar.getVaultOperatorApproved(await user.getAddress())).to.be.true;
       });
     });
 
@@ -330,32 +333,37 @@ describe("Local Registrar", function () {
       it("Should revert if a single fee meets or exceeds 100%", async function () {
         // setting to 100% should fail outright
         await expect(
-          registrar.setFeeSettingsByFeesType(FeeTypes.Deposit, 10000, user.address)
+          registrar.setFeeSettingsByFeesType(FeeTypes.Deposit, 10000, await user.getAddress())
         ).to.be.revertedWith("Fees meet or exceed 100%");
       });
 
       it("Should revert if combined Withdraw-related fees meet or exceeds 100%", async function () {
         // First set a Withdraw Fee as 50%
-        await expect(registrar.setFeeSettingsByFeesType(FeeTypes.Withdraw, 5000, user.address)).to
-          .not.be.reverted;
+        await expect(
+          registrar.setFeeSettingsByFeesType(FeeTypes.Withdraw, 5000, await user.getAddress())
+        ).to.not.be.reverted;
 
         // Trying to set an Early Locked Withdraw Fee at, or above, 50% should fail
         await expect(
           registrar.setFeeSettingsByFeesType(
             FeeTypes.EarlyLockedWithdraw,
             BigNumber.from(6000),
-            user.address
+            await user.getAddress()
           )
         ).to.be.revertedWith("Fees meet or exceed 100%");
       });
 
       it("Should set a fee rate (in bps) and a payout address", async function () {
         await expect(
-          registrar.setFeeSettingsByFeesType(FeeTypes.Harvest, BigNumber.from(5000), user.address)
+          registrar.setFeeSettingsByFeesType(
+            FeeTypes.Harvest,
+            BigNumber.from(5000),
+            await user.getAddress()
+          )
         ).to.not.be.reverted;
         let afterHarvestFee = await registrar.getFeeSettingsByFeeType(FeeTypes.Harvest);
         expect(afterHarvestFee.bps).to.equal(5000);
-        expect(afterHarvestFee.payoutAddress).to.equal(user.address);
+        expect(afterHarvestFee.payoutAddress).to.equal(await user.getAddress());
       });
     });
   });
@@ -381,7 +389,7 @@ describe("Local Registrar", function () {
     });
 
     it("should emit TokenAcceptanceUpdated", async function () {
-      await expect(registrar.setTokenAccepted(user.address, true)).to.emit(
+      await expect(registrar.setTokenAccepted(await user.getAddress(), true)).to.emit(
         registrar,
         "TokenAcceptanceUpdated"
       );
@@ -406,7 +414,10 @@ describe("Local Registrar", function () {
     });
 
     it("should emit GasFeeUpdated", async function () {
-      await expect(registrar.setGasByToken(user.address, 1)).to.emit(registrar, "GasFeeUpdated");
+      await expect(registrar.setGasByToken(await user.getAddress(), 1)).to.emit(
+        registrar,
+        "GasFeeUpdated"
+      );
     });
   });
 });

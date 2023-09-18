@@ -1,11 +1,11 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {Signer} from "ethers";
 import {ADDRESS_ZERO} from "utils";
 import {DummyVault, DummyVault__factory, IVault} from "typechain-types";
 
 import {DEFAULT_STRATEGY_ID, DEFAULT_VAULT_NAME, DEFAULT_VAULT_SYMBOL} from "./constants";
 
 export async function deployDummyVault(
-  deployer: SignerWithAddress,
+  deployer: Signer,
   {
     vaultType = 0,
     strategyId = DEFAULT_STRATEGY_ID,

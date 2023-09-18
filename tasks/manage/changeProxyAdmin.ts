@@ -1,4 +1,4 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {Signer} from "ethers";
 import {task} from "hardhat/config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {
@@ -8,7 +8,6 @@ import {
 } from "typechain-types";
 import {AddressObj, confirmAction, getAddresses, getProxyAdminOwner, logger} from "utils";
 import {submitMultiSigTx} from "../helpers";
-import {Wallet} from "ethers";
 
 type TaskArgs = {
   apTeamSignerPkey?: string;
@@ -42,7 +41,7 @@ task("manage:changeProxyAdmin", "Will update the proxy admin for all proxy contr
 
       const proxyAdminOwner = await getProxyAdminOwner(hre, taskArgs.proxyAdminPkey);
 
-      if (proxyAdminOwner.address === taskArgs.newProxyAdmin) {
+      if ((await proxyAdminOwner.getAddress()) === taskArgs.newProxyAdmin) {
         return logger.out(`"${taskArgs.newProxyAdmin}" is already the proxy admin.`);
       }
 
@@ -63,7 +62,7 @@ task("manage:changeProxyAdmin", "Will update the proxy admin for all proxy contr
   });
 
 async function transferAccountOwnership(
-  proxyAdminOwner: SignerWithAddress | Wallet,
+  proxyAdminOwner: Signer,
   newProxyAdmin: string,
   addresses: AddressObj,
   hre: HardhatRuntimeEnvironment
@@ -98,7 +97,7 @@ async function transferAccountOwnership(
  * will never revert, but will nevertheless NOT update the admin.
  */
 async function changeProxiesAdmin(
-  proxyAdminOwner: SignerWithAddress | Wallet,
+  proxyAdminOwner: Signer,
   newProxyAdmin: string,
   addresses: AddressObj,
   hre: HardhatRuntimeEnvironment

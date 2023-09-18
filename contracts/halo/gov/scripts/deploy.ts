@@ -23,7 +23,11 @@ export async function deployGov(
     const Gov = new Gov__factory(deployer);
     const initData = Gov.interface.encodeFunctionData("initialize", [haloToken, timelock]);
     // deploy
-    const {implementation, proxy} = await deployBehindProxy(Gov, proxyAdmin.address, initData);
+    const {implementation, proxy} = await deployBehindProxy(
+      Gov,
+      await proxyAdmin.getAddress(),
+      initData
+    );
 
     // update address file
     await updateAddresses(
