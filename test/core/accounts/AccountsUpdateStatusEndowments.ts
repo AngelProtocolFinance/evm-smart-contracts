@@ -1,6 +1,7 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
-import {Signer} from "ethers";
+import {SnapshotRestorer, takeSnapshot} from "@nomicfoundation/hardhat-network-helpers";
 import {expect, use} from "chai";
+import {Signer} from "ethers";
 import hre from "hardhat";
 import {
   DEFAULT_CHARITY_ENDOWMENT,
@@ -77,12 +78,6 @@ describe("AccountsUpdateStatusEndowments", function () {
       endowType: EndowmentType.Daf,
       owner: await endowOwner.getAddress(),
     };
-  });
-
-  beforeEach(async function () {
-    let Facet = new AccountsUpdateStatusEndowments__factory(accOwner);
-    let facetImpl = await Facet.deploy();
-    state = await deployFacetAsProxy(hre, accOwner, proxyAdmin, facetImpl.address);
 
     indexFundFake = await smock.fake<IndexFund>(new IndexFund__factory(), {
       address: genWallet().address,
@@ -91,14 +86,9 @@ describe("AccountsUpdateStatusEndowments", function () {
       address: genWallet().address,
     });
 
-    const config: RegistrarStorage.ConfigStruct = {
-      ...DEFAULT_REGISTRAR_CONFIG,
-      indexFundContract: indexFundFake.address,
-      treasury: treasuryAddress,
-      haloToken: genWallet().address,
-    };
-    registrarFake.queryConfig.returns(config);
-    registrarFake.queryAllStrategies.returns(strategies);
+    let Facet = new AccountsUpdateStatusEndowments__factory(accOwner);
+    let facetImpl = await Facet.deploy();
+    state = await deployFacetAsProxy(hre, accOwner, proxyAdmin, facetImpl.address);
 
     await wait(state.setEndowmentDetails(accountId, ast_endowment));
     await wait(state.setEndowmentDetails(charityId, charity_endowment));
@@ -117,6 +107,25 @@ describe("AccountsUpdateStatusEndowments", function () {
     );
 
     facet = AccountsUpdateStatusEndowments__factory.connect(state.address, endowOwner);
+  });
+
+  let snapshot: SnapshotRestorer;
+
+  beforeEach(async function () {
+    snapshot = await takeSnapshot();
+
+    const config: RegistrarStorage.ConfigStruct = {
+      ...DEFAULT_REGISTRAR_CONFIG,
+      indexFundContract: indexFundFake.address,
+      treasury: treasuryAddress,
+      haloToken: genWallet().address,
+    };
+    registrarFake.queryConfig.returns(config);
+    registrarFake.queryAllStrategies.returns(strategies);
+  });
+
+  afterEach(async () => {
+    await snapshot.restore();
   });
 
   describe("upon closeEndowmment", async function () {
