@@ -1,7 +1,7 @@
 import {smock} from "@defi-wonderland/smock";
-import {Signer} from "ethers";
-import {time} from "@nomicfoundation/hardhat-network-helpers";
+import {SnapshotRestorer, takeSnapshot, time} from "@nomicfoundation/hardhat-network-helpers";
 import {expect, use} from "chai";
+import {Signer} from "ethers";
 import hre from "hardhat";
 import {DEFAULT_CHARITY_ENDOWMENT, wait} from "test/utils";
 import {
@@ -51,9 +51,7 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
       ...charity,
       endowType: 1,
     };
-  });
 
-  beforeEach(async () => {
     let Facet = new AccountsUpdateEndowmentSettingsController__factory(owner);
     let facetImpl = await Facet.deploy();
     state = await deployFacetAsProxy(hre, owner, proxyAdmin, facetImpl.address);
@@ -73,6 +71,16 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
 
     await wait(state.setEndowmentDetails(charityId, charity));
     await wait(state.setEndowmentDetails(normalEndowId, normalEndow));
+  });
+
+  let snapshot: SnapshotRestorer;
+
+  beforeEach(async () => {
+    snapshot = await takeSnapshot();
+  });
+
+  afterEach(async () => {
+    await snapshot.restore();
   });
 
   describe("updateEndowmentSettings", () => {
