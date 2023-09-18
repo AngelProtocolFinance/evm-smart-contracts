@@ -1,3 +1,4 @@
+import {SnapshotRestorer, takeSnapshot} from "@nomicfoundation/hardhat-network-helpers";
 import {expect} from "chai";
 import {BigNumber, Signer} from "ethers";
 import hre from "hardhat";
@@ -7,12 +8,15 @@ import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalR
 import {FeeTypes, StrategyApprovalState} from "types";
 import {getSigners} from "utils";
 
-describe("Local Registrar", function () {
+describe("LocalRegistrar", function () {
   const {ethers, upgrades} = hre;
 
   let owner: Signer;
   let user: Signer;
+
   let Registrar: LocalRegistrar__factory;
+
+  let registrar: LocalRegistrar;
 
   let defaultRebalParams = {
     rebalanceLiquidProfits: false,
@@ -23,11 +27,6 @@ describe("Local Registrar", function () {
     basis: 100,
   };
 
-  let defaultApParams = {
-    routerAddr: ethers.constants.AddressZero,
-    refundAddr: ethers.constants.AddressZero,
-  };
-
   let mockUniswapAddresses = {
     router: "0x0000000000000000000000000000000000111111",
     factory: "0x0000000000000000000000000000000002222222",
@@ -36,29 +35,28 @@ describe("Local Registrar", function () {
   let originatingChain = "polygon";
   let accountsContract = "0x000000000000000000000000000000000000dead";
 
-  async function deployRegistrarAsProxy(): Promise<LocalRegistrar> {
+  before(async function () {
     const signers = await getSigners(hre);
     user = signers.apTeam1;
     owner = signers.apTeam2;
 
-    Registrar = (await ethers.getContractFactory(
-      "LocalRegistrar",
-      owner
-    )) as LocalRegistrar__factory;
-    const registrar = (await upgrades.deployProxy(Registrar, [originatingChain])) as LocalRegistrar;
-    await registrar.deployed();
-    return registrar;
-  }
+    Registrar = new LocalRegistrar__factory(owner);
+    registrar = (await upgrades.deployProxy(Registrar, [originatingChain])) as LocalRegistrar;
+  });
+
+  let snapshot: SnapshotRestorer;
+
+  beforeEach(async () => {
+    snapshot = await takeSnapshot();
+  });
+
+  afterEach(async () => {
+    await snapshot.restore();
+  });
 
   describe("Deployment", function () {
-    let registrar: LocalRegistrar;
-    beforeEach(async function () {
-      registrar = await deployRegistrarAsProxy();
-    });
-
     it("Should successfully deploy the contract as an upgradable proxy", async function () {
-      expect(registrar.address);
-      expect(await upgrades.upgradeProxy(registrar.address, Registrar));
+      await expect(upgrades.upgradeProxy(registrar.address, Registrar)).to.not.be.reverted;
     });
 
     it("Should set the right owner", async function () {
@@ -81,20 +79,12 @@ describe("Local Registrar", function () {
     });
 
     it("Should not allow a non-owner to run an upgrade", async function () {
-      const UserRegistrar = (await ethers.getContractFactory(
-        "LocalRegistrar",
-        user
-      )) as LocalRegistrar__factory;
-      await expect(upgrades.upgradeProxy(registrar.address, UserRegistrar)).to.be.reverted;
+      await expect(upgrades.upgradeProxy(registrar.address, Registrar.connect(user))).to.be
+        .reverted;
     });
   });
 
   describe("Setters and Getters", function () {
-    let registrar: LocalRegistrar;
-    beforeEach(async function () {
-      registrar = await deployRegistrarAsProxy();
-    });
-
     describe("setRebalanceParams and getRebalanceParams", async function () {
       it("Should be an owner restricted method", async function () {
         await expect(registrar.connect(user).setRebalanceParams(defaultRebalParams)).to.be.reverted;
@@ -369,10 +359,6 @@ describe("Local Registrar", function () {
   });
 
   describe("Events", function () {
-    let registrar: LocalRegistrar;
-    beforeEach(async function () {
-      registrar = await deployRegistrarAsProxy();
-    });
     let strategyId = "0xffffffff"; // random 4-byte hash
     let strategyParams: LocalRegistrarLib.StrategyParamsStruct = {
       approvalState: StrategyApprovalState.APPROVED,
