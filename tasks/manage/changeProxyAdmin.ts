@@ -1,14 +1,7 @@
 import {task} from "hardhat/config";
-import {
-  ITransparentUpgradeableProxy__factory,
-  ProxyAdminMultiSig__factory,
-  ProxyContract__factory,
-} from "typechain-types";
+import {ITransparentUpgradeableProxy__factory, ProxyContract__factory} from "typechain-types";
 import {confirmAction, getAddresses, getProxyAdminOwner, logger} from "utils";
 import {submitMultiSigTx} from "../helpers";
-import {HardhatRuntimeEnvironment} from "hardhat/types";
-
-class CheckError extends Error {}
 
 type TaskArgs = {
   to?: string;
@@ -51,8 +44,6 @@ task("manage:changeProxyAdmin", "Will update the proxy admin the target proxy co
         return logger.out(`"${targetAddress}" is already the proxy admin.`);
       }
 
-      await checkIfProxyAdmin(curAdmin, proxyAdminOwner.address, hre);
-
       logger.out(`Current Admin: ${curAdmin}`);
 
       // submitting the Tx
@@ -78,59 +69,6 @@ task("manage:changeProxyAdmin", "Will update the proxy admin the target proxy co
         }
       }
     } catch (error) {
-      if (error instanceof CheckError) {
-        logger.out(error, logger.Level.Warn);
-      } else {
-        logger.out(error, logger.Level.Error);
-      }
+      logger.out(error, logger.Level.Error);
     }
   });
-
-/**
- * It is possible the Endowment's proxy is not managed by our ProxyAdminMultiSig.
- * In those cases we should skip submitting any Txs to avoid wasting gas.
- * @param adminAddress Address of the current proxy admin
- * @param adminOwner Address of one of the current proxy admin's owners
- * @param hre HardhatRuntimeEnvironment
- */
-async function checkIfProxyAdmin(
-  adminAddress: string,
-  adminOwner: string,
-  hre: HardhatRuntimeEnvironment
-): Promise<void> {
-  // this is just a rudimendaty check that will throw if `curAdmin` is not really a ProxyAdminMultiSig
-  // in which case it'll throw and stop the execution. We check this by assuming that if the address
-  // is connected to a contract that contains the `submitTransaction` function, then there's a high
-  // likelihood that the said contract is ProxyAdminMultiSig
-  const proxyAdminMS = ProxyAdminMultiSig__factory.connect(adminAddress, hre.ethers.provider);
-  const bytecode = await hre.ethers.provider.getCode(adminAddress);
-
-  // No code : "0x" then functionA is definitely not there
-  if (bytecode.length <= 2) {
-    throw new CheckError("Skipping: admin address has no code");
-  }
-
-  // If the bytecode doesn't include the function selector submitTransaction()
-  // is definitely not present
-  const submitTransactionSelector = proxyAdminMS.interface.getSighash(
-    proxyAdminMS.interface.functions["submitTransaction(address,uint256,bytes,bytes)"]
-  );
-  if (!bytecode.includes(submitTransactionSelector.slice(2))) {
-    throw new CheckError(
-      "Skipping: not a ProxyAdminMultiSig - no submitTransaction() function selector in bytecode"
-    );
-  }
-
-  const isOwnersSelector = proxyAdminMS.interface.getSighash(
-    proxyAdminMS.interface.functions["isOwner(address)"]
-  );
-  if (!bytecode.includes(isOwnersSelector.slice(2))) {
-    throw new CheckError(
-      "Skipping: not a ProxyAdminMultiSig - no isOwner() function selector in bytecode"
-    );
-  }
-
-  if (!(await proxyAdminMS.isOwner(adminOwner))) {
-    throw new CheckError(`Skipping: "${adminOwner}" is not one of the target contract's owners`);
-  }
-}
