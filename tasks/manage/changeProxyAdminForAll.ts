@@ -1,5 +1,4 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {Wallet} from "ethers";
+import {Signer} from "ethers";
 import {task} from "hardhat/config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {OwnershipFacet__factory} from "typechain-types";
@@ -65,7 +64,7 @@ task("manage:changeProxyAdminForAll", "Will update the proxy admin for all proxy
   });
 
 async function transferAccountOwnership(
-  proxyAdminOwner: SignerWithAddress | Wallet,
+  proxyAdminOwner: Signer,
   newProxyAdmin: string,
   addresses: AddressObj,
   hre: HardhatRuntimeEnvironment

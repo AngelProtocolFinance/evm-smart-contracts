@@ -24,7 +24,7 @@ export default async function updateEndowmentProxiesAdmin(
 
   for (const endowmentProxy of endowmentProxies) {
     try {
-      await checkIfManagedByProxyAdmin(endowmentProxy, proxyAdminOwner.address, hre);
+      await checkIfManagedByProxyAdmin(endowmentProxy, await proxyAdminOwner.getAddress(), hre);
 
       await hre.run("manage:changeProxyAdmin", {
         to: targetAddress,
@@ -33,11 +33,8 @@ export default async function updateEndowmentProxiesAdmin(
         yes: true,
       });
     } catch (error) {
-      if (error instanceof CheckError) {
-        logger.out(error, logger.Level.Warn);
-      } else {
-        logger.out(error, logger.Level.Error);
-      }
+      const logLevel = error instanceof CheckError ? logger.Level.Warn : logger.Level.Error;
+      logger.out(error, logLevel);
     }
   }
 }
