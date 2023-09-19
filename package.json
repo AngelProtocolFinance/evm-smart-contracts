@@ -5,7 +5,7 @@
   "scripts": {
     "preinstall": "npx only-allow yarn",
     "format": "prettier --write './{config,contracts,eth-sdk,scripts,tasks,test,utils}/**/*.{ts,js,sol}'",
-    "fork": "hardhat node --fork $(grep MUMBAI_RPC_URL .env | cut -d '=' -f2 | sed -e 's/^\"//' -e 's/\"$//')",
+    "fork": "bash ./fork.sh",
     "test": "hardhat test",
     "compile": "bash ./compile.sh",
     "deploy": "hardhat compile && hardhat deploy:AngelProtocol",
