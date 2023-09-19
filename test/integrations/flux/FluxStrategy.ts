@@ -1,3 +1,4 @@
+import {SnapshotRestorer, takeSnapshot} from "@nomicfoundation/hardhat-network-helpers";
 import {expect} from "chai";
 import {BigNumber, Signer} from "ethers";
 import hre from "hardhat";
@@ -15,7 +16,10 @@ describe("FluxStrategy", function () {
 
   let owner: Signer;
   let user: Signer;
-  let collector: Signer;
+
+  let flux: FluxStrategy;
+  let baseToken: DummyERC20;
+  let yieldToken: DummyFUSDC;
 
   async function deployFluxStrategy({
     baseToken,
@@ -40,42 +44,40 @@ describe("FluxStrategy", function () {
     return flux;
   }
 
+  before(async function () {
+    [owner, user] = await ethers.getSigners();
+
+    baseToken = await deployDummyERC20(owner, 6);
+    yieldToken = await deployDummyFUSDC(owner, baseToken.address);
+
+    flux = await deployFluxStrategy({
+      baseToken: baseToken.address,
+      yieldToken: yieldToken.address,
+      admin: await owner.getAddress(),
+    });
+  });
+
+  let snapshot: SnapshotRestorer;
+
+  beforeEach(async () => {
+    snapshot = await takeSnapshot();
+  });
+
+  afterEach(async () => {
+    await snapshot.restore();
+  });
+
   describe("during deployment", async function () {
-    let flux: FluxStrategy;
-    before(async function () {
-      [owner, user, collector] = await ethers.getSigners();
-    });
-    it("deploys", async function () {
-      flux = await deployFluxStrategy({
-        baseToken: await user.getAddress(),
-        yieldToken: await user.getAddress(),
-        admin: await owner.getAddress(),
-      });
-      expect(flux);
-    });
     it("sets the config according to the input params", async function () {
-      flux = await deployFluxStrategy({
-        baseToken: await user.getAddress(),
-        yieldToken: await collector.getAddress(),
-        admin: await owner.getAddress(),
-      });
       let config = await flux.getStrategyConfig();
-      expect(config.baseToken).to.equal(await user.getAddress());
-      expect(config.yieldToken).to.equal(await collector.getAddress());
+      expect(config.baseToken).to.equal(baseToken.address);
+      expect(config.yieldToken).to.equal(yieldToken.address);
       expect(config.strategyId).to.equal(DEFAULT_STRATEGY_ID);
       expect(config.admin).to.equal(await owner.getAddress());
     });
   });
 
   describe("pause extension", async function () {
-    let flux: FluxStrategy;
-    beforeEach(async function () {
-      flux = await deployFluxStrategy({
-        baseToken: await user.getAddress(),
-        yieldToken: await user.getAddress(),
-        admin: await owner.getAddress(),
-      });
-    });
     it("reverts if a non-admin calls the `pause` method", async function () {
       await expect(flux.connect(user).pause()).to.be.revertedWithCustomError(flux, "AdminOnly");
     });
@@ -93,14 +95,6 @@ describe("FluxStrategy", function () {
     });
   });
   describe("upon get and set config", async function () {
-    let flux: FluxStrategy;
-    beforeEach(async function () {
-      flux = await deployFluxStrategy({
-        baseToken: await user.getAddress(),
-        yieldToken: await user.getAddress(),
-        admin: await owner.getAddress(),
-      });
-    });
     it("reverts if set is called by a non-admin", async function () {
       await expect(
         flux.connect(user).setStrategyConfig({
@@ -128,20 +122,6 @@ describe("FluxStrategy", function () {
     });
   });
   describe("upon Deposit", async function () {
-    let flux: FluxStrategy;
-    let baseToken: DummyERC20;
-    let yieldToken: DummyFUSDC;
-    before(async function () {
-      baseToken = await deployDummyERC20(owner, 6);
-      yieldToken = await deployDummyFUSDC(owner, baseToken.address);
-    });
-    beforeEach(async function () {
-      flux = await deployFluxStrategy({
-        baseToken: baseToken.address,
-        yieldToken: yieldToken.address,
-        admin: await owner.getAddress(),
-      });
-    });
     it("reverts when paused", async function () {
       await expect(flux.pause()).to.not.be.reverted;
       await expect(flux.deposit(1)).to.revertedWith("Pausable: paused");
@@ -192,25 +172,18 @@ describe("FluxStrategy", function () {
     });
   });
   describe("upon Withdrawal", async function () {
-    let flux: FluxStrategy;
-    let baseToken: DummyERC20;
-    let yieldToken: DummyFUSDC;
     const DEPOSIT_AMT = 10;
-    before(async function () {
-      baseToken = await deployDummyERC20(owner, 6);
-      yieldToken = await deployDummyFUSDC(owner, baseToken.address);
-    });
-    beforeEach(async function () {
-      flux = await deployFluxStrategy({
-        baseToken: baseToken.address,
-        yieldToken: yieldToken.address,
-        admin: await owner.getAddress(),
-      });
+    let rootSnapshot: SnapshotRestorer;
+    before(async () => {
+      rootSnapshot = await takeSnapshot();
       await wait(baseToken.mint(await owner.getAddress(), DEPOSIT_AMT));
       await wait(baseToken.approve(flux.address, DEPOSIT_AMT));
       await wait(yieldToken.setResponseAmt(DEPOSIT_AMT));
       await wait(flux.deposit(DEPOSIT_AMT));
       await wait(yieldToken.transferFrom(flux.address, await owner.getAddress(), DEPOSIT_AMT));
+    });
+    after(async () => {
+      await rootSnapshot.restore();
     });
     it("reverts when paused", async function () {
       await expect(flux.pause()).to.not.be.reverted;
@@ -256,23 +229,9 @@ describe("FluxStrategy", function () {
     });
   });
   describe("upon previewDeposit and previewWithdraw", async function () {
-    let flux: FluxStrategy;
-    let baseToken: DummyERC20;
-    let yieldToken: DummyFUSDC;
     const DECIMAL_MAG = 100; // fUSDC: 8, USDC: 6
     const EXP_SCALE = BigNumber.from(10).pow(18); // 10**18 = expScale in fUSDC contract
     const ONE_THOUSAND = BigNumber.from("1000000000"); // 1,000,000,000 = $1000
-    before(async function () {
-      baseToken = await deployDummyERC20(owner, 6);
-      yieldToken = await deployDummyFUSDC(owner, baseToken.address);
-    });
-    beforeEach(async function () {
-      flux = await deployFluxStrategy({
-        baseToken: baseToken.address,
-        yieldToken: yieldToken.address,
-        admin: await owner.getAddress(),
-      });
-    });
     it("correctly applies the exchange rate for previewDeposit", async function () {
       await expect(yieldToken.setExRate(EXP_SCALE.div(DECIMAL_MAG))).to.not.be.reverted; // test 1:1
       let previewedDeposit = await flux.previewDeposit(ONE_THOUSAND);

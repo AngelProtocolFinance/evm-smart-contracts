@@ -1,5 +1,11 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
-import {impersonateAccount, setBalance, time} from "@nomicfoundation/hardhat-network-helpers";
+import {
+  SnapshotRestorer,
+  impersonateAccount,
+  setBalance,
+  takeSnapshot,
+  time,
+} from "@nomicfoundation/hardhat-network-helpers";
 import {expect} from "chai";
 import {Signer} from "ethers";
 import hre from "hardhat";
@@ -31,11 +37,11 @@ describe("IndexFund", function () {
   let proxyAdmin: Signer;
   let user: Signer;
 
+  let accountsDepositWithdrawEndowments: AccountsDepositWithdrawEndowments;
   let registrar: FakeContract<Registrar>;
   let wmatic: FakeContract<DummyWMATIC>;
   let token: FakeContract<IERC20>;
 
-  let accountsDepositWithdrawEndowments: AccountsDepositWithdrawEndowments;
   let state: TestFacetProxyContract;
   let facet: IndexFund;
 
@@ -134,9 +140,7 @@ describe("IndexFund", function () {
         reentrancyGuardLocked: false,
       })
     );
-  });
 
-  beforeEach(async () => {
     const proxy = await deployIndexFundAsProxy();
     facet = IndexFund__factory.connect(proxy.address, owner);
 
@@ -150,6 +154,16 @@ describe("IndexFund", function () {
     };
     registrar.queryConfig.returns(registrarConfig);
     registrar.isTokenAccepted.whenCalledWith(token.address).returns(true);
+  });
+
+  let snapshot: SnapshotRestorer;
+
+  beforeEach(async () => {
+    snapshot = await takeSnapshot();
+  });
+
+  afterEach(async () => {
+    await snapshot.restore();
   });
 
   describe("Deploying the contract", function () {
@@ -289,7 +303,11 @@ describe("IndexFund", function () {
   });
 
   describe("Updating an existing Fund's endowment members", function () {
-    beforeEach(async function () {
+    let rootSnapshot: SnapshotRestorer;
+
+    before(async function () {
+      rootSnapshot = await takeSnapshot();
+
       // create 2 funds (1 active and 1 expired)
       let currTime = await time.latest();
       await wait(facet.createIndexFund("Test Fund #1", "Test fund", [2, 3], true, 50, 0));
@@ -297,6 +315,10 @@ describe("IndexFund", function () {
         facet.createIndexFund("Test Fund #2", "Test fund", [3], false, 50, currTime + 42069)
       );
       await time.increase(42069); // move time forward so Fund #2 is @ expiry
+    });
+
+    after(async () => {
+      await rootSnapshot.restore();
     });
 
     it("reverts when the message sender is not the owner", async function () {
@@ -333,7 +355,11 @@ describe("IndexFund", function () {
   });
 
   describe("Removing an existing Fund", function () {
-    beforeEach(async function () {
+    let rootSnapshot: SnapshotRestorer;
+
+    before(async function () {
+      rootSnapshot = await takeSnapshot();
+
       // create 2 funds (1 active and 1 expired)
       let currTime = await time.latest();
       await wait(facet.createIndexFund("Test Fund #1", "Test fund", [2, 3], true, 50, 0));
@@ -341,6 +367,10 @@ describe("IndexFund", function () {
         facet.createIndexFund("Test Fund #2", "Test fund", [3], false, 50, currTime + 42069)
       );
       await time.increase(42069); // move time forward so Fund #2 is @ expiry
+    });
+
+    after(async () => {
+      await rootSnapshot.restore();
     });
 
     it("reverts when the message sender is not the owner", async function () {
@@ -359,7 +389,11 @@ describe("IndexFund", function () {
   });
 
   describe("Removing an endowment from all involved Funds", function () {
-    beforeEach(async function () {
+    let rootSnapshot: SnapshotRestorer;
+
+    before(async function () {
+      rootSnapshot = await takeSnapshot();
+
       // create 2 funds (1 active and 1 expired)
       let currTime = await time.latest();
       await wait(facet.createIndexFund("Test Fund #1", "Test fund", [2, 3], true, 50, 0));
@@ -367,6 +401,10 @@ describe("IndexFund", function () {
         facet.createIndexFund("Test Fund #2", "Test fund", [3], false, 50, currTime + 42069)
       );
       await time.increase(42069); // move time forward so Fund #2 is @ expiry
+    });
+
+    after(async () => {
+      await rootSnapshot.restore();
     });
 
     it("reverts when the message sender is not the accounts contract", async function () {
@@ -394,7 +432,11 @@ describe("IndexFund", function () {
   });
 
   describe("When a user deposits tokens to a Fund", function () {
-    beforeEach(async function () {
+    let rootSnapshot: SnapshotRestorer;
+
+    before(async function () {
+      rootSnapshot = await takeSnapshot();
+
       let currTime = await time.latest();
       // create 1 active, non-rotating fund
       await wait(facet.createIndexFund("Test Fund #1", "Test fund", [2, 3], false, 50, 0));
@@ -403,6 +445,10 @@ describe("IndexFund", function () {
         facet.createIndexFund("Test Fund #2", "Test fund", [2, 3], false, 50, currTime + 42069)
       );
       await time.increase(42069); // move time forward so Fund #2 is @ expiry
+    });
+
+    after(async () => {
+      await rootSnapshot.restore();
     });
 
     it("reverts when amount is zero", async function () {
@@ -416,6 +462,8 @@ describe("IndexFund", function () {
       await expect(facet.depositERC20(1, token.address, 100)).to.be.revertedWith(
         "Unaccepted Token"
       );
+      // reset isTokenAccepted behavior
+      registrar.isTokenAccepted.whenCalledWith(token.address).returns(true);
     });
 
     it("reverts when fund passed is expired", async function () {
@@ -509,7 +557,7 @@ describe("IndexFund", function () {
       // test with a LARGER donation amount for gas-usage and rotation stress-tests
       await expect(
         facet.depositERC20(0, token.address, 1000000, {
-          gasPrice: 100000,
+          // gasPrice: 100000, @Nenad: Just wondering, why is manual gas price needed?
           gasLimit: 10000000,
         })
       )

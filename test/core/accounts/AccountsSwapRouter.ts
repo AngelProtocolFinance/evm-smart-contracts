@@ -1,7 +1,7 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
-import {time} from "@nomicfoundation/hardhat-network-helpers";
-import {Signer} from "ethers";
+import {SnapshotRestorer, takeSnapshot, time} from "@nomicfoundation/hardhat-network-helpers";
 import {expect, use} from "chai";
+import {Signer} from "ethers";
 import hre from "hardhat";
 import {deployDummyERC20} from "tasks/helpers";
 import {
@@ -33,17 +33,21 @@ use(smock.matchers);
 
 describe("AccountsSwapRouter", function () {
   const {ethers} = hre;
+
+  const ACCOUNT_ID = 1;
+
   let owner: Signer;
   let proxyAdmin: Signer;
   let user: Signer;
+
   let facet: AccountsSwapRouter;
-  let facetImpl: AccountsSwapRouter;
   let state: TestFacetProxyContract;
-  let registrar: FakeContract<Registrar>;
+
   let uniswapRouter: DummySwapRouter;
   let uniswapFactory: DummyUniswapV3Factory;
+
+  let registrar: FakeContract<Registrar>;
   let chainlink: FakeContract<DummyAggregatorV3Interface>;
-  const ACCOUNT_ID = 1;
 
   before(async function () {
     const signers = await getSigners(hre);
@@ -53,10 +57,8 @@ describe("AccountsSwapRouter", function () {
     proxyAdmin = await getProxyAdminOwner(hre);
 
     let Facet = new AccountsSwapRouter__factory(owner);
-    facetImpl = await Facet.deploy();
-  });
+    const facetImpl = await Facet.deploy();
 
-  beforeEach(async function () {
     registrar = await smock.fake<Registrar>(new Registrar__factory(), {
       address: genWallet().address,
     });
@@ -72,19 +74,41 @@ describe("AccountsSwapRouter", function () {
     uniswapFactory = await UniswapFactory.deploy();
 
     state = await deployFacetAsProxy(hre, owner, proxyAdmin, facetImpl.address);
+    facet = AccountsSwapRouter__factory.connect(state.address, owner);
 
     const config = {
       ...DEFAULT_ACCOUNTS_CONFIG,
       registrarContract: registrar.address,
     };
     await wait(state.setConfig(config));
+  });
 
-    facet = AccountsSwapRouter__factory.connect(state.address, owner);
+  let snapshot: SnapshotRestorer;
+
+  beforeEach(async () => {
+    snapshot = await takeSnapshot();
+
+    const ANSWER = 1;
+    let currTime = await time.latest();
+    chainlink.latestRoundData.returns([0, ANSWER, 0, currTime, 0]);
+
+    registrar.queryConfig.returns({
+      ...DEFAULT_REGISTRAR_CONFIG,
+      uniswapRouter: uniswapRouter.address,
+      uniswapFactory: uniswapFactory.address,
+    });
+    registrar.isTokenAccepted.returns(true);
+    registrar.queryTokenPriceFeed.returns(chainlink.address);
+  });
+
+  afterEach(async () => {
+    await snapshot.restore();
   });
 
   describe("upon swapToken", async function () {
     describe("revert cases", async function () {
       it("reverts if the uniswapRouter isn't set", async function () {
+        registrar.queryConfig.returns(DEFAULT_REGISTRAR_CONFIG);
         await expect(
           facet.swapToken(
             ACCOUNT_ID,
@@ -115,11 +139,6 @@ describe("AccountsSwapRouter", function () {
       });
 
       it("reverts if the amountIn is zero", async function () {
-        registrar.queryConfig.returns({
-          ...DEFAULT_REGISTRAR_CONFIG,
-          uniswapRouter: uniswapRouter.address,
-          uniswapFactory: uniswapFactory.address,
-        });
         await expect(
           facet.swapToken(
             ACCOUNT_ID,
@@ -133,11 +152,6 @@ describe("AccountsSwapRouter", function () {
       });
 
       it("reverts if the tokenIn is the zero address", async function () {
-        registrar.queryConfig.returns({
-          ...DEFAULT_REGISTRAR_CONFIG,
-          uniswapRouter: uniswapRouter.address,
-          uniswapFactory: uniswapFactory.address,
-        });
         await expect(
           facet.swapToken(
             ACCOUNT_ID,
@@ -151,11 +165,6 @@ describe("AccountsSwapRouter", function () {
       });
 
       it("reverts if tokenIn is the same as tokenOut", async function () {
-        registrar.queryConfig.returns({
-          ...DEFAULT_REGISTRAR_CONFIG,
-          uniswapRouter: uniswapRouter.address,
-          uniswapFactory: uniswapFactory.address,
-        });
         let token = genWallet().address;
         await expect(
           facet.swapToken(ACCOUNT_ID, VaultType.LOCKED, token, 1, token, 0)
@@ -163,11 +172,6 @@ describe("AccountsSwapRouter", function () {
       });
 
       it("reverts if the tokenOut is the zero address", async function () {
-        registrar.queryConfig.returns({
-          ...DEFAULT_REGISTRAR_CONFIG,
-          uniswapRouter: uniswapRouter.address,
-          uniswapFactory: uniswapFactory.address,
-        });
         await expect(
           facet.swapToken(
             ACCOUNT_ID,
@@ -181,11 +185,6 @@ describe("AccountsSwapRouter", function () {
       });
 
       it("reverts if the slippage is too high", async function () {
-        registrar.queryConfig.returns({
-          ...DEFAULT_REGISTRAR_CONFIG,
-          uniswapRouter: uniswapRouter.address,
-          uniswapFactory: uniswapFactory.address,
-        });
         await expect(
           facet.swapToken(
             ACCOUNT_ID,
@@ -199,11 +198,6 @@ describe("AccountsSwapRouter", function () {
       });
 
       it("reverts if the token isn't accepted", async function () {
-        registrar.queryConfig.returns({
-          ...DEFAULT_REGISTRAR_CONFIG,
-          uniswapRouter: uniswapRouter.address,
-          uniswapFactory: uniswapFactory.address,
-        });
         registrar.isTokenAccepted.returns(false);
 
         await expect(
@@ -219,13 +213,6 @@ describe("AccountsSwapRouter", function () {
       });
 
       it("reverts if locked vault mgmt isnt allowed", async function () {
-        registrar.queryConfig.returns({
-          ...DEFAULT_REGISTRAR_CONFIG,
-          uniswapRouter: uniswapRouter.address,
-          uniswapFactory: uniswapFactory.address,
-        });
-        registrar.isTokenAccepted.returns(true);
-
         await expect(
           facet.swapToken(
             ACCOUNT_ID,
@@ -239,13 +226,6 @@ describe("AccountsSwapRouter", function () {
       });
 
       it("reverts if liquid vault mgmt isnt allowed", async function () {
-        registrar.queryConfig.returns({
-          ...DEFAULT_REGISTRAR_CONFIG,
-          uniswapRouter: uniswapRouter.address,
-          uniswapFactory: uniswapFactory.address,
-        });
-        registrar.isTokenAccepted.returns(true);
-
         await expect(
           facet.swapToken(
             ACCOUNT_ID,
@@ -259,12 +239,6 @@ describe("AccountsSwapRouter", function () {
       });
 
       it("reverts if locked token balance is insufficient", async function () {
-        registrar.queryConfig.returns({
-          ...DEFAULT_REGISTRAR_CONFIG,
-          uniswapRouter: uniswapRouter.address,
-          uniswapFactory: uniswapFactory.address,
-        });
-        registrar.isTokenAccepted.returns(true);
         const endow = DEFAULT_CHARITY_ENDOWMENT;
         endow.settingsController.lockedInvestmentManagement = {
           ...DEFAULT_PERMISSIONS_STRUCT,
@@ -282,12 +256,6 @@ describe("AccountsSwapRouter", function () {
       });
 
       it("reverts if liquid token balance is insufficient", async function () {
-        registrar.queryConfig.returns({
-          ...DEFAULT_REGISTRAR_CONFIG,
-          uniswapRouter: uniswapRouter.address,
-          uniswapFactory: uniswapFactory.address,
-        });
-        registrar.isTokenAccepted.returns(true);
         const endow = DEFAULT_CHARITY_ENDOWMENT;
         endow.settingsController.liquidInvestmentManagement = {
           ...DEFAULT_PERMISSIONS_STRUCT,
@@ -306,12 +274,6 @@ describe("AccountsSwapRouter", function () {
       });
 
       it("reverts if the chainlink price oracle contract is not set in the registrar nor in state PriceFeeds", async function () {
-        registrar.queryConfig.returns({
-          ...DEFAULT_REGISTRAR_CONFIG,
-          uniswapRouter: uniswapRouter.address,
-          uniswapFactory: uniswapFactory.address,
-        });
-        registrar.isTokenAccepted.returns(true);
         const endow = {
           ...DEFAULT_CHARITY_ENDOWMENT,
           owner: await owner.getAddress(),
@@ -331,18 +293,12 @@ describe("AccountsSwapRouter", function () {
       it("reverts if the token approval fails", async function () {
         let token = await deployDummyERC20(owner);
         await token.setApproveAllowed(false);
-        registrar.queryConfig.returns({
-          ...DEFAULT_REGISTRAR_CONFIG,
-          uniswapRouter: uniswapRouter.address,
-          uniswapFactory: uniswapFactory.address,
-        });
-        registrar.isTokenAccepted.returns(true);
+
         const endow = {
           ...DEFAULT_CHARITY_ENDOWMENT,
           owner: await owner.getAddress(),
         };
         await wait(state.setEndowmentDetails(ACCOUNT_ID, endow));
-        registrar.queryTokenPriceFeed.returns(chainlink.address);
         await wait(state.setEndowmentTokenBalance(ACCOUNT_ID, token.address, 100, 100));
 
         await expect(
@@ -355,29 +311,39 @@ describe("AccountsSwapRouter", function () {
       let token1: DummyERC20;
       let token2: DummyERC20;
       const AMT1 = 1000;
-      beforeEach(async function () {
-        registrar.queryConfig.returns({
-          ...DEFAULT_REGISTRAR_CONFIG,
-          uniswapRouter: uniswapRouter.address,
-          uniswapFactory: uniswapFactory.address,
-        });
-        registrar.isTokenAccepted.returns(true);
-        registrar.queryTokenPriceFeed.returns(chainlink.address);
+
+      let rootSnapshot: SnapshotRestorer;
+
+      before(async () => {
+        rootSnapshot = await takeSnapshot();
+
+        token1 = await deployDummyERC20(owner);
+        token2 = await deployDummyERC20(owner);
 
         const endow = {
           ...DEFAULT_CHARITY_ENDOWMENT,
           owner: await owner.getAddress(),
         };
-        token1 = await deployDummyERC20(owner);
-        token2 = await deployDummyERC20(owner);
         await wait(state.setEndowmentDetails(ACCOUNT_ID, endow));
         await wait(state.setEndowmentTokenBalance(ACCOUNT_ID, token1.address, AMT1, 0));
       });
 
+      after(async () => {
+        await rootSnapshot.restore();
+      });
+
       describe("revert cases", async function () {
-        beforeEach(async function () {
+        let parentSnapshot: SnapshotRestorer;
+
+        before(async () => {
+          parentSnapshot = await takeSnapshot();
           await wait(token1.mint(facet.address, AMT1));
         });
+
+        after(async () => {
+          await parentSnapshot.restore();
+        });
+
         it("reverts if the price feed response is invalid", async function () {
           const ANSWER = 0;
           chainlink.latestRoundData.returns([0, ANSWER, 0, 0, 0]);
@@ -387,18 +353,12 @@ describe("AccountsSwapRouter", function () {
         });
 
         it("reverts if the factory cant find a pool", async function () {
-          const ANSWER = 1;
-          let currTime = await time.latest();
-          chainlink.latestRoundData.returns([0, ANSWER, 0, currTime, 0]);
           await expect(
             facet.swapToken(ACCOUNT_ID, VaultType.LOCKED, token1.address, AMT1, token2.address, 1)
           ).to.be.revertedWith("No pool found to swap");
         });
 
         it("reverts if output is less than expected", async function () {
-          const ANSWER = 1;
-          let currTime = await time.latest();
-          chainlink.latestRoundData.returns([0, ANSWER, 0, currTime, 0]);
           await wait(uniswapFactory.setPool(genWallet().address));
           await wait(uniswapRouter.setOutputValue(0));
           await expect(
@@ -410,19 +370,26 @@ describe("AccountsSwapRouter", function () {
       describe("successfully swaps", async function () {
         const AMT1 = 1000;
         const AMT2 = 1000;
-        beforeEach(async function () {
-          const ANSWER = 1;
-          let currTime = await time.latest();
-          chainlink.latestRoundData.returns([0, ANSWER, 0, currTime, 0]);
+
+        let parentSnapshot: SnapshotRestorer;
+
+        before(async () => {
+          parentSnapshot = await takeSnapshot();
+
           await wait(uniswapFactory.setPool(genWallet().address));
           await wait(uniswapRouter.setOutputValue(AMT2));
+
+          await wait(token1.mint(facet.address, AMT1));
+          await wait(token2.mint(uniswapRouter.address, AMT2));
+        });
+
+        after(async () => {
+          await parentSnapshot.restore();
         });
 
         it("swaps and updates the locked balance successfully", async function () {
-          await wait(token1.mint(facet.address, AMT1));
-          await wait(token2.mint(uniswapRouter.address, AMT2));
-          await wait(uniswapRouter.setOutputValue(AMT2));
           await wait(state.setEndowmentTokenBalance(ACCOUNT_ID, token1.address, AMT1, 0));
+
           await expect(
             facet.swapToken(ACCOUNT_ID, VaultType.LOCKED, token1.address, AMT1, token2.address, 1)
           )
@@ -444,9 +411,8 @@ describe("AccountsSwapRouter", function () {
         });
 
         it("swaps and updates the liquid balance successfully", async function () {
-          await wait(token1.mint(facet.address, AMT1));
-          await wait(token2.mint(uniswapRouter.address, AMT2));
           await wait(state.setEndowmentTokenBalance(ACCOUNT_ID, token1.address, 0, AMT1));
+
           await expect(
             facet.swapToken(ACCOUNT_ID, VaultType.LIQUID, token1.address, AMT1, token2.address, 1)
           )

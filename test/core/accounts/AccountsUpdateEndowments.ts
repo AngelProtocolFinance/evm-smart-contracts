@@ -1,4 +1,4 @@
-import {smock} from "@defi-wonderland/smock";
+import {FakeContract, smock} from "@defi-wonderland/smock";
 import {expect, use} from "chai";
 import {BigNumberish, Signer} from "ethers";
 import hre from "hardhat";
@@ -19,6 +19,7 @@ import {
 import {ControllerSettingOption} from "types";
 import {genWallet, getProxyAdminOwner, getSigners} from "utils";
 import {deployFacetAsProxy, updateAllSettings, updateSettings} from "./utils";
+import {SnapshotRestorer, takeSnapshot} from "@nomicfoundation/hardhat-network-helpers";
 
 use(smock.matchers);
 
@@ -39,6 +40,8 @@ describe("AccountsUpdateEndowments", function () {
   let oldNormalEndow: AccountStorage.EndowmentStruct;
   let oldCharity: AccountStorage.EndowmentStruct;
 
+  let registrarFake: FakeContract<Registrar>;
+
   before(async function () {
     const signers = await getSigners(hre);
     accOwner = signers.apTeam1;
@@ -58,9 +61,11 @@ describe("AccountsUpdateEndowments", function () {
       ...oldCharity,
       endowType: 1,
     };
-  });
 
-  beforeEach(async () => {
+    registrarFake = await smock.fake<Registrar>(new Registrar__factory(), {
+      address: genWallet().address,
+    });
+
     const Facet = new AccountsUpdateEndowments__factory(accOwner);
     const facetImpl = await Facet.deploy();
     state = await deployFacetAsProxy(hre, accOwner, proxyAdmin, facetImpl.address);
@@ -69,6 +74,28 @@ describe("AccountsUpdateEndowments", function () {
 
     await wait(state.setEndowmentDetails(charityId, oldCharity));
     await wait(state.setEndowmentDetails(normalEndowId, oldNormalEndow));
+
+    await wait(
+      state.setConfig({
+        networkName: "test",
+        owner: await accOwner.getAddress(),
+        version: "1",
+        registrarContract: registrarFake.address,
+        nextAccountId: 1,
+        reentrancyGuardLocked: false,
+      })
+    );
+  });
+
+  let snapshot: SnapshotRestorer;
+
+  beforeEach(async () => {
+    snapshot = await takeSnapshot();
+    registrarFake.isTokenAccepted.returns(false);
+  });
+
+  afterEach(async () => {
+    await snapshot.restore();
   });
 
   describe("updateEndowmentDetails", () => {
@@ -560,7 +587,6 @@ describe("AccountsUpdateEndowments", function () {
     });
 
     it("reverts if the token is a member of the protocol-level accepted tokens list in the Registrar", async () => {
-      const registrarFake = await deployFakeRegistrar();
       registrarFake.isTokenAccepted.returns(true);
       await expect(
         facet.updateAcceptedToken(normalEndowId, tokenAddr, priceFeedAddr, true)
@@ -568,8 +594,6 @@ describe("AccountsUpdateEndowments", function () {
     });
 
     it("reverts if the price feed passed to the function does not support ERC-165", async () => {
-      const registrarFake = await deployFakeRegistrar();
-      registrarFake.isTokenAccepted.returns(false);
       await expect(
         facet.updateAcceptedToken(normalEndowId, tokenAddr, priceFeedAddr, true)
       ).to.be.revertedWith("Price Feed contract is not a valid ERC-165 interface");
@@ -579,9 +603,6 @@ describe("AccountsUpdateEndowments", function () {
       it(`adds token's price feed and sets token's status as ${
         tokenStatus ? "" : "*not* "
       }accepted`, async () => {
-        const registrarFake = await deployFakeRegistrar();
-        registrarFake.isTokenAccepted.returns(false);
-
         const FakePriceFeed = new DummyERC165CompatibleContract__factory(proxyAdmin);
         const fakePriceFeed = await FakePriceFeed.deploy();
         await fakePriceFeed.deployed();
@@ -596,22 +617,5 @@ describe("AccountsUpdateEndowments", function () {
         await expect(await state.getTokenAccepted(normalEndowId, tokenAddr)).to.equal(tokenStatus);
       });
     });
-
-    async function deployFakeRegistrar() {
-      const registrarFake = await smock.fake<Registrar>(new Registrar__factory(), {
-        address: genWallet().address,
-      });
-      await wait(
-        state.setConfig({
-          networkName: "test",
-          owner: await accOwner.getAddress(),
-          version: "1",
-          registrarContract: registrarFake.address,
-          nextAccountId: 1,
-          reentrancyGuardLocked: false,
-        })
-      );
-      return registrarFake;
-    }
   });
 });

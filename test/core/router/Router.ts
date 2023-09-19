@@ -1,6 +1,7 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
-import {Signer} from "ethers";
+import {SnapshotRestorer, takeSnapshot} from "@nomicfoundation/hardhat-network-helpers";
 import {expect, use} from "chai";
+import {Signer} from "ethers";
 import hre from "hardhat";
 import {
   DEFAULT_ACTION_DATA,
@@ -76,33 +77,44 @@ describe("Router", function () {
     RouterProxy.upgradeTo(RouterImpl.address);
   }
 
-  describe("Deployment", function () {
-    let registrar: FakeContract<Registrar>;
-    let router: Router;
-    beforeEach(async function () {
-      registrar = await smock.fake<Registrar>(new Registrar__factory());
-      router = await deployRouterAsProxy(registrar.address);
-    });
+  let router: Router;
 
+  let liquidVault: FakeContract<DummyVault>;
+  let lockedVault: FakeContract<DummyVault>;
+  let gasService: FakeContract<DummyGasService>;
+  let gateway: FakeContract<DummyGateway>;
+  let registrar: FakeContract<Registrar>;
+  let token: FakeContract<DummyERC20>;
+
+  before(async () => {
+    liquidVault = await smock.fake<DummyVault>(new DummyVault__factory());
+    lockedVault = await smock.fake<DummyVault>(new DummyVault__factory());
+    gasService = await smock.fake<DummyGasService>(new DummyGasService__factory());
+    gateway = await smock.fake<DummyGateway>(new DummyGateway__factory());
+    registrar = await smock.fake<Registrar>(new Registrar__factory());
+    token = await smock.fake<DummyERC20>(new DummyERC20__factory());
+
+    router = await deployRouterAsProxy(registrar.address);
+  });
+
+  let snapshot: SnapshotRestorer;
+
+  beforeEach(async () => {
+    snapshot = await takeSnapshot();
+  });
+
+  afterEach(async () => {
+    await snapshot.restore();
+  });
+
+  describe("Deployment", function () {
     it("Should successfully deploy the contract as an upgradable proxy", async function () {
-      expect(router.address);
-      expect(await upgradeProxy(admin, router.address));
+      await expect(upgradeProxy(admin, router.address)).to.not.be.reverted;
     });
   });
 
   describe("Protected methods", function () {
-    let registrar: FakeContract<Registrar>;
-    let gateway: FakeContract<DummyGateway>;
-    let gasService: FakeContract<DummyGasService>;
-    let token: FakeContract<DummyERC20>;
-    let router: Router;
-
     beforeEach(async function () {
-      token = await smock.fake<DummyERC20>(new DummyERC20__factory());
-      registrar = await smock.fake<Registrar>(new Registrar__factory());
-      gateway = await smock.fake<DummyGateway>(new DummyGateway__factory());
-      gasService = await smock.fake<DummyGasService>(new DummyGasService__factory());
-
       const networkParams = {
         ...DEFAULT_NETWORK_INFO,
         axelarGateway: gateway.address,
@@ -121,7 +133,6 @@ describe("Router", function () {
         .whenCalledWith(localChain)
         .returns(await owner.getAddress());
       registrar.thisChain.returns(localChain);
-      router = await deployRouterAsProxy(registrar.address);
     });
 
     it("Does not allow a non-accounts contract address on another chain to call executeWithToken via GMP", async function () {
@@ -200,17 +211,11 @@ describe("Router", function () {
   });
 
   describe("Correctly triggers the refund process on failed Deposit", function () {
-    let liquidVault: FakeContract<DummyVault>;
-    let registrar: FakeContract<Registrar>;
-    let gateway: FakeContract<DummyGateway>;
-    let gasService: FakeContract<DummyGasService>;
-    let token: FakeContract<DummyERC20>;
-    let router: Router;
-
     const LOCK_AMT = 111;
     const LIQ_AMT = 222;
     const GAS_COST = 5;
     const TOTAL_AMT = LOCK_AMT + LIQ_AMT;
+
     const getDefaultActionData = () => ({
       ...DEFAULT_ACTION_DATA,
       accountId: 1,
@@ -219,12 +224,6 @@ describe("Router", function () {
     });
 
     beforeEach(async function () {
-      token = await smock.fake<DummyERC20>(new DummyERC20__factory());
-      registrar = await smock.fake<Registrar>(new Registrar__factory());
-      gateway = await smock.fake<DummyGateway>(new DummyGateway__factory());
-      gasService = await smock.fake<DummyGasService>(new DummyGasService__factory());
-      liquidVault = await smock.fake<DummyVault>(new DummyVault__factory());
-
       const networkParams = {
         ...DEFAULT_NETWORK_INFO,
         axelarGateway: gateway.address,
@@ -250,7 +249,6 @@ describe("Router", function () {
       token.approve.returns(true);
       token.approveFor.returns(true);
       token.symbol.returns("TKN");
-      router = await deployRouterAsProxy(registrar.address);
     });
 
     describe("and the refund call is successful back through axelar", function () {
@@ -377,16 +375,11 @@ describe("Router", function () {
     });
 
     describe("and the refund call fails through axelar and falls back to the refund collector", async function () {
-      let liquidVault: FakeContract<DummyVault>;
-      let registrar: FakeContract<Registrar>;
-      let gateway: FakeContract<DummyGateway>;
-      let gasService: FakeContract<DummyGasService>;
-      let token: FakeContract<DummyERC20>;
-      let router: Router;
       const LOCK_AMT = 111;
       const LIQ_AMT = 222;
       const GAS_COST = 5;
       const TOTAL_AMT = LOCK_AMT + LIQ_AMT;
+
       const getDefaultActionData = () => ({
         ...DEFAULT_ACTION_DATA,
         accountId: 1,
@@ -395,12 +388,6 @@ describe("Router", function () {
       });
 
       beforeEach(async function () {
-        token = await smock.fake<DummyERC20>(new DummyERC20__factory());
-        registrar = await smock.fake<Registrar>(new Registrar__factory());
-        gateway = await smock.fake<DummyGateway>(new DummyGateway__factory());
-        gasService = await smock.fake<DummyGasService>(new DummyGasService__factory());
-        liquidVault = await smock.fake<DummyVault>(new DummyVault__factory());
-
         const networkParams = {
           ...DEFAULT_NETWORK_INFO,
           axelarGateway: gateway.address,
@@ -426,7 +413,6 @@ describe("Router", function () {
         token.approve.returns(false);
         token.approveFor.returns(false);
         token.symbol.returns("TKN");
-        router = await deployRouterAsProxy(registrar.address);
       });
 
       it("when an action other than deposit is called", async function () {
@@ -549,17 +535,11 @@ describe("Router", function () {
   });
 
   describe("Routes messages according to payload instructions", function () {
-    let lockedVault: FakeContract<DummyVault>;
-    let liquidVault: FakeContract<DummyVault>;
-    let registrar: FakeContract<Registrar>;
-    let gateway: FakeContract<DummyGateway>;
-    let gasService: FakeContract<DummyGasService>;
-    let token: FakeContract<DummyERC20>;
-    let router: Router;
     const LOCK_AMT = 111;
     const LIQ_AMT = 222;
     const GAS_COST = 5;
     const TOTAL_AMT = LOCK_AMT + LIQ_AMT;
+
     const getDefaultActionData = () => ({
       ...DEFAULT_ACTION_DATA,
       accountId: 1,
@@ -568,13 +548,6 @@ describe("Router", function () {
     });
 
     beforeEach(async function () {
-      token = await smock.fake<DummyERC20>(new DummyERC20__factory());
-      registrar = await smock.fake<Registrar>(new Registrar__factory());
-      gateway = await smock.fake<DummyGateway>(new DummyGateway__factory());
-      gasService = await smock.fake<DummyGasService>(new DummyGasService__factory());
-      lockedVault = await smock.fake<DummyVault>(new DummyVault__factory());
-      liquidVault = await smock.fake<DummyVault>(new DummyVault__factory());
-
       const networkParams = {
         ...DEFAULT_NETWORK_INFO,
         axelarGateway: gateway.address,
@@ -609,7 +582,6 @@ describe("Router", function () {
       token.approve.returns(true);
       token.approveFor.returns(true);
       token.symbol.returns("TKN");
-      router = await deployRouterAsProxy(registrar.address);
     });
 
     it("correctly calls depost", async function () {
@@ -687,17 +659,11 @@ describe("Router", function () {
   });
 
   describe("Deposit", function () {
-    let lockedVault: FakeContract<DummyVault>;
-    let liquidVault: FakeContract<DummyVault>;
-    let registrar: FakeContract<Registrar>;
-    let gateway: FakeContract<DummyGateway>;
-    let gasService: FakeContract<DummyGasService>;
-    let token: FakeContract<DummyERC20>;
-    let router: Router;
     const LOCK_AMT = 111;
     const LIQ_AMT = 222;
     const GAS_COST = 5;
     const TOTAL_AMT = LOCK_AMT + LIQ_AMT;
+
     const getDefaultActionData = () => ({
       ...DEFAULT_ACTION_DATA,
       accountId: 1,
@@ -706,13 +672,6 @@ describe("Router", function () {
     });
 
     beforeEach(async function () {
-      token = await smock.fake<DummyERC20>(new DummyERC20__factory());
-      registrar = await smock.fake<Registrar>(new Registrar__factory());
-      gateway = await smock.fake<DummyGateway>(new DummyGateway__factory());
-      gasService = await smock.fake<DummyGasService>(new DummyGasService__factory());
-      lockedVault = await smock.fake<DummyVault>(new DummyVault__factory());
-      liquidVault = await smock.fake<DummyVault>(new DummyVault__factory());
-
       const networkParams = {
         ...DEFAULT_NETWORK_INFO,
         axelarGateway: gateway.address,
@@ -745,7 +704,6 @@ describe("Router", function () {
       token.approve.returns(true);
       token.approveFor.returns(true);
       token.symbol.returns("TKN");
-      router = await deployRouterAsProxy(registrar.address);
     });
 
     it("deposits the specified amounts to the specified vaults", async function () {
@@ -767,13 +725,6 @@ describe("Router", function () {
   });
 
   describe("Redeem", function () {
-    let lockedVault: FakeContract<DummyVault>;
-    let liquidVault: FakeContract<DummyVault>;
-    let registrar: FakeContract<Registrar>;
-    let gateway: FakeContract<DummyGateway>;
-    let gasService: FakeContract<DummyGasService>;
-    let token: FakeContract<DummyERC20>;
-    let router: Router;
     const LOCK_AMT = 111;
     const LIQ_AMT = 222;
     const GAS_COST = 5;
@@ -786,13 +737,6 @@ describe("Router", function () {
     });
 
     beforeEach(async function () {
-      token = await smock.fake<DummyERC20>(new DummyERC20__factory());
-      registrar = await smock.fake<Registrar>(new Registrar__factory());
-      gateway = await smock.fake<DummyGateway>(new DummyGateway__factory());
-      gasService = await smock.fake<DummyGasService>(new DummyGasService__factory());
-      lockedVault = await smock.fake<DummyVault>(new DummyVault__factory());
-      liquidVault = await smock.fake<DummyVault>(new DummyVault__factory());
-
       const networkParams = {
         ...DEFAULT_NETWORK_INFO,
         axelarGateway: gateway.address,
@@ -830,7 +774,6 @@ describe("Router", function () {
       token.approve.returns(true);
       token.approveFor.returns(true);
       token.symbol.returns("TKN");
-      router = await deployRouterAsProxy(registrar.address);
     });
 
     it("Redeems the amounts specified back to the router", async function () {
@@ -921,17 +864,11 @@ describe("Router", function () {
   });
 
   describe("RedeemAll", function () {
-    let lockedVault: FakeContract<DummyVault>;
-    let liquidVault: FakeContract<DummyVault>;
-    let registrar: FakeContract<Registrar>;
-    let gateway: FakeContract<DummyGateway>;
-    let gasService: FakeContract<DummyGasService>;
-    let token: FakeContract<DummyERC20>;
-    let router: Router;
     const LOCK_AMT = 111;
     const LIQ_AMT = 222;
     const GAS_COST = 5;
     const TOTAL_AMT = LOCK_AMT + LIQ_AMT;
+
     const getDefaultActionData = () => ({
       ...DEFAULT_ACTION_DATA,
       accountId: 1,
@@ -940,13 +877,6 @@ describe("Router", function () {
     });
 
     beforeEach(async function () {
-      token = await smock.fake<DummyERC20>(new DummyERC20__factory());
-      registrar = await smock.fake<Registrar>(new Registrar__factory());
-      gateway = await smock.fake<DummyGateway>(new DummyGateway__factory());
-      gasService = await smock.fake<DummyGasService>(new DummyGasService__factory());
-      lockedVault = await smock.fake<DummyVault>(new DummyVault__factory());
-      liquidVault = await smock.fake<DummyVault>(new DummyVault__factory());
-
       const networkParams = {
         ...DEFAULT_NETWORK_INFO,
         axelarGateway: gateway.address,
@@ -984,7 +914,6 @@ describe("Router", function () {
       token.approve.returns(true);
       token.approveFor.returns(true);
       token.symbol.returns("TKN");
-      router = await deployRouterAsProxy(registrar.address);
     });
 
     it("Redeems the amounts specified back to the router", async function () {
@@ -1075,27 +1004,16 @@ describe("Router", function () {
   });
 
   describe("Harvest cross-chain", function () {
-    let lockedVault: FakeContract<DummyVault>;
-    let liquidVault: FakeContract<DummyVault>;
-    let registrar: FakeContract<Registrar>;
-    let gateway: FakeContract<DummyGateway>;
-    let token: FakeContract<DummyERC20>;
-    let router: Router;
     const LOCK_AMT = 111;
     const LIQ_AMT = 222;
     const TOTAL_AMT = LOCK_AMT + LIQ_AMT;
+
     const getDefaultHarvestRequest = () => ({
       ...DEFAULT_HARVEST_REQUEST,
       accountIds: [1],
     });
 
     beforeEach(async function () {
-      token = await smock.fake<DummyERC20>(new DummyERC20__factory());
-      registrar = await smock.fake<Registrar>(new Registrar__factory());
-      gateway = await smock.fake<DummyGateway>(new DummyGateway__factory());
-      lockedVault = await smock.fake<DummyVault>(new DummyVault__factory());
-      liquidVault = await smock.fake<DummyVault>(new DummyVault__factory());
-
       const networkParams = {
         ...DEFAULT_NETWORK_INFO,
         axelarGateway: gateway.address,
@@ -1132,7 +1050,6 @@ describe("Router", function () {
       token.approve.returns(true);
       token.approveFor.returns(true);
       token.symbol.returns("TKN");
-      router = await deployRouterAsProxy(registrar.address);
     });
 
     it("Harvests the targeted accounts and forwards tokens cross-chain", async function () {
@@ -1157,25 +1074,16 @@ describe("Router", function () {
   });
 
   describe("Harvest locally", function () {
-    let lockedVault: FakeContract<DummyVault>;
-    let liquidVault: FakeContract<DummyVault>;
-    let registrar: FakeContract<Registrar>;
-    let token: FakeContract<DummyERC20>;
-    let router: Router;
     const LOCK_AMT = 111;
     const LIQ_AMT = 222;
     const TOTAL_AMT = LOCK_AMT + LIQ_AMT;
+
     const getDefaultHarvestRequest = () => ({
       ...DEFAULT_HARVEST_REQUEST,
       accountIds: [1],
     });
 
     beforeEach(async function () {
-      token = await smock.fake<DummyERC20>(new DummyERC20__factory());
-      registrar = await smock.fake<Registrar>(new Registrar__factory());
-      lockedVault = await smock.fake<DummyVault>(new DummyVault__factory());
-      liquidVault = await smock.fake<DummyVault>(new DummyVault__factory());
-
       const networkParams = {
         ...DEFAULT_NETWORK_INFO,
       };
@@ -1204,7 +1112,6 @@ describe("Router", function () {
       token.approve.returns(true);
       token.approveFor.returns(true);
       token.symbol.returns("TKN");
-      router = await deployRouterAsProxy(registrar.address);
     });
 
     it("Reverts if the caller is not a valid operator", async function () {

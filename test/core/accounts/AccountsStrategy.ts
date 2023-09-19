@@ -1,4 +1,5 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
+import {SnapshotRestorer, takeSnapshot} from "@nomicfoundation/hardhat-network-helpers";
 import {expect, use} from "chai";
 import {BigNumber, Signer} from "ethers";
 import hre from "hardhat";
@@ -73,7 +74,6 @@ describe("AccountsStrategy", function () {
   let token: FakeContract<ERC20>;
   let vault: FakeContract<IVault>;
 
-  let facetImpl: AccountsStrategy;
   let state: TestFacetProxyContract;
   let facet: AccountsStrategy;
 
@@ -92,24 +92,16 @@ describe("AccountsStrategy", function () {
     gasService = await smock.fake<IAxelarGasService>(IAxelarGasService__factory.createInterface());
     gateway = await smock.fake<IAxelarGateway>(IAxelarGateway__factory.createInterface());
     vault = await smock.fake<IVault>(IVault__factory.createInterface());
-
-    const Facet = new AccountsStrategy__factory(owner);
-    facetImpl = await Facet.deploy();
-    await facetImpl.deployed();
-  });
-
-  beforeEach(async function () {
     gasFwd = await smock.fake<GasFwd>(new GasFwd__factory());
     registrar = await smock.fake<Registrar>(new Registrar__factory());
     router = await smock.fake<Router>(new Router__factory());
     token = await smock.fake<ERC20>(ERC20__factory.createInterface());
 
+    const Facet = new AccountsStrategy__factory(owner);
+    const facetImpl = await Facet.deploy();
+    await facetImpl.deployed();
     state = await deployFacetAsProxy(hre, owner, admin, facetImpl.address);
     facet = AccountsStrategy__factory.connect(state.address, owner);
-
-    token.approve.returns(true);
-    token.symbol.returns("TKN");
-    token.transfer.returns(true);
 
     const config: AccountStorage.ConfigStruct = {
       ...DEFAULT_ACCOUNTS_CONFIG,
@@ -158,6 +150,17 @@ describe("AccountsStrategy", function () {
       chainId: 42,
       router: genWallet().address,
     };
+  });
+
+  let snapshot: SnapshotRestorer;
+
+  beforeEach(async function () {
+    snapshot = await takeSnapshot();
+
+    token.approve.returns(true);
+    token.symbol.returns("TKN");
+    token.transfer.returns(true);
+
     registrar.queryNetworkConnection.whenCalledWith(NET_NAME_THIS).returns(netInfoThis);
     registrar.queryNetworkConnection.whenCalledWith(NET_NAME_THAT).returns(netInfoThat);
 
@@ -170,12 +173,27 @@ describe("AccountsStrategy", function () {
 
     registrar.isTokenAccepted.returns(true);
 
+    gasFwd.payForGas.returns(0);
+
     gateway.tokenAddresses.returns(token.address);
+    gateway.validateContractCall.returns(false);
+    gateway.validateContractCallAndMint.returns(false);
+  });
+
+  afterEach(async () => {
+    await snapshot.restore();
   });
 
   describe("upon strategyInvest", function () {
-    beforeEach(async () => {
+    let rootSnapshot: SnapshotRestorer;
+
+    before(async () => {
+      rootSnapshot = await takeSnapshot();
       await wait(state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_ID, false));
+    });
+
+    after(async () => {
+      await rootSnapshot.restore();
     });
 
     describe("reverts when", function () {
@@ -358,6 +376,7 @@ describe("AccountsStrategy", function () {
     });
 
     describe("and calls axelar GMP", function () {
+      // nothing to snapshot, only mock's behavior is changing
       beforeEach(async function () {
         const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
           ...DEFAULT_STRATEGY_PARAMS,
@@ -587,8 +606,15 @@ describe("AccountsStrategy", function () {
   });
 
   describe("upon strategyRedeem", function () {
-    beforeEach(async () => {
+    let rootSnapshot: SnapshotRestorer;
+
+    before(async () => {
+      rootSnapshot = await takeSnapshot();
       await wait(state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_ID, true));
+    });
+
+    after(async () => {
+      await rootSnapshot.restore();
     });
 
     describe("reverts when", function () {
@@ -750,6 +776,7 @@ describe("AccountsStrategy", function () {
     });
 
     describe("and calls axelar GMP", function () {
+      // nothing to snapshot, only mock's behavior is changing
       beforeEach(async function () {
         const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
           ...DEFAULT_STRATEGY_PARAMS,
@@ -949,8 +976,15 @@ describe("AccountsStrategy", function () {
   });
 
   describe("upon strategyRedeemAll", function () {
-    beforeEach(async () => {
+    let rootSnapshot: SnapshotRestorer;
+
+    before(async () => {
+      rootSnapshot = await takeSnapshot();
       await wait(state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_ID, true));
+    });
+
+    after(async () => {
+      await rootSnapshot.restore();
     });
 
     describe("reverts when", function () {
@@ -1107,6 +1141,7 @@ describe("AccountsStrategy", function () {
     });
 
     describe("and calls axelar GMP", function () {
+      // nothing to snapshot, only mock's behavior is changing
       beforeEach(async function () {
         const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
           ...DEFAULT_STRATEGY_PARAMS,
@@ -1404,11 +1439,21 @@ describe("AccountsStrategy", function () {
   });
 
   describe("upon axelar callback", function () {
+    let rootSnapshot: SnapshotRestorer;
+
+    before(async () => {
+      rootSnapshot = await takeSnapshot();
+      await wait(state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_ID, true));
+    });
+
+    // nothing to snapshot, only mock's behavior is changing
     beforeEach(async () => {
       gateway.validateContractCall.returns(true);
       gateway.validateContractCallAndMint.returns(true);
+    });
 
-      await wait(state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_ID, true));
+    after(async () => {
+      await rootSnapshot.restore();
     });
 
     describe("into _execute", () => {
