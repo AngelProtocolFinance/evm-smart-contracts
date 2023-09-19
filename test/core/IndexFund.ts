@@ -6,7 +6,6 @@ import {
   takeSnapshot,
   time,
 } from "@nomicfoundation/hardhat-network-helpers";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
 import {Signer} from "ethers";
 import hre from "hardhat";
