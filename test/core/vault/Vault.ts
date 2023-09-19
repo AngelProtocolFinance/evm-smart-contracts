@@ -1,4 +1,5 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
+import {SnapshotRestorer, takeSnapshot} from "@nomicfoundation/hardhat-network-helpers";
 import {expect, use} from "chai";
 import {BigNumber, Signer} from "ethers";
 import hre from "hardhat";
@@ -28,7 +29,7 @@ import {
 } from "typechain-types";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
 import {StrategyApprovalState} from "types";
-import {getProxyAdminOwner, getSigners} from "utils";
+import {getSigners} from "utils";
 
 use(smock.matchers);
 
@@ -39,7 +40,6 @@ describe("Vault", function () {
 
   let owner: Signer;
   let user: Signer;
-  let admin: Signer;
   let collector: Signer;
 
   async function deployVault(
@@ -88,8 +88,6 @@ describe("Vault", function () {
     user = apTeam1;
     collector = apTeam2;
 
-    admin = await getProxyAdminOwner(hre);
-
     vaultEmitterFake = await smock.fake<IVaultEmitter>(IVaultEmitter__factory.createInterface());
   });
 
@@ -98,7 +96,7 @@ describe("Vault", function () {
     let token: FakeContract<DummyERC20>;
     const DECIMALS = 18;
 
-    beforeEach(async function () {
+    before(async function () {
       token = await smock.fake<DummyERC20>(new DummyERC20__factory());
       token.decimals.returns(DECIMALS);
       vault = await deployVault(
@@ -110,6 +108,17 @@ describe("Vault", function () {
         vaultEmitterFake.address
       );
     });
+
+    let snapshot: SnapshotRestorer;
+
+    beforeEach(async () => {
+      snapshot = await takeSnapshot();
+    });
+
+    afterEach(async () => {
+      await snapshot.restore();
+    });
+
     it("Should successfully deploy the vault", async function () {
       expect(await vault.address);
     });
@@ -136,7 +145,7 @@ describe("Vault", function () {
     let vault: APVault_V1;
     let token: FakeContract<DummyERC20>;
 
-    beforeEach(async function () {
+    before(async function () {
       token = await smock.fake<DummyERC20>(new DummyERC20__factory());
       vault = await deployVault(
         {
@@ -147,6 +156,17 @@ describe("Vault", function () {
         vaultEmitterFake.address
       );
     });
+
+    let snapshot: SnapshotRestorer;
+
+    beforeEach(async () => {
+      snapshot = await takeSnapshot();
+    });
+
+    afterEach(async () => {
+      await snapshot.restore();
+    });
+
     it("should set the config as specified on deployment", async function () {
       let config = await vault.getVaultConfig();
       let admin = await vault.owner();
@@ -185,26 +205,11 @@ describe("Vault", function () {
     let yieldToken: FakeContract<DummyERC20>;
     let strategy: FakeContract<DummyStrategy>;
 
-    beforeEach(async function () {
+    before(async () => {
       baseToken = await smock.fake<DummyERC20>(new DummyERC20__factory());
       yieldToken = await smock.fake<DummyERC20>(new DummyERC20__factory());
-      baseToken.transfer.returns(true);
-      baseToken.transferFrom.returns(true);
-      baseToken.approve.returns(true);
-      baseToken.approveFor.returns(true);
-      yieldToken.transfer.returns(true);
-      yieldToken.transferFrom.returns(true);
-      yieldToken.approve.returns(true);
-      yieldToken.approveFor.returns(true);
       strategy = await smock.fake<DummyStrategy>(new DummyStrategy__factory());
-      strategy.getStrategyConfig.returns({
-        strategyId: DEFAULT_STRATEGY_ID,
-        baseToken: baseToken.address,
-        yieldToken: yieldToken.address,
-        admin: await owner.getAddress(),
-      });
       registrarFake = await smock.fake<LocalRegistrar>(new LocalRegistrar__factory());
-      registrarFake.getVaultOperatorApproved.whenCalledWith(await owner.getAddress()).returns(true);
       vault = await deployVault(
         {
           vaultType: 1, // Liquid
@@ -216,12 +221,42 @@ describe("Vault", function () {
         },
         vaultEmitterFake.address
       );
+    });
+
+    beforeEach(async function () {
+      baseToken.transfer.returns(true);
+      baseToken.transferFrom.returns(true);
+      baseToken.approve.returns(true);
+      baseToken.approveFor.returns(true);
+      yieldToken.transfer.returns(true);
+      yieldToken.transferFrom.returns(true);
+      yieldToken.approve.returns(true);
+      yieldToken.approveFor.returns(true);
+      strategy.getStrategyConfig.returns({
+        strategyId: DEFAULT_STRATEGY_ID,
+        baseToken: baseToken.address,
+        yieldToken: yieldToken.address,
+        admin: await owner.getAddress(),
+      });
+      strategy.paused.returns(false);
+      registrarFake.getVaultOperatorApproved.whenCalledWith(await owner.getAddress()).returns(true);
+
       registrarFake.getStrategyApprovalState.whenCalledWith(DEFAULT_STRATEGY_ID).returns(true);
       registrarFake.thisChain.returns(DEFAULT_NETWORK);
       registrarFake.queryNetworkConnection.whenCalledWith(DEFAULT_NETWORK).returns({
         ...DEFAULT_NETWORK_INFO,
         router: await owner.getAddress(),
       });
+    });
+
+    let snapshot: SnapshotRestorer;
+
+    beforeEach(async () => {
+      snapshot = await takeSnapshot();
+    });
+
+    afterEach(async () => {
+      await snapshot.restore();
     });
 
     it("reverts if the operator isn't approved as an operator, sibling vault, or approved router", async function () {
@@ -308,9 +343,7 @@ describe("Vault", function () {
     const TAX_RATE = 100; // bps
     const PRECISION = BigNumber.from(10).pow(24);
 
-    beforeEach(async function () {
-      baseToken = await smock.fake<DummyERC20>(new DummyERC20__factory());
-      yieldToken = await smock.fake<DummyERC20>(new DummyERC20__factory());
+    async function setup() {
       baseToken.transfer.returns(true);
       baseToken.transferFrom.returns(true);
       baseToken.approve.returns(true);
@@ -319,19 +352,17 @@ describe("Vault", function () {
       yieldToken.transferFrom.returns(true);
       yieldToken.approve.returns(true);
       yieldToken.approveFor.returns(true);
-      router = await smock.fake<DummyRouter>(new DummyRouter__factory());
-      strategy = await smock.fake<DummyStrategy>(new DummyStrategy__factory());
       strategy.getStrategyConfig.returns({
         strategyId: DEFAULT_STRATEGY_ID,
         baseToken: baseToken.address,
         yieldToken: yieldToken.address,
         admin: await owner.getAddress(),
       });
+      strategy.paused.returns(false);
       const networkParams = {
         ...DEFAULT_NETWORK_INFO,
         router: router.address,
       };
-      registrarFake = await smock.fake<LocalRegistrar>(new LocalRegistrar__factory());
       registrarFake.thisChain.returns(DEFAULT_NETWORK);
       registrarFake.queryNetworkConnection.returns(networkParams);
       registrarFake.getVaultOperatorApproved.whenCalledWith(await owner.getAddress()).returns(true);
@@ -339,6 +370,16 @@ describe("Vault", function () {
         payoutAddress: await collector.getAddress(),
         bps: TAX_RATE,
       });
+      strategy.deposit.returns(DEPOSIT);
+      yieldToken.balanceOf.returns(DEPOSIT);
+    }
+
+    before(async () => {
+      baseToken = await smock.fake<DummyERC20>(new DummyERC20__factory());
+      yieldToken = await smock.fake<DummyERC20>(new DummyERC20__factory());
+      router = await smock.fake<DummyRouter>(new DummyRouter__factory());
+      strategy = await smock.fake<DummyStrategy>(new DummyStrategy__factory());
+      registrarFake = await smock.fake<LocalRegistrar>(new LocalRegistrar__factory());
 
       vault = await deployVault(
         {
@@ -351,10 +392,23 @@ describe("Vault", function () {
         },
         vaultEmitterFake.address
       );
-
-      strategy.deposit.returns(DEPOSIT);
-      yieldToken.balanceOf.returns(DEPOSIT);
+      // need to setup fake contracts for the deposit to succeed
+      await setup();
       await wait(vault.deposit(0, baseToken.address, DEPOSIT));
+    });
+
+    beforeEach(async function () {
+      await setup();
+    });
+
+    let snapshot: SnapshotRestorer;
+
+    beforeEach(async () => {
+      snapshot = await takeSnapshot();
+    });
+
+    afterEach(async () => {
+      await snapshot.restore();
     });
 
     it("reverts if the strategy is paused", async function () {
@@ -445,9 +499,7 @@ describe("Vault", function () {
     const TAX_RATE = 100; // bps
     const PRECISION = BigNumber.from(10).pow(24);
 
-    beforeEach(async function () {
-      baseToken = await smock.fake<DummyERC20>(new DummyERC20__factory());
-      yieldToken = await smock.fake<DummyERC20>(new DummyERC20__factory());
+    async function setup() {
       baseToken.transfer.returns(true);
       baseToken.transferFrom.returns(true);
       baseToken.approve.returns(true);
@@ -456,19 +508,17 @@ describe("Vault", function () {
       yieldToken.transferFrom.returns(true);
       yieldToken.approve.returns(true);
       yieldToken.approveFor.returns(true);
-      router = await smock.fake<DummyRouter>(new DummyRouter__factory());
-      strategy = await smock.fake<DummyStrategy>(new DummyStrategy__factory());
       strategy.getStrategyConfig.returns({
         strategyId: DEFAULT_STRATEGY_ID,
         baseToken: baseToken.address,
         yieldToken: yieldToken.address,
         admin: await owner.getAddress(),
       });
+      strategy.paused.returns(false);
       const networkParams = {
         ...DEFAULT_NETWORK_INFO,
         router: router.address,
       };
-      registrarFake = await smock.fake<LocalRegistrar>(new LocalRegistrar__factory());
       registrarFake.thisChain.returns(DEFAULT_NETWORK);
       registrarFake.queryNetworkConnection.returns(networkParams);
       registrarFake.getVaultOperatorApproved.whenCalledWith(await owner.getAddress()).returns(true);
@@ -476,6 +526,16 @@ describe("Vault", function () {
         payoutAddress: await collector.getAddress(),
         bps: TAX_RATE,
       });
+      strategy.deposit.returns(DEPOSIT);
+      yieldToken.balanceOf.returns(DEPOSIT);
+    }
+
+    before(async () => {
+      baseToken = await smock.fake<DummyERC20>(new DummyERC20__factory());
+      yieldToken = await smock.fake<DummyERC20>(new DummyERC20__factory());
+      router = await smock.fake<DummyRouter>(new DummyRouter__factory());
+      strategy = await smock.fake<DummyStrategy>(new DummyStrategy__factory());
+      registrarFake = await smock.fake<LocalRegistrar>(new LocalRegistrar__factory());
 
       vault = await deployVault(
         {
@@ -488,10 +548,23 @@ describe("Vault", function () {
         },
         vaultEmitterFake.address
       );
-
-      strategy.deposit.returns(DEPOSIT);
-      yieldToken.balanceOf.returns(DEPOSIT);
+      // need to setup fake contracts for the deposit to succeed
+      await setup();
       await wait(vault.deposit(0, baseToken.address, DEPOSIT));
+    });
+
+    beforeEach(async function () {
+      await setup();
+    });
+
+    let snapshot: SnapshotRestorer;
+
+    beforeEach(async () => {
+      snapshot = await takeSnapshot();
+    });
+
+    afterEach(async () => {
+      await snapshot.restore();
     });
 
     it("reverts if the strategy is paused", async function () {
@@ -557,9 +630,7 @@ describe("Vault", function () {
     const TAX_RATE = 100; // bps
     const PRECISION = BigNumber.from(10).pow(24);
 
-    beforeEach(async function () {
-      baseToken = await smock.fake<DummyERC20>(new DummyERC20__factory());
-      yieldToken = await smock.fake<DummyERC20>(new DummyERC20__factory());
+    async function setup() {
       baseToken.transfer.returns(true);
       baseToken.transferFrom.returns(true);
       baseToken.approve.returns(true);
@@ -568,15 +639,13 @@ describe("Vault", function () {
       yieldToken.transferFrom.returns(true);
       yieldToken.approve.returns(true);
       yieldToken.approveFor.returns(true);
-      router = await smock.fake<DummyRouter>(new DummyRouter__factory());
-      strategy = await smock.fake<DummyStrategy>(new DummyStrategy__factory());
       strategy.getStrategyConfig.returns({
         strategyId: DEFAULT_STRATEGY_ID,
         baseToken: baseToken.address,
         yieldToken: yieldToken.address,
         admin: await owner.getAddress(),
       });
-      registrarFake = await smock.fake<LocalRegistrar>(new LocalRegistrar__factory());
+      strategy.paused.returns(false);
       registrarFake.getVaultOperatorApproved.whenCalledWith(await owner.getAddress()).returns(true);
       registrarFake.getFeeSettingsByFeeType
         .whenCalledWith(1)
@@ -586,11 +655,37 @@ describe("Vault", function () {
         ...DEFAULT_NETWORK_INFO,
         router: router.address,
       });
+    }
+
+    before(async () => {
+      baseToken = await smock.fake<DummyERC20>(new DummyERC20__factory());
+      yieldToken = await smock.fake<DummyERC20>(new DummyERC20__factory());
+      router = await smock.fake<DummyRouter>(new DummyRouter__factory());
+      strategy = await smock.fake<DummyStrategy>(new DummyStrategy__factory());
+      registrarFake = await smock.fake<LocalRegistrar>(new LocalRegistrar__factory());
+      await setup();
+    });
+
+    beforeEach(async function () {
+      await setup();
+    });
+
+    let snapshot: SnapshotRestorer;
+
+    beforeEach(async () => {
+      snapshot = await takeSnapshot();
+    });
+
+    afterEach(async () => {
+      await snapshot.restore();
     });
 
     describe("For liquid vaults", async function () {
       let vault: APVault_V1;
-      beforeEach(async function () {
+      let rootSnapshot: SnapshotRestorer;
+
+      before(async function () {
+        rootSnapshot = await takeSnapshot();
         vault = await deployVault(
           {
             vaultType: 1, // Locked
@@ -605,6 +700,15 @@ describe("Vault", function () {
         strategy.deposit.returns(DEPOSIT);
         yieldToken.balanceOf.returns(DEPOSIT);
         await wait(vault.deposit(0, baseToken.address, DEPOSIT));
+      });
+
+      beforeEach(() => {
+        strategy.deposit.returns(DEPOSIT);
+        yieldToken.balanceOf.returns(DEPOSIT);
+      });
+
+      after(async () => {
+        await rootSnapshot.restore();
       });
 
       it("reverts if the strategy is paused", async function () {
@@ -657,37 +761,16 @@ describe("Vault", function () {
       let liquidStrategy: FakeContract<DummyStrategy>;
       const REBAL_RATE = 5000; // 5%
       const BASIS = 10000;
-      beforeEach(async function () {
-        // establish second strategy for liquid vault responses
-        liquidStrategy = await smock.fake<DummyStrategy>(new DummyStrategy__factory());
+      let rootSnapshot: SnapshotRestorer;
+
+      async function nestedSetup() {
         liquidStrategy.getStrategyConfig.returns({
           strategyId: DEFAULT_STRATEGY_ID,
           baseToken: baseToken.address,
           yieldToken: yieldToken.address,
           admin: await owner.getAddress(),
         });
-        liquidVault = await deployVault(
-          {
-            vaultType: 1, // Liquid
-            admin: await owner.getAddress(),
-            baseToken: baseToken.address,
-            yieldToken: yieldToken.address,
-            strategy: liquidStrategy.address,
-            registrar: registrarFake.address,
-          },
-          vaultEmitterFake.address
-        );
-        lockedVault = await deployVault(
-          {
-            vaultType: 0, // Locked
-            admin: await owner.getAddress(),
-            baseToken: baseToken.address,
-            yieldToken: yieldToken.address,
-            strategy: strategy.address,
-            registrar: registrarFake.address,
-          },
-          vaultEmitterFake.address
-        );
+        liquidStrategy.paused.returns(false);
         const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
           ...DEFAULT_STRATEGY_PARAMS,
           network: DEFAULT_NETWORK,
@@ -712,7 +795,45 @@ describe("Vault", function () {
         registrarFake.getVaultOperatorApproved.whenCalledWith(lockedVault.address).returns(true);
         strategy.deposit.returns(DEPOSIT);
         yieldToken.balanceOf.returns(DEPOSIT);
+      }
+      before(async function () {
+        rootSnapshot = await takeSnapshot();
+        // establish second strategy for liquid vault responses
+        liquidStrategy = await smock.fake<DummyStrategy>(new DummyStrategy__factory());
+
+        liquidVault = await deployVault(
+          {
+            vaultType: 1, // Liquid
+            admin: await owner.getAddress(),
+            baseToken: baseToken.address,
+            yieldToken: yieldToken.address,
+            strategy: liquidStrategy.address,
+            registrar: registrarFake.address,
+          },
+          vaultEmitterFake.address
+        );
+        lockedVault = await deployVault(
+          {
+            vaultType: 0, // Locked
+            admin: await owner.getAddress(),
+            baseToken: baseToken.address,
+            yieldToken: yieldToken.address,
+            strategy: strategy.address,
+            registrar: registrarFake.address,
+          },
+          vaultEmitterFake.address
+        );
+        // need to setup fake contracts for the deposit to succeed
+        await nestedSetup();
         await wait(lockedVault.deposit(0, baseToken.address, DEPOSIT));
+      });
+
+      beforeEach(async () => {
+        await nestedSetup();
+      });
+
+      after(async () => {
+        await rootSnapshot.restore();
       });
 
       it("reverts if the baseToken transfer fails", async function () {
