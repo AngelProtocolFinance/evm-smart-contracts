@@ -7,55 +7,58 @@ import {IEndowmentMultiSigFactory} from "./interfaces/IEndowmentMultiSigFactory.
 import {ProxyContract} from "../../core/proxy.sol";
 import {IRegistrar} from "../../core/registrar/interfaces/IRegistrar.sol";
 import {RegistrarStorage} from "../../core/registrar/storage.sol";
+import {Validator} from "../../core/validator.sol";
+import {IterableMappingAddr} from "../../lib/IterableMappingAddr.sol";
 
 /// @title Multisignature wallet factory - Allows creation of multisigs wallet.
-/// @author Stefan George - <stefan.george@consensys.net>
-contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable {
-  /*
-   *  Events
-   */
-  event ContractInstantiated(address sender, address instantiation);
-  event ImplementationUpdated(address implementationAddress);
-  event ProxyAdminUpdated(address admin);
-
-  /*
-   *  Storage
-   */
-  mapping(address => bool) public isInstantiation;
-  mapping(address => address[]) public instantiations;
-  mapping(uint256 => address) public endowmentIdToMultisig;
+contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable, IterableMappingAddr {
+  /*////////////////////////////////////////////////
+                        STORAGE
+  */ ///////////////////////////////////////////////
+  IterableMappingAddr.Map endowmentMultiSigs;
 
   address public implementationAddress;
-  address public proxyAdmin;
+  address proxyAdmin;
   IRegistrar registrar;
 
-  constructor(address _implementationAddress, address _proxyAdmin, address _registrar) {
-    require(_implementationAddress != address(0), "Invalid Address");
-    require(_proxyAdmin != address(0), "Invalid Address");
-    require(_registrar != address(0), "Invalid Address");
-
-    registrar = IRegistrar(_registrar);
-    implementationAddress = _implementationAddress;
-    emit ImplementationUpdated(_implementationAddress);
-
-    proxyAdmin = _proxyAdmin;
-    emit ProxyAdminUpdated(_proxyAdmin);
+  constructor(address _implementationAddress, address _proxyAdmin, address registrarAddress) {
+    updateImplementation(_implementationAddress);
+    updateProxyAdmin(_proxyAdmin);
+    updateRegistrar(registrarAddress);
   }
+
+  /*////////////////////////////////////////////////
+                        MODIFIERS
+  */ ///////////////////////////////////////////////
 
   modifier onlyAccountsContract() {
     RegistrarStorage.Config memory registrarConfig = registrar.queryConfig();
-    require(msg.sender == registrarConfig.accountsContract, "Only Accounts Contract");
+    if (msg.sender != registrarConfig.accountsContract) {
+      revert OnlyAccountsContract();
+    }
     _;
   }
 
-  /*
-   * Public functions
-   */
-  /// @dev Returns number of instantiations by creator.
-  /// @param creator Contract creator.
-  /// @return Returns number of instantiations by creator.
-  function getInstantiationCount(address creator) public view returns (uint256) {
-    return instantiations[creator].length;
+  /*////////////////////////////////////////////////
+                        IMPLEMENTATION
+  */ ///////////////////////////////////////////////
+
+  /// @notice Get all EndowmentMultiSig proxy contract instantiations.
+  /// @return Array of instantiation addresses.
+  function getInstantiations() external view returns (address[] memory) {
+    return endowmentMultiSigs.keys;
+  }
+
+  /// @notice Get stored registrar address.
+  /// @return address of the stored registrar.
+  function getRegistrar() external view returns (address) {
+    return address(registrar);
+  }
+
+  /// @notice Get proxy admin address.
+  /// @return address of the proxy admin.
+  function getProxyAdmin() external view returns (address) {
+    return proxyAdmin;
   }
 
   /**
@@ -63,7 +66,9 @@ contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable {
    * @param _implementationAddress The address of the new implementation
    */
   function updateImplementation(address _implementationAddress) public onlyOwner {
-    require(_implementationAddress != address(0), "Invalid Address");
+    if (!Validator.addressChecker(_implementationAddress)) {
+      revert InvalidAddress("_implementationAddress");
+    }
     implementationAddress = _implementationAddress;
     emit ImplementationUpdated(_implementationAddress);
   }
@@ -73,9 +78,23 @@ contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable {
    * @param _proxyAdmin The address of the new proxy admin
    */
   function updateProxyAdmin(address _proxyAdmin) public onlyOwner {
-    require(_proxyAdmin != address(0), "Invalid Address");
+    if (!Validator.addressChecker(_proxyAdmin)) {
+      revert InvalidAddress("_proxyAdmin");
+    }
     proxyAdmin = _proxyAdmin;
     emit ProxyAdminUpdated(_proxyAdmin);
+  }
+
+  /**
+   * @dev Updates the registrar address
+   * @param registrarAddress The address of the new registrar
+   */
+  function updateRegistrar(address registrarAddress) public onlyOwner {
+    if (!Validator.addressChecker(registrarAddress)) {
+      revert InvalidAddress("registrarAddress");
+    }
+    registrar = IRegistrar(registrarAddress);
+    emit RegistrarUpdated(registrarAddress);
   }
 
   /** @dev Create a new multisig wallet for an endowment
@@ -113,18 +132,15 @@ contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable {
     );
 
     register(wallet);
-    // also store address of multisig in endowmentIdToMultisig
-    endowmentIdToMultisig[endowmentId] = wallet;
   }
 
   /*
    * Internal functions
    */
   /// @dev Registers contract in factory registry.
-  /// @param instantiation Address of contract instantiation.
+  /// @param instantiation Address of EndowmentMultiSig proxy contract instantiation.
   function register(address instantiation) internal {
-    isInstantiation[instantiation] = true;
-    instantiations[msg.sender].push(instantiation);
+    IterableMappingAddr.set(endowmentMultiSigs, instantiation, true);
     emit ContractInstantiated(msg.sender, instantiation);
   }
 }

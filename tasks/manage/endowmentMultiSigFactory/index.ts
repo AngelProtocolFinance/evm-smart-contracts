@@ -1,0 +1,2 @@
+import "./updateProxyAdmin";
+import "./updateRegistrar";

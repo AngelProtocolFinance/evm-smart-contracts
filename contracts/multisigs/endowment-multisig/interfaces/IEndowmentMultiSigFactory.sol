@@ -2,6 +2,23 @@
 pragma solidity ^0.8.19;
 
 interface IEndowmentMultiSigFactory {
+  /*////////////////////////////////////////////////
+                        EVENTS
+  */ ///////////////////////////////////////////////
+  event ContractInstantiated(address sender, address instantiation);
+  event ImplementationUpdated(address implementationAddress);
+  event ProxyAdminUpdated(address admin);
+  event RegistrarUpdated(address registrar);
+
+  /*////////////////////////////////////////////////
+                        ERRORS
+  */ ///////////////////////////////////////////////
+  error InvalidAddress(string param);
+  error OnlyAccountsContract();
+
+  /*////////////////////////////////////////////////
+                    EXTERNAL FUNCTIONS
+  */ ////////////////////////////////////////////////
   function create(
     uint256 endowmentId,
     address emitterAddress,
@@ -14,5 +31,17 @@ interface IEndowmentMultiSigFactory {
 
   function updateProxyAdmin(address proxyAdminAddress) external;
 
-  function endowmentIdToMultisig(uint256 endowmentId) external returns (address);
+  function updateRegistrar(address registrarAddress) external;
+
+  /// @notice Get all EndowmentMultiSig proxy contract instantiations.
+  /// @return Array of instantiation addresses.
+  function getInstantiations() external view returns (address[] memory);
+
+  /// @notice Get stored registrar address.
+  /// @return address of the stored registrar.
+  function getRegistrar() external view returns (address);
+
+  /// @notice Get proxy admin address.
+  /// @return address of the proxy admin.
+  function getProxyAdmin() external view returns (address);
 }
