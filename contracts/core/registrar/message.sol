@@ -2,7 +2,6 @@
 pragma solidity ^0.8.19;
 
 import {LibAccounts} from "../accounts/lib/LibAccounts.sol";
-import {IVault} from "../vault/interfaces/IVault.sol";
 
 library RegistrarMessages {
   struct InstantiateRequest {

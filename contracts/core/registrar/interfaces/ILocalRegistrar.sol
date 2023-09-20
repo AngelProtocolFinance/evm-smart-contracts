@@ -4,7 +4,6 @@ pragma solidity ^0.8.19;
 
 import {LocalRegistrarLib} from "../lib/LocalRegistrarLib.sol";
 import {LibAccounts} from "../../accounts/lib/LibAccounts.sol";
-import {IAccountsStrategy} from "../../accounts/interfaces/IAccountsStrategy.sol";
 
 interface ILocalRegistrar {
   /*////////////////////////////////////////////////

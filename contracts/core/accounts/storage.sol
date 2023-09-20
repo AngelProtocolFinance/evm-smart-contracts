@@ -2,7 +2,6 @@
 pragma solidity ^0.8.19;
 
 import {LibAccounts} from "./lib/LibAccounts.sol";
-import {LocalRegistrarLib} from "../registrar/lib/LocalRegistrarLib.sol";
 import {IterableMappingAddr} from "../../lib/IterableMappingAddr.sol";
 import {IterableMappingStrategy} from "../../lib/IterableMappingStrategy.sol";
 import {IVault} from "../vault/interfaces/IVault.sol";

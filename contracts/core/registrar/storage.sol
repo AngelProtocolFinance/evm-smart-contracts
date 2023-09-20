@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import {LibAccounts} from "../accounts/lib/LibAccounts.sol";
-import {LocalRegistrarLib} from "./lib/LocalRegistrarLib.sol";
-
 library RegistrarStorage {
   struct Config {
     address accountsContract;
