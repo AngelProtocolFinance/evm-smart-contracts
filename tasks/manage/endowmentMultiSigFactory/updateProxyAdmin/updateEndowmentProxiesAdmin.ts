@@ -1,6 +1,6 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {
-  IEndowmentMultiSigFactory__factory,
+  IAccounts__factory,
   ProxyAdminMultiSig__factory,
   ProxyContract__factory,
 } from "typechain-types";
@@ -13,16 +13,11 @@ export default async function updateEndowmentProxiesAdmin(
   proxyAdminPkey: string | undefined,
   hre: HardhatRuntimeEnvironment
 ) {
-  const addresses = await getAddresses(hre);
   const proxyAdminOwner = await getProxyAdminOwner(hre, proxyAdminPkey);
 
-  const endowmentMultiSigFactory = IEndowmentMultiSigFactory__factory.connect(
-    addresses.multiSig.endowment.factory,
-    hre.ethers.provider
-  );
-  const endowmentProxies = await endowmentMultiSigFactory.getInstantiations();
+  const endowmentAddresses: string[] = await getEndowmentAddresses(hre);
 
-  for (const endowmentProxy of endowmentProxies) {
+  for (const endowmentProxy of endowmentAddresses) {
     try {
       await checkIfManagedByProxyAdmin(endowmentProxy, await proxyAdminOwner.getAddress(), hre);
 
@@ -37,6 +32,22 @@ export default async function updateEndowmentProxiesAdmin(
       logger.out(error, logLevel);
     }
   }
+}
+
+async function getEndowmentAddresses(hre: HardhatRuntimeEnvironment) {
+  const result: string[] = [];
+
+  const addresses = await getAddresses(hre);
+
+  const accounts = IAccounts__factory.connect(addresses.accounts.diamond, hre.ethers.provider);
+
+  const maxAccountId = (await accounts.queryConfig()).nextAccountId.sub(1);
+  for (let endowId = 1; maxAccountId.gte(endowId); endowId++) {
+    const endowment = await accounts.queryEndowmentDetails(endowId);
+    result.push(endowment.owner);
+  }
+
+  return result;
 }
 
 /**

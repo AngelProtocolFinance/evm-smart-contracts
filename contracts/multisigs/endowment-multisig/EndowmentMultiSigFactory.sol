@@ -8,15 +8,9 @@ import {ProxyContract} from "../../core/proxy.sol";
 import {IRegistrar} from "../../core/registrar/interfaces/IRegistrar.sol";
 import {RegistrarStorage} from "../../core/registrar/storage.sol";
 import {Validator} from "../../core/validator.sol";
-import {IterableMappingAddr} from "../../lib/IterableMappingAddr.sol";
 
 /// @title Multisignature wallet factory - Allows creation of multisigs wallet.
-contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable, IterableMappingAddr {
-  /*////////////////////////////////////////////////
-                        STORAGE
-  */ ///////////////////////////////////////////////
-  IterableMappingAddr.Map endowmentMultiSigs;
-
+contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable {
   address public implementationAddress;
   address proxyAdmin;
   IRegistrar registrar;
@@ -42,12 +36,6 @@ contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable, Iterabl
   /*////////////////////////////////////////////////
                         IMPLEMENTATION
   */ ///////////////////////////////////////////////
-
-  /// @notice Get all EndowmentMultiSig proxy contract instantiations.
-  /// @return Array of instantiation addresses.
-  function getInstantiations() external view returns (address[] memory) {
-    return endowmentMultiSigs.keys;
-  }
 
   /// @notice Get stored registrar address.
   /// @return address of the stored registrar.
@@ -131,16 +119,6 @@ contract EndowmentMultiSigFactory is IEndowmentMultiSigFactory, Ownable, Iterabl
       transactionExpiry
     );
 
-    register(wallet);
-  }
-
-  /*
-   * Internal functions
-   */
-  /// @dev Registers contract in factory registry.
-  /// @param instantiation Address of EndowmentMultiSig proxy contract instantiation.
-  function register(address instantiation) internal {
-    IterableMappingAddr.set(endowmentMultiSigs, instantiation, true);
-    emit ContractInstantiated(msg.sender, instantiation);
+    emit ContractInstantiated(msg.sender, wallet);
   }
 }

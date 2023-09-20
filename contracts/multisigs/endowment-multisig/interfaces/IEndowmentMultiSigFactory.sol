@@ -33,10 +33,6 @@ interface IEndowmentMultiSigFactory {
 
   function updateRegistrar(address registrarAddress) external;
 
-  /// @notice Get all EndowmentMultiSig proxy contract instantiations.
-  /// @return Array of instantiation addresses.
-  function getInstantiations() external view returns (address[] memory);
-
   /// @notice Get stored registrar address.
   /// @return address of the stored registrar.
   function getRegistrar() external view returns (address);
