@@ -5,6 +5,8 @@ export type StratConfig = {
   name: string;
   id: string;
   chainId: ChainID;
+  tokenName: string;
+  tokenSymbol: string;
   params: LocalRegistrarLib.StrategyParamsStruct;
 };
 
