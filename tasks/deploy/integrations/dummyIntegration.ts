@@ -1,5 +1,5 @@
 import {task} from "hardhat/config";
-import {APVault_V1__factory, VaultEmitter__factory, DummyERC20__factory, GoerliDummy__factory} from "typechain-types";
+import {APVault_V1__factory, DummyERC20__factory, GoerliDummy__factory} from "typechain-types";
 import {VaultType} from "types";
 import {
   StratConfig,
@@ -8,12 +8,8 @@ import {
   getSigners,
   logger,
   writeStrategyAddresses,
-  getVaultAddress,
-  getStrategyAddress,
-  getAPTeamOwner
 } from "utils";
 import {allStrategyConfigs} from "../../../contracts/integrations/stratConfig";
-import {submitMultiSigTx} from "tasks/helpers";
 
 type TaskArgs = {
   name: string;
@@ -86,36 +82,6 @@ task("Deploy:dummyIntegration", "Will deploy a set of vaults and a dummy strateg
       };
       let liqVault = await Vault.deploy(liquidConfig, addresses.vaultEmitter.proxy, admin);
       logger.pad(30, "Liquid Vault deployed to", liqVault.address);
-    
-      const emitter = VaultEmitter__factory.connect(addresses.vaultEmitter.proxy, deployer);
-
-      await emitter.vaultCreated(
-        lockVault.address,
-        {
-          vaultType: VaultType.LOCKED,
-          strategyId: config.id,
-          strategy: strategy.address,
-          registrar: addresses.registrar.proxy,
-          baseToken: addresses.tokens.usdc,
-          yieldToken: yieldToken.address,
-          apTokenName: "LockedTestVault",
-          apTokenSymbol: "LockTV",
-        }
-      )
-      await emitter.vaultCreated(
-        liqVault.address,
-        {
-          vaultType: VaultType.LIQUID,
-          strategyId: config.id,
-          strategy: strategy.address,
-          registrar: addresses.registrar.proxy,
-          baseToken: addresses.tokens.usdc,
-          yieldToken: "0x2811747e3336aa28caf71c51454766e1b95f56e8",
-          apTokenName: "LiquidTestVault",
-          apTokenSymbol: "LiqTV",
-
-        }
-      )
 
       const data: StrategyObject = {
         strategy: strategy.address,
