@@ -51,7 +51,7 @@ task(
       const addresses = await getAddresses(hre);
 
       const EndowmentMultiSigFactoryAddress =
-        taskArgs.factory || addresses.multiSig.endowment.factory;
+        taskArgs.factory || addresses.multiSig.endowment.factory.proxy;
 
       const deployment = await deploy(new EndowmentMultiSig__factory(deployer));
 

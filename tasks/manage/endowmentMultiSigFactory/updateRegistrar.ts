@@ -37,7 +37,7 @@ task(
       }
 
       const endowmentMultiSigFactory = IEndowmentMultiSigFactory__factory.connect(
-        addresses.multiSig.endowment.factory,
+        addresses.multiSig.endowment.factory.proxy,
         hre.ethers.provider
       );
       if ((await endowmentMultiSigFactory.getRegistrar()) === registrarAddress) {

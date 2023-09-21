@@ -4,6 +4,7 @@ import {
   APTeamMultiSig__factory,
   CharityApplications__factory,
   EndowmentMultiSigEmitter__factory,
+  EndowmentMultiSigFactory__factory,
   IndexFund__factory,
   Registrar__factory,
   Router__factory,
@@ -44,6 +45,18 @@ export default function getImplementations(
       hre.ethers.provider
     ),
     contractName: getContractName(EndowmentMultiSigEmitter__factory),
+  });
+  result.push({
+    contract: EndowmentMultiSigFactory__factory.connect(
+      addresses.multiSig.endowment.factory.implementation,
+      hre.ethers.provider
+    ),
+    contractName: getContractName(EndowmentMultiSigFactory__factory),
+    constructorArguments: [
+      addresses.multiSig.endowment.implementation,
+      addresses.multiSig.proxyAdmin,
+      addresses.registrar.proxy,
+    ],
   });
   result.push({
     contract: Registrar__factory.connect(addresses.registrar.implementation, hre.ethers.provider),

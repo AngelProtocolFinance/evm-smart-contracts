@@ -17,7 +17,7 @@ export default async function updateEndowmentMultiSigFactory(
   const addresses = await getAddresses(hre);
 
   const endowmentMultiSigFactory = IEndowmentMultiSigFactory__factory.connect(
-    addresses.multiSig.endowment.factory,
+    addresses.multiSig.endowment.factory.proxy,
     hre.ethers.provider
   );
   const oldProxyAdmin = await endowmentMultiSigFactory.getProxyAdmin();

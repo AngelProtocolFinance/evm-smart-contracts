@@ -29,7 +29,7 @@ task("deploy:EndowmentMultiSigEmitter", "Will deploy EndowmentMultiSigEmitter co
       }
 
       const deployData = await deployEndowmentMultiSigEmitter(
-        addresses.multiSig.endowment.factory,
+        addresses.multiSig.endowment.factory.proxy,
         addresses.multiSig.proxyAdmin,
         deployer,
         hre

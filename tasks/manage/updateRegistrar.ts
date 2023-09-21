@@ -42,7 +42,7 @@ task(
         fundraisingContract: ADDRESS_ZERO,
         uniswapRouter: addresses.uniswap.swapRouter,
         uniswapFactory: addresses.uniswap.factory,
-        multisigFactory: addresses.multiSig.endowment.factory,
+        multisigFactory: addresses.multiSig.endowment.factory.proxy,
         multisigEmitter: addresses.multiSig.endowment.emitter.proxy,
         charityApplications: addresses.multiSig.charityApplications.proxy,
         proxyAdmin: addresses.multiSig.proxyAdmin,

@@ -58,7 +58,7 @@ export type AddressObj = {
     apTeam: Proxied;
     endowment: {
       emitter: Proxied;
-      factory: string;
+      factory: Proxied;
       implementation: string;
     };
     proxyAdmin: string;

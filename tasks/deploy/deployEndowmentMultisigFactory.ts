@@ -38,13 +38,14 @@ task("deploy:EndowmentMultiSigFactory", "Will deploy EndowmentMultiSigFactory co
       );
 
       await hre.run("manage:registrar:updateConfig", {
-        multisigFactory: deployData.contract.address,
+        multisigFactory: deployData.proxy.contract.address,
         apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });
 
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
-        await verify(hre, deployData);
+        await verify(hre, deployData.implementation);
+        await verify(hre, deployData.proxy);
       }
     } catch (error) {
       logger.out(error, logger.Level.Error);
