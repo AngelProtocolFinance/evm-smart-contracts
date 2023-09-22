@@ -21,11 +21,12 @@ export async function deployCommunity(
     const proxyAdmin = await getProxyAdminOwner(hre);
 
     // data setup
-    const Community = new Community__factory(deployer);
-    const initData = Community.interface.encodeFunctionData("initialize", [CommunityDataInput]);
+    const initData = Community__factory.createInterface().encodeFunctionData("initialize", [
+      CommunityDataInput,
+    ]);
     // deploy
     const {implementation, proxy} = await deployBehindProxy(
-      Community,
+      new Community__factory(deployer),
       await proxyAdmin.getAddress(),
       initData
     );

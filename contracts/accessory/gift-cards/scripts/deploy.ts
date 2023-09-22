@@ -13,10 +13,15 @@ export async function deployGiftCard(
     const {deployer} = await getSigners(hre);
 
     // data setup
-    const GiftCards = new GiftCards__factory(deployer);
-    const initData = GiftCards.interface.encodeFunctionData("initialize", [GiftCardsDataInput]);
+    const initData = GiftCards__factory.createInterface().encodeFunctionData("initialize", [
+      GiftCardsDataInput,
+    ]);
     // deploy
-    const {implementation, proxy} = await deployBehindProxy(GiftCards, admin, initData);
+    const {implementation, proxy} = await deployBehindProxy(
+      new GiftCards__factory(deployer),
+      admin,
+      initData
+    );
 
     // update address file
     await updateAddresses(

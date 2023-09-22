@@ -13,14 +13,17 @@ export async function deployIndexFund(
   hre: HardhatRuntimeEnvironment
 ): Promise<ProxyDeployment<IndexFund__factory>> {
   // data setup
-  const IndexFund = new IndexFund__factory(deployer);
-  const initData = IndexFund.interface.encodeFunctionData("initialize", [
+  const initData = IndexFund__factory.createInterface().encodeFunctionData("initialize", [
     registrar,
     CONFIG.INDEX_FUND_DATA.fundRotation,
     CONFIG.INDEX_FUND_DATA.fundingGoal,
   ]);
   // deploy
-  const {implementation, proxy} = await deployBehindProxy(IndexFund, proxyAdmin, initData);
+  const {implementation, proxy} = await deployBehindProxy(
+    new IndexFund__factory(deployer),
+    proxyAdmin,
+    initData
+  );
 
   // update owner
   logger.out(`Transferring ownership to: ${owner}...`);

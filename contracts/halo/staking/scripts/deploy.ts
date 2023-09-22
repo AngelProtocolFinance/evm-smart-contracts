@@ -20,11 +20,12 @@ export async function deployStaking(
     const proxyAdmin = await getProxyAdminOwner(hre);
 
     // data setup
-    const Staking = new Staking__factory(deployer);
-    const initData = Staking.interface.encodeFunctionData("initialize", [StakingDataInput]);
+    const initData = Staking__factory.createInterface().encodeFunctionData("initialize", [
+      StakingDataInput,
+    ]);
     // deploy
     const {implementation, proxy} = await deployBehindProxy(
-      Staking,
+      new Staking__factory(deployer),
       await proxyAdmin.getAddress(),
       initData
     );

@@ -18,21 +18,23 @@ export async function deployCharityApplications(
     : await Promise.all(charityApplicationsOwners.map((x) => x.getAddress()));
 
   // data setup
-  const CharityApplications = new CharityApplications__factory(deployer);
-  const initData = CharityApplications.interface.encodeFunctionData("initializeApplications", [
-    owners,
-    CONFIG.CHARITY_APPLICATIONS_DATA.threshold,
-    CONFIG.CHARITY_APPLICATIONS_DATA.requireExecution,
-    CONFIG.CHARITY_APPLICATIONS_DATA.transactionExpiry,
-    accountsDiamond,
-    CONFIG.CHARITY_APPLICATIONS_DATA.gasAmount,
-    CONFIG.CHARITY_APPLICATIONS_DATA.seedSplitToLiquid,
-    seedAsset,
-    CONFIG.CHARITY_APPLICATIONS_DATA.seedAmount,
-  ]);
+  const initData = CharityApplications__factory.createInterface().encodeFunctionData(
+    "initializeApplications",
+    [
+      owners,
+      CONFIG.CHARITY_APPLICATIONS_DATA.threshold,
+      CONFIG.CHARITY_APPLICATIONS_DATA.requireExecution,
+      CONFIG.CHARITY_APPLICATIONS_DATA.transactionExpiry,
+      accountsDiamond,
+      CONFIG.CHARITY_APPLICATIONS_DATA.gasAmount,
+      CONFIG.CHARITY_APPLICATIONS_DATA.seedSplitToLiquid,
+      seedAsset,
+      CONFIG.CHARITY_APPLICATIONS_DATA.seedAmount,
+    ]
+  );
   // deploy
   const {implementation, proxy} = await deployBehindProxy(
-    CharityApplications,
+    new CharityApplications__factory(deployer),
     proxyAdmin,
     initData
   );

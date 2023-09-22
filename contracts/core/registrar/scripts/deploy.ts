@@ -31,8 +31,7 @@ export async function deployRegistrar(
   const networkName = await getAxlNetworkName(hre);
 
   // data setup
-  const Registrar = new Registrar__factory(deployer);
-  const initData = Registrar.interface.encodeFunctionData(
+  const initData = Registrar__factory.createInterface().encodeFunctionData(
     "initialize((address,address,address,address,address,string,address))",
     [
       {
@@ -47,7 +46,11 @@ export async function deployRegistrar(
     ]
   );
   // deploy
-  const {implementation, proxy} = await deployBehindProxy(Registrar, proxyAdmin, initData);
+  const {implementation, proxy} = await deployBehindProxy(
+    new Registrar__factory(deployer),
+    proxyAdmin,
+    initData
+  );
 
   // update owner
   logger.out(`Updating Registrar owner to '${owner}'..."`);
@@ -84,12 +87,15 @@ export async function deployLocalRegistrar(
   hre: HardhatRuntimeEnvironment
 ): Promise<ProxyDeployment<LocalRegistrar__factory>> {
   // data setup
-  const LocalRegistrar = new LocalRegistrar__factory(deployer);
-  const initData = LocalRegistrar.interface.encodeFunctionData("initialize", [
+  const initData = LocalRegistrar__factory.createInterface().encodeFunctionData("initialize", [
     await getAxlNetworkName(hre),
   ]);
   // deploy
-  const {implementation, proxy} = await deployBehindProxy(LocalRegistrar, proxyAdmin, initData);
+  const {implementation, proxy} = await deployBehindProxy(
+    new LocalRegistrar__factory(deployer),
+    proxyAdmin,
+    initData
+  );
 
   // update owner
   logger.out(`Updating Registrar owner to '${owner}'...`);

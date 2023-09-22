@@ -13,9 +13,15 @@ export async function deployEndowmentMultiSigEmitter(
   logger.out("Deploying EndowmentMultiSigEmitter...");
 
   // deploy emitter
-  const Emitter = new EndowmentMultiSigEmitter__factory(deployer);
-  const initData = Emitter.interface.encodeFunctionData("initEndowmentMultiSigEmitter", [factory]);
-  const emitter = await deployBehindProxy(Emitter, proxyAdmin, initData);
+  const initData = EndowmentMultiSigEmitter__factory.createInterface().encodeFunctionData(
+    "initEndowmentMultiSigEmitter",
+    [factory]
+  );
+  const emitter = await deployBehindProxy(
+    new EndowmentMultiSigEmitter__factory(deployer),
+    proxyAdmin,
+    initData
+  );
 
   // update address file
   await updateAddresses(
