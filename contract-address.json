@@ -441,8 +441,8 @@
       "implementation": "0x4B49aC71590A13d26742C9cb2BDd5994dB369cAe"
     },
     "giftcards": {
-      "implementation": "",
-      "proxy": ""
+      "implementation": "0x456452F23d80Be2b115111a1FFBAb3D90101cc00",
+      "proxy": "0x99dD586da67FBCB5De9e466E07C8550687a70fC7"
     },
     "goldfinch": {
       "liquidVault": "",
