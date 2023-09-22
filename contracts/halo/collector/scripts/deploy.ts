@@ -20,11 +20,12 @@ export async function deployCollector(
     const proxyAdmin = await getProxyAdminOwner(hre);
 
     // data setup
-    const Collector = new Collector__factory(deployer);
-    const initData = Collector.interface.encodeFunctionData("initialize", [CollectorDataInput]);
+    const initData = Collector__factory.createInterface().encodeFunctionData("initialize", [
+      CollectorDataInput,
+    ]);
     // deploy
     const {implementation, proxy} = await deployBehindProxy(
-      Collector,
+      new Collector__factory(deployer),
       await proxyAdmin.getAddress(),
       initData
     );

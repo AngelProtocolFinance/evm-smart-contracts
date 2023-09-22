@@ -10,10 +10,13 @@ export async function deployVaultEmitter(
   hre: HardhatRuntimeEnvironment
 ): Promise<ProxyDeployment<VaultEmitter__factory>> {
   // data setup
-  const Emitter = new VaultEmitter__factory(deployer);
-  const initData = Emitter.interface.encodeFunctionData("initialize");
+  const initData = VaultEmitter__factory.createInterface().encodeFunctionData("initialize");
   // deploy
-  const {implementation, proxy} = await deployBehindProxy(Emitter, proxyAdmin, initData);
+  const {implementation, proxy} = await deployBehindProxy(
+    new VaultEmitter__factory(deployer),
+    proxyAdmin,
+    initData
+  );
 
   // update address file
   await updateAddresses(

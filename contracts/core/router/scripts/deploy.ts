@@ -11,10 +11,13 @@ export async function deployRouter(
   hre: HardhatRuntimeEnvironment
 ): Promise<ProxyDeployment<Router__factory>> {
   // data setup
-  const Router = new Router__factory(deployer);
-  const initData = Router.interface.encodeFunctionData("initialize", [registrar]);
+  const initData = Router__factory.createInterface().encodeFunctionData("initialize", [registrar]);
   // deploy
-  const {implementation, proxy} = await deployBehindProxy(Router, proxyAdmin, initData);
+  const {implementation, proxy} = await deployBehindProxy(
+    new Router__factory(deployer),
+    proxyAdmin,
+    initData
+  );
 
   // update address file
   await updateAddresses(

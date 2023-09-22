@@ -20,11 +20,13 @@ export async function deployGov(
     const proxyAdmin = await getProxyAdminOwner(hre);
 
     // data setup
-    const Gov = new Gov__factory(deployer);
-    const initData = Gov.interface.encodeFunctionData("initialize", [haloToken, timelock]);
+    const initData = Gov__factory.createInterface().encodeFunctionData("initialize", [
+      haloToken,
+      timelock,
+    ]);
     // deploy
     const {implementation, proxy} = await deployBehindProxy(
-      Gov,
+      new Gov__factory(deployer),
       await proxyAdmin.getAddress(),
       initData
     );
