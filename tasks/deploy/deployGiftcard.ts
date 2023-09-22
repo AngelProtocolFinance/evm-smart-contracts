@@ -1,4 +1,4 @@
-import { CONFIG } from "config";
+import {CONFIG} from "config";
 import {deployGiftCard} from "contracts/accessory/gift-cards/scripts/deploy";
 import {task} from "hardhat/config";
 import {getAddresses, isLocalNetwork, logger} from "utils";
@@ -10,7 +10,10 @@ type TaskArgs = {
 };
 
 task("deploy:GiftCard", "Will deploy GiftCardContracts contract")
-  .addOptionalParam("keeper", "Keeper address for GiftCard contract, will lookup from config if not specified")
+  .addOptionalParam(
+    "keeper",
+    "Keeper address for GiftCard contract, will lookup from config if not specified"
+  )
   .addOptionalParam(
     "registrar",
     "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
@@ -29,7 +32,12 @@ task("deploy:GiftCard", "Will deploy GiftCardContracts contract")
         registrarContract: registrar,
       };
 
-      await deployGiftCard(GiftCardDataInput, addresses.multiSig.apTeam.proxy, verify_contracts, hre);
+      await deployGiftCard(
+        GiftCardDataInput,
+        addresses.multiSig.apTeam.proxy,
+        verify_contracts,
+        hre
+      );
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }

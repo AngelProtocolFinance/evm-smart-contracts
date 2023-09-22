@@ -28,7 +28,7 @@ task("manage:registrar:setStratParams")
   )
   .setAction(async function (taskArguments: TaskArgs, hre) {
     const config: StratConfig = allStrategyConfigs[taskArguments.name];
-    if(await isProdNetwork(hre)) {
+    if (await isProdNetwork(hre)) {
       await hre.run("manage:registrar:setStratParams:on-network", {
         ...taskArguments,
         chainId: ChainID.polygon,
@@ -37,8 +37,7 @@ task("manage:registrar:setStratParams")
         ...taskArguments,
         chainId: config.chainId,
       });
-    }
-    else {
+    } else {
       await hre.run("manage:registrar:setStratParams:on-network", {
         ...taskArguments,
         chainId: ChainID.mumbai,
