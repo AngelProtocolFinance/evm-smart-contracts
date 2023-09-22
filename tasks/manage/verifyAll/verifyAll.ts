@@ -65,7 +65,7 @@ task("manage:verifyAll", "Will verify all the contracts").setAction(async (_, hr
         CONFIG.PROXY_ADMIN_MULTISIG_DATA.transactionExpiry,
       ],
     });
-    // all contracts hidden behind proxies
+    // all contracts' proxies and their implementations
     deployments.push(...getProxies(addresses, hre));
 
     for (const deployment of deployments) {

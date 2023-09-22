@@ -14,8 +14,10 @@ import {
 import {Deployment} from "types";
 import {AddressObj, getContractName} from "utils";
 
-// no need to pass constructor arguments, they're initiated by their proxies using
-// their respective initializer functions
+// No need to pass constructor arguments, they're initiated by their proxies using
+// their respective initializer functions.
+// Proxy verification implicitly includes implementation verification, so there's no
+// need to explicitly set implementation contracts to be verified.
 export default function getProxies(
   addresses: AddressObj,
   hre: HardhatRuntimeEnvironment
