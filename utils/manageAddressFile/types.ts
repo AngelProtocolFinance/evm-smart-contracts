@@ -1,3 +1,8 @@
+type Proxied = {
+  implementation: string;
+  proxy: string;
+};
+
 export type AddressObj = {
   accounts: {
     diamond: string;
@@ -23,100 +28,43 @@ export type AddressObj = {
     gasService: string;
     gateway: string;
   };
-  fundraising: {
-    implementation: string;
-    proxy: string;
-  };
+  fundraising: Proxied;
   gasFwd: {
     implementation: string;
     factory: string;
   };
-  giftcards: {
-    implementation: string;
-    proxy: string;
-  };
+  giftcards: Proxied;
   goldfinch: {
     liquidVault: string;
     lockedVault: string;
   };
   halo: {
-    airdrop: {
-      implementation: string;
-      proxy: string;
-    };
-    collector: {
-      implementation: string;
-      proxy: string;
-    };
-    community: {
-      implementation: string;
-      proxy: string;
-    };
-    distributor: {
-      implementation: string;
-      proxy: string;
-    };
-    erc20Upgrade: {
-      implementation: string;
-      proxy: string;
-    };
-    gov: {
-      implementation: string;
-      proxy: string;
-    };
-    govHodler: {
-      implementation: string;
-      proxy: string;
-    };
-    staking: {
-      implementation: string;
-      proxy: string;
-    };
-    timelock: {
-      implementation: string;
-      proxy: string;
-    };
+    airdrop: Proxied;
+    collector: Proxied;
+    community: Proxied;
+    distributor: Proxied;
+    erc20Upgrade: Proxied;
+    gov: Proxied;
+    govHodler: Proxied;
+    staking: Proxied;
+    timelock: Proxied;
     token: string;
-    vesting: {
-      implementation: string;
-      proxy: string;
-    };
-    votingERC20: {
-      implementation: string;
-      proxy: string;
-    };
+    vesting: Proxied;
+    votingERC20: Proxied;
   };
-  indexFund: {
-    implementation: string;
-    proxy: string;
-  };
+  indexFund: Proxied;
   multiSig: {
-    charityApplications: {
-      implementation: string;
-      proxy: string;
-    };
-    apTeam: {
-      implementation: string;
-      proxy: string;
-    };
+    charityApplications: Proxied;
+    apTeam: Proxied;
     endowment: {
-      emitter: {
-        implementation: string;
-        proxy: string;
-      };
-      factory: string;
+      emitter: Proxied;
+      factory: Proxied;
       implementation: string;
     };
     proxyAdmin: string;
   };
-  registrar: {
-    implementation: string;
-    proxy: string;
-  };
-  router: {
-    implementation: string;
-    proxy: string;
-  };
+  registrar: Proxied;
+  router: Proxied;
   tokens: {
     dai: string;
     halo: string;
@@ -129,8 +77,5 @@ export type AddressObj = {
     factory: string;
     swapRouter: string;
   };
-  vaultEmitter: {
-    implementation: string;
-    proxy: string;
-  };
+  vaultEmitter: Proxied;
 };
