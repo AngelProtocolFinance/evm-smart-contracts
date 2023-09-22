@@ -1,8 +1,5 @@
 import {ChainID, StrategyApprovalState, VaultType} from "types";
 import {AllStratConfigs, StratConfig, getNetworkNameFromChainId, getVaultAddress} from "utils";
-import {
-  FluxStrategy__factory
-} from "typechain-types"
 
 export const dummy: StratConfig = {
   name: "dummy",
@@ -10,6 +7,8 @@ export const dummy: StratConfig = {
   chainId: ChainID.goerli,
   tokenName: "TestVault",
   tokenSymbol: "TV",
+  baseToken: "",
+  yieldToken: "",
   params: {
     approvalState: StrategyApprovalState.APPROVED,
     network: getNetworkNameFromChainId(ChainID.goerli),
@@ -24,7 +23,8 @@ export const flux: StratConfig = {
   chainId: ChainID.ethereum,
   tokenName: "FluxVaultAP",
   tokenSymbol: "fUSDC_AP",
-  contract: FluxStrategy__factory,
+  baseToken: "",
+  yieldToken: "",
   params: {
     approvalState: StrategyApprovalState.APPROVED,
     network: getNetworkNameFromChainId(ChainID.ethereum),
