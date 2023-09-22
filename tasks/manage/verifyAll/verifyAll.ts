@@ -10,7 +10,7 @@ import {
 import {Deployment} from "types";
 import {getAddresses, getChainId, getContractName, getSigners, logger, verify} from "utils";
 import getDiamondAddresses from "./getDiamondAddresses";
-import getImplementations from "./getImplementations";
+import getProxies from "./getProxies";
 
 task("manage:verifyAll", "Will verify all the contracts").setAction(async (_, hre) => {
   try {
@@ -65,8 +65,8 @@ task("manage:verifyAll", "Will verify all the contracts").setAction(async (_, hr
         CONFIG.PROXY_ADMIN_MULTISIG_DATA.transactionExpiry,
       ],
     });
-    // all contracts hidden behind proxies
-    deployments.push(...getImplementations(addresses, hre));
+    // all contracts' proxies and their implementations
+    deployments.push(...getProxies(addresses, hre));
 
     for (const deployment of deployments) {
       await verify(hre, deployment);
