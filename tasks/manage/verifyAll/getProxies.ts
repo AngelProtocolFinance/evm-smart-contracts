@@ -5,6 +5,7 @@ import {
   CharityApplications__factory,
   EndowmentMultiSigEmitter__factory,
   EndowmentMultiSigFactory__factory,
+  GiftCards__factory,
   IndexFund__factory,
   Registrar__factory,
   Router__factory,
@@ -49,6 +50,10 @@ export default function getProxies(
       hre.ethers.provider
     ),
     contractName: getContractName(EndowmentMultiSigFactory__factory),
+  });
+  deployments.push({
+    contract: GiftCards__factory.connect(addresses.giftcards.proxy, hre.ethers.provider),
+    contractName: getContractName(GiftCards__factory),
   });
   deployments.push({
     contract: Registrar__factory.connect(addresses.registrar.proxy, hre.ethers.provider),
