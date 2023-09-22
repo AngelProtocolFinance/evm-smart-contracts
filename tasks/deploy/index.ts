@@ -7,7 +7,7 @@ import "./deployEndowmentMultisig";
 import "./deployEndowmentMultisigEmitter";
 import "./deployEndowmentMultisigFactory";
 import "./deployGasFwd";
-// import "./deployGiftcard";
+import "./deployGiftcard";
 import "./deployHaloImplementation";
 import "./deployIndexFund";
 import "./deployLocalRegistrar";

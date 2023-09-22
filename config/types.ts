@@ -52,6 +52,7 @@ export type Config = {
     CharityApplicationsOwners: string[];
     ProxyAdminMultiSigOwners: string[];
     Treasury: string;
+    GiftCardKeeper: string;
   };
 };
 
