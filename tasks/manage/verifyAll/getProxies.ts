@@ -15,64 +15,53 @@ import {AddressObj, getContractName} from "utils";
 
 // no need to pass constructor arguments, they're initiated by their proxies using
 // their respective initializer functions
-export default function getImplementations(
+export default function getProxies(
   addresses: AddressObj,
   hre: HardhatRuntimeEnvironment
 ): Deployment<ContractFactory>[] {
-  const result: Deployment<ContractFactory>[] = [];
+  const deployments: Deployment<ContractFactory>[] = [];
 
-  result.push({
-    contract: IndexFund__factory.connect(addresses.indexFund.implementation, hre.ethers.provider),
+  deployments.push({
+    contract: IndexFund__factory.connect(addresses.indexFund.proxy, hre.ethers.provider),
     contractName: getContractName(IndexFund__factory),
   });
-  result.push({
+  deployments.push({
     contract: CharityApplications__factory.connect(
-      addresses.multiSig.charityApplications.implementation,
+      addresses.multiSig.charityApplications.proxy,
       hre.ethers.provider
     ),
     contractName: getContractName(CharityApplications__factory),
   });
-  result.push({
-    contract: APTeamMultiSig__factory.connect(
-      addresses.multiSig.apTeam.implementation,
-      hre.ethers.provider
-    ),
+  deployments.push({
+    contract: APTeamMultiSig__factory.connect(addresses.multiSig.apTeam.proxy, hre.ethers.provider),
     contractName: getContractName(APTeamMultiSig__factory),
   });
-  result.push({
+  deployments.push({
     contract: EndowmentMultiSigEmitter__factory.connect(
-      addresses.multiSig.endowment.emitter.implementation,
+      addresses.multiSig.endowment.emitter.proxy,
       hre.ethers.provider
     ),
     contractName: getContractName(EndowmentMultiSigEmitter__factory),
   });
-  result.push({
+  deployments.push({
     contract: EndowmentMultiSigFactory__factory.connect(
-      addresses.multiSig.endowment.factory.implementation,
+      addresses.multiSig.endowment.factory.proxy,
       hre.ethers.provider
     ),
     contractName: getContractName(EndowmentMultiSigFactory__factory),
-    constructorArguments: [
-      addresses.multiSig.endowment.implementation,
-      addresses.multiSig.proxyAdmin,
-      addresses.registrar.proxy,
-    ],
   });
-  result.push({
-    contract: Registrar__factory.connect(addresses.registrar.implementation, hre.ethers.provider),
+  deployments.push({
+    contract: Registrar__factory.connect(addresses.registrar.proxy, hre.ethers.provider),
     contractName: getContractName(Registrar__factory),
   });
-  result.push({
-    contract: Router__factory.connect(addresses.router.implementation, hre.ethers.provider),
+  deployments.push({
+    contract: Router__factory.connect(addresses.router.proxy, hre.ethers.provider),
     contractName: getContractName(Router__factory),
   });
-  result.push({
-    contract: VaultEmitter__factory.connect(
-      addresses.vaultEmitter.implementation,
-      hre.ethers.provider
-    ),
+  deployments.push({
+    contract: VaultEmitter__factory.connect(addresses.vaultEmitter.proxy, hre.ethers.provider),
     contractName: getContractName(VaultEmitter__factory),
   });
 
-  return result;
+  return deployments;
 }
