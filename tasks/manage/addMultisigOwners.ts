@@ -13,26 +13,24 @@ type TaskArgs = {
 
 task("manage:addMultisigOwners", "Will add the specified address to the multisig as an owner")
   .addParam("multisig", "Address of multisig", undefined, cliTypes.address)
-  .addVariadicPositionalParam("owners", "Addresses of new owners")
+  .addParam("owners", "Addresses of new owners", undefined, cliTypes.array.address)
   .addParam("multisigOwnerPkey", "Private Key for a valid Multisig Owner.")
   .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArguments: TaskArgs, hre) => {
     try {
       logger.divider();
+      logger.out(`Adding new owners to ${taskArguments.multisig}:`);
+      logger.out(taskArguments.owners);
 
-      const msOwner = await connectSignerFromPkey(taskArguments.multisigOwnerPkey, hre);
-
-      const isConfirmed =
-        taskArguments.yes ||
-        (await confirmAction(`Adding new owner: ${await msOwner.getAddress()}`));
+      const isConfirmed = taskArguments.yes || (await confirmAction());
       if (!isConfirmed) {
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
+      const msOwner = await connectSignerFromPkey(taskArguments.multisigOwnerPkey, hre);
+
       const multisig = MultiSigGeneric__factory.connect(taskArguments.multisig, msOwner);
 
-      logger.out("Adding new owners:");
-      logger.out(taskArguments.owners);
       const addOwnerData = multisig.interface.encodeFunctionData("addOwners", [
         taskArguments.owners,
       ]);
