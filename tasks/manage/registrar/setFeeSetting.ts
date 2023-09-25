@@ -22,7 +22,7 @@ task("manage:registrar:setFeeSettings")
   .addOptionalParam(
     "bps",
     "basis points to be applied for this fee -- will do a config lookup if not provided",
-    0,
+    undefined,
     types.int
   )
   .addOptionalParam(

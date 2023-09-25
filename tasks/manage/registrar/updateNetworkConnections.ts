@@ -16,14 +16,19 @@ import {
 } from "utils";
 
 type TaskArgs = {
-  chainId: number;
+  chainId?: number;
   refundAddr?: string;
   apTeamSignerPkey?: string;
   yes: boolean;
 };
 
 task("manage:registrar:updateNetworkConnections")
-  .addOptionalParam("chainId", "Chain ID of the network connection to update.", 0, types.int)
+  .addOptionalParam(
+    "chainId",
+    "Chain ID of the network connection to update.",
+    undefined,
+    types.int
+  )
   .addOptionalParam("refundAddr", "Refund address.")
   .addOptionalParam(
     "apTeamSignerPkey",
@@ -39,7 +44,7 @@ task("manage:registrar:updateNetworkConnections")
       let networkName: string;
       let targetAddresses: AddressObj;
       // If we're updating info on this chain for another chain, arg info MUST specify chain id
-      if (taskArgs.chainId > 0) {
+      if (!!taskArgs.chainId) {
         networkName = getNetworkNameFromChainId(taskArgs.chainId);
         targetAddresses = getAddressesByNetworkId(taskArgs.chainId);
       } else {
