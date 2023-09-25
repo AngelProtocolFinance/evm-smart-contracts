@@ -14,7 +14,7 @@ contract DummyUniswapV3Factory is IUniswapV3Factory {
     return address(this);
   }
 
-  function feeAmountTickSpacing(uint24) external view returns (int24) {
+  function feeAmountTickSpacing(uint24) external pure returns (int24) {
     return 0;
   }
 
@@ -22,7 +22,7 @@ contract DummyUniswapV3Factory is IUniswapV3Factory {
     return pool;
   }
 
-  function createPool(address, address, uint24) external returns (address) {
+  function createPool(address, address, uint24) external view returns (address) {
     return pool;
   }
 

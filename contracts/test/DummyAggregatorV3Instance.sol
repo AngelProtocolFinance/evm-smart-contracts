@@ -10,23 +10,23 @@ contract DummyAggregatorV3Interface is AggregatorV3Interface {
     value = _value;
   }
 
-  function decimals() external view returns (uint8) {
+  function decimals() external pure returns (uint8) {
     return uint8(18);
   }
 
-  function description() external view returns (string memory) {
+  function description() external pure returns (string memory) {
     return "ThisIsOnlyATest";
   }
 
-  function version() external view returns (uint256) {
+  function version() external pure returns (uint256) {
     return 0;
   }
 
   function getRoundData(
-    uint80 _roundId
+    uint80
   )
     external
-    view
+    pure
     returns (
       uint80 roundId,
       int256 answer,
