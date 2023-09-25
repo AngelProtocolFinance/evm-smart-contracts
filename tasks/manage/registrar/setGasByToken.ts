@@ -7,7 +7,7 @@ import {getAPTeamOwner, getAddresses, logger} from "utils";
 type TaskArgs = {gas: number; tokenAddress: string; apTeamSignerPkey?: string};
 
 task("manage:registrar:setGasByToken")
-  .addParam("tokenAddress", "Address of the token", "", types.string)
+  .addParam("tokenAddress", "Address of the token")
   .addParam(
     "gas",
     "Qty of tokens fwd'd to pay for gas. Make sure to use the correct number of decimals!",
