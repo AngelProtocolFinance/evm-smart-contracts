@@ -4,7 +4,7 @@ import {task} from "hardhat/config";
 import {getAddresses, isLocalNetwork, logger} from "utils";
 
 type TaskArgs = {
-  keeper: string;
+  keeper?: string;
   registrar?: string;
   skipVerify: boolean;
 };
