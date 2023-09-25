@@ -1,8 +1,9 @@
 import {task, types} from "hardhat/config";
 import {submitMultiSigTx} from "tasks/helpers";
+import {cliTypes} from "tasks/types";
 import {Registrar__factory} from "typechain-types";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
-import {NetworkConnectionAction} from "types";
+import {ChainID, NetworkConnectionAction} from "types";
 import {
   AddressObj,
   getAPTeamOwner,
@@ -10,13 +11,14 @@ import {
   getAddressesByNetworkId,
   getAxlNetworkName,
   getChainIdFromNetworkName,
+  getEnumValuesAsString,
   getNetworkNameFromChainId,
   logger,
   structToObject,
 } from "utils";
 
 type TaskArgs = {
-  chainId?: number;
+  chainId?: ChainID;
   refundAddr?: string;
   apTeamSignerPkey?: string;
   yes: boolean;
@@ -25,9 +27,11 @@ type TaskArgs = {
 task("manage:registrar:updateNetworkConnections")
   .addOptionalParam(
     "chainId",
-    "Chain ID of the network connection to update.",
-    undefined,
-    types.int
+    `Chain ID of the network connection to update, possible values:\n${getEnumValuesAsString(
+      ChainID
+    )}`,
+    ChainID.none,
+    cliTypes.enums(ChainID, "ChainID")
   )
   .addOptionalParam("refundAddr", "Refund address.")
   .addOptionalParam(

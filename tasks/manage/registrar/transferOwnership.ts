@@ -3,7 +3,7 @@ import {submitMultiSigTx} from "tasks/helpers";
 import {Registrar__factory} from "typechain-types";
 import {confirmAction, getAPTeamOwner, getAddresses, logger} from "utils";
 
-type TaskArgs = {to: string; apTeamSignerPkey?: string; yes: boolean};
+type TaskArgs = {to?: string; apTeamSignerPkey?: string; yes: boolean};
 
 task("manage:registrar:transferOwnership")
   .addOptionalParam(

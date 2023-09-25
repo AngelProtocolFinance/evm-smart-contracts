@@ -6,7 +6,7 @@ import {getAPTeamOwner, getAddresses, logger} from "utils";
 type TaskArgs = {acceptanceState: boolean; tokenAddress: string; apTeamSignerPkey?: string};
 
 task("manage:registrar:setTokenAccepted")
-  .addParam("tokenAddress", "Address of the token", "", types.string)
+  .addParam("tokenAddress", "Address of the token")
   .addParam("acceptanceState", "Boolean for acceptance state", false, types.boolean)
   .addOptionalParam(
     "apTeamSignerPkey",

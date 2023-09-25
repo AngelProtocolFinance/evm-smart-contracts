@@ -1,4 +1,4 @@
-import {task, types} from "hardhat/config";
+import {task} from "hardhat/config";
 import {submitMultiSigTx} from "tasks/helpers";
 import {Registrar__factory} from "typechain-types";
 import {RegistrarMessages} from "typechain-types/contracts/core/registrar/Registrar";
@@ -20,93 +20,63 @@ type TaskArgs = Partial<RegistrarMessages.UpdateConfigRequestStruct> & {
 task("manage:registrar:updateConfig", "Will update Accounts Diamond config")
   .addOptionalParam(
     "accountsContract",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.string
+    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
   )
   .addOptionalParam(
     "indexFundContract",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.string
+    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
   )
   .addOptionalParam(
     "govContract",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.string
+    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
   )
   .addOptionalParam(
     "treasury",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.string
+    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
   )
   .addOptionalParam(
     "haloToken",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.string
+    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
   )
   .addOptionalParam(
     "fundraisingContract",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.string
+    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
   )
   .addOptionalParam(
     "uniswapRouter",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.string
+    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
   )
   .addOptionalParam(
     "uniswapFactory",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.string
+    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
   )
   .addOptionalParam(
     "multisigFactory",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.string
+    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
   )
   .addOptionalParam(
     "multisigEmitter",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.string
+    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
   )
   .addOptionalParam(
     "charityApplications",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.string
+    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
   )
   .addOptionalParam(
     "proxyAdmin",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.string
+    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
   )
   .addOptionalParam(
     "usdcAddress",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.string
+    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
   )
   .addOptionalParam(
     "wMaticAddress",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.string
+    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
   )
   .addOptionalParam(
     "gasFwdFactory",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.string
+    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
   )
   .addOptionalParam(
     "apTeamSignerPkey",

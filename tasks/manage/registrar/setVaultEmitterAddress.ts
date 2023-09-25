@@ -1,4 +1,4 @@
-import {task, types} from "hardhat/config";
+import {task} from "hardhat/config";
 import {submitMultiSigTx} from "tasks/helpers";
 import {Registrar__factory} from "typechain-types";
 import {confirmAction, getAPTeamOwner, getAddresses, logger} from "utils";
@@ -6,7 +6,7 @@ import {confirmAction, getAPTeamOwner, getAddresses, logger} from "utils";
 type TaskArgs = {to: string; apTeamSignerPkey?: string; yes: boolean};
 
 task("manage:registrar:setVaultEmitterAddress")
-  .addParam("to", "Address of the VaultEmitter contract", undefined, types.string)
+  .addParam("to", "Address of the VaultEmitter contract")
   .addOptionalParam(
     "apTeamSignerPkey",
     "If running on prod, provide a pkey for a valid APTeam Multisig Owner."

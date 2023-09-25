@@ -1,11 +1,11 @@
-import {task} from "hardhat/config";
+import {task, types} from "hardhat/config";
 import {AccountsQueryEndowments__factory} from "typechain-types";
 import {getAddresses, getSigners, logger, structToObject} from "utils";
 
 type TaskArgs = {id: number};
 
 task("manage:queryEndowments", "Will query an Endowment's details")
-  .addParam("id", "the endowment id")
+  .addParam("id", "the endowment id", undefined, types.int)
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       const {apTeam1} = await getSigners(hre);
