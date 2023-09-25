@@ -57,7 +57,7 @@ subtask(
     `The name of the strategy according to StratConfig, possible values: ${Object.keys(
       allStrategyConfigs
     ).join(", ")}`,
-    "",
+    undefined,
     cliTypes.stratConfig
   )
   .addParam(

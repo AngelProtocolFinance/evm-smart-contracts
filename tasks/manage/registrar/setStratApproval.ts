@@ -6,7 +6,11 @@ import {Registrar__factory} from "typechain-types";
 import {StrategyApprovalState} from "types";
 import {StratConfig, getAPTeamOwner, getAddresses, getEnumValuesAsString, logger} from "utils";
 
-type TaskArgs = {stratConfig: StratConfig; approvalState: number; apTeamSignerPkey?: string};
+type TaskArgs = {
+  stratConfig: StratConfig;
+  approvalState: StrategyApprovalState;
+  apTeamSignerPkey?: string;
+};
 
 task("manage:registrar:setStratApproval")
   .addParam(
@@ -19,9 +23,7 @@ task("manage:registrar:setStratApproval")
   )
   .addParam(
     "approvalState",
-    `Whether the strategy is currently approved or not, possible values:\n${getEnumValuesAsString(
-      StrategyApprovalState
-    )}`,
+    getEnumValuesAsString(StrategyApprovalState),
     StrategyApprovalState.NOT_APPROVED,
     cliTypes.enums(StrategyApprovalState, "StrategyApprovalState")
   )
