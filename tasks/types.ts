@@ -3,7 +3,7 @@ import {constants} from "ethers";
 import {isAddress} from "ethers/lib/utils";
 import {HardhatError} from "hardhat/internal/core/errors";
 import {ERRORS} from "hardhat/internal/core/errors-list";
-import {int, string} from "hardhat/internal/core/params/argumentTypes";
+import {boolean, int, string} from "hardhat/internal/core/params/argumentTypes";
 import {CLIArgumentType} from "hardhat/types";
 import {StratConfig} from "utils";
 
@@ -54,17 +54,7 @@ const booleanArray: CLIArgumentType<Array<boolean>> = {
   name: "booleanArray",
   parse: (argName, strValue) => {
     const values = strValue.split(/\s*,\s*/);
-    const result = values.map((val) => {
-      if (val.toLowerCase() === "true") {
-        return true;
-      }
-      if (val.toLowerCase() === "false") {
-        return false;
-      }
-
-      throw new Error(`Invalid value ${val} in argument ${argName} of type \`boolean[]\``);
-    });
-
+    const result = values.map((value, i) => boolean.parse(`${argName}[${i}]`, value));
     return result;
   },
   /**
@@ -76,13 +66,12 @@ const booleanArray: CLIArgumentType<Array<boolean>> = {
    * @throws HH301 if value is not of type "boolean[]"
    */
   validate: (argName: string, argValue: any): void => {
-    const isBooleanArray =
-      Array.isArray(argValue) &&
-      (argValue.length === 0 || argValue.every((val) => typeof val === "boolean"));
-
-    if (!isBooleanArray) {
-      throw new Error(`Invalid value ${argValue} for argument ${argName} of type \`boolean[]\``);
+    if (!Array.isArray(argValue)) {
+      throw new Error(
+        `Invalid value '${argValue}' for argument '${argName}' of type \`boolean[]\``
+      );
     }
+    (argValue as any[]).forEach((value, i) => boolean.validate(`${argName}[${i}]`, value));
   },
 };
 
@@ -99,7 +88,9 @@ const stratConfig: CLIArgumentType<StratConfig> = {
    */
   validate: (argName: string, argValue: any): void => {
     if (!argValue || typeof argValue !== "object") {
-      throw new Error(`Invalid value ${argValue} for argument ${argName} of type \`StratConfig\``);
+      throw new Error(
+        `Invalid value '${argValue}' for argument '${argName}' of type \`StratConfig\``
+      );
     }
   },
 };
@@ -111,17 +102,15 @@ const stringArray: CLIArgumentType<Array<string>> = {
    * Check if argument value is of type "string[]"
    *
    * @param argName {string} argument's name - used for context in case of error.
-   * @param arr {any} argument's value to validate.
+   * @param argValue {any} argument's value to validate.
    *
    * @throws HH301 if value is not of type "string[]"
    */
-  validate: (argName: string, arr: any): void => {
-    const isStringArray =
-      Array.isArray(arr) && (arr.length === 0 || arr.every((val) => typeof val === "string"));
-
-    if (!isStringArray) {
-      throw new Error(`Invalid value '${arr}' for argument '${argName}' of type \`string[]\``);
+  validate: (argName: string, argValue: any): void => {
+    if (!Array.isArray(argValue)) {
+      throw new Error(`Invalid value '${argValue}' for argument '${argName}' of type \`string[]\``);
     }
+    (argValue as any[]).forEach((value, i) => string.validate(`${argName}[${i}]`, value));
   },
 };
 
