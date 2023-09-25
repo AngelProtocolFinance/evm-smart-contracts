@@ -17,9 +17,7 @@ task("manage:registrar:setStratParams")
     "name",
     `The name of the strategy according to StratConfig, possible values: ${Object.keys(
       allStrategyConfigs
-    ).join(", ")}`,
-    "",
-    types.string
+    ).join(", ")}`
   )
   .addFlag("modifyExisting", "Whether to modify an existing strategy")
   .addOptionalParam(
