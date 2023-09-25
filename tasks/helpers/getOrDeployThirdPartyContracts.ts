@@ -12,7 +12,7 @@ import {
   IUniswapV3Factory,
   IUniswapV3Factory__factory,
 } from "typechain-types";
-import {getAddresses, isLocalNetwork, updateAddresses} from "utils";
+import {getAddresses, isLocalNetwork, logger, updateAddresses} from "utils";
 import {
   deployDummyERC20,
   deployDummyGasService,
@@ -36,6 +36,8 @@ export async function getOrDeployThirdPartyContracts(
   signer: Signer,
   hre: HardhatRuntimeEnvironment
 ): Promise<Result> {
+  logger.out("Getting 3rd party contracts...");
+
   if (isLocalNetwork(hre)) {
     const result: Result = {
       axelarGasService: await deployDummyGasService(signer),
