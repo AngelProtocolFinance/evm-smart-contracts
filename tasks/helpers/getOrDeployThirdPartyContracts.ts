@@ -72,6 +72,7 @@ export async function getOrDeployThirdPartyContracts(
 
   const addresses = await getAddresses(hre);
 
+  // will fail if any of the addresses are not set
   return {
     axelarGasService: IAxelarGasService__factory.connect(addresses.axelar.gasService, signer),
     axelarGateway: IAxelarGateway__factory.connect(addresses.axelar.gateway, signer),
