@@ -3,13 +3,13 @@ import {constants} from "ethers";
 import {isAddress} from "ethers/lib/utils";
 import {HardhatError} from "hardhat/internal/core/errors";
 import {ERRORS} from "hardhat/internal/core/errors-list";
-import {int} from "hardhat/internal/core/params/argumentTypes";
+import {int, string} from "hardhat/internal/core/params/argumentTypes";
 import {CLIArgumentType} from "hardhat/types";
 import {StratConfig} from "utils";
 
 const address: CLIArgumentType<string> = {
   name: "address",
-  parse: (_, strValue) => strValue.trim(),
+  parse: (argname, strValue) => string.parse(argname, strValue),
   /**
    * Check if argument value is a valid EVM address
    *
@@ -19,16 +19,34 @@ const address: CLIArgumentType<string> = {
    * @throws HH301 if value is not a valid EVM address
    */
   validate: (argName: string, argValue: any): void => {
-    if (
-      !argValue ||
-      typeof argValue !== "string" ||
-      !isAddress(argValue) ||
-      argValue === constants.AddressZero
-    ) {
+    string.validate(argName, argValue);
+
+    if (!isAddress(argValue) || argValue === constants.AddressZero) {
       throw new Error(
-        `Invalid value ${argValue} for argument ${argName} - must be a valid non-zero EVM address`
+        `Invalid value '${argValue}' for argument '${argName}' - must be a valid non-zero EVM address`
       );
     }
+  },
+};
+
+const addressArray: CLIArgumentType<Array<string>> = {
+  name: "addressArray",
+  parse: (argName, strValue) => stringArray.parse(argName, strValue),
+  /**
+   * Check if argument value is an array of valid EVM addresses
+   *
+   * @param argName {string} argument's name - used for context in case of error.
+   * @param argValue {any} argument's value to validate.
+   *
+   * @throws HH301 if value is not an array of valid EVM addresses
+   */
+  validate: (argName: string, argValue: any): void => {
+    // verify this is a string array
+    stringArray.validate(argName, argValue);
+    // cast to string[]
+    const strArr = argValue as string[];
+    // verify each item in the array is a valid EVM address
+    strArr.forEach((strValue, i) => address.validate(`${argName}[${i}]`, strValue));
   },
 };
 
@@ -53,16 +71,17 @@ const booleanArray: CLIArgumentType<Array<boolean>> = {
    * Check if argument value is of type "boolean[]"
    *
    * @param argName {string} argument's name - used for context in case of error.
-   * @param arr {any} argument's array value to validate.
+   * @param argValue {any} argument's value to validate.
    *
    * @throws HH301 if value is not of type "boolean[]"
    */
-  validate: (argName: string, arr: any): void => {
+  validate: (argName: string, argValue: any): void => {
     const isBooleanArray =
-      Array.isArray(arr) && (arr.length === 0 || arr.every((val) => typeof val === "boolean"));
+      Array.isArray(argValue) &&
+      (argValue.length === 0 || argValue.every((val) => typeof val === "boolean"));
 
     if (!isBooleanArray) {
-      throw new Error(`Invalid value ${arr} for argument ${argName} of type \`boolean[]\``);
+      throw new Error(`Invalid value ${argValue} for argument ${argName} of type \`boolean[]\``);
     }
   },
 };
@@ -92,7 +111,7 @@ const stringArray: CLIArgumentType<Array<string>> = {
    * Check if argument value is of type "string[]"
    *
    * @param argName {string} argument's name - used for context in case of error.
-   * @param arr {any} argument's array value to validate.
+   * @param arr {any} argument's value to validate.
    *
    * @throws HH301 if value is not of type "string[]"
    */
@@ -101,7 +120,7 @@ const stringArray: CLIArgumentType<Array<string>> = {
       Array.isArray(arr) && (arr.length === 0 || arr.every((val) => typeof val === "string"));
 
     if (!isStringArray) {
-      throw new Error(`Invalid value ${arr} for argument ${argName} of type \`string[]\``);
+      throw new Error(`Invalid value '${arr}' for argument '${argName}' of type \`string[]\``);
     }
   },
 };
@@ -171,6 +190,7 @@ function enums<T extends {[key in string]: string | number}>(
 export const cliTypes = {
   address,
   array: {
+    address: addressArray,
     boolean: booleanArray,
     string: stringArray,
   },

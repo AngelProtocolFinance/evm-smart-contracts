@@ -1,8 +1,8 @@
-import {task} from "hardhat/config";
 import {CONFIG} from "config";
+import {task} from "hardhat/config";
 import {cliTypes} from "tasks/types";
 import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
-import {ADDRESS_ZERO, connectSignerFromPkey, getAddresses, getSigners, logger} from "utils";
+import {ADDRESS_ZERO, getAddresses, getSigners, logger} from "utils";
 
 type TaskArgs = {
   acceptedTokens: string[];
@@ -14,7 +14,7 @@ task(
   "manage:updateRegistrar",
   "Will update the registrar config with the most recent addresses & config data"
 )
-  .addOptionalParam("acceptedTokens", "List of accepted tokens.", [], cliTypes.array.string)
+  .addOptionalParam("acceptedTokens", "List of accepted tokens.", [], cliTypes.array.address)
   .addOptionalParam(
     "acceptanceStates",
     "List of acceptance state flags related to `acceptedTokens`. Flag `acceptanceStates[i]` designates `acceptedTokens[i]` token's acceptance status (`true === accepted`, `false === not accepted`). Defaults to `true` for any index `i` that is not set in `acceptanceStates` but is set in `acceptedTokens`.",
@@ -62,31 +62,33 @@ task(
         yes: true,
       });
 
-      if (taskArgs.acceptedTokens.length > 0) {
-        logger.divider();
-        logger.out("Updating accepted tokens...");
-        for (let i = 0; i < taskArgs.acceptedTokens.length; i++) {
-          try {
-            const tokenAddress = taskArgs.acceptedTokens[i];
-            const acceptanceState = taskArgs.acceptanceStates.at(i) ?? true;
-            const signerKey = taskArgs.apTeamSignerPkey;
-            if (taskArgs.apTeamSignerPkey) {
-              await hre.run("manage:registrar:setTokenAccepted", {
-                tokenAddress,
-                acceptanceState,
-                signerKey,
-                apTeamSignerPkey: taskArgs.apTeamSignerPkey,
-              });
-            } else {
-              await hre.run("manage:registrar:setTokenAccepted", {
-                tokenAddress,
-                acceptanceState,
-                apTeamSignerPkey: taskArgs.apTeamSignerPkey,
-              });
-            }
-          } catch (error) {
-            logger.out(error, logger.Level.Error);
+      if (taskArgs.acceptedTokens.length === 0) {
+        return;
+      }
+
+      logger.divider();
+      logger.out("Updating accepted tokens...");
+      for (let i = 0; i < taskArgs.acceptedTokens.length; i++) {
+        try {
+          const tokenAddress = taskArgs.acceptedTokens[i];
+          const acceptanceState = taskArgs.acceptanceStates.at(i) ?? true;
+          const signerKey = taskArgs.apTeamSignerPkey;
+          if (taskArgs.apTeamSignerPkey) {
+            await hre.run("manage:registrar:setTokenAccepted", {
+              tokenAddress,
+              acceptanceState,
+              signerKey,
+              apTeamSignerPkey: taskArgs.apTeamSignerPkey,
+            });
+          } else {
+            await hre.run("manage:registrar:setTokenAccepted", {
+              tokenAddress,
+              acceptanceState,
+              apTeamSignerPkey: taskArgs.apTeamSignerPkey,
+            });
           }
+        } catch (error) {
+          logger.out(error, logger.Level.Error);
         }
       }
     } catch (error) {
