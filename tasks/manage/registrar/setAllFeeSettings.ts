@@ -1,5 +1,6 @@
 import {CONFIG, FEES} from "config";
 import {task} from "hardhat/config";
+import {cliTypes} from "tasks/types";
 import {ChainID} from "types";
 import {getAddresses, getChainId, getKeysTyped} from "utils";
 
@@ -8,7 +9,9 @@ type TaskArgs = {payoutAddress?: string; apTeamSignerPkey?: string};
 task("manage:registrar:setAllFeeSettings")
   .addOptionalParam(
     "payoutAddress",
-    "Override address of fee recipient -- will do a config lookup or assign to AP Team"
+    "Override address of fee recipient -- will do a config lookup or assign to AP Team",
+    undefined,
+    cliTypes.address
   )
   .addOptionalParam(
     "apTeamSignerPkey",

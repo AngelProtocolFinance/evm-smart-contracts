@@ -1,5 +1,6 @@
 import {task} from "hardhat/config";
 import {submitMultiSigTx} from "tasks/helpers";
+import {cliTypes} from "tasks/types";
 import {MultiSigGeneric__factory} from "typechain-types";
 import {confirmAction, connectSignerFromPkey, logger} from "utils";
 
@@ -11,7 +12,7 @@ type TaskArgs = {
 };
 
 task("manage:addMultisigOwners", "Will add the specified address to the multisig as an owner")
-  .addParam("multisig", "Address of multisig")
+  .addParam("multisig", "Address of multisig", undefined, cliTypes.address)
   .addVariadicPositionalParam("owners", "Addresses of new owners")
   .addParam("multisigOwnerPkey", "Private Key for a valid Multisig Owner.")
   .addFlag("yes", "Automatic yes to prompt.")

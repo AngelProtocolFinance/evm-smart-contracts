@@ -33,7 +33,7 @@ task("manage:registrar:updateNetworkConnections")
     ChainID.none,
     cliTypes.enums(ChainID, "ChainID")
   )
-  .addOptionalParam("refundAddr", "Refund address.")
+  .addOptionalParam("refundAddr", "Refund address.", undefined, cliTypes.address)
   .addOptionalParam(
     "apTeamSignerPkey",
     "If running on prod, provide a pkey for a valid APTeam Multisig Owner."

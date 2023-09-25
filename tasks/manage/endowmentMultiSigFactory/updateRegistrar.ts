@@ -1,5 +1,6 @@
 import {task} from "hardhat/config";
 import {submitMultiSigTx} from "tasks/helpers";
+import {cliTypes} from "tasks/types";
 import {IEndowmentMultiSigFactory__factory} from "typechain-types";
 import {confirmAction, getAPTeamOwner, getAddresses, logger} from "utils";
 
@@ -15,7 +16,9 @@ task(
 )
   .addOptionalParam(
     "registrar",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
+    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
+    undefined,
+    cliTypes.address
   )
   .addOptionalParam(
     "apTeamSignerPkey",

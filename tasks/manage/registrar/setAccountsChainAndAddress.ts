@@ -1,12 +1,18 @@
 import {task} from "hardhat/config";
 import {submitMultiSigTx} from "tasks/helpers";
+import {cliTypes} from "tasks/types";
 import {Registrar__factory} from "typechain-types";
 import {AXELAR_NETWORKS, getAPTeamOwner, getAddresses, logger} from "utils";
 
 type TaskArgs = {accountsDiamond: string; chainName: string; apTeamSignerPkey?: string};
 
 task("manage:registrar:setAccountsChainAndAddress")
-  .addParam("accountsDiamond", "Address of the accounts contract on target Axelar blockchain")
+  .addParam(
+    "accountsDiamond",
+    "Address of the accounts contract on target Axelar blockchain",
+    undefined,
+    cliTypes.address
+  )
   .addParam(
     "chainName",
     `The Axelar blockchain name of the accounts contract, possible values: ${AXELAR_NETWORKS.values()
@@ -24,6 +30,7 @@ task("manage:registrar:setAccountsChainAndAddress")
         logger.Level.Error
       );
     }
+
     logger.divider();
     logger.out("Connecting to registrar on specified network...");
     const addresses = await getAddresses(hre);

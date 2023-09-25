@@ -2,6 +2,7 @@ import {task} from "hardhat/config";
 import {confirmAction, getAddresses, logger} from "utils";
 import updateEndowmentMultiSigFactory from "./updateEndowmentMultiSigFactory";
 import updateEndowmentProxiesAdmin from "./updateEndowmentProxiesAdmin";
+import {cliTypes} from "tasks/types";
 
 type TaskArgs = {
   to?: string;
@@ -16,7 +17,9 @@ task(
 )
   .addOptionalParam(
     "to",
-    "New proxy admin address. Make sure to use an address of an account you control. Will do a local lookup from contract-address.json if none is provided."
+    "New proxy admin address. Make sure to use an address of an account you control. Will do a local lookup from contract-address.json if none is provided.",
+    undefined,
+    cliTypes.address
   )
   .addOptionalParam(
     "apTeamSignerPkey",

@@ -1,12 +1,13 @@
 import {task} from "hardhat/config";
 import {submitMultiSigTx} from "tasks/helpers";
+import {cliTypes} from "tasks/types";
 import {Registrar__factory} from "typechain-types";
 import {getAPTeamOwner, getAddresses, logger} from "utils";
 
 type TaskArgs = {operator: string; status: boolean; apTeamSignerPkey?: string};
 
 task("manage:registrar:setVaultOperatorStatus")
-  .addParam("operator", "Address of the vault operator")
+  .addParam("operator", "Address of the vault operator", undefined, cliTypes.address)
   .addParam("status", "The state to set the operator to")
   .addOptionalParam(
     "apTeamSignerPkey",

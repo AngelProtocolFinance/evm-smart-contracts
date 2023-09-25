@@ -1,13 +1,14 @@
 import {BigNumber} from "ethers";
 import {task, types} from "hardhat/config";
 import {submitMultiSigTx} from "tasks/helpers";
+import {cliTypes} from "tasks/types";
 import {Registrar__factory} from "typechain-types";
 import {getAPTeamOwner, getAddresses, logger} from "utils";
 
 type TaskArgs = {gas: number; tokenAddress: string; apTeamSignerPkey?: string};
 
 task("manage:registrar:setGasByToken")
-  .addParam("tokenAddress", "Address of the token")
+  .addParam("tokenAddress", "Address of the token", undefined, cliTypes.address)
   .addParam(
     "gas",
     "Qty of tokens fwd'd to pay for gas. Make sure to use the correct number of decimals!",

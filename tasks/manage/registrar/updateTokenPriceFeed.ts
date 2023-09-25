@@ -1,5 +1,6 @@
 import {task} from "hardhat/config";
 import {submitMultiSigTx} from "tasks/helpers";
+import {cliTypes} from "tasks/types";
 import {IRegistrar__factory} from "typechain-types";
 import {confirmAction, getAPTeamOwner, getAddresses, logger} from "utils";
 
@@ -14,8 +15,8 @@ task(
   "manage:registrar:updateTokenPriceFeed",
   "Updates a Registrar-Level Accepted Token's Price Feed contract address in storage."
 )
-  .addParam("token", "Address of the token.")
-  .addParam("priceFeed", "Address of the token's price feed.")
+  .addParam("token", "Address of the token.", undefined, cliTypes.address)
+  .addParam("priceFeed", "Address of the token's price feed.", undefined, cliTypes.address)
   .addOptionalParam(
     "apTeamSignerPkey",
     "If running on prod, provide a pkey for a valid APTeam Multisig Owner."

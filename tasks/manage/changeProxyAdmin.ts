@@ -2,6 +2,7 @@ import {task} from "hardhat/config";
 import {ITransparentUpgradeableProxy__factory, ProxyContract__factory} from "typechain-types";
 import {confirmAction, getAddresses, getProxyAdminOwner, logger} from "utils";
 import {submitMultiSigTx} from "../helpers";
+import {cliTypes} from "tasks/types";
 
 type TaskArgs = {
   to?: string;
@@ -13,9 +14,16 @@ type TaskArgs = {
 task("manage:changeProxyAdmin", "Will update the proxy admin the target proxy contract")
   .addOptionalParam(
     "to",
-    "New proxy admin address. Make sure to use an address of an account you control. Will do a local lookup from contract-address.json if none is provided."
+    "New proxy admin address. Make sure to use an address of an account you control. Will do a local lookup from contract-address.json if none is provided.",
+    undefined,
+    cliTypes.address
   )
-  .addParam("proxy", "Target Proxy Contract. Must be owned by the ProxyAdminMultiSig.")
+  .addParam(
+    "proxy",
+    "Target Proxy Contract. Must be owned by the ProxyAdminMultiSig.",
+    undefined,
+    cliTypes.address
+  )
   .addOptionalParam(
     "proxyAdminPkey",
     "The pkey for one of the current ProxyAdminMultiSig's owners."

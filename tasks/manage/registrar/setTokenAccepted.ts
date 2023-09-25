@@ -1,12 +1,13 @@
 import {task, types} from "hardhat/config";
 import {submitMultiSigTx} from "tasks/helpers";
+import {cliTypes} from "tasks/types";
 import {Registrar__factory} from "typechain-types";
 import {getAPTeamOwner, getAddresses, logger} from "utils";
 
 type TaskArgs = {acceptanceState: boolean; tokenAddress: string; apTeamSignerPkey?: string};
 
 task("manage:registrar:setTokenAccepted")
-  .addParam("tokenAddress", "Address of the token")
+  .addParam("tokenAddress", "Address of the token", undefined, cliTypes.address)
   .addParam("acceptanceState", "Boolean for acceptance state", false, types.boolean)
   .addOptionalParam(
     "apTeamSignerPkey",

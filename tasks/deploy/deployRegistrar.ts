@@ -1,6 +1,7 @@
 import {CONFIG} from "config";
 import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {task} from "hardhat/config";
+import {cliTypes} from "tasks/types";
 import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
 
 type TaskArgs = {
@@ -17,11 +18,15 @@ task(
 )
   .addOptionalParam(
     "apTeamMultisig",
-    "APTeamMultiSig contract address. Will do a local lookup from contract-address.json if none is provided."
+    "APTeamMultiSig contract address. Will do a local lookup from contract-address.json if none is provided.",
+    undefined,
+    cliTypes.address
   )
   .addOptionalParam(
     "router",
-    "Router contract address. Will do a local lookup from contract-address.json if none is provided."
+    "Router contract address. Will do a local lookup from contract-address.json if none is provided.",
+    undefined,
+    cliTypes.address
   )
   .addOptionalParam(
     "apTeamSignerPkey",

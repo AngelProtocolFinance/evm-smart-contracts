@@ -1,9 +1,36 @@
 import {allStrategyConfigs} from "contracts/integrations/stratConfig";
+import {constants} from "ethers";
+import {isAddress} from "ethers/lib/utils";
 import {HardhatError} from "hardhat/internal/core/errors";
 import {ERRORS} from "hardhat/internal/core/errors-list";
 import {int} from "hardhat/internal/core/params/argumentTypes";
 import {CLIArgumentType} from "hardhat/types";
 import {StratConfig} from "utils";
+
+const address: CLIArgumentType<string> = {
+  name: "address",
+  parse: (_, strValue) => strValue.trim(),
+  /**
+   * Check if argument value is a valid EVM address
+   *
+   * @param argName {string} argument's name - used for context in case of error.
+   * @param argValue {any} argument's value to validate.
+   *
+   * @throws HH301 if value is not a valid EVM address
+   */
+  validate: (argName: string, argValue: any): void => {
+    if (
+      !argValue ||
+      typeof argValue !== "string" ||
+      !isAddress(argValue) ||
+      argValue === constants.AddressZero
+    ) {
+      throw new Error(
+        `Invalid value ${argValue} for argument ${argName} - must be a valid non-zero EVM address`
+      );
+    }
+  },
+};
 
 const booleanArray: CLIArgumentType<Array<boolean>> = {
   name: "booleanArray",
@@ -142,6 +169,7 @@ function enums<T extends {[key in string]: string | number}>(
 }
 
 export const cliTypes = {
+  address,
   array: {
     boolean: booleanArray,
     string: stringArray,

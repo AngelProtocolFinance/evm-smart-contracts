@@ -17,7 +17,9 @@ task("manage:registrar:setFeeSettings")
   )
   .addOptionalParam(
     "payoutAddress",
-    "Address of fee recipient -- will do a config lookup if not provided"
+    "Address of fee recipient -- will do a config lookup if not provided",
+    undefined,
+    cliTypes.address
   )
   .addOptionalParam(
     "bps",

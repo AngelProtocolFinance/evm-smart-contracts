@@ -1,6 +1,7 @@
 import {CONFIG} from "config";
 import {deployGiftCard} from "contracts/accessory/gift-cards/scripts/deploy";
 import {task} from "hardhat/config";
+import {cliTypes} from "tasks/types";
 import {getAddresses, isLocalNetwork, logger} from "utils";
 
 type TaskArgs = {
@@ -16,7 +17,9 @@ task("deploy:GiftCard", "Will deploy GiftCardContracts contract")
   )
   .addOptionalParam(
     "registrar",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
+    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
+    undefined,
+    cliTypes.address
   )
   .addFlag("skipVerify", "Skip contract verification")
   .setAction(async (taskArgs: TaskArgs, hre) => {

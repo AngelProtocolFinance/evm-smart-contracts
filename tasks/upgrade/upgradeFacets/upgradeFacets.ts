@@ -13,6 +13,7 @@ import {ALL_FACET_NAMES} from "./constants";
 import cutDiamond from "./cutDiamond";
 import deployFacets from "./deployFacets";
 import sortIntoFacetCuts from "./sortIntoFacetCuts";
+import {cliTypes} from "tasks/types";
 
 type TaskArgs = {
   accountsDiamond?: string;
@@ -27,7 +28,9 @@ type TaskArgs = {
 task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountStorage struct")
   .addOptionalParam(
     "accountsDiamond",
-    "Accounts Diamond contract address. Will do a local lookup from contract-address.json if none is provided."
+    "Accounts Diamond contract address. Will do a local lookup from contract-address.json if none is provided.",
+    undefined,
+    cliTypes.address
   )
 
   .addVariadicPositionalParam(

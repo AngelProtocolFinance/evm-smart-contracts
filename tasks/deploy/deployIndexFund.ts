@@ -1,5 +1,6 @@
 import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
 import {task} from "hardhat/config";
+import {cliTypes} from "tasks/types";
 import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
 
 type TaskArgs = {
@@ -13,11 +14,15 @@ type TaskArgs = {
 task("deploy:IndexFund", "Will deploy IndexFund contract")
   .addOptionalParam(
     "owner",
-    "Address of the owner. By default set to AP team multisig proxy saved in contract-address.json."
+    "Address of the owner. By default set to AP team multisig proxy saved in contract-address.json.",
+    undefined,
+    cliTypes.address
   )
   .addOptionalParam(
     "registrar",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
+    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
+    undefined,
+    cliTypes.address
   )
   .addOptionalParam(
     "apTeamSignerPkey",
