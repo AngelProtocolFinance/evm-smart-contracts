@@ -1,6 +1,7 @@
 import {FEES} from "config";
 import {task, types} from "hardhat/config";
 import {submitMultiSigTx} from "tasks/helpers";
+import {cliTypes} from "tasks/types";
 import {Registrar__factory} from "typechain-types";
 import {FeeTypes} from "types";
 import {getAPTeamOwner, getAddresses, getEnumKeys, logger} from "utils";
@@ -10,17 +11,15 @@ type TaskArgs = {feeType: number; payoutAddress?: string; bps?: number; apTeamSi
 task("manage:registrar:setFeeSettings")
   .addParam(
     "feeType",
-    `The enum of the fee, possible values: ${getEnumKeys(FeeTypes)
+    `The enum of the fee, possible values:\n${getEnumKeys(FeeTypes)
       .map((key) => `${key} - ${FeeTypes[key]}`)
       .join(", ")}`,
-    0,
-    types.int
+    FeeTypes.Default,
+    cliTypes.enums(FeeTypes, "FeeTypes")
   )
   .addOptionalParam(
     "payoutAddress",
-    "Address of fee recipient -- will do a config lookup if not provided",
-    "",
-    types.string
+    "Address of fee recipient -- will do a config lookup if not provided"
   )
   .addOptionalParam(
     "bps",
