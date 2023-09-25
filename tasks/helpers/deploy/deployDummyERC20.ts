@@ -1,5 +1,4 @@
 import {Signer} from "ethers";
-import {wait} from "test/utils";
 import {DummyERC20, DummyERC20__factory} from "typechain-types";
 import {deploy} from "utils";
 
@@ -14,7 +13,8 @@ export async function deployDummyERC20(
 
   if (recipients && amounts) {
     for (var i in recipients) {
-      await wait(token.contract.mint(recipients[i], amounts[i]));
+      const tx = await token.contract.mint(recipients[i], amounts[i]);
+      await tx.wait();
     }
   }
 
