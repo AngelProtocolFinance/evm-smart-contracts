@@ -1,18 +1,29 @@
 import {task} from "hardhat/config";
 import {submitMultiSigTx} from "tasks/helpers";
 import {Registrar__factory} from "typechain-types";
-import {getAPTeamOwner, getAddresses, logger} from "utils";
+import {AXELAR_NETWORKS, getAPTeamOwner, getAddresses, logger} from "utils";
 
 type TaskArgs = {accountsDiamond: string; chainName: string; apTeamSignerPkey?: string};
 
 task("manage:registrar:setAccountsChainAndAddress")
   .addParam("accountsDiamond", "Address of the accounts contract on target Axelar blockchain")
-  .addParam("chainName", "The Axelar blockchain name of the accounts contract")
+  .addParam(
+    "chainName",
+    `The Axelar blockchain name of the accounts contract, possible values: ${AXELAR_NETWORKS.values()
+      .filter((chain, i, arr) => arr.indexOf(chain) === i) // filter unique values
+      .join(", ")}`
+  )
   .addOptionalParam(
     "apTeamSignerPkey",
     "If running on prod, provide a pkey for a valid APTeam Multisig Owner."
   )
   .setAction(async function (taskArguments: TaskArgs, hre) {
+    if (!AXELAR_NETWORKS.revGet(taskArguments.chainName)) {
+      return logger.out(
+        `Chain '${taskArguments.chainName}' is not one of the supported Axelar networks`,
+        logger.Level.Error
+      );
+    }
     logger.divider();
     logger.out("Connecting to registrar on specified network...");
     const addresses = await getAddresses(hre);
