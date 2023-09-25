@@ -6,14 +6,16 @@ import {Registrar__factory} from "typechain-types";
 import {StrategyApprovalState} from "types";
 import {StratConfig, getAPTeamOwner, getAddresses, getEnumValuesAsString, logger} from "utils";
 
-type TaskArgs = {name: string; approvalState: number; apTeamSignerPkey?: string};
+type TaskArgs = {stratConfig: StratConfig; approvalState: number; apTeamSignerPkey?: string};
 
 task("manage:registrar:setStratApproval")
   .addParam(
-    "name",
+    "stratConfig",
     `The name of the strategy according to StratConfig, possible values: ${Object.keys(
       allStrategyConfigs
-    ).join(", ")}`
+    ).join(", ")}`,
+    undefined,
+    cliTypes.stratConfig
   )
   .addParam(
     "approvalState",
@@ -40,8 +42,7 @@ task("manage:registrar:setStratApproval")
 
     logger.divider();
     logger.out("Checking current strategy approval state");
-    const config: StratConfig = allStrategyConfigs[taskArguments.name];
-    let currentStratParams = await registrar.getStrategyParamsById(config.id);
+    let currentStratParams = await registrar.getStrategyParamsById(taskArguments.stratConfig.id);
     if (currentStratParams.approvalState == taskArguments.approvalState) {
       logger.out("Strategy approval state already matches desired state");
       return;
@@ -55,7 +56,7 @@ task("manage:registrar:setStratApproval")
       StrategyApprovalState[taskArguments.approvalState]
     );
     const updateData = registrar.interface.encodeFunctionData("setStrategyApprovalState", [
-      config.id,
+      taskArguments.stratConfig.id,
       taskArguments.approvalState,
     ]);
     await submitMultiSigTx(

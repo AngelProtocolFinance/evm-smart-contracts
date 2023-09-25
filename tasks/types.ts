@@ -1,7 +1,9 @@
+import {allStrategyConfigs} from "contracts/integrations/stratConfig";
 import {HardhatError} from "hardhat/internal/core/errors";
 import {ERRORS} from "hardhat/internal/core/errors-list";
 import {int} from "hardhat/internal/core/params/argumentTypes";
 import {CLIArgumentType} from "hardhat/types";
+import {StratConfig} from "utils";
 
 const booleanArray: CLIArgumentType<Array<boolean>> = {
   name: "booleanArray",
@@ -34,6 +36,24 @@ const booleanArray: CLIArgumentType<Array<boolean>> = {
 
     if (!isBooleanArray) {
       throw new Error(`Invalid value ${arr} for argument ${argName} of type \`boolean[]\``);
+    }
+  },
+};
+
+const stratConfig: CLIArgumentType<StratConfig> = {
+  name: "StratConfig",
+  parse: (_, strValue) => allStrategyConfigs[strValue.trim()],
+  /**
+   * Check if argument value is of type "StratConfig"
+   *
+   * @param argName {string} argument's name - used for context in case of error.
+   * @param argValue {any} argument's value to validate.
+   *
+   * @throws HH301 if value is not of type "StratConfig"
+   */
+  validate: (argName: string, argValue: any): void => {
+    if (!argValue || typeof argValue !== "object") {
+      throw new Error(`Invalid value ${argValue} for argument ${argName} of type \`StratConfig\``);
     }
   },
 };
@@ -127,4 +147,5 @@ export const cliTypes = {
     string: stringArray,
   },
   enums,
+  stratConfig,
 };

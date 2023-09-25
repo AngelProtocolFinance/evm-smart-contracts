@@ -1,5 +1,6 @@
 import {allStrategyConfigs} from "contracts/integrations/stratConfig";
 import {task} from "hardhat/config";
+import {cliTypes} from "tasks/types";
 import {
   APVault_V1__factory,
   DummyERC20__factory,
@@ -17,17 +18,19 @@ import {
 } from "utils";
 
 type TaskArgs = {
-  name: string;
+  stratConfig: StratConfig;
   admin: string;
   skipVerify: boolean;
 };
 
 task("Deploy:dummyIntegration", "Will deploy a set of vaults and a dummy strategy")
   .addParam(
-    "name",
+    "stratConfig",
     `The name of the strategy according to StratConfig, possible values: ${Object.keys(
       allStrategyConfigs
-    ).join(", ")}`
+    ).join(", ")}`,
+    undefined,
+    cliTypes.stratConfig
   )
   .addOptionalParam(
     "admin",
@@ -36,7 +39,10 @@ task("Deploy:dummyIntegration", "Will deploy a set of vaults and a dummy strateg
   .addFlag("skipVerify", "Skip contract verification")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
-      const config: StratConfig = allStrategyConfigs[taskArgs.name];
+      logger.divider();
+      logger.out("Deploying a set of vaults and a dummy strategy...");
+
+      const config: StratConfig = taskArgs.stratConfig;
       const {deployer} = await getSigners(hre);
       let network = await hre.ethers.provider.getNetwork();
       if (network.chainId != config.chainId) {
@@ -117,7 +123,7 @@ task("Deploy:dummyIntegration", "Will deploy a set of vaults and a dummy strateg
         liquid: liqVault.address,
       };
 
-      writeStrategyAddresses(taskArgs.name, data);
+      writeStrategyAddresses(taskArgs.stratConfig.name, data);
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }
