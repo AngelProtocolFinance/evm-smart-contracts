@@ -86,12 +86,12 @@ function enums<T extends {[key in string]: string | number}>(
       });
     },
     /**
-     * Check if argument value is of type "string[]"
+     * Check if argument value is of enum type "T"
      *
      * @param argName {string} argument's name - used for context in case of error.
      * @param value {any} argument's value to validate.
      *
-     * @throws HH301 if value is not of type "string[]"
+     * @throws HH301 if value is not of type "T"
      */
     validate: (argName: string, value: any): void => {
       if (Object.values(enumObj).includes(value)) {
