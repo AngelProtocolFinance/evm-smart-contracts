@@ -1,8 +1,6 @@
 import {Signer} from "ethers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {
-  DummyGasService,
-  DummyGateway,
   ERC20,
   ERC20__factory,
   IAxelarGasService,
@@ -23,8 +21,8 @@ import {
 } from "./deploy";
 
 type Result = {
-  axelarGasService: DummyGasService | IAxelarGasService;
-  axelarGateway: DummyGateway | IAxelarGateway;
+  axelarGasService: IAxelarGasService;
+  axelarGateway: IAxelarGateway;
   seedAsset: ERC20;
   uniswap: {
     factory: IUniswapV3Factory;
@@ -42,7 +40,7 @@ export async function getOrDeployThirdPartyContracts(
     const result: Result = {
       axelarGasService: await deployDummyGasService(signer),
       axelarGateway: await deployDummyGateway(signer),
-      uniswap: await deployDummyUniswap(signer, hre),
+      uniswap: await deployDummyUniswap(signer),
       seedAsset: await deployDummyERC20(signer, [await signer.getAddress()], [100]),
       usdcToken: await deployDummyERC20(signer, [await signer.getAddress()], [100], 6),
       wmaticToken: await deployDummyERC20(signer, [await signer.getAddress()], [1]),
