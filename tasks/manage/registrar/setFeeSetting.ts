@@ -4,16 +4,14 @@ import {submitMultiSigTx} from "tasks/helpers";
 import {cliTypes} from "tasks/types";
 import {Registrar__factory} from "typechain-types";
 import {FeeTypes} from "types";
-import {getAPTeamOwner, getAddresses, getEnumKeys, logger} from "utils";
+import {getAPTeamOwner, getAddresses, getEnumValuesAsString, logger} from "utils";
 
 type TaskArgs = {feeType: number; payoutAddress?: string; bps?: number; apTeamSignerPkey?: string};
 
 task("manage:registrar:setFeeSettings")
   .addParam(
     "feeType",
-    `The enum of the fee, possible values:\n${getEnumKeys(FeeTypes)
-      .map((key) => `${key} - ${FeeTypes[key]}`)
-      .join(", ")}`,
+    `The enum of the fee, possible values:\n${getEnumValuesAsString(FeeTypes)}`,
     FeeTypes.Default,
     cliTypes.enums(FeeTypes, "FeeTypes")
   )
