@@ -23,8 +23,6 @@ type TaskArgs = {
   proxyAdminPkey?: string;
 };
 
-// Sample syntax: npx hardhat upgrade:facets --yes --network mumbai "AccountsStrategy"
-
 task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountStorage struct")
   .addOptionalParam(
     "accountsDiamond",
@@ -33,19 +31,17 @@ task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountSto
     cliTypes.address
   )
 
-  .addVariadicPositionalParam(
+  .addParam(
     "facets",
-    "List of facets to upgrade. If set to 'all', will upgrade all facets."
+    "List of facets to upgrade. If set to 'all', will upgrade all facets.",
+    undefined,
+    cliTypes.array.string
   )
   .addFlag("skipVerify", "Skip contract verification")
   .addFlag("yes", "Automatic yes to prompt.")
   .addOptionalParam("proxyAdminPkey", "The pkey for the prod proxy admin multisig")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
-      if (taskArgs.facets.length === 0) {
-        throw new Error("Must provide at least one facet name or pass 'all'");
-      }
-
       const facetsToUpgrade = /^all$/i.test(taskArgs.facets[0]) ? ALL_FACET_NAMES : taskArgs.facets;
 
       const isConfirmed =
