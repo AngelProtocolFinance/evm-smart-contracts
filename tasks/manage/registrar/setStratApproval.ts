@@ -1,9 +1,10 @@
 import {allStrategyConfigs} from "contracts/integrations/stratConfig";
-import {task, types} from "hardhat/config";
+import {task} from "hardhat/config";
 import {submitMultiSigTx} from "tasks/helpers";
+import {cliTypes} from "tasks/types";
 import {Registrar__factory} from "typechain-types";
 import {StrategyApprovalState} from "types";
-import {StratConfig, getAPTeamOwner, getAddresses, getEnumKeys, logger} from "utils";
+import {StratConfig, getAPTeamOwner, getAddresses, getEnumValuesAsString, logger} from "utils";
 
 type TaskArgs = {name: string; approvalState: number; apTeamSignerPkey?: string};
 
@@ -16,13 +17,11 @@ task("manage:registrar:setStratApproval")
   )
   .addParam(
     "approvalState",
-    `Whether the strategy is currently approved or not, possible values: ${getEnumKeys(
+    `Whether the strategy is currently approved or not, possible values:\n${getEnumValuesAsString(
       StrategyApprovalState
-    )
-      .map((key) => `${key} - ${StrategyApprovalState[key]}`)
-      .join(", ")}`,
-    0,
-    types.int
+    )}`,
+    StrategyApprovalState.NOT_APPROVED,
+    cliTypes.enums(StrategyApprovalState, "StrategyApprovalState")
   )
   .addOptionalParam(
     "apTeamSignerPkey",
