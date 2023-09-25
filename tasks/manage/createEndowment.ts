@@ -1,16 +1,29 @@
-import {task, types} from "hardhat/config";
+import {task} from "hardhat/config";
 import {proposeCharityApplication} from "tasks/helpers";
+import {cliTypes} from "tasks/types";
 import {AccountsCreateEndowment__factory, AccountsQueryEndowments__factory} from "typechain-types";
 import {AccountMessages} from "typechain-types/contracts/multisigs/CharityApplications";
-import {getAddresses, getCharityApplicationsOwner, logger, structToObject} from "utils";
+import {EndowmentType} from "types";
+import {
+  getAddresses,
+  getCharityApplicationsOwner,
+  getEnumValuesAsString,
+  logger,
+  structToObject,
+} from "utils";
 
 type TaskArgs = {
   appsSignerPkey?: string;
-  endowType: 0 | 1;
+  endowType: EndowmentType;
 };
 
 task("manage:createEndowment", "Will create a new endowment")
-  .addParam("endowType", "0 - charity, 1 - ast, 2 - daf ", 0, types.int)
+  .addParam(
+    "endowType",
+    getEnumValuesAsString(EndowmentType),
+    EndowmentType.Charity,
+    cliTypes.enums(EndowmentType, "EndowmentType")
+  )
   .addOptionalParam(
     "appsSignerPkey",
     "If running on prod, provide a pkey for a valid CharityApplications Multisig Owner."
@@ -54,7 +67,7 @@ task("manage:createEndowment", "Will create a new endowment")
         sdgs: [1],
         referralId: 0,
         tier: 0,
-        endowType: taskArgs.endowType, // Charity
+        endowType: taskArgs.endowType,
         logo: "",
         image: "",
         members: [await appsSigner.getAddress()],
@@ -95,7 +108,7 @@ task("manage:createEndowment", "Will create a new endowment")
         },
       };
 
-      if (taskArgs.endowType == 0) {
+      if (taskArgs.endowType == EndowmentType.Charity) {
         await proposeCharityApplication(
           addresses.multiSig.charityApplications.proxy,
           appsSigner,
