@@ -37,6 +37,14 @@ task("deploy:EndowmentMultiSigFactory", "Will deploy EndowmentMultiSigFactory co
         hre
       );
 
+      // must deploy new EndowmentMultiSigEmitter as currently there's no way
+      // to update its EndowmentMultiSigFactory address
+      await hre.run("deploy:EndowmentMultiSigEmitter", {
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
+        skipVerify: taskArgs.skipVerify,
+        yes: true,
+      });
+
       await hre.run("manage:registrar:updateConfig", {
         multisigFactory: deployData.proxy.contract.address,
         apTeamSignerPkey: taskArgs.apTeamSignerPkey,
