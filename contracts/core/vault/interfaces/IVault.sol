@@ -2,6 +2,8 @@
 // author: @stevieraykatz
 pragma solidity ^0.8.19;
 
+import "../../../core/router/IRouter.sol";
+
 abstract contract IVault {
   /*////////////////////////////////////////////////
                     CUSTOM TYPES

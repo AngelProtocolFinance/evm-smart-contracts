@@ -2,6 +2,7 @@
 // author: @stevieraykatz
 pragma solidity ^0.8.19;
 
+import {IVault} from "../../vault/interfaces/IVault.sol";
 import {LibAccounts} from "../../accounts/lib/LibAccounts.sol";
 
 library LocalRegistrarLib {
