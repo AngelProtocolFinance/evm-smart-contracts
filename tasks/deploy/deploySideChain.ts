@@ -99,7 +99,7 @@ task("deploy:SideChain", "Will deploy complete side-chain infrastructure")
         yes: true,
       });
 
-      await hre.run("manage:registrar:setVaultOperatorStats", {
+      await hre.run("manage:registrar:setVaultOperatorStatus", {
         operator: addresses.router.proxy,
         approved: true,
         apTeamSignerPkey: taskArgs.apTeamSignerPkey,
