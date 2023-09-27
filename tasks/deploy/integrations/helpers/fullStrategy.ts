@@ -5,10 +5,7 @@ import {
   getAddresses,
   getChainIdFromNetworkName,
   getSigners,
-  logger,
   StratConfig,
-  StrategyObject,
-  validateAddress,
   verify,
   writeStrategyAddresses,
 } from "utils";

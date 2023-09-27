@@ -23,8 +23,8 @@ export const flux: StratConfig = {
   chainId: ChainID.ethereum,
   tokenName: "FluxVaultAP",
   tokenSymbol: "fUSDC_AP",
-  baseToken: "",
-  yieldToken: "",
+  baseToken: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+  yieldToken: "0x465a5a630482f3abD6d3b84B39B29b07214d19e5",
   params: {
     approvalState: StrategyApprovalState.APPROVED,
     network: getNetworkNameFromChainId(ChainID.ethereum),
