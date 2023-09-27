@@ -3,9 +3,13 @@ import {deployAPTeamMultiSig, deployProxyAdminMultisig} from "contracts/multisig
 import {ContractFactory} from "ethers";
 import {task} from "hardhat/config";
 import {getOrDeployThirdPartyContracts} from "tasks/helpers";
-import {Deployment} from "types";
+import {ChainID, Deployment} from "types";
 import {
   confirmAction,
+  getAddresses,
+  getAddressesByNetworkId,
+  getNetworkNameFromChainId,
+  getPrimaryChainId,
   getSigners,
   isLocalNetwork,
   logger,
@@ -71,10 +75,42 @@ task("deploy:SideChain", "Will deploy complete side-chain infrastructure")
         yes: true,
       });
 
+
+      // Configure the registrar 
+      const primaryChainId = await getPrimaryChainId(hre);
+      const primaryChainName = getNetworkNameFromChainId(primaryChainId);
+      const primaryAddresses = getAddressesByNetworkId(primaryChainId);
+      const addresses = await getAddresses(hre);
+
+      await hre.run("manage:registrar:setAccountsChainAndAddress", {
+        accountsDiamond: primaryAddresses.accounts.diamond,
+        chainName: primaryChainName,
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
+      });
+
+      await hre.run("manage:registrar:setTokenAccepted", {
+        tokenAddress: addresses.tokens.usdc,
+        acceptanceState: true,
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
+      });
+
+      await hre.run("manage:registrar:updateNetworkConnections", {
+        chainId: primaryChainId,
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
+        yes: true,
+      });
+
+      await hre.run("manage:registrar:setVaultOperatorStats", {
+        operator: addresses.router.proxy,
+        approved: true,
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
+      });
+
       await hre.run("manage:registrar:setAllFeeSettings", {
         apTeamSignerPkey: taskArgs.apTeamSignerPkey,
       });
 
+      // Verify if needed 
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
         const deployments: Array<Deployment<ContractFactory>> = [
           proxyAdminMultisig,
