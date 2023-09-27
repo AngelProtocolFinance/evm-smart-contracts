@@ -1,5 +1,6 @@
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task} from "hardhat/config";
+import {cliTypes} from "tasks/types";
 import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
 
 type TaskArgs = {
@@ -12,7 +13,9 @@ type TaskArgs = {
 task("deploy:Router", "Will deploy Router contract")
   .addOptionalParam(
     "registrar",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
+    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
+    undefined,
+    cliTypes.address
   )
   .addOptionalParam(
     "apTeamSignerPkey",

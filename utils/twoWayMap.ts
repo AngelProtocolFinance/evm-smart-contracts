@@ -1,6 +1,6 @@
 export class TwoWayMap {
-  map: Record<number, string>;
-  reverseMap: Record<string, number>;
+  private map: Record<number, string>;
+  private reverseMap: Record<string, number>;
   constructor(map: Record<number, string>) {
     this.map = map;
     this.reverseMap = {};
@@ -14,5 +14,8 @@ export class TwoWayMap {
   }
   revGet(key: any) {
     return this.reverseMap[key];
+  }
+  values() {
+    return Object.values(this.map);
   }
 }

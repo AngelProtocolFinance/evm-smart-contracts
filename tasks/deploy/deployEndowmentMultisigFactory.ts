@@ -37,14 +37,23 @@ task("deploy:EndowmentMultiSigFactory", "Will deploy EndowmentMultiSigFactory co
         hre
       );
 
+      // must deploy new EndowmentMultiSigEmitter as currently there's no way
+      // to update its EndowmentMultiSigFactory address
+      await hre.run("deploy:EndowmentMultiSigEmitter", {
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
+        skipVerify: taskArgs.skipVerify,
+        yes: true,
+      });
+
       await hre.run("manage:registrar:updateConfig", {
-        multisigFactory: deployData.contract.address,
+        multisigFactory: deployData.proxy.contract.address,
         apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });
 
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
-        await verify(hre, deployData);
+        await verify(hre, deployData.implementation);
+        await verify(hre, deployData.proxy);
       }
     } catch (error) {
       logger.out(error, logger.Level.Error);

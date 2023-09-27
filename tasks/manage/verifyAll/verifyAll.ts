@@ -2,7 +2,6 @@ import {CONFIG} from "config";
 import {ContractFactory} from "ethers";
 import {task} from "hardhat/config";
 import {
-  EndowmentMultiSigFactory__factory,
   EndowmentMultiSig__factory,
   GasFwdFactory__factory,
   GasFwd__factory,
@@ -11,7 +10,7 @@ import {
 import {Deployment} from "types";
 import {getAddresses, getChainId, getContractName, getSigners, logger, verify} from "utils";
 import getDiamondAddresses from "./getDiamondAddresses";
-import getImplementations from "./getImplementations";
+import getProxies from "./getProxies";
 
 task("manage:verifyAll", "Will verify all the contracts").setAction(async (_, hre) => {
   try {
@@ -42,25 +41,13 @@ task("manage:verifyAll", "Will verify all the contracts").setAction(async (_, hr
         addresses.registrar.proxy,
       ],
     });
-    // EndowmentMultiSig(+Factory)
+    // EndowmentMultiSig
     deployments.push({
       contract: EndowmentMultiSig__factory.connect(
         addresses.multiSig.endowment.implementation,
         hre.ethers.provider
       ),
       contractName: getContractName(EndowmentMultiSig__factory),
-    });
-    deployments.push({
-      contract: EndowmentMultiSigFactory__factory.connect(
-        addresses.multiSig.endowment.factory,
-        hre.ethers.provider
-      ),
-      contractName: getContractName(EndowmentMultiSigFactory__factory),
-      constructorArguments: [
-        addresses.multiSig.endowment.implementation,
-        addresses.multiSig.proxyAdmin,
-        addresses.registrar.proxy,
-      ],
     });
     // ProxyAdminMultiSig
     deployments.push({
@@ -78,8 +65,8 @@ task("manage:verifyAll", "Will verify all the contracts").setAction(async (_, hr
         CONFIG.PROXY_ADMIN_MULTISIG_DATA.transactionExpiry,
       ],
     });
-    // all contracts hidden behind proxies
-    deployments.push(...getImplementations(addresses, hre));
+    // all contracts' proxies and their implementations
+    deployments.push(...getProxies(addresses, hre));
 
     for (const deployment of deployments) {
       await verify(hre, deployment);

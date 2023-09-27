@@ -1,6 +1,7 @@
 import {CONFIG} from "config";
 import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {task} from "hardhat/config";
+import {cliTypes} from "tasks/types";
 import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
 
 type TaskArgs = {
@@ -17,11 +18,15 @@ task(
 )
   .addOptionalParam(
     "apTeamMultisig",
-    "APTeamMultiSig contract address. Will do a local lookup from contract-address.json if none is provided."
+    "APTeamMultiSig contract address. Will do a local lookup from contract-address.json if none is provided.",
+    undefined,
+    cliTypes.address
   )
   .addOptionalParam(
     "router",
-    "Router contract address. Will do a local lookup from contract-address.json if none is provided."
+    "Router contract address. Will do a local lookup from contract-address.json if none is provided.",
+    undefined,
+    cliTypes.address
   )
   .addOptionalParam(
     "apTeamSignerPkey",
@@ -67,7 +72,7 @@ task(
         treasury: treasuryAddress,
         uniswapRouter: addresses.uniswap.swapRouter,
         uniswapFactory: addresses.uniswap.factory,
-        multisigFactory: addresses.multiSig.endowment.factory,
+        multisigFactory: addresses.multiSig.endowment.factory.proxy,
         multisigEmitter: addresses.multiSig.endowment.emitter.proxy,
         charityApplications: addresses.multiSig.charityApplications.proxy,
         proxyAdmin: addresses.multiSig.proxyAdmin,
@@ -103,6 +108,11 @@ task(
       });
       await hre.run("manage:GasFwdFactory:updateRegistrar", {
         newRegistrar: registrar.proxy.contract.address,
+        apTeamSignerPkey: taskArgs.apTeamSignerPkey,
+        yes: true,
+      });
+      await hre.run("manage:endowmentMultiSigFactory:updateRegistrar", {
+        registrar: registrar.proxy.contract.address,
         apTeamSignerPkey: taskArgs.apTeamSignerPkey,
         yes: true,
       });

@@ -1,9 +1,10 @@
 import {task} from "hardhat/config";
 import {submitMultiSigTx} from "tasks/helpers";
+import {cliTypes} from "tasks/types";
 import {GasFwdFactory__factory} from "typechain-types";
 import {confirmAction, getAPTeamOwner, getAddresses, logger} from "utils";
 
-type TaskArgs = {newRegistrar: string; apTeamSignerPkey?: string; yes: boolean};
+type TaskArgs = {newRegistrar?: string; apTeamSignerPkey?: string; yes: boolean};
 
 task(
   "manage:GasFwdFactory:updateRegistrar",
@@ -11,7 +12,9 @@ task(
 )
   .addOptionalParam(
     "newRegistrar",
-    "Address of the new registrar. Will default to `contract-address.json > registrar.proxy` if none is provided."
+    "Address of the new registrar. Will default to `contract-address.json > registrar.proxy` if none is provided.",
+    undefined,
+    cliTypes.address
   )
   .addOptionalParam(
     "apTeamSignerPkey",

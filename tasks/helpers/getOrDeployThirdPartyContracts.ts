@@ -1,8 +1,6 @@
 import {Signer} from "ethers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {
-  DummyGasService,
-  DummyGateway,
   ERC20,
   ERC20__factory,
   IAxelarGasService,
@@ -14,7 +12,7 @@ import {
   IUniswapV3Factory,
   IUniswapV3Factory__factory,
 } from "typechain-types";
-import {getAddresses, isLocalNetwork, updateAddresses} from "utils";
+import {getAddresses, isLocalNetwork, logger, updateAddresses} from "utils";
 import {
   deployDummyERC20,
   deployDummyGasService,
@@ -23,8 +21,8 @@ import {
 } from "./deploy";
 
 type Result = {
-  axelarGasService: DummyGasService | IAxelarGasService;
-  axelarGateway: DummyGateway | IAxelarGateway;
+  axelarGasService: IAxelarGasService;
+  axelarGateway: IAxelarGateway;
   seedAsset: ERC20;
   uniswap: {
     factory: IUniswapV3Factory;
@@ -38,11 +36,13 @@ export async function getOrDeployThirdPartyContracts(
   signer: Signer,
   hre: HardhatRuntimeEnvironment
 ): Promise<Result> {
+  logger.out("Getting 3rd party contracts...");
+
   if (isLocalNetwork(hre)) {
     const result: Result = {
       axelarGasService: await deployDummyGasService(signer),
       axelarGateway: await deployDummyGateway(signer),
-      uniswap: await deployDummyUniswap(signer, hre),
+      uniswap: await deployDummyUniswap(signer),
       seedAsset: await deployDummyERC20(signer, [await signer.getAddress()], [100]),
       usdcToken: await deployDummyERC20(signer, [await signer.getAddress()], [100], 6),
       wmaticToken: await deployDummyERC20(signer, [await signer.getAddress()], [1]),
@@ -72,6 +72,7 @@ export async function getOrDeployThirdPartyContracts(
 
   const addresses = await getAddresses(hre);
 
+  // will fail if any of the addresses are not set
   return {
     axelarGasService: IAxelarGasService__factory.connect(addresses.axelar.gasService, signer),
     axelarGateway: IAxelarGateway__factory.connect(addresses.axelar.gateway, signer),

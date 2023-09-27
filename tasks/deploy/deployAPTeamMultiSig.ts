@@ -1,5 +1,6 @@
 import {deployAPTeamMultiSig} from "contracts/multisigs/scripts/deploy";
 import {task} from "hardhat/config";
+import {cliTypes} from "tasks/types";
 import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
 
 type TaskArgs = {
@@ -12,7 +13,12 @@ type TaskArgs = {
 task("deploy:APTeamMultiSig", "Will deploy APTeamMultiSig contract")
   .addFlag("skipVerify", "Skip contract verification")
   .addFlag("yes", "Automatic yes to prompt.")
-  .addOptionalParam("admin", "override for proxy admin wallet, default: proxyAdminMultisig")
+  .addOptionalParam(
+    "admin",
+    "override for proxy admin wallet, default: proxyAdminMultisig",
+    undefined,
+    cliTypes.address
+  )
   .addOptionalParam(
     "apTeamSignerPkey",
     "If running on prod, provide a pkey for a valid APTeam Multisig Owner."

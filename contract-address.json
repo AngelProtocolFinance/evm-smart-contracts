@@ -105,7 +105,10 @@
           "implementation": "",
           "proxy": ""
         },
-        "factory": "",
+        "factory": {
+          "implementation": "",
+          "proxy": ""
+        },
         "implementation": ""
       },
       "proxyAdmin": "0xb463AFC0b3A499a2D826155fc6E6E73061BEF826"
@@ -241,7 +244,10 @@
           "implementation": "0xC3769fDb11C6c76c0aD873E3C28ad539C1925f87",
           "proxy": "0x1411A8Be58c84d1351f679581d388A34790ce6AD"
         },
-        "factory": "0x5A050E9349F5b179c8303529fAD9B8b215389454",
+        "factory": {
+          "implementation": "0x5A050E9349F5b179c8303529fAD9B8b215389454",
+          "proxy": ""
+        },
         "implementation": "0x3260DDAd913eb4f6C5c59806344A4de0199e0cb1"
       },
       "proxyAdmin": "0x1f18bfBA95AA3b6A6872fFd77491a27f5BD73Bb9"
@@ -377,7 +383,10 @@
           "implementation": "0x4CfBB8659d6BA2cA8af8c1857b4CE11a88A4B29E",
           "proxy": "0xd9Ee17555a04f2E34ea43528628582AC45A6E984"
         },
-        "factory": "0x790094B9fdC8C8a83507f7Eb275DEe903Ffd71eD",
+        "factory": {
+          "implementation": "0x790094B9fdC8C8a83507f7Eb275DEe903Ffd71eD",
+          "proxy": ""
+        },
         "implementation": "0x562EcE7daE572a5352D50562C472CBd41402F310"
       },
       "proxyAdmin": "0x1BE9451496bfB6aDcFfbc308b673018a8972AFFE"
@@ -413,7 +422,7 @@
       "facets": {
         "accountsDepositWithdrawEndowments": "0x0124773BEA450412ce9aA572b7EF3e4535495F01",
         "accountsAllowance": "0x193556259E1962Faaa0a9Ac7D69DDeF54eD521d1",
-        "accountsCreateEndowment": "0xb9B2b1a49020216fC5715AE05132dda968A06023",
+        "accountsCreateEndowment": "0x9c6Dae062755a8fe43b8714FafE01755646d2660",
         "accountsGasManager": "0xe224BcDd0aa37C262C7D9865d6fC9F8974996Ca4",
         "accountsQueryEndowments": "0xD1159b23003Db899801022c06dC09C00528fe20A",
         "accountsStrategy": "0x499272b4A1Cb3f6Ba622b34b666E40623b373817",
@@ -441,8 +450,8 @@
       "implementation": "0x4B49aC71590A13d26742C9cb2BDd5994dB369cAe"
     },
     "giftcards": {
-      "implementation": "",
-      "proxy": ""
+      "implementation": "0x456452F23d80Be2b115111a1FFBAb3D90101cc00",
+      "proxy": "0x99dD586da67FBCB5De9e466E07C8550687a70fC7"
     },
     "goldfinch": {
       "liquidVault": "",
@@ -513,7 +522,10 @@
           "implementation": "0x79DE5280CECF23173807E3B2A8D7819c65CE5416",
           "proxy": "0x6F1Dc1ff90363aB80369963140A469bB311ae883"
         },
-        "factory": "0x46bB44c5Ce32586Dd3c8BA5f583Aa153547f1235",
+        "factory": {
+          "implementation": "0x46bB44c5Ce32586Dd3c8BA5f583Aa153547f1235",
+          "proxy": ""
+        },
         "implementation": "0x2a421fa8cD9190E59103b4dFff43A757171F6F2b"
       },
       "proxyAdmin": "0x99fAf8b7Be5Cae6F75fAD36c762b2D26533D12b8"

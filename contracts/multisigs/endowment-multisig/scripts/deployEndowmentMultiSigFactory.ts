@@ -1,8 +1,8 @@
 import {Signer} from "ethers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {EndowmentMultiSigFactory__factory} from "typechain-types";
-import {Deployment} from "types";
-import {deploy, logger, updateAddresses} from "utils";
+import {ProxyDeployment} from "types";
+import {deployBehindProxy, updateAddresses} from "utils";
 
 export async function deployEndowmentMultiSigFactory(
   implementation: string,
@@ -11,31 +11,27 @@ export async function deployEndowmentMultiSigFactory(
   factoryOwner: string,
   deployer: Signer,
   hre: HardhatRuntimeEnvironment
-): Promise<Deployment<EndowmentMultiSigFactory__factory>> {
-  logger.out("Deploying EndowmentMultiSigFactory...");
-
+): Promise<ProxyDeployment<EndowmentMultiSigFactory__factory>> {
   // deploy factory
-  const factory = await deploy(new EndowmentMultiSigFactory__factory(deployer), [
-    implementation,
+  const data = EndowmentMultiSigFactory__factory.createInterface().encodeFunctionData(
+    "initialize",
+    [implementation, proxyAdmin, registrar, factoryOwner]
+  );
+  const factory = await deployBehindProxy(
+    new EndowmentMultiSigFactory__factory(deployer),
     proxyAdmin,
-    registrar,
-  ]);
-
-  logger.out(`Transferring ownership to: ${factoryOwner}...`);
-  const tx = await factory.contract.transferOwnership(factoryOwner);
-  logger.out(`Tx hash: ${tx.hash}`);
-  await tx.wait();
-  const newOwner = await factory.contract.owner();
-  if (newOwner !== factoryOwner) {
-    throw new Error(`Error updating owner: expected '${factoryOwner}', actual: '${newOwner}'`);
-  }
+    data
+  );
 
   // update address file
   await updateAddresses(
     {
       multiSig: {
         endowment: {
-          factory: factory.contract.address,
+          factory: {
+            implementation: factory.implementation.contract.address,
+            proxy: factory.proxy.contract.address,
+          },
         },
       },
     },

@@ -1,5 +1,6 @@
 import {deployCharityApplications} from "contracts/multisigs/scripts/deployCharityApplications";
 import {task} from "hardhat/config";
+import {cliTypes} from "tasks/types";
 import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
 
 type TaskArgs = {
@@ -13,7 +14,9 @@ type TaskArgs = {
 task("deploy:CharityApplications", "Will deploy CharityApplication contract")
   .addOptionalParam(
     "accountsDiamond",
-    "Accounts Diamond contract address. Will do a local lookup from contract-address.json if none is provided."
+    "Accounts Diamond contract address. Will do a local lookup from contract-address.json if none is provided.",
+    undefined,
+    cliTypes.address
   )
   .addOptionalParam(
     "apTeamSignerPkey",

@@ -1,17 +1,18 @@
 import {BigNumber} from "ethers";
 import {task, types} from "hardhat/config";
 import {submitMultiSigTx} from "tasks/helpers";
+import {cliTypes} from "tasks/types";
 import {Registrar__factory} from "typechain-types";
 import {getAPTeamOwner, getAddresses, logger} from "utils";
 
 type TaskArgs = {gas: number; tokenAddress: string; apTeamSignerPkey?: string};
 
 task("manage:registrar:setGasByToken")
-  .addParam("tokenAddress", "Address of the token", "", types.string)
+  .addParam("tokenAddress", "Address of the token", undefined, cliTypes.address)
   .addParam(
     "gas",
     "Qty of tokens fwd'd to pay for gas. Make sure to use the correct number of decimals!",
-    0,
+    undefined,
     types.int
   )
   .addOptionalParam(
@@ -21,6 +22,7 @@ task("manage:registrar:setGasByToken")
   .setAction(async function (taskArguments: TaskArgs, hre) {
     logger.divider();
     logger.out("Connecting to registrar on specified network...");
+
     const addresses = await getAddresses(hre);
     const registrarAddress = addresses["registrar"]["proxy"];
 

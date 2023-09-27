@@ -7,7 +7,7 @@ const PROD_NETWORKS = [ChainID.ethereum, ChainID.polygon];
 
 // There are errors/mismatches in the axelar sdk jsons, so we just implement a lightweight
 // version here and use this instead.
-const AxelarNetworks = new TwoWayMap({
+export const AXELAR_NETWORKS = new TwoWayMap({
   [ChainID.ethereum]: "Ethereum",
   [ChainID.goerli]: "ethereum-2",
   [ChainID.polygon]: "Polygon",
@@ -20,20 +20,20 @@ export function isLocalNetwork(hre: HardhatRuntimeEnvironment) {
 }
 
 export function networkNameMatchesId(id: number, name: string) {
-  return AxelarNetworks.get(id) == name;
+  return AXELAR_NETWORKS.get(id) == name;
 }
 
 export function getChainIdFromNetworkName(name: string): number {
-  return AxelarNetworks.revGet(name);
+  return AXELAR_NETWORKS.revGet(name);
 }
 
 export function getNetworkNameFromChainId(id: number): string {
-  return AxelarNetworks.get(id);
+  return AXELAR_NETWORKS.get(id);
 }
 
 export async function getAxlNetworkName(hre: HardhatRuntimeEnvironment): Promise<string> {
   const chainId = await getChainId(hre);
-  return AxelarNetworks.get(chainId);
+  return AXELAR_NETWORKS.get(chainId);
 }
 
 export async function getChainId(hre: HardhatRuntimeEnvironment): Promise<number> {

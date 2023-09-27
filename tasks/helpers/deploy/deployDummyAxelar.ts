@@ -1,21 +1,20 @@
 import {Signer} from "ethers";
 import {
-  DummyGateway__factory,
-  DummyGateway,
   DummyGasService__factory,
-  DummyGasService,
+  DummyGateway__factory,
+  IAxelarGasService,
+  IAxelarGasService__factory,
+  IAxelarGateway,
+  IAxelarGateway__factory,
 } from "typechain-types";
+import {deploy} from "utils";
 
-export async function deployDummyGateway(deployer: Signer): Promise<DummyGateway> {
-  const Gateway = new DummyGateway__factory(deployer);
-  const gateway = await Gateway.deploy();
-  await gateway.deployed();
-  return gateway;
+export async function deployDummyGateway(deployer: Signer): Promise<IAxelarGateway> {
+  const gateway = await deploy(new DummyGateway__factory(deployer));
+  return IAxelarGateway__factory.connect(gateway.contract.address, deployer);
 }
 
-export async function deployDummyGasService(deployer: Signer): Promise<DummyGasService> {
-  const GasService = new DummyGasService__factory(deployer);
-  const gasService = await GasService.deploy();
-  await gasService.deployed();
-  return gasService;
+export async function deployDummyGasService(deployer: Signer): Promise<IAxelarGasService> {
+  const gasService = await deploy(new DummyGasService__factory(deployer));
+  return IAxelarGasService__factory.connect(gasService.contract.address, deployer);
 }

@@ -20,11 +20,12 @@ export async function deployVesting(
     const proxyAdmin = await getProxyAdminOwner(hre);
 
     // data setup
-    const Vesting = new Vesting__factory(deployer);
-    const initData = Vesting.interface.encodeFunctionData("initialize", [VestingDataInput]);
+    const initData = Vesting__factory.createInterface().encodeFunctionData("initialize", [
+      VestingDataInput,
+    ]);
     // deploy
     const {implementation, proxy} = await deployBehindProxy(
-      Vesting,
+      new Vesting__factory(deployer),
       await proxyAdmin.getAddress(),
       initData
     );

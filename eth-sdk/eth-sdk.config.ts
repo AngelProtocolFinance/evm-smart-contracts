@@ -86,7 +86,10 @@ export default defineConfig({
             implementation: parseAddress(mumbaiData.multiSig.endowment.emitter.implementation),
             proxy: parseAddress(mumbaiData.multiSig.endowment.emitter.proxy),
           },
-          factory: parseAddress(mumbaiData.multiSig.endowment.factory),
+          factory: {
+            implementation: parseAddress(mumbaiData.multiSig.endowment.factory.implementation),
+            proxy: parseAddress(mumbaiData.multiSig.endowment.factory.proxy),
+          },
           implementation: parseAddress(mumbaiData.multiSig.endowment.implementation),
         },
       },

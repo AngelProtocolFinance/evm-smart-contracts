@@ -67,6 +67,7 @@ export const CONFIG: Config = {
       "0x0f6d331f26C0B64fc6EACddABd5645b55cf2d8e0",
     ],
     Treasury: "0x30f07D09F7f0E22be0a6879eF505dc810b76D6b6",
+    GiftCardKeeper: "0x824477EE69d19Eb9B21725195Cc7eE22aCe5881C",
   },
 };
 

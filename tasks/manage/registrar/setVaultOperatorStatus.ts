@@ -1,13 +1,14 @@
-import {task} from "hardhat/config";
+import {task, types} from "hardhat/config";
 import {submitMultiSigTx} from "tasks/helpers";
+import {cliTypes} from "tasks/types";
 import {Registrar__factory} from "typechain-types";
 import {getAPTeamOwner, getAddresses, logger} from "utils";
 
-type TaskArgs = {operator: string; status: boolean; apTeamSignerPkey?: string};
+type TaskArgs = {operator: string; approved: boolean; apTeamSignerPkey?: string};
 
 task("manage:registrar:setVaultOperatorStatus")
-  .addParam("operator", "Address of the vault operator")
-  .addParam("status", "The state to set the operator to")
+  .addParam("operator", "Address of the vault operator", undefined, cliTypes.address)
+  .addParam("approved", "The new approval state of the operator", undefined, types.boolean)
   .addOptionalParam(
     "apTeamSignerPkey",
     "If running on prod, provide a pkey for a valid APTeam Multisig Owner."
@@ -23,11 +24,11 @@ task("manage:registrar:setVaultOperatorStatus")
     logger.pad(50, "Connected to Registrar at: ", registrar.address);
 
     logger.divider();
-    logger.pad(30, "Setting orpeator status for: ", taskArguments.operator);
-    logger.pad(30, "to: ", taskArguments.status);
+    logger.pad(30, "Setting operator approval state for: ", taskArguments.operator);
+    logger.pad(30, "to: ", taskArguments.approved);
     const updateData = registrar.interface.encodeFunctionData("setVaultOperatorApproved", [
       taskArguments.operator,
-      taskArguments.status,
+      taskArguments.approved,
     ]);
     await submitMultiSigTx(
       addresses.multiSig.apTeam.proxy,

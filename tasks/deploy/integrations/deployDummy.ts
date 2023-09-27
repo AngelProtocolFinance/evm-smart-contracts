@@ -1,5 +1,12 @@
+import {allStrategyConfigs} from "contracts/integrations/stratConfig";
 import {task} from "hardhat/config";
-import {APVault_V1__factory, DummyERC20__factory, GoerliDummy__factory} from "typechain-types";
+import {cliTypes} from "tasks/types";
+import {
+  APVault_V1__factory,
+  DummyERC20__factory,
+  GoerliDummy__factory,
+  VaultEmitter__factory,
+} from "typechain-types";
 import {VaultType} from "types";
 import {
   StratConfig,
@@ -9,20 +16,21 @@ import {
   logger,
   writeStrategyAddresses,
 } from "utils";
-import {allStrategyConfigs} from "../../../contracts/integrations/stratConfig";
 
 type TaskArgs = {
-  name: string;
+  stratConfig: StratConfig;
   admin: string;
   skipVerify: boolean;
 };
 
 task("Deploy:dummyIntegration", "Will deploy a set of vaults and a dummy strategy")
   .addParam(
-    "name",
+    "stratConfig",
     `The name of the strategy according to StratConfig, possible values: ${Object.keys(
       allStrategyConfigs
-    ).join(", ")}`
+    ).join(", ")}`,
+    undefined,
+    cliTypes.stratConfig
   )
   .addOptionalParam(
     "admin",
@@ -31,7 +39,10 @@ task("Deploy:dummyIntegration", "Will deploy a set of vaults and a dummy strateg
   .addFlag("skipVerify", "Skip contract verification")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
-      const config: StratConfig = allStrategyConfigs[taskArgs.name];
+      logger.divider();
+      logger.out("Deploying a set of vaults and a dummy strategy...");
+
+      const config: StratConfig = taskArgs.stratConfig;
       const {deployer} = await getSigners(hre);
       let network = await hre.ethers.provider.getNetwork();
       if (network.chainId != config.chainId) {
@@ -83,13 +94,36 @@ task("Deploy:dummyIntegration", "Will deploy a set of vaults and a dummy strateg
       let liqVault = await Vault.deploy(liquidConfig, addresses.vaultEmitter.proxy, admin);
       logger.pad(30, "Liquid Vault deployed to", liqVault.address);
 
+      const emitter = VaultEmitter__factory.connect(addresses.vaultEmitter.proxy, deployer);
+
+      await emitter.vaultCreated(lockVault.address, {
+        vaultType: VaultType.LOCKED,
+        strategyId: config.id,
+        strategy: strategy.address,
+        registrar: addresses.registrar.proxy,
+        baseToken: addresses.tokens.usdc,
+        yieldToken: yieldToken.address,
+        apTokenName: "LockedTestVault",
+        apTokenSymbol: "LockTV",
+      });
+      await emitter.vaultCreated(liqVault.address, {
+        vaultType: VaultType.LIQUID,
+        strategyId: config.id,
+        strategy: strategy.address,
+        registrar: addresses.registrar.proxy,
+        baseToken: addresses.tokens.usdc,
+        yieldToken: "0x2811747e3336aa28caf71c51454766e1b95f56e8",
+        apTokenName: "LiquidTestVault",
+        apTokenSymbol: "LiqTV",
+      });
+
       const data: StrategyObject = {
         strategy: strategy.address,
         locked: lockVault.address,
         liquid: liqVault.address,
       };
 
-      writeStrategyAddresses(taskArgs.name, data);
+      writeStrategyAddresses(taskArgs.stratConfig.name, data);
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }

@@ -20,11 +20,12 @@ export async function deployAirdrop(
     const proxyAdmin = await getProxyAdminOwner(hre);
 
     // data setup
-    const Airdrop = new Airdrop__factory(deployer);
-    const initData = Airdrop.interface.encodeFunctionData("initialize", [AirdropDataInput]);
+    const initData = Airdrop__factory.createInterface().encodeFunctionData("initialize", [
+      AirdropDataInput,
+    ]);
     // deploy
     const {implementation, proxy} = await deployBehindProxy(
-      Airdrop,
+      new Airdrop__factory(deployer),
       await proxyAdmin.getAddress(),
       initData
     );

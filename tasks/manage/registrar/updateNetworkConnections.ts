@@ -1,8 +1,9 @@
 import {task, types} from "hardhat/config";
 import {submitMultiSigTx} from "tasks/helpers";
+import {cliTypes} from "tasks/types";
 import {Registrar__factory} from "typechain-types";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
-import {NetworkConnectionAction} from "types";
+import {ChainID, NetworkConnectionAction} from "types";
 import {
   AddressObj,
   getAPTeamOwner,
@@ -10,21 +11,29 @@ import {
   getAddressesByNetworkId,
   getAxlNetworkName,
   getChainIdFromNetworkName,
+  getEnumValuesAsString,
   getNetworkNameFromChainId,
   logger,
   structToObject,
 } from "utils";
 
 type TaskArgs = {
-  chainId: number;
+  chainId?: ChainID;
   refundAddr?: string;
   apTeamSignerPkey?: string;
   yes: boolean;
 };
 
 task("manage:registrar:updateNetworkConnections")
-  .addOptionalParam("chainId", "Chain ID of the network connection to update.", 0, types.int)
-  .addOptionalParam("refundAddr", "Refund address.")
+  .addOptionalParam(
+    "chainId",
+    `Chain ID of the network connection to update, possible values:\n${getEnumValuesAsString(
+      ChainID
+    )}`,
+    ChainID.none,
+    cliTypes.enums(ChainID, "ChainID")
+  )
+  .addOptionalParam("refundAddr", "Refund address.", undefined, cliTypes.address)
   .addOptionalParam(
     "apTeamSignerPkey",
     "If running on prod, provide a pkey for a valid APTeam Multisig Owner."
@@ -39,7 +48,7 @@ task("manage:registrar:updateNetworkConnections")
       let networkName: string;
       let targetAddresses: AddressObj;
       // If we're updating info on this chain for another chain, arg info MUST specify chain id
-      if (taskArgs.chainId > 0) {
+      if (!!taskArgs.chainId) {
         networkName = getNetworkNameFromChainId(taskArgs.chainId);
         targetAddresses = getAddressesByNetworkId(taskArgs.chainId);
       } else {

@@ -65,13 +65,13 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
 
       logger.out(`Deploying the contracts with the account: ${await deployer.getAddress()}`);
 
+      const thirdPartyAddresses = await getOrDeployThirdPartyContracts(deployer, hre);
+
       const proxyAdminMultisig = await deployProxyAdminMultisig(
         proxyAdminMultisigOwnerAddresses,
         deployer,
         hre
       );
-
-      const thirdPartyAddresses = await getOrDeployThirdPartyContracts(deployer, hre);
 
       const apTeamMultisig = await deployAPTeamMultiSig(
         proxyAdminMultisig.contract.address,
@@ -146,7 +146,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
         hre
       );
       const endowmentMultiSigEmitter = await deployEndowmentMultiSigEmitter(
-        endowmentMultiSigFactory.contract.address,
+        endowmentMultiSigFactory.proxy.contract.address,
         proxyAdminMultisig.contract.address,
         deployer,
         hre
@@ -164,7 +164,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
         treasury: treasuryAddress,
         uniswapRouter: thirdPartyAddresses.uniswap.swapRouter.address, //address
         uniswapFactory: thirdPartyAddresses.uniswap.factory.address, //address
-        multisigFactory: endowmentMultiSigFactory.contract.address, //address
+        multisigFactory: endowmentMultiSigFactory.proxy.contract.address, //address
         multisigEmitter: endowmentMultiSigEmitter.proxy.contract.address, //address
         charityApplications: charityApplications.proxy.contract.address, //address
         proxyAdmin: proxyAdminMultisig.contract.address, //address
@@ -185,6 +185,8 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
       });
 
       if (verify_contracts) {
+        // always verify implementation first and then proxy, because otherwise 'verify' task
+        // passes proxy's ctor args as if they are implementation's, causing verification to fail
         const deployments: Array<Deployment<ContractFactory>> = [
           apTeamMultisig.implementation,
           apTeamMultisig.proxy,
@@ -201,7 +203,8 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
           indexFund.proxy,
           endowmentMultiSigEmitter.implementation,
           endowmentMultiSigEmitter.proxy,
-          endowmentMultiSigFactory,
+          endowmentMultiSigFactory.implementation,
+          endowmentMultiSigFactory.proxy,
           endowmentMultiSig,
           gasFwd.factory,
           gasFwd.implementation,

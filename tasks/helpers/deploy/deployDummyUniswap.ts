@@ -1,29 +1,23 @@
 import {Signer} from "ethers";
-import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {
+  DummySwapRouter__factory,
+  DummyUniswapV3Factory__factory,
   ISwapRouter,
   ISwapRouter__factory,
   IUniswapV3Factory,
   IUniswapV3Factory__factory,
 } from "typechain-types";
-import {logger} from "utils";
+import {deploy} from "utils";
 
-export async function deployDummyUniswap(
-  signer: Signer,
-  hre: HardhatRuntimeEnvironment
-): Promise<{factory: IUniswapV3Factory; swapRouter: ISwapRouter}> {
-  // just use some placeholder address until actual mock deployment is created
-  // TODO: create a real mock contract for the swap router
-  const address = await signer.getAddress();
-
-  logger.out("Deploying dummy Uniswap Factory...");
-  logger.out(`Address: ${address}`);
-
-  logger.out("Deploying dummy Uniswap SwapRouter...");
-  logger.out(`Address: ${address}`);
+export async function deployDummyUniswap(signer: Signer): Promise<{
+  factory: IUniswapV3Factory;
+  swapRouter: ISwapRouter;
+}> {
+  const factory = await deploy(new DummyUniswapV3Factory__factory(signer));
+  const swapRouter = await deploy(new DummySwapRouter__factory(signer));
 
   return {
-    factory: IUniswapV3Factory__factory.connect(address, signer),
-    swapRouter: ISwapRouter__factory.connect(address, signer),
+    factory: IUniswapV3Factory__factory.connect(factory.contract.address, signer),
+    swapRouter: ISwapRouter__factory.connect(swapRouter.contract.address, signer),
   };
 }

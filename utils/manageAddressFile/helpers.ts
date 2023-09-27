@@ -178,7 +178,10 @@ export function createEmptyAddressObj(): AddressObj {
           implementation: "",
           proxy: "",
         },
-        factory: "",
+        factory: {
+          implementation: "",
+          proxy: "",
+        },
         implementation: "",
       },
       proxyAdmin: "",
