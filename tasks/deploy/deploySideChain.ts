@@ -3,7 +3,7 @@ import {deployAPTeamMultiSig, deployProxyAdminMultisig} from "contracts/multisig
 import {ContractFactory} from "ethers";
 import {task} from "hardhat/config";
 import {getOrDeployThirdPartyContracts} from "tasks/helpers";
-import {ChainID, Deployment} from "types";
+import {Deployment} from "types";
 import {
   confirmAction,
   getAddresses,
@@ -75,8 +75,7 @@ task("deploy:SideChain", "Will deploy complete side-chain infrastructure")
         yes: true,
       });
 
-
-      // Configure the registrar 
+      // Configure the registrar
       const primaryChainId = await getPrimaryChainId(hre);
       const primaryChainName = getNetworkNameFromChainId(primaryChainId);
       const primaryAddresses = getAddressesByNetworkId(primaryChainId);
@@ -110,7 +109,7 @@ task("deploy:SideChain", "Will deploy complete side-chain infrastructure")
         apTeamSignerPkey: taskArgs.apTeamSignerPkey,
       });
 
-      // Verify if needed 
+      // Verify if needed
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
         const deployments: Array<Deployment<ContractFactory>> = [
           proxyAdminMultisig,

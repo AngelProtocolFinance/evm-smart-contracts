@@ -1,27 +1,21 @@
 import {Signer} from "ethers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {
-  APVault_V1__factory, 
-  IVault,
-  VaultEmitter__factory,
-} from "typechain-types";
+import {APVault_V1__factory, IVault, VaultEmitter__factory} from "typechain-types";
 import {Deployment, VaultType} from "types";
 import {deploy, getAddresses, logger} from "utils";
 
 export type VaultDeploymentPair = {
-  Locked: Deployment<APVault_V1__factory>,
-  Liquid: Deployment<APVault_V1__factory>,
-}
-
+  Locked: Deployment<APVault_V1__factory>;
+  Liquid: Deployment<APVault_V1__factory>;
+};
 
 export async function deployVaultPair(
   deployer: Signer,
-  admin: string, 
+  admin: string,
   config: IVault.VaultConfigStruct,
   hre: HardhatRuntimeEnvironment
 ): Promise<VaultDeploymentPair> {
-
-  // setup 
+  // setup
   const APVault_V1 = new APVault_V1__factory(deployer);
   const addresses = await getAddresses(hre);
 
@@ -31,7 +25,7 @@ export async function deployVaultPair(
       ...config,
       vaultType: VaultType.LOCKED,
       apTokenName: config.apTokenName + "Lock",
-      apTokenSymbol: config.apTokenSymbol + "Lock"
+      apTokenSymbol: config.apTokenSymbol + "Lock",
     },
     APVault_V1,
     admin,
@@ -44,7 +38,7 @@ export async function deployVaultPair(
       ...config,
       vaultType: VaultType.LIQUID,
       apTokenName: config.apTokenName + "Liq",
-      apTokenSymbol: config.apTokenSymbol + "Liq"
+      apTokenSymbol: config.apTokenSymbol + "Liq",
     },
     APVault_V1,
     admin,
@@ -54,40 +48,28 @@ export async function deployVaultPair(
 
   return {
     Locked: LockedDeployment,
-    Liquid: LiquidDeployment,  
+    Liquid: LiquidDeployment,
   };
 }
 
 async function deployVault(
-  config: IVault.VaultConfigStruct, 
+  config: IVault.VaultConfigStruct,
   factory: APVault_V1__factory,
-  admin: string, 
+  admin: string,
   emitter: string,
-  hre: HardhatRuntimeEnvironment,
+  hre: HardhatRuntimeEnvironment
 ): Promise<Deployment<APVault_V1__factory>> {
-  const Deployment = await deploy(
-    factory, [
-      config,
-      emitter,
-      admin,
-    ]
-  );
-  
-  await registerVaultWithEmitter(
-    factory.signer,
-    Deployment.contract.address,
-    config,
-    hre
-  );
+  const Deployment = await deploy(factory, [config, emitter, admin]);
+
+  await registerVaultWithEmitter(factory.signer, Deployment.contract.address, config, hre);
 
   return Deployment;
 }
 
-
 async function registerVaultWithEmitter(
   deployer: Signer,
   address: string,
-  config: IVault.VaultConfigStruct, 
+  config: IVault.VaultConfigStruct,
   hre: HardhatRuntimeEnvironment
 ) {
   logger.out("Registering vault and emitting `VaultCreated` event...");

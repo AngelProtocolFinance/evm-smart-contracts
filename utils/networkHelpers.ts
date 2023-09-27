@@ -52,8 +52,6 @@ export async function isProdNetwork(
   return PROD_NETWORKS.includes(thisChainId);
 }
 
-export async function getPrimaryChainId(
-  hre: HardhatRuntimeEnvironment
-): Promise<ChainID> {
-  return await isProdNetwork(hre) ? ChainID.polygon : ChainID.mumbai;
+export async function getPrimaryChainId(hre: HardhatRuntimeEnvironment): Promise<ChainID> {
+  return (await isProdNetwork(hre)) ? ChainID.polygon : ChainID.mumbai;
 }
