@@ -1,6 +1,7 @@
 import {deployLocalRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task} from "hardhat/config";
+import {cliTypes} from "tasks/types";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
 import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
 
@@ -12,7 +13,12 @@ type TaskArgs = {
 };
 
 task("deploy:LocalRegistrarAndRouter", "Will deploy the Local Registrar contract and Router.")
-  .addOptionalParam("owner", "The owner wallet for both router and registrar")
+  .addOptionalParam(
+    "owner",
+    "The owner wallet for both router and registrar. By default set to AP team multisig proxy saved in contract-address.json.",
+    undefined,
+    cliTypes.address
+  )
   .addOptionalParam(
     "apTeamSignerPkey",
     "If running on prod, provide a pkey for a valid APTeam Multisig Owner."

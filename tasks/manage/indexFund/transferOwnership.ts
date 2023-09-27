@@ -1,5 +1,6 @@
 import {task} from "hardhat/config";
 import {submitMultiSigTx} from "tasks/helpers";
+import {cliTypes} from "tasks/types";
 import {IndexFund__factory} from "typechain-types";
 import {confirmAction, getAPTeamOwner, getAddresses, logger} from "utils";
 
@@ -12,7 +13,9 @@ type TaskArgs = {
 task("manage:IndexFund:transferOwnership", "Will update the owner of the IndexFund")
   .addOptionalParam(
     "to",
-    "Address of the new owner. Ensure at least one of `apTeamMultisigOwners` is the controller of this address. Will default to `contract-address.json > multiSig.apTeam.proxy` if none is provided."
+    "Address of the new owner. Ensure at least one of `apTeamMultisigOwners` is the controller of this address. Will default to `contract-address.json > multiSig.apTeam.proxy` if none is provided.",
+    undefined,
+    cliTypes.address
   )
   .addOptionalParam(
     "apTeamSignerPkey",

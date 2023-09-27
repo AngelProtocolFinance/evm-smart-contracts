@@ -14,7 +14,6 @@ import {
 } from "utils";
 
 type TaskArgs = {
-  factory?: string;
   skipVerify: boolean;
   yes: boolean;
   apTeamSignerPkey?: string;
@@ -24,10 +23,6 @@ task(
   "upgrade:EndowmentMultiSig",
   "Will upgrade the implementation of the EndowmentMultiSig contract"
 )
-  .addOptionalParam(
-    "factory",
-    "MultiSigFactory contract address. Will do a local lookup from contract-address.json if none is provided."
-  )
   .addFlag("skipVerify", "Skip contract verification")
   .addFlag("yes", "Automatic yes to prompt.")
   .addOptionalParam(
@@ -50,14 +45,11 @@ task(
 
       const addresses = await getAddresses(hre);
 
-      const EndowmentMultiSigFactoryAddress =
-        taskArgs.factory || addresses.multiSig.endowment.factory.proxy;
-
       const deployment = await deploy(new EndowmentMultiSig__factory(deployer));
 
       logger.out("Upgrading EndowmentMultiSigFactory's implementation address...");
       const endowmentMultiSigFactory = EndowmentMultiSigFactory__factory.connect(
-        EndowmentMultiSigFactoryAddress,
+        addresses.multiSig.endowment.factory.proxy,
         apTeamOwner
       );
       const payload = endowmentMultiSigFactory.interface.encodeFunctionData(

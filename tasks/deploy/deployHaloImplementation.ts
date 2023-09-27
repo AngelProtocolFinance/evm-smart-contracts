@@ -10,12 +10,15 @@ import {deployCommunity} from "contracts/halo/community/scripts/deploy";
 import {deployGov} from "contracts/halo/gov/scripts/deploy";
 import {deployStaking} from "contracts/halo/staking/scripts/deploy";
 import {deployVesting} from "contracts/halo/vesting/scripts/deploy";
+import {cliTypes} from "tasks/types";
 
 task("deploy:HaloImplementation", "Will deploy HaloImplementation contract")
   .addFlag("skipVerify", "Skip contract verification")
   .addOptionalParam(
     "registrar",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
+    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
+    undefined,
+    cliTypes.address
   )
   .setAction(async (taskArgs, hre) => {
     try {

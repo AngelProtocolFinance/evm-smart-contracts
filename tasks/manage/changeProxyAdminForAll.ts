@@ -1,6 +1,7 @@
 import {Signer} from "ethers";
 import {task} from "hardhat/config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
+import {cliTypes} from "tasks/types";
 import {OwnershipFacet__factory} from "typechain-types";
 import {AddressObj, confirmAction, getAddresses, getProxyAdminOwner, logger} from "utils";
 import {submitMultiSigTx} from "../helpers";
@@ -15,7 +16,9 @@ type TaskArgs = {
 task("manage:changeProxyAdminForAll", "Will update the proxy admin for all proxy contracts")
   .addOptionalParam(
     "to",
-    "New proxy admin address. Make sure to use an address of an account you control. Will do a local lookup from contract-address.json if none is provided."
+    "New proxy admin address. Make sure to use an address of an account you control. Will do a local lookup from contract-address.json if none is provided.",
+    undefined,
+    cliTypes.address
   )
   .addOptionalParam(
     "proxyAdminPkey",

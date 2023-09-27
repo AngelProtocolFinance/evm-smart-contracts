@@ -1,5 +1,6 @@
 import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
 import {task} from "hardhat/config";
+import {cliTypes} from "tasks/types";
 import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
 
 type TaskArgs = {
@@ -14,11 +15,15 @@ type TaskArgs = {
 task("deploy:accounts", "It will deploy accounts diamond contracts")
   .addOptionalParam(
     "apTeamMultisig",
-    "APTeamMultiSig contract address. Will do a local lookup from contract-address.json if none is provided."
+    "APTeamMultiSig contract address. Will do a local lookup from contract-address.json if none is provided.",
+    undefined,
+    cliTypes.address
   )
   .addOptionalParam(
     "registrar",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
+    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
+    undefined,
+    cliTypes.address
   )
   .addOptionalParam(
     "apTeamSignerPkey",

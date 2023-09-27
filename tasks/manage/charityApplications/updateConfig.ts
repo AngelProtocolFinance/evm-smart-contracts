@@ -1,5 +1,6 @@
 import {task, types} from "hardhat/config";
 import {submitMultiSigTx} from "tasks/helpers";
+import {cliTypes} from "tasks/types";
 import {CharityApplications__factory} from "typechain-types";
 import {
   confirmAction,
@@ -23,11 +24,13 @@ type TaskArgs = {
 task("manage:CharityApplications:updateConfig", "Will update CharityApplications config")
   .addOptionalParam(
     "accountsDiamond",
-    "Accounts Diamond contract address. Will do a local lookup from contract-address.json if none is provided."
+    "Accounts Diamond contract address. Will do a local lookup from contract-address.json if none is provided.",
+    undefined,
+    cliTypes.address
   )
   .addOptionalParam("gasAmount", "Amount of gas to be sent.", undefined, types.int)
   .addOptionalParam("expiry", "Expiry time for proposals.", undefined, types.int)
-  .addOptionalParam("seedAsset", "Address of seed asset.")
+  .addOptionalParam("seedAsset", "Address of seed asset.", undefined, cliTypes.address)
   .addOptionalParam("seedAmount", "Amount of seed asset to be sent.", undefined, types.int)
   .addOptionalParam(
     "seedSplitToLiquid",

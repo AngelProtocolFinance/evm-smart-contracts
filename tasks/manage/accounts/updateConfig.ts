@@ -1,5 +1,6 @@
 import {task} from "hardhat/config";
 import {submitMultiSigTx} from "tasks/helpers";
+import {cliTypes} from "tasks/types";
 import {AccountsQueryEndowments__factory, AccountsUpdate__factory} from "typechain-types";
 import {confirmAction, getAPTeamOwner, getAddresses, logger, structToObject} from "utils";
 
@@ -12,7 +13,9 @@ type TaskArgs = {
 task("manage:accounts:updateConfig", "Will update Accounts Diamond config")
   .addOptionalParam(
     "registrarContract",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
+    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
+    undefined,
+    cliTypes.address
   )
   .addOptionalParam(
     "apTeamSignerPkey",

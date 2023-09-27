@@ -1,12 +1,13 @@
 import {task, types} from "hardhat/config";
 import {submitMultiSigTx} from "tasks/helpers";
+import {cliTypes} from "tasks/types";
 import {IndexFund__factory} from "typechain-types";
 import {confirmAction, getAPTeamOwner, getAddresses, logger, structToObject} from "utils";
 
 type TaskArgs = {
-  registrarContract: string;
-  fundingGoal: number;
-  fundRotation: number;
+  registrarContract?: string;
+  fundingGoal?: number;
+  fundRotation?: number;
   apTeamSignerPkey?: string;
   yes: boolean;
 };
@@ -14,7 +15,9 @@ type TaskArgs = {
 task("manage:IndexFund:updateConfig", "Will update the config of the IndexFund")
   .addOptionalParam(
     "registrarContract",
-    "New Registrar contract. Will do a local lookup from contract-address.json if none is provided.funding rotation blocks & funding goal amount."
+    "New Registrar contract. Will do a local lookup from contract-address.json if none is provided.funding rotation blocks & funding goal amount.",
+    undefined,
+    cliTypes.address
   )
   .addOptionalParam("fundingGoal", "Funding rotation blocks.", undefined, types.int)
   .addOptionalParam("fundRotation", "Funding goal amount.", undefined, types.int)
@@ -25,9 +28,11 @@ task("manage:IndexFund:updateConfig", "Will update the config of the IndexFund")
   .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
+      logger.divider();
+      logger.out("Updating IndexFund config...");
+
       const {yes, apTeamSignerPkey, ...newConfig} = taskArgs;
 
-      logger.divider();
       const addresses = await getAddresses(hre);
 
       const apTeamOwner = await getAPTeamOwner(hre, apTeamSignerPkey);
@@ -40,9 +45,7 @@ task("manage:IndexFund:updateConfig", "Will update the config of the IndexFund")
       logger.out("Config data to update:");
       logger.out(newConfig);
 
-      const isConfirmed =
-        taskArgs.yes ||
-        (await confirmAction(`Update Registrar address to: ${newConfig.registrarContract}`));
+      const isConfirmed = taskArgs.yes || (await confirmAction());
       if (!isConfirmed) {
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
