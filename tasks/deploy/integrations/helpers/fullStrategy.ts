@@ -22,7 +22,7 @@ export async function deployStrategySet(
   const config: StratConfig = allStrategyConfigs[strategyName];
 
   let network = await hre.ethers.provider.getNetwork();
-  if (network.chainId != getChainIdFromNetworkName(config.params.network)) {
+  if (network.chainId !== getChainIdFromNetworkName(config.params.network)) {
     throw new Error(`Invalid hardhat network selected, must be ${config.params.network}`);
   }
 
