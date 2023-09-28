@@ -1,5 +1,5 @@
 import {ContractFactory} from "ethers";
-import {Deployment} from "types";
+import {Deployment, StrategyApprovalState} from "types";
 import {
   deploy,
   getAddresses,
@@ -16,6 +16,7 @@ import {HardhatRuntimeEnvironment} from "hardhat/types";
 export async function deployStrategySet(
   strategyName: string,
   factory: ContractFactory,
+  signerPkey: string,
   hre: HardhatRuntimeEnvironment
 ) {
   const config: StratConfig = allStrategyConfigs[strategyName];
@@ -53,6 +54,21 @@ export async function deployStrategySet(
     },
     hre
   );
+
+  // establish registrar config on primary chain and this chain
+  await hre.run("manage:registrar:setStratParams", {
+    stratConfig: {
+      ...config,
+      params: {
+        approvalState: config.params.approvalState,
+        network: config.params.network,
+        lockedVaultAddr: Locked.contract.address,
+        liquidVaultAddr: Liquid.contract.address,
+      },
+    },
+    modifyExisting: true,
+    apTeamSignerPkey: signerPkey,
+  });
 
   // Store addresses
   writeStrategyAddresses(strategyName, {

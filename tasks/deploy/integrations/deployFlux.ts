@@ -5,15 +5,23 @@ import {deployStrategySet} from "./helpers";
 
 const NAME = "flux";
 
-task("Deploy:strategy:flux", `Will deploy ${NAME} and a pair of generic vaults`).setAction(
-  async (_, hre) => {
+type TaskArgs = {
+  apTeamSignerPkey?: string;
+};
+
+task("Deploy:strategy:flux", `Will deploy ${NAME} and a pair of generic vaults`)
+  .addOptionalParam(
+    "apTeamSignerPkey",
+    "If running on prod, provide a pkey for a valid APTeam Multisig Owner."
+  )
+  .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       logger.out(`Deploying strategy: ${NAME}`);
       const {deployer} = await getSigners(hre);
       const StrategyFactory = new FluxStrategy__factory(deployer);
-      await deployStrategySet(NAME, StrategyFactory, hre);
+      const signerPkey = taskArgs.apTeamSignerPkey ? taskArgs.apTeamSignerPkey : "";
+      await deployStrategySet(NAME, StrategyFactory, signerPkey, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }
-  }
-);
+  });
