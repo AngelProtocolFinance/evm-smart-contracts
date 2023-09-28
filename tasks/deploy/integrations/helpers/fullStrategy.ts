@@ -3,6 +3,7 @@ import {Deployment, StrategyApprovalState} from "types";
 import {
   deploy,
   getAddresses,
+  getChainId,
   getChainIdFromNetworkName,
   getSigners,
   StratConfig,
@@ -21,8 +22,8 @@ export async function deployStrategySet(
 ) {
   const config: StratConfig = allStrategyConfigs[strategyName];
 
-  let network = await hre.ethers.provider.getNetwork();
-  if (network.chainId !== getChainIdFromNetworkName(config.params.network)) {
+  let chainId = await getChainId(hre);
+  if (chainId !== getChainIdFromNetworkName(config.params.network)) {
     throw new Error(`Invalid hardhat network selected, must be ${config.params.network}`);
   }
 
