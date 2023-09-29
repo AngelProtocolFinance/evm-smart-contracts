@@ -14,7 +14,8 @@ import {logger} from ".";
  */
 export async function verify<T extends ContractFactory>(
   hre: HardhatRuntimeEnvironment,
-  deployment: Deployment<T>
+  deployment: Deployment<T>,
+  includeTenderly?: boolean
 ) {
   try {
     const {
@@ -24,16 +25,22 @@ export async function verify<T extends ContractFactory>(
     } = deployment;
 
     logger.out(`Verifying ${contractName} at: ${address}...`);
-    const tenderlyVerif = hre.tenderly.verify({
-      address: address,
-      name: contractName,
-    });
-    const etherscanVerif = hre.run("verify:verify", {
+
+    let promises:Promise<any>[] = [];
+    if(includeTenderly) {
+      promises.push(hre.tenderly.verify({
+        address: address,
+        name: contractName,
+      }));
+    }
+    promises.push(hre.run("verify:verify", {
       address,
       constructorArguments,
       contractName,
-    });
-    await Promise.allSettled([tenderlyVerif, etherscanVerif]);
+    }));
+
+    await Promise.allSettled(promises);
+
   } catch (error) {
     logger.out(error, logger.Level.Warn);
   }
