@@ -26,21 +26,24 @@ export async function verify<T extends ContractFactory>(
 
     logger.out(`Verifying ${contractName} at: ${address}...`);
 
-    let promises:Promise<any>[] = [];
-    if(includeTenderly) {
-      promises.push(hre.tenderly.verify({
-        address: address,
-        name: contractName,
-      }));
+    let promises: Promise<any>[] = [];
+    if (includeTenderly) {
+      promises.push(
+        hre.tenderly.verify({
+          address: address,
+          name: contractName,
+        })
+      );
     }
-    promises.push(hre.run("verify:verify", {
-      address,
-      constructorArguments,
-      contractName,
-    }));
+    promises.push(
+      hre.run("verify:verify", {
+        address,
+        constructorArguments,
+        contractName,
+      })
+    );
 
     await Promise.allSettled(promises);
-
   } catch (error) {
     logger.out(error, logger.Level.Warn);
   }
