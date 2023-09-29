@@ -56,26 +56,18 @@ export async function deployStrategySet(
     hre
   );
 
-  // establish registrar config on primary chain and this chain
-  await hre.run("manage:registrar:setStratParams", {
-    stratConfig: {
-      ...config,
-      params: {
-        approvalState: config.params.approvalState,
-        network: config.params.network,
-        lockedVaultAddr: Locked.contract.address,
-        liquidVaultAddr: Liquid.contract.address,
-      },
-    },
-    modifyExisting: true,
-    apTeamSignerPkey: signerPkey,
-  });
-
-  // Store addresses
+  // Store addresses - do this before updating registrar so that lookup is complete
   writeStrategyAddresses(strategyName, {
     locked: Locked.contract.address,
     liquid: Liquid.contract.address,
     strategy: Strategy.contract.address,
+  });
+
+  // establish registrar config on primary chain and this chain
+  await hre.run("manage:registrar:setStratParams", {
+    stratName: strategyName,
+    modifyExisting: true,
+    apTeamSignerPkey: signerPkey,
   });
 
   // Verify
