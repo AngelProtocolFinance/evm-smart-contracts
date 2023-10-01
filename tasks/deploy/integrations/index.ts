@@ -1,3 +1,3 @@
-import "./dummyIntegration";
-import "./goldfinch";
-import "./genericVault";
+import "./deployDummy";
+import "./deployFlux";
+import "./helpers";

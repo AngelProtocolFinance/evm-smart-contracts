@@ -53,7 +53,7 @@ subtask(
   "Updates strat params on the network specified by the 'chainId' param"
 )
   .addParam(
-    "stratConfig",
+    "stratName",
     `The name of the strategy according to StratConfig, possible values: ${Object.keys(
       allStrategyConfigs
     ).join(", ")}`,
