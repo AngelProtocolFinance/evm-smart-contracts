@@ -11,6 +11,7 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 
 contract FluxStrategy is APStrategy_V1, ReentrancyGuard {
   using FixedPointMathLib for uint256;
+  using SafeERC20 for IERC20;
 
   constructor(StrategyConfig memory _config) {
     config = _config;
@@ -29,12 +30,8 @@ contract FluxStrategy is APStrategy_V1, ReentrancyGuard {
   function deposit(
     uint256 amt
   ) external override payable whenNotPaused nonReentrant nonZeroAmount(amt) returns (uint256) {
-    if (!IFlux(config.baseToken).transferFrom(_msgSender(), address(this), amt)) {
-      revert TransferFailed();
-    }
-    if (!IFlux(config.baseToken).approve(config.yieldToken, amt)) {
-      revert ApproveFailed();
-    }
+    IERC20(config.baseToken).safeTransferFrom(_msgSender(), address(this), amt);
+    IERC20(config.baseToken).safeApprove(config.yieldToken, amt);
     uint256 yieldTokens = _enterPosition(amt);
     if (!IFlux(config.yieldToken).approve(_msgSender(), yieldTokens)) {
       revert ApproveFailed();
@@ -60,9 +57,7 @@ contract FluxStrategy is APStrategy_V1, ReentrancyGuard {
       revert ApproveFailed();
     }
     uint256 baseTokens = _withdrawPosition(amt);
-    if (!IFlux(config.baseToken).approve(_msgSender(), baseTokens)) {
-      revert ApproveFailed();
-    }
+    IERC20(config.baseToken).safeApprove(_msgSender(), baseTokens);
     emit WithdrewPosition(amt, baseTokens);
     return baseTokens;
   }
