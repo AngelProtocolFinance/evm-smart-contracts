@@ -130,8 +130,8 @@
       "wmatic": "0xA108830A23A9a054FfF4470a8e6292da0886A4D4"
     },
     "uniswap": {
-      "factory": "",
-      "swapRouter": ""
+      "factory": "0x1F98431c8aD98523631AE4a59f267346ea31F984",
+      "swapRouter": "0xE592427A0AEce92De3Edee1F18E0157C05861564"
     },
     "vaultEmitter": {
       "implementation": "0xbc6Fe0a018266F9F02C0E21cb21388cf1D09a560",
