@@ -1,6 +1,7 @@
 import {ContractFactory} from "ethers";
 import {Deployment, StrategyApprovalState} from "types";
 import {
+  AllStratConfigs,
   deploy,
   getAddresses,
   getChainId,
@@ -15,7 +16,7 @@ import {deployVaultPair} from "contracts/core/vault/scripts/deployVaultPair";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 
 export async function deployStrategySet(
-  strategyName: string,
+  strategyName: keyof AllStratConfigs,
   factory: ContractFactory,
   signerPkey: string,
   hre: HardhatRuntimeEnvironment
@@ -65,7 +66,7 @@ export async function deployStrategySet(
 
   // establish registrar config on primary chain and this chain
   await hre.run("manage:registrar:setStratParams", {
-    stratName: strategyName,
+    strategyName: strategyName,
     modifyExisting: true,
     apTeamSignerPkey: signerPkey,
   });
