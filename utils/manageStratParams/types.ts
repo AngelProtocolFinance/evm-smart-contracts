@@ -12,7 +12,7 @@ export type StratConfig = {
   params: LocalRegistrarLib.StrategyParamsStruct;
 };
 
-export type AllStratConfigs = Record<string, StratConfig>;
+export type AllStratConfigs = Record<"dummy" | "flux", StratConfig>;
 
 export type StrategyObject = {
   locked: string;
