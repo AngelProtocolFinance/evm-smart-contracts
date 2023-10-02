@@ -75,9 +75,9 @@ const booleanArray: CLIArgumentType<Array<boolean>> = {
   },
 };
 
-const stratConfig: CLIArgumentType<StratConfig> = {
+const stratConfig: CLIArgumentType<string> = {
   name: "StratConfig",
-  parse: (_, strValue) => allStrategyConfigs[strValue] || {error: strValue},
+  parse: (argName, strValue) => string.parse(argName, strValue),
   /**
    * Check if argument value is of type "StratConfig"
    *
@@ -87,10 +87,13 @@ const stratConfig: CLIArgumentType<StratConfig> = {
    * @throws HH301 if value is not of type "StratConfig"
    */
   validate: (argName: string, argValue: any): void => {
-    if (!argValue || typeof argValue !== "object" || "error" in argValue) {
-      const invalidValue = "error" in argValue ? argValue.error : argValue;
+    string.validate(argName, argValue);
+
+    const possibleValues = Object.keys(allStrategyConfigs);
+
+    if (!possibleValues.includes(argValue)) {
       throw new Error(
-        `Invalid value '${invalidValue}' for argument '${argName}' of type \`StratConfig\``
+        `Invalid value '${argValue}' for argument '${argName}', possible values: ${possibleValues}`
       );
     }
   },
