@@ -6,7 +6,6 @@ import {IStrategy} from "./IStrategy.sol";
 import {Pausable} from "@openzeppelin/contracts/security/Pausable.sol";
 
 abstract contract APStrategy_V1 is IStrategy, Pausable {
-
   /*** CONSTNATS ***/
   uint256 constant EXP_SCALE = 1e18;
 
@@ -54,7 +53,7 @@ abstract contract APStrategy_V1 is IStrategy, Pausable {
   function unpause() external virtual onlyAdmin {
     _unpause();
   }
-  
+
   modifier nonZeroAmount(uint256 amt) {
     if (amt == 0) revert ZeroAmount();
     _;

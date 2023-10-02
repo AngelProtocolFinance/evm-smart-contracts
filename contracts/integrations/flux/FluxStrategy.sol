@@ -29,7 +29,7 @@ contract FluxStrategy is APStrategy_V1, ReentrancyGuard {
   /// @return yieldTokenAmt the qty of `config.yieldToken` that were yielded from the deposit action
   function deposit(
     uint256 amt
-  ) external override payable whenNotPaused nonReentrant nonZeroAmount(amt) returns (uint256) {
+  ) external payable override whenNotPaused nonReentrant nonZeroAmount(amt) returns (uint256) {
     IERC20(config.baseToken).safeTransferFrom(_msgSender(), address(this), amt);
     IERC20(config.baseToken).safeApprove(config.yieldToken, amt);
     uint256 yieldTokens = _enterPosition(amt);
@@ -49,7 +49,7 @@ contract FluxStrategy is APStrategy_V1, ReentrancyGuard {
   /// @return baseTokenAmt the qty of `config.baseToken` that are approved for transfer by msg.sender
   function withdraw(
     uint256 amt
-  ) external override payable whenNotPaused nonReentrant nonZeroAmount(amt) returns (uint256) {
+  ) external payable override whenNotPaused nonReentrant nonZeroAmount(amt) returns (uint256) {
     if (!IFlux(config.yieldToken).transferFrom(_msgSender(), address(this), amt)) {
       revert TransferFailed();
     }
@@ -66,7 +66,7 @@ contract FluxStrategy is APStrategy_V1, ReentrancyGuard {
   /// @dev This method expects that the `amt` provided is denominated in `baseToken`
   /// @param amt the qty of the `baseToken` that should be checked for conversion rates
   /// @return yieldTokenAmt the expected qty of `yieldToken` if this strategy received `amt` of `baseToken`
-  function previewDeposit(uint256 amt) external override view returns (uint256) {
+  function previewDeposit(uint256 amt) external view override returns (uint256) {
     // Exchange Rate == (EXP_SCALE * USDC) / fUSDC
     uint256 exRate = IFlux(config.yieldToken).exchangeRateStored();
     // Expected fUSDC == (amtUSDC * EXP_SCALE / exRate)
@@ -77,7 +77,7 @@ contract FluxStrategy is APStrategy_V1, ReentrancyGuard {
   /// @dev This method expects that the `amt` provided is denominated in `yieldToken`
   /// @param amt the qty of the `yieldToken` that should be checked for conversion rates
   /// @return yieldTokenAmt the expected qty of `baseToken` if this strategy received `amt` of `yieldToken`
-  function previewWithdraw(uint256 amt) external override view returns (uint256) {
+  function previewWithdraw(uint256 amt) external view override returns (uint256) {
     // Exchange Rate == (EXP_SCALE * USDC) / fUSDC
     uint256 exRate = IFlux(config.yieldToken).exchangeRateStored();
     // Expected USDC == (amtfUSDC * exRate) / EXP_SCALE
