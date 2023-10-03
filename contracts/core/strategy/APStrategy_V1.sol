@@ -6,22 +6,35 @@ import {IStrategy} from "./IStrategy.sol";
 import {Pausable} from "@openzeppelin/contracts/security/Pausable.sol";
 
 abstract contract APStrategy_V1 is IStrategy, Pausable {
+  /*** CONSTNATS ***/
+  uint256 constant EXP_SCALE = 1e18;
+
+  /*** STORAGE  ***/
+  StrategyConfig public config;
+
   /*//////////////////////////////////////////////////////////////
                                 CONFIG
   //////////////////////////////////////////////////////////////*/
 
-  StrategyConfig public config;
-
-  constructor(StrategyConfig memory _config) {
-    config = _config;
-  }
-
+  /// @notice Returns the config struct
+  /// @return Config the current strategy config
   function getStrategyConfig() external view returns (StrategyConfig memory) {
     return config;
   }
 
+  /// @notice Set the strategy config
+  /// @dev This method must be access controlled. The config overwrites the stored config in its entirety
+  /// @param _config The StrategyConfig that will be stored and referenced within the strategy contract
   function setStrategyConfig(StrategyConfig memory _config) external onlyAdmin {
     config = _config;
+    emit ConfigChanged(config);
+  }
+
+  /// @notice Check whether the contract is paused
+  /// @dev Make public the state of the Pausable contract's `paused` state
+  /// @return paused the current state of the paused boolean
+  function paused() public view override(IStrategy, Pausable) returns (bool) {
+    return super.paused();
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -29,7 +42,7 @@ abstract contract APStrategy_V1 is IStrategy, Pausable {
   //////////////////////////////////////////////////////////////*/
 
   modifier onlyAdmin() {
-    require(_msgSender() == config.admin);
+    if (_msgSender() != config.admin) revert AdminOnly();
     _;
   }
 
@@ -41,8 +54,9 @@ abstract contract APStrategy_V1 is IStrategy, Pausable {
     _unpause();
   }
 
-  function paused() public view virtual override(IStrategy, Pausable) returns (bool) {
-    return super.paused();
+  modifier nonZeroAmount(uint256 amt) {
+    if (amt == 0) revert ZeroAmount();
+    _;
   }
 
   /*//////////////////////////////////////////////////////////////

@@ -132,7 +132,9 @@ describe("FluxStrategy", function () {
     it("reverts if the baseToken transfer fails", async function () {
       await wait(baseToken.mint(await owner.getAddress(), 1));
       await wait(baseToken.setTransferAllowed(false));
-      await expect(flux.deposit(1)).to.be.revertedWithCustomError(flux, "TransferFailed");
+      await expect(flux.deposit(1)).to.be.revertedWith(
+        "SafeERC20: ERC20 operation did not succeed"
+      );
       await wait(baseToken.setTransferAllowed(true));
     });
     it("reverts if the baseToken approve fails", async function () {
@@ -140,7 +142,9 @@ describe("FluxStrategy", function () {
       await wait(baseToken.approve(flux.address, 1));
       await wait(baseToken.setApproveAllowed(false));
       await wait(yieldToken.setResponseAmt(1));
-      await expect(flux.deposit(1)).to.be.revertedWithCustomError(flux, "ApproveFailed");
+      await expect(flux.deposit(1)).to.be.revertedWith(
+        "SafeERC20: ERC20 operation did not succeed"
+      );
       await wait(baseToken.setApproveAllowed(true));
     });
     it("reverts if the deposit fails", async function () {
@@ -216,7 +220,9 @@ describe("FluxStrategy", function () {
       await wait(yieldToken.approve(flux.address, 1));
       await wait(yieldToken.setResponseAmt(1));
       await wait(baseToken.setApproveAllowed(false));
-      await expect(flux.withdraw(1)).to.be.revertedWithCustomError(flux, "ApproveFailed");
+      await expect(flux.withdraw(1)).to.be.revertedWith(
+        "SafeERC20: ERC20 operation did not succeed"
+      );
       await wait(baseToken.setApproveAllowed(true));
     });
     it("correctly executes the redemption", async function () {
