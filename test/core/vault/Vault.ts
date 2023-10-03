@@ -267,7 +267,7 @@ describe("Vault", function () {
         ...DEFAULT_NETWORK_INFO,
         router: await user.getAddress(),
       });
-      await expect(vault.deposit(0, baseToken.address, 1)).to.be.revertedWithCustomError(
+      await expect(vault.deposit(0, baseToken.address, 1, [])).to.be.revertedWithCustomError(
         vault,
         "OnlyApproved"
       );
@@ -275,14 +275,14 @@ describe("Vault", function () {
 
     it("reverts if the strategy is paused", async function () {
       strategy.paused.returns(true);
-      await expect(vault.deposit(0, baseToken.address, 1)).to.be.revertedWithCustomError(
+      await expect(vault.deposit(0, baseToken.address, 1, [])).to.be.revertedWithCustomError(
         vault,
         "OnlyNotPaused"
       );
     });
 
     it("reverts if the token provided isn't the base token", async function () {
-      await expect(vault.deposit(0, yieldToken.address, 1)).to.be.revertedWithCustomError(
+      await expect(vault.deposit(0, yieldToken.address, 1, [])).to.be.revertedWithCustomError(
         vault,
         "OnlyBaseToken"
       );
@@ -290,12 +290,12 @@ describe("Vault", function () {
 
     it("reverts if the baseToken approval fails", async function () {
       baseToken.approve.returns(false);
-      await expect(vault.deposit(0, baseToken.address, 1)).to.be.reverted;
+      await expect(vault.deposit(0, baseToken.address, 1, [])).to.be.reverted;
     });
 
     it("successfully completes the deposit", async function () {
       strategy.deposit.returns(1);
-      await expect(vault.deposit(0, baseToken.address, 1)).to.emit(vault, "DepositERC4626");
+      await expect(vault.deposit(0, baseToken.address, 1, [])).to.emit(vault, "DepositERC4626");
       expect(baseToken.approve).to.have.been.calledWith(strategy.address, 1);
       expect(yieldToken.transferFrom).to.have.been.calledWith(strategy.address, vault.address, 1);
       let principles = await vault.principleByAccountId(0);
@@ -304,24 +304,24 @@ describe("Vault", function () {
 
     it("successfully adds to the position after subsequent deposits", async function () {
       strategy.deposit.returns(5);
-      await expect(vault.deposit(0, baseToken.address, 5)).to.not.be.reverted;
+      await expect(vault.deposit(0, baseToken.address, 5, [])).to.not.be.reverted;
       expect(baseToken.approve).to.have.been.calledWith(strategy.address, 5);
       expect(yieldToken.transferFrom).to.have.been.calledWith(strategy.address, vault.address, 5);
       yieldToken.balanceOf.whenCalledWith(vault.address).returns(5);
-      await expect(vault.deposit(0, baseToken.address, 5)).to.not.be.reverted;
+      await expect(vault.deposit(0, baseToken.address, 5, [])).to.not.be.reverted;
       let principles = await vault.principleByAccountId(0);
       expect(principles.baseToken).to.equal(10);
     });
 
     it("allows multiple accounts to deposit and tracks them separately", async function () {
       strategy.deposit.returns(500); // Acct. 0 gets 1:1
-      await vault.deposit(0, baseToken.address, 500);
+      await vault.deposit(0, baseToken.address, 500, []);
       expect(baseToken.approve).to.have.been.calledWith(strategy.address, 500);
       expect(yieldToken.transferFrom).to.have.been.calledWith(strategy.address, vault.address, 500);
 
       strategy.deposit.returns(250); // Acct. 1 gets 1:2
       yieldToken.balanceOf.whenCalledWith(vault.address).returns(500);
-      await vault.deposit(1, baseToken.address, 500);
+      await vault.deposit(1, baseToken.address, 500, []);
       expect(baseToken.approve).to.have.been.calledWith(strategy.address, 500);
       expect(yieldToken.transferFrom).to.have.been.calledWith(strategy.address, vault.address, 250);
 
@@ -394,7 +394,7 @@ describe("Vault", function () {
       );
       // need to setup fake contracts for the deposit to succeed
       await setup();
-      await wait(vault.deposit(0, baseToken.address, DEPOSIT));
+      await wait(vault.deposit(0, baseToken.address, DEPOSIT, []));
     });
 
     beforeEach(async function () {
@@ -413,7 +413,7 @@ describe("Vault", function () {
 
     it("reverts if the strategy is paused", async function () {
       strategy.paused.returns(true);
-      await expect(vault.redeem(0, DEPOSIT / 2)).to.be.revertedWithCustomError(
+      await expect(vault.redeem(0, DEPOSIT / 2, [])).to.be.revertedWithCustomError(
         vault,
         "OnlyNotPaused"
       );
@@ -423,7 +423,7 @@ describe("Vault", function () {
       registrarFake.getVaultOperatorApproved
         .whenCalledWith(await owner.getAddress())
         .returns(false);
-      await expect(vault.redeem(0, DEPOSIT / 2)).to.be.revertedWithCustomError(
+      await expect(vault.redeem(0, DEPOSIT / 2, [])).to.be.revertedWithCustomError(
         vault,
         "OnlyApproved"
       );
@@ -432,19 +432,19 @@ describe("Vault", function () {
     it("reverts if the baseToken transfer fails", async function () {
       baseToken.transfer.returns(false);
       baseToken.transferFrom.returns(false);
-      await expect(vault.redeem(0, DEPOSIT / 2)).to.be.reverted;
+      await expect(vault.redeem(0, DEPOSIT / 2, [])).to.be.reverted;
     });
 
     it("reverts if the baseToken approve fails", async function () {
       baseToken.approve.returns(false);
       strategy.withdraw.returns(DEPOSIT / 2);
-      await expect(vault.redeem(0, DEPOSIT / 2)).to.be.reverted;
+      await expect(vault.redeem(0, DEPOSIT / 2, [])).to.be.reverted;
     });
 
     it("does not tax if the position hasn't earned yield", async function () {
       let shares = await vault.balanceOf(0);
       strategy.withdraw.returns(DEPOSIT / 2); // no yield
-      await expect(vault.redeem(0, shares.div(2))).to.not.be.reverted; // Redeem half the position
+      await expect(vault.redeem(0, shares.div(2), [])).to.not.be.reverted; // Redeem half the position
       expect(yieldToken.approve).to.have.been.calledWith(strategy.address, shares.div(2));
       expect(baseToken.transferFrom).to.have.been.calledWith(
         strategy.address,
@@ -456,7 +456,7 @@ describe("Vault", function () {
     it("taxes if the position is in the black", async function () {
       let shares = await vault.balanceOf(0);
       strategy.withdraw.returns(DEPOSIT); // 100% yield
-      expect(await vault.redeem(0, shares.div(2))); // Redeem half the position
+      expect(await vault.redeem(0, shares.div(2), [])); // Redeem half the position
       let YIELD = DEPOSIT / 2; // half the tokens are yield when position is 100% yield
       let expectedTax = (YIELD * TAX_RATE) / 10000;
       expect(yieldToken.approve).to.have.been.calledWith(strategy.address, shares.div(2));
@@ -471,7 +471,7 @@ describe("Vault", function () {
     it("updates the principles accordingly", async function () {
       let shares = await vault.balanceOf(0);
       strategy.withdraw.returns(DEPOSIT); // 100% yield
-      await expect(vault.redeem(0, shares.div(2))).to.not.be.reverted; // Redeem half the position
+      await expect(vault.redeem(0, shares.div(2), [])).to.not.be.reverted; // Redeem half the position
       let expectedPrinciple = DEPOSIT / 2;
       let principle = await vault.principleByAccountId(0);
       expect(principle.baseToken).to.equal(expectedPrinciple);
@@ -481,7 +481,7 @@ describe("Vault", function () {
     it("calls redeemAll if the redemption value is gt or equal to the position", async function () {
       let shares = await vault.balanceOf(0);
       strategy.withdraw.returns(DEPOSIT); // 100% yield
-      await expect(vault.redeem(0, shares)).to.not.be.reverted; // Redeem the whole position
+      await expect(vault.redeem(0, shares, [])).to.not.be.reverted; // Redeem the whole position
       let principle = await vault.principleByAccountId(0);
       expect(principle.baseToken).to.equal(0); // we zero out princ. on full redemption
       expect(principle.costBasis_withPrecision).to.equal(0);
@@ -550,7 +550,7 @@ describe("Vault", function () {
       );
       // need to setup fake contracts for the deposit to succeed
       await setup();
-      await wait(vault.deposit(0, baseToken.address, DEPOSIT));
+      await wait(vault.deposit(0, baseToken.address, DEPOSIT, []));
     });
 
     beforeEach(async function () {
@@ -569,20 +569,20 @@ describe("Vault", function () {
 
     it("reverts if the strategy is paused", async function () {
       strategy.paused.returns(true);
-      await expect(vault.redeemAll(0)).to.be.revertedWithCustomError(vault, "OnlyNotPaused");
+      await expect(vault.redeemAll(0, [])).to.be.revertedWithCustomError(vault, "OnlyNotPaused");
     });
 
     it("reverts if the caller isn't approved", async function () {
       registrarFake.getVaultOperatorApproved
         .whenCalledWith(await owner.getAddress())
         .returns(false);
-      await expect(vault.redeemAll(0)).to.be.revertedWithCustomError(vault, "OnlyApproved");
+      await expect(vault.redeemAll(0, [])).to.be.revertedWithCustomError(vault, "OnlyApproved");
     });
 
     it("does not tax if the position hasn't earned yield", async function () {
       let shares = await vault.balanceOf(0);
       strategy.withdraw.returns(DEPOSIT); // no yield
-      await expect(vault.redeemAll(0)).to.not.be.reverted; // Redeem the whole position
+      await expect(vault.redeemAll(0, [])).to.not.be.reverted; // Redeem the whole position
       expect(yieldToken.approve).to.have.been.calledWith(strategy.address, DEPOSIT);
       expect(baseToken.transferFrom).to.have.been.calledWith(
         strategy.address,
@@ -594,7 +594,7 @@ describe("Vault", function () {
     it("taxes if the position is in the black", async function () {
       strategy.withdraw.returns(DEPOSIT * 2); // 100% yield
       yieldToken.balanceOf.returns(DEPOSIT);
-      await expect(vault.redeemAll(0)).to.not.be.reverted;
+      await expect(vault.redeemAll(0, [])).to.not.be.reverted;
       let YIELD = DEPOSIT; // the entire original positoin is yield when 100% yield
       let expectedTax = (YIELD * TAX_RATE) / 10000;
       expect(yieldToken.approve).to.have.been.calledWith(strategy.address, DEPOSIT);
@@ -613,7 +613,7 @@ describe("Vault", function () {
     it("updates the principles accordingly", async function () {
       strategy.withdraw.returns(DEPOSIT * 2); // 100% yield
       yieldToken.balanceOf.returns(DEPOSIT * 2);
-      await expect(vault.redeemAll(0)).to.not.be.reverted;
+      await expect(vault.redeemAll(0, [])).to.not.be.reverted;
       let principle = await vault.principleByAccountId(0);
       expect(principle.baseToken).to.equal(0); // we zero out princ. on full redemption
       expect(principle.costBasis_withPrecision).to.equal(0);
@@ -699,7 +699,7 @@ describe("Vault", function () {
         );
         strategy.deposit.returns(DEPOSIT);
         yieldToken.balanceOf.returns(DEPOSIT);
-        await wait(vault.deposit(0, baseToken.address, DEPOSIT));
+        await wait(vault.deposit(0, baseToken.address, DEPOSIT, []));
       });
 
       beforeEach(() => {
@@ -825,7 +825,7 @@ describe("Vault", function () {
         );
         // need to setup fake contracts for the deposit to succeed
         await nestedSetup();
-        await wait(lockedVault.deposit(0, baseToken.address, DEPOSIT));
+        await wait(lockedVault.deposit(0, baseToken.address, DEPOSIT, []));
       });
 
       beforeEach(async () => {

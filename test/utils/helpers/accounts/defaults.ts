@@ -115,6 +115,8 @@ export const DEFAULT_INVEST_REQUEST: AccountMessages.InvestRequestStruct = {
   token: "TKN",
   lockAmt: 0,
   liquidAmt: 0,
+  lockMinTokensOut: [],
+  liqMinTokensOut: [],
   gasFee: 0,
 };
 
@@ -123,6 +125,8 @@ export const DEFAULT_REDEEM_REQUEST: AccountMessages.RedeemRequestStruct = {
   token: "TKN",
   lockAmt: 0,
   liquidAmt: 0,
+  lockMinTokensOut: [],
+  liqMinTokensOut: [],
   gasFee: 0,
 };
 
@@ -131,6 +135,8 @@ export const DEFAULT_REDEEM_ALL_REQUEST: AccountMessages.RedeemAllRequestStruct 
   token: "TKN",
   redeemLocked: false,
   redeemLiquid: false,
+  lockMinTokensOut: [],
+  liqMinTokensOut: [],
   gasFee: 0,
 };
 
@@ -149,6 +155,8 @@ export const DEFAULT_ACTION_DATA: IVault.VaultActionDataStruct = {
   token: "",
   lockAmt: 0,
   liqAmt: 0,
+  lockMinTokensOut: [],
+  liqMinTokensOut: [],
   status: 0,
 };
 

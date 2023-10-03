@@ -292,6 +292,8 @@ describe("AccountsStrategy", function () {
           token: token.address,
           lockAmt: investRequest.lockAmt,
           liqAmt: investRequest.liquidAmt,
+          lockMinTokensOut: [],
+          liqMinTokensOut: [],
           status: VaultActionStatus.SUCCESS,
         };
         router.executeWithTokenLocal.returns(vaultActionData);
@@ -321,6 +323,8 @@ describe("AccountsStrategy", function () {
             token: token.address,
             lockAmt: investRequest.lockAmt,
             liqAmt: investRequest.liquidAmt,
+            lockMinTokensOut: [],
+            liqMinTokensOut: [],
             status: VaultActionStatus.UNPROCESSED,
           },
           hre
@@ -364,6 +368,8 @@ describe("AccountsStrategy", function () {
             token: token.address,
             lockAmt: investRequest.lockAmt,
             liqAmt: investRequest.liquidAmt,
+            lockMinTokensOut: [],
+            liqMinTokensOut: [],
             status: vaultStatus,
           };
           router.executeWithTokenLocal.returns(vaultActionData);
@@ -423,6 +429,8 @@ describe("AccountsStrategy", function () {
               token: token.address,
               lockAmt: LOCK_AMT,
               liqAmt: LIQ_AMT,
+              lockMinTokensOut: [],
+              liqMinTokensOut: [],
               status: VaultActionStatus.UNPROCESSED,
             },
             hre
@@ -533,6 +541,8 @@ describe("AccountsStrategy", function () {
               token: token.address,
               lockAmt: caseData.lockAmt,
               liqAmt: caseData.liqAmt,
+              lockMinTokensOut: [],
+              liqMinTokensOut: [],
               status: VaultActionStatus.UNPROCESSED,
             },
             hre
@@ -705,6 +715,8 @@ describe("AccountsStrategy", function () {
             token: token.address,
             lockAmt: LOCK_AMT,
             liqAmt: LIQ_AMT,
+            lockMinTokensOut: [],
+            liqMinTokensOut: [],
             status: vaultStatus,
           };
           router.executeLocal.returns(vaultActionData);
@@ -729,6 +741,8 @@ describe("AccountsStrategy", function () {
               token: token.address,
               lockAmt: LOCK_AMT,
               liqAmt: LIQ_AMT,
+              lockMinTokensOut: [],
+              liqMinTokensOut: [],
               status: VaultActionStatus.UNPROCESSED,
             },
             hre
@@ -764,6 +778,8 @@ describe("AccountsStrategy", function () {
             token: token.address,
             lockAmt: LOCK_AMT,
             liqAmt: LIQ_AMT,
+            lockMinTokensOut: [],
+            liqMinTokensOut: [],
             status: vaultStatus,
           };
           router.executeLocal.returns(vaultActionData);
@@ -807,6 +823,8 @@ describe("AccountsStrategy", function () {
               token: token.address,
               lockAmt: LOCK_AMT,
               liqAmt: LIQ_AMT,
+              lockMinTokensOut: [],
+              liqMinTokensOut: [],
               status: VaultActionStatus.UNPROCESSED,
             },
             hre
@@ -911,6 +929,8 @@ describe("AccountsStrategy", function () {
               token: token.address,
               lockAmt: caseData.lockAmt,
               liqAmt: caseData.liqAmt,
+              lockMinTokensOut: [],
+              liqMinTokensOut: [],
               status: VaultActionStatus.UNPROCESSED,
             },
             hre
@@ -1057,6 +1077,8 @@ describe("AccountsStrategy", function () {
               token: token.address,
               lockAmt: LOCK_AMT,
               liqAmt: LIQ_AMT,
+              lockMinTokensOut: [],
+              liqMinTokensOut: [],
               status: VaultActionStatus.POSITION_EXITED,
             };
             router.executeLocal.returns(vaultActionData);
@@ -1081,6 +1103,8 @@ describe("AccountsStrategy", function () {
                 token: token.address,
                 lockAmt: 1,
                 liqAmt: 1,
+                lockMinTokensOut: [],
+                liqMinTokensOut: [],
                 status: VaultActionStatus.UNPROCESSED,
               },
               hre
@@ -1120,6 +1144,8 @@ describe("AccountsStrategy", function () {
             token: token.address,
             lockAmt: LOCK_AMT,
             liqAmt: LIQ_AMT,
+            lockMinTokensOut: [],
+            liqMinTokensOut: [],
             status: vaultActionStatus,
           };
           router.executeLocal.returns(vaultActionData);
@@ -1174,6 +1200,8 @@ describe("AccountsStrategy", function () {
               token: token.address,
               lockAmt: 1,
               liqAmt: 1,
+              lockMinTokensOut: [],
+              liqMinTokensOut: [],
               status: VaultActionStatus.UNPROCESSED,
             },
             hre
@@ -1374,6 +1402,8 @@ describe("AccountsStrategy", function () {
               token: token.address,
               lockAmt: redeemAllRequest.redeemLocked ? 1 : 0,
               liqAmt: redeemAllRequest.redeemLiquid ? 1 : 0,
+              lockMinTokensOut: [],
+              liqMinTokensOut: [],
               status: VaultActionStatus.UNPROCESSED,
             },
             hre
@@ -1469,6 +1499,8 @@ describe("AccountsStrategy", function () {
             token: token.address,
             lockAmt: 1,
             liqAmt: 1,
+            lockMinTokensOut: [],
+            liqMinTokensOut: [],
             status: VaultActionStatus.UNPROCESSED,
           },
           hre
@@ -1493,6 +1525,8 @@ describe("AccountsStrategy", function () {
           token: token.address,
           lockAmt: 1,
           liqAmt: 1,
+          lockMinTokensOut: [],
+          liqMinTokensOut: [],
           status: VaultActionStatus.UNPROCESSED,
         };
         const payload = packActionData(action, hre);
@@ -1520,6 +1554,8 @@ describe("AccountsStrategy", function () {
           token: token.address,
           lockAmt: 1,
           liqAmt: 1,
+          lockMinTokensOut: [],
+          liqMinTokensOut: [],
           status: VaultActionStatus.UNPROCESSED,
         };
         const payload = packActionData(action, hre);
@@ -1542,6 +1578,8 @@ describe("AccountsStrategy", function () {
           token: token.address,
           lockAmt: 1,
           liqAmt: 1,
+          lockMinTokensOut: [],
+          liqMinTokensOut: [],
           status: VaultActionStatus.FAIL_TOKENS_FALLBACK,
         };
         const payload = packActionData(action, hre);
@@ -1576,6 +1614,8 @@ describe("AccountsStrategy", function () {
             token: token.address,
             lockAmt: 1,
             liqAmt: 1,
+            lockMinTokensOut: [],
+            liqMinTokensOut: [],
             status: vaultActionStatus,
           };
           const payload = packActionData(action, hre);
@@ -1607,6 +1647,8 @@ describe("AccountsStrategy", function () {
             token: token.address,
             lockAmt: 1,
             liqAmt: 1,
+            lockMinTokensOut: [],
+            liqMinTokensOut: [],
             status: VaultActionStatus.UNPROCESSED,
           },
           hre
@@ -1632,6 +1674,8 @@ describe("AccountsStrategy", function () {
           token: token.address,
           lockAmt: 1,
           liqAmt: 1,
+          lockMinTokensOut: [],
+          liqMinTokensOut: [],
           status: VaultActionStatus.UNPROCESSED,
         };
         const payload = packActionData(action, hre);
@@ -1661,6 +1705,8 @@ describe("AccountsStrategy", function () {
           token: token.address,
           lockAmt: 1,
           liqAmt: 1,
+          lockMinTokensOut: [],
+          liqMinTokensOut: [],
           status: VaultActionStatus.UNPROCESSED,
         };
         const payload = packActionData(action, hre);
@@ -1688,6 +1734,8 @@ describe("AccountsStrategy", function () {
           token: token.address,
           lockAmt: 1,
           liqAmt: 1,
+          lockMinTokensOut: [],
+          liqMinTokensOut: [],
           status: VaultActionStatus.UNPROCESSED,
         };
         const payload = packActionData(action, hre);
@@ -1717,6 +1765,8 @@ describe("AccountsStrategy", function () {
           token: token.address,
           lockAmt: LOCK_AMT,
           liqAmt: LIQ_AMT,
+          lockMinTokensOut: [],
+          liqMinTokensOut: [],
           status: VaultActionStatus.FAIL_TOKENS_RETURNED,
         };
         const payload = packActionData(action, hre);
@@ -1756,6 +1806,8 @@ describe("AccountsStrategy", function () {
             token: token.address,
             lockAmt: LOCK_AMT,
             liqAmt: LIQ_AMT,
+            lockMinTokensOut: [],
+            liqMinTokensOut: [],
             status: vaultStatus,
           };
           const payload = packActionData(action, hre);
@@ -1844,6 +1896,8 @@ describe("AccountsStrategy", function () {
             token: token.address,
             lockAmt: LOCK_AMT,
             liqAmt: LIQ_AMT,
+            lockMinTokensOut: [],
+            liqMinTokensOut: [],
             status: vaultStatus,
           };
           const payload = packActionData(action, hre);

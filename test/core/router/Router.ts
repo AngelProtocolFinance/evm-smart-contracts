@@ -812,6 +812,8 @@ describe("Router", function () {
           token: token.address,
           lockAmt: LOCK_AMT - 2, // less weighted gas
           liqAmt: LIQ_AMT - 3, // less weighted gas
+          lockMinTokensOut: [],
+          liqMinTokensOut: [],
           status: VaultActionStatus.SUCCESS,
         },
         hre
@@ -952,6 +954,8 @@ describe("Router", function () {
           token: token.address,
           lockAmt: LOCK_AMT - 2, // less weighted gas
           liqAmt: LIQ_AMT - 3, // less weighted gas
+          lockMinTokensOut: [],
+          liqMinTokensOut: [],
           status: VaultActionStatus.POSITION_EXITED,
         },
         hre

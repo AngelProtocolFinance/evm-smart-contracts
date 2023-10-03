@@ -9,6 +9,8 @@ export function convertVaultActionStructToArray(actionData: IVault.VaultActionDa
     actionData.token,
     actionData.lockAmt,
     actionData.liqAmt,
+    actionData.lockMinTokensOut,
+    actionData.liqMinTokensOut,
     actionData.status,
   ];
 }
@@ -22,6 +24,8 @@ export function convertArrayToVaultActionStruct(decodedData: any) {
     token: decodedData[4],
     lockAmt: decodedData[5],
     liqAmt: decodedData[6],
-    status: decodedData[7],
+    lockMinTokensOut: decodedData[7],
+    liqMinTokensOut: decodedData[8],
+    status: decodedData[9],
   } as IVault.VaultActionDataStruct;
 }
