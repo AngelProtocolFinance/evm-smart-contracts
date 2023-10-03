@@ -26,7 +26,18 @@ library RouterLib {
       IVault.VaultActionStatus status
     ) = abi.decode(
         _calldata,
-        (string, bytes4, bytes4, uint32, address, uint256, uint256, uint256[], uint256[], IVault.VaultActionStatus)
+        (
+          string,
+          bytes4,
+          bytes4,
+          uint32,
+          address,
+          uint256,
+          uint256,
+          uint256[],
+          uint256[],
+          IVault.VaultActionStatus
+        )
       );
 
     return

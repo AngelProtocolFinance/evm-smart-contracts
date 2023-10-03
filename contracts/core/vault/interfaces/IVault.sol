@@ -126,7 +126,12 @@ abstract contract IVault {
   /// @param token the deposited token
   /// @param amt the amount of the deposited token
   /// @param minTokensOut the amount of tokens expected along each step of the invest request
-  function deposit(uint32 accountId, address token, uint256 amt, uint256[] memory minTokensOut) external payable virtual;
+  function deposit(
+    uint32 accountId,
+    address token,
+    uint256 amt,
+    uint256[] memory minTokensOut
+  ) external payable virtual;
 
   /// @notice redeem value from the vault contract
   /// @dev allows an Account to redeem from its staked value. The behavior is different dependent on VaultType.
@@ -147,7 +152,10 @@ abstract contract IVault {
   /// @param accountId a unique Id for each Angel Protocol account
   /// @param minTokensOut the amount of tokens expected along each step of the redemption request
   /// @return RedemptionResponse returns the number of base tokens redeemed by the call and the status
-  function redeemAll(uint32 accountId, uint256[] memory minTokensOut) external payable virtual returns (RedemptionResponse memory);
+  function redeemAll(
+    uint32 accountId,
+    uint256[] memory minTokensOut
+  ) external payable virtual returns (RedemptionResponse memory);
 
   /// @notice restricted method for harvesting accrued rewards
   /// @dev Claim reward tokens accumulated to the staked value. The underlying behavior will vary depending

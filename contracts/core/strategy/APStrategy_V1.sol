@@ -70,7 +70,10 @@ abstract contract APStrategy_V1 is IStrategy, Pausable {
   /// token address is config.fromToken
   /// @param minTokensOut intermediate trade slippage tolerances
   /// @return yieldTokenAmt the qty of `stratConfig.yieldToken` that were yielded from the deposit action
-  function deposit(uint256 amt, uint256[] memory minTokensOut) virtual external payable returns (uint256) {}
+  function deposit(
+    uint256 amt,
+    uint256[] memory minTokensOut
+  ) external payable virtual returns (uint256) {}
 
   /// @notice Withdraws tokens from the strategy
   /// @dev Transfers the balance of config.toToken erc20 from sender to this contract, makes calls necessary
@@ -79,7 +82,10 @@ abstract contract APStrategy_V1 is IStrategy, Pausable {
   /// token address is config.toToken
   /// @param minTokensOut intermediate trade slippage tolerances
   /// @return baseTokenAmt the qty of `stratConfig.baseToken` that are approved for transfer by msg.sender
-  function withdraw(uint256 amt, uint256[] memory minTokensOut) virtual external payable returns (uint256) {}
+  function withdraw(
+    uint256 amt,
+    uint256[] memory minTokensOut
+  ) external payable virtual returns (uint256) {}
 
   /// @notice Shows the expected conversion between from and to token
   /// @dev Implies that the amt refers to the config.fromToken

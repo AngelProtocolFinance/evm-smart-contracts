@@ -37,7 +37,12 @@ contract DummyVault is IVault {
     return vaultConfig;
   }
 
-  function deposit(uint32 accountId, address, uint256 amt, uint256[] memory) public payable override {
+  function deposit(
+    uint32 accountId,
+    address,
+    uint256 amt,
+    uint256[] memory
+  ) public payable override {
     IVaultEmitter(emitterAddress).deposit(accountId, address(this), amt, amt);
   }
 
@@ -56,7 +61,10 @@ contract DummyVault is IVault {
       });
   }
 
-  function redeemAll(uint32 accountId, uint256[] memory) public payable override returns (RedemptionResponse memory) {
+  function redeemAll(
+    uint32 accountId,
+    uint256[] memory
+  ) public payable override returns (RedemptionResponse memory) {
     IERC20(vaultConfig.baseToken).approve(msg.sender, dummyAmt);
     IVaultEmitter(emitterAddress).redeem(accountId, address(this), dummyAmt, dummyAmt);
     return
