@@ -15,14 +15,14 @@ interface IDummyERC20 is IERC20 {
 contract GoerliDummy is DummyStrategy {
   constructor(StrategyConfig memory _config) DummyStrategy(_config) {}
 
-  function deposit(uint256 amt) public payable override returns (uint256) {
+  function deposit(uint256 amt, uint256[] memory) public payable override returns (uint256) {
     IDummyERC20(config.yieldToken).mint(address(this), amt);
     IERC20(config.baseToken).transferFrom(msg.sender, address(this), amt);
     IDummyERC20(config.yieldToken).approve(msg.sender, amt);
     return amt;
   }
 
-  function withdraw(uint256 amt) public payable override returns (uint256) {
+  function withdraw(uint256 amt, uint256[] memory) public payable override returns (uint256) {
     IERC20(config.yieldToken).transferFrom(msg.sender, address(this), amt);
     IERC20(config.baseToken).approve(msg.sender, amt);
     IDummyERC20(config.yieldToken).burn(address(this), amt);
