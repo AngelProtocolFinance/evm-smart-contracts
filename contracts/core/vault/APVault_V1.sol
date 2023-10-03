@@ -88,7 +88,8 @@ contract APVault_V1 is IVault, ERC4626AP, Ownable {
   function deposit(
     uint32 accountId,
     address token,
-    uint256 amt
+    uint256 amt,
+    uint256[] memory minTokensOut
   ) public payable virtual override onlyApproved notPaused onlybaseToken(token) {
     IERC20Metadata(token).safeApprove(vaultConfig.strategy, amt);
 
@@ -103,12 +104,13 @@ contract APVault_V1 is IVault, ERC4626AP, Ownable {
 
   function redeem(
     uint32 accountId,
-    uint256 shares
+    uint256 shares,
+    uint256[] memory minTokensOut
   ) public payable virtual override notPaused onlyApproved returns (RedemptionResponse memory) {
     // check against requested shares
     if (balanceOf(accountId) <= shares) {
       // redeemAll if less
-      return redeemAll(accountId);
+      return redeemAll(accountId, minTokensOut);
     } else if (shares == 0) {
       return
         RedemptionResponse({
@@ -143,7 +145,8 @@ contract APVault_V1 is IVault, ERC4626AP, Ownable {
   }
 
   function redeemAll(
-    uint32 accountId
+    uint32 accountId,
+    uint256[] memory minTokensOut
   ) public payable virtual override notPaused onlyApproved returns (RedemptionResponse memory) {
     uint256 balance = balanceOf(accountId);
 
@@ -415,10 +418,12 @@ contract APVault_V1 is IVault, ERC4626AP, Ownable {
       (redemption - tax)
     );
 
+    uint256[] memory minTokensOut;
     IVault(stratParams.liquidVaultAddr).deposit(
       accountId,
       vaultConfig.baseToken,
-      (redemption - tax)
+      (redemption - tax),
+      minTokensOut
     );
 
     return tax;

@@ -134,13 +134,13 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     if (action.lockAmt > 0) {
       // Send tokens to locked vault and call deposit
       IERC20Metadata(action.token).safeTransfer(params.lockedVaultAddr, action.lockAmt);
-      IVault(params.lockedVaultAddr).deposit(action.accountId, action.token, action.lockAmt);
+      IVault(params.lockedVaultAddr).deposit(action.accountId, action.token, action.lockAmt, action.lockMinTokensOut);
     }
 
     if (action.liqAmt > 0) {
       // Send tokens to liquid vault and call deposit
       IERC20Metadata(action.token).safeTransfer(params.liquidVaultAddr, action.liqAmt);
-      IVault(params.liquidVaultAddr).deposit(action.accountId, action.token, action.liqAmt);
+      IVault(params.liquidVaultAddr).deposit(action.accountId, action.token, action.liqAmt, action.liqMinTokensOut);
     }
   }
 
@@ -155,7 +155,8 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     // Redeem tokens from vaults and then txfer to this contract
     IVault.RedemptionResponse memory lockResponse = lockedVault.redeem(
       _action.accountId,
-      _action.lockAmt
+      _action.lockAmt,
+      _action.lockMinTokensOut
     );
     if (lockResponse.amount > 0) {
       IERC20Metadata(lockResponse.token).safeTransferFrom(
@@ -168,7 +169,8 @@ contract Router is IRouter, Initializable, AxelarExecutable {
 
     IVault.RedemptionResponse memory liqResponse = liquidVault.redeem(
       _action.accountId,
-      _action.liqAmt
+      _action.liqAmt,
+      _action.liqMinTokensOut
     );
     if (liqResponse.amount > 0) {
       IERC20Metadata(liqResponse.token).safeTransferFrom(
@@ -209,7 +211,7 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     IVault liquidVault = IVault(_params.liquidVaultAddr);
 
     // Redeem tokens from vaults and then txfer to this contract
-    IVault.RedemptionResponse memory lockResponse = lockedVault.redeemAll(_action.accountId);
+    IVault.RedemptionResponse memory lockResponse = lockedVault.redeemAll(_action.accountId, _action.lockMinTokensOut);
     if (lockResponse.amount > 0) {
       IERC20Metadata(_action.token).safeTransferFrom(
         _params.lockedVaultAddr,
@@ -219,7 +221,7 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     }
     _action.lockAmt = lockResponse.amount;
 
-    IVault.RedemptionResponse memory liqResponse = liquidVault.redeemAll(_action.accountId);
+    IVault.RedemptionResponse memory liqResponse = liquidVault.redeemAll(_action.accountId, _action.liqMinTokensOut);
     if (liqResponse.amount > 0) {
       IERC20Metadata(_action.token).safeTransferFrom(
         _params.liquidVaultAddr,

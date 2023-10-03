@@ -21,10 +21,12 @@ library RouterLib {
       address token,
       uint256 lockAmt,
       uint256 liqAmt,
+      uint256[] memory lockMinTokensOut,
+      uint256[] memory liqMinTokensOut,
       IVault.VaultActionStatus status
     ) = abi.decode(
         _calldata,
-        (string, bytes4, bytes4, uint32, address, uint256, uint256, IVault.VaultActionStatus)
+        (string, bytes4, bytes4, uint32, address, uint256, uint256, uint256[], uint256[], IVault.VaultActionStatus)
       );
 
     return
@@ -36,6 +38,8 @@ library RouterLib {
         token,
         lockAmt,
         liqAmt,
+        lockMinTokensOut,
+        liqMinTokensOut,
         status
       );
   }
@@ -52,6 +56,8 @@ library RouterLib {
         _calldata.token,
         _calldata.lockAmt,
         _calldata.liqAmt,
+        _calldata.lockMinTokensOut,
+        _calldata.liqMinTokensOut,
         _calldata.status
       );
   }
