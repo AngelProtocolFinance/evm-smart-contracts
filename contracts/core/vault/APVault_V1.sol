@@ -93,7 +93,7 @@ contract APVault_V1 is IVault, ERC4626AP, Ownable {
   ) public payable virtual override onlyApproved notPaused onlybaseToken(token) {
     IERC20Metadata(token).safeApprove(vaultConfig.strategy, amt);
 
-    uint256 yieldAmt = IStrategy(vaultConfig.strategy).deposit(amt);
+    uint256 yieldAmt = IStrategy(vaultConfig.strategy).deposit(amt, minTokensOut);
 
     _updatePrincipleDeposit(accountId, amt, yieldAmt);
 
@@ -121,7 +121,7 @@ contract APVault_V1 is IVault, ERC4626AP, Ownable {
     } else {
       // redeem shares for yieldToken -> approve strategy -> strategy withdraw -> base token
       uint256 yieldTokenAmt = super.redeemERC4626(shares, vaultConfig.strategy, accountId);
-      uint256 returnAmt = IStrategy(vaultConfig.strategy).withdraw(yieldTokenAmt);
+      uint256 returnAmt = IStrategy(vaultConfig.strategy).withdraw(yieldTokenAmt, minTokensOut);
       IVaultEmitter(EMITTER_ADDRESS).redeem(accountId, address(this), shares, returnAmt);
 
       IERC20Metadata(vaultConfig.baseToken).safeTransferFrom(
@@ -161,7 +161,7 @@ contract APVault_V1 is IVault, ERC4626AP, Ownable {
     // redeem shares for yieldToken -> approve strategy
     uint256 yieldTokenAmt = super.redeemERC4626(balance, vaultConfig.strategy, accountId);
     // withdraw all baseToken
-    uint256 returnAmt = IStrategy(vaultConfig.strategy).withdraw(yieldTokenAmt);
+    uint256 returnAmt = IStrategy(vaultConfig.strategy).withdraw(yieldTokenAmt, minTokensOut);
 
     IVaultEmitter(EMITTER_ADDRESS).redeem(accountId, address(this), returnAmt, balance);
 
@@ -256,7 +256,8 @@ contract APVault_V1 is IVault, ERC4626AP, Ownable {
     );
     // Redeem shares to cover fee
     uint256 dYieldToken = super.redeemERC4626(taxShares, vaultConfig.strategy, accountId);
-    uint256 redemption = IStrategy(vaultConfig.strategy).withdraw(dYieldToken);
+    uint256[] memory minTokensOut;
+    uint256 redemption = IStrategy(vaultConfig.strategy).withdraw(dYieldToken, minTokensOut);
     IVaultEmitter(EMITTER_ADDRESS).redeem(accountId, address(this), taxShares, redemption);
     IERC20Metadata(vaultConfig.baseToken).safeTransferFrom(
       vaultConfig.strategy,
@@ -385,7 +386,8 @@ contract APVault_V1 is IVault, ERC4626AP, Ownable {
       vaultConfig.strategy,
       accountId
     );
-    uint256 redemption = IStrategy(vaultConfig.strategy).withdraw(dYieldToken);
+    uint256[] memory minTokensOut;
+    uint256 redemption = IStrategy(vaultConfig.strategy).withdraw(dYieldToken, minTokensOut);
     IVaultEmitter(EMITTER_ADDRESS).redeem(
       accountId,
       address(this),
@@ -418,7 +420,6 @@ contract APVault_V1 is IVault, ERC4626AP, Ownable {
       (redemption - tax)
     );
 
-    uint256[] memory minTokensOut;
     IVault(stratParams.liquidVaultAddr).deposit(
       accountId,
       vaultConfig.baseToken,
