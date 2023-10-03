@@ -599,8 +599,8 @@ describe("Router", function () {
           TOTAL_AMT
         )
       ).to.emit(router, "Deposit");
-      expect(lockedVault.deposit).to.have.been.calledWith(1, token.address, LOCK_AMT);
-      expect(liquidVault.deposit).to.have.been.calledWith(1, token.address, LIQ_AMT);
+      expect(lockedVault.deposit).to.have.been.calledWith(1, token.address, LOCK_AMT, []);
+      expect(liquidVault.deposit).to.have.been.calledWith(1, token.address, LIQ_AMT, []);
     });
 
     it("correctly calls redeem via execute", async function () {
@@ -626,8 +626,8 @@ describe("Router", function () {
           packedData
         )
       );
-      expect(lockedVault.redeem).to.have.been.calledWith(1, LOCK_AMT);
-      expect(liquidVault.redeem).to.have.been.calledWith(1, LIQ_AMT);
+      expect(lockedVault.redeem).to.have.been.calledWith(1, LOCK_AMT, []);
+      expect(liquidVault.redeem).to.have.been.calledWith(1, LIQ_AMT, []);
     });
 
     it("correctly calls redeemAll via execute", async function () {
@@ -719,7 +719,7 @@ describe("Router", function () {
         await token.symbol(),
         TOTAL_AMT
       );
-      expect(lockedVault.deposit).to.have.been.calledWith(1, token.address, LOCK_AMT);
+      expect(lockedVault.deposit).to.have.been.calledWith(1, token.address, LOCK_AMT, []);
       expect(token.transfer).to.have.been.calledWith(lockedVault.address, LOCK_AMT);
     });
   });
@@ -799,8 +799,8 @@ describe("Router", function () {
           packedData
         )
       ).to.emit(router, "Redeem");
-      expect(lockedVault.redeem).to.have.been.calledWith(1, LOCK_AMT);
-      expect(liquidVault.redeem).to.have.been.calledWith(1, LIQ_AMT);
+      expect(lockedVault.redeem).to.have.been.calledWith(1, LOCK_AMT, []);
+      expect(liquidVault.redeem).to.have.been.calledWith(1, LIQ_AMT, []);
       expect(token.approve).to.have.been.calledWith(gateway.address, TOTAL_AMT - GAS_COST);
       expect(token.approve).to.have.been.calledWith(gasService.address, GAS_COST);
       let expectedPayload = packActionData(
@@ -941,8 +941,8 @@ describe("Router", function () {
           packedData
         )
       ).to.emit(router, "Redeem");
-      expect(lockedVault.redeemAll).to.have.been.calledWith(1);
-      expect(liquidVault.redeemAll).to.have.been.calledWith(1);
+      expect(lockedVault.redeemAll).to.have.been.calledWith(1, []);
+      expect(liquidVault.redeemAll).to.have.been.calledWith(1, []);
       expect(token.approve).to.have.been.calledWith(gateway.address, TOTAL_AMT - GAS_COST);
       expect(token.approve).to.have.been.calledWith(gasService.address, GAS_COST);
       let expectedPayload = packActionData(
