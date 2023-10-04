@@ -234,6 +234,10 @@ contract AccountsDepositWithdrawEndowments is
     AccountStorage.Endowment storage tempEndowment = state.Endowments[id];
     AccountStorage.EndowmentState storage tempEndowmentState = state.States[id];
 
+    // Check if maturity has been reached for the endowment (0 == no maturity date)
+    bool mature = (tempEndowment.maturityTime != 0 &&
+      block.timestamp >= tempEndowment.maturityTime);
+
     // If an Endowment is closed and a withdraw is executed for it, check that the sender is the closing
     // beneficiary on record and procees the withdraw if so ensure funds are indeed moving to that beneficiary
     if (tempEndowmentState.closingEndowment) {
@@ -255,6 +259,23 @@ contract AccountsDepositWithdrawEndowments is
         beneficiaryEndowId = tempEndowmentState.closingBeneficiary.data.endowId;
       }
     }
+    // If not closing,
+    else {
+      // only owner can call if not mature
+      if (!mature) {
+        require(msg.sender == tempEndowment.owner, "Unauthorized");
+      }
+      // otherwise the caller must be in the Allowlist
+      else {
+        require(
+          IterableMappingAddr.get(
+            state.Allowlists[id][LibAccounts.AllowlistType.MaturityAllowlist],
+            msg.sender
+          ),
+          "Unauthorized"
+        );
+      }
+    }
 
     // place an arbitrary cap on the qty of different tokens per withdraw to limit gas use
     require(tokens.length > 0, "No tokens provided");
@@ -272,10 +293,6 @@ contract AccountsDepositWithdrawEndowments is
         "Beneficiary endowment is closed"
       );
     }
-
-    // Check if maturity has been reached for the endowment (0 == no maturity date)
-    bool mature = (tempEndowment.maturityTime != 0 &&
-      block.timestamp >= tempEndowment.maturityTime);
 
     if (tempEndowment.endowType == LibAccounts.EndowmentType.Daf) {
       require(
