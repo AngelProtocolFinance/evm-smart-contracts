@@ -768,6 +768,16 @@ describe("AccountsDepositWithdrawEndowments", function () {
     });
 
     describe("from Non-Mature endowments", () => {
+      it("reverts if sender is not owner", async () => {
+        await expect(
+          facet
+            .connect(accOwner)
+            .withdraw(charityId, VaultType.LIQUID, genWallet().address, 0, [
+              {addr: tokenFake.address, amnt: 1},
+            ])
+        ).to.be.revertedWith("Unauthorized");
+      });
+
       it("reverts if beneficiary address is not listed in allowlistedBeneficiaries nor is it the Endowment Owner", async () => {
         await wait(state.setAllowlist(normalEndowId, 0, [genWallet().address]));
 
@@ -1341,6 +1351,42 @@ describe("AccountsDepositWithdrawEndowments", function () {
           facet.withdraw(normalEndowId, acctType, beneficiaryAddress, beneficiaryId, tokens)
         ).to.be.revertedWith("Beneficiary address is not listed in maturityAllowlist");
       });
+
+      // it("reverts if maturity allowlist is empty", async () => {
+      //   await expect(
+      //     facet.withdraw(normalEndowId, VaultType.LIQUID, genWallet().address, 0, [
+      //       {addr: tokenFake.address, amnt: 1},
+      //     ])
+      //   ).to.be.revertedWith("Unauthorized");
+      // });
+
+      // it("reverts if owner is not in maturity allowlist", async () => {
+      //   await wait(
+      //     state.setAllowlist(normalEndowId, AllowlistType.MaturityAllowlist, [
+      //       await accOwner.getAddress(),
+      //     ])
+      //   );
+      //   await expect(
+      //     facet.withdraw(normalEndowId, VaultType.LIQUID, genWallet().address, 0, [
+      //       {addr: tokenFake.address, amnt: 1},
+      //     ])
+      //   ).to.be.revertedWith("Unauthorized");
+      // });
+
+      // it("reverts if sender is not in maturity allowlist", async () => {
+      //   await wait(
+      //     state.setAllowlist(charityId, AllowlistType.MaturityAllowlist, [
+      //       await endowOwner.getAddress(),
+      //     ])
+      //   );
+      //   await expect(
+      //     facet
+      //       .connect(accOwner)
+      //       .withdraw(charityId, VaultType.LIQUID, genWallet().address, 0, [
+      //         {addr: tokenFake.address, amnt: 1},
+      //       ])
+      //   ).to.be.revertedWith("Unauthorized");
+      // });
 
       describe("LOCKED withdrawals", () => {
         it("passes: Normal to Address (protocol-level normal fee only)", async () => {
