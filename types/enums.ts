@@ -14,6 +14,12 @@ export enum StrategyApprovalState {
   DEPRECATED,
 }
 
+export enum AllowlistType {
+  AllowlistedBeneficiaries,
+  AllowlistedContributors,
+  MaturityAllowlist,
+}
+
 export enum VaultType {
   LOCKED,
   LIQUID,

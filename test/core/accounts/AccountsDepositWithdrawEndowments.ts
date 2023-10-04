@@ -25,7 +25,7 @@ import {
 import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsDepositWithdrawEndowments";
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
-import {VaultType} from "types";
+import {AllowlistType, VaultType} from "types";
 import {genWallet, getProxyAdminOwner, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
 
@@ -1309,15 +1309,27 @@ describe("AccountsDepositWithdrawEndowments", function () {
     });
 
     describe("from Mature endowments", () => {
-      it("reverts if beneficiary address is not listed in maturityAllowlist", async () => {
+      let rootSnapshot: SnapshotRestorer;
+
+      before(async () => {
+        rootSnapshot = await takeSnapshot();
+
         const currTime = await time.latest();
 
+        const endowment = await state.getEndowmentDetails(normalEndowId);
         const matureEndowment: AccountStorage.EndowmentStruct = {
-          ...normalEndow,
+          ...endowment,
           maturityTime: currTime,
         };
         await wait(state.setEndowmentDetails(normalEndowId, matureEndowment));
-        await wait(state.setAllowlist(normalEndowId, 2, [genWallet().address]));
+      });
+
+      after(async () => {
+        await rootSnapshot.restore();
+      });
+
+      it("reverts if beneficiary address is not listed in maturityAllowlist", async () => {
+        await wait(state.setAllowlist(normalEndowId, VaultType.LIQUID, [genWallet().address]));
 
         const acctType = VaultType.LIQUID;
         const beneficiaryId = 0;
@@ -1327,25 +1339,18 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
         await expect(
           facet.withdraw(normalEndowId, acctType, beneficiaryAddress, beneficiaryId, tokens)
-        ).to.be.revertedWith("Unauthorized");
+        ).to.be.revertedWith("Beneficiary address is not listed in maturityAllowlist");
       });
 
       describe("LOCKED withdrawals", () => {
         it("passes: Normal to Address (protocol-level normal fee only)", async () => {
-          const currTime = await time.latest();
-
           registrarFake.getFeeSettingsByFeeType.returns({bps: 200, payoutAddress: treasury});
 
-          const matureEndowment: AccountStorage.EndowmentStruct = {
-            ...normalEndow,
-            maturityTime: currTime,
-          };
-          await wait(state.setEndowmentDetails(normalEndowId, matureEndowment));
-          const beneficiarySigner = new ethers.Wallet(
-            genWallet().privateKey, 
-            hre.ethers.provider
-          );
-          await accOwner.sendTransaction({value: ethers.utils.parseEther("1"), to: beneficiarySigner.address})
+          const beneficiarySigner = new ethers.Wallet(genWallet().privateKey, hre.ethers.provider);
+          await accOwner.sendTransaction({
+            value: ethers.utils.parseEther("1"),
+            to: beneficiarySigner.address,
+          });
 
           await wait(state.setAllowlist(normalEndowId, 2, [beneficiarySigner.address]));
 
@@ -1359,7 +1364,9 @@ describe("AccountsDepositWithdrawEndowments", function () {
           const finalAmountLeftover = amount.sub(expectedFeeAp);
 
           await expect(
-            facet.connect(beneficiarySigner).withdraw(normalEndowId, acctType, beneficiarySigner.address, beneficiaryId, tokens)
+            facet
+              .connect(beneficiarySigner)
+              .withdraw(normalEndowId, acctType, beneficiarySigner.address, beneficiaryId, tokens)
           )
             .to.emit(facet, "EndowmentWithdraw")
             .withArgs(
@@ -1385,13 +1392,6 @@ describe("AccountsDepositWithdrawEndowments", function () {
         });
 
         it("passes: Normal to a Charity Endowment transfer", async () => {
-          const currTime = await time.latest();
-
-          const matureEndowment: AccountStorage.EndowmentStruct = {
-            ...normalEndow,
-            maturityTime: currTime,
-          };
-          await wait(state.setEndowmentDetails(normalEndowId, matureEndowment));
           await wait(state.setAllowlist(normalEndowId, 2, [await indexFund.getAddress()]));
 
           const acctType = VaultType.LOCKED;
