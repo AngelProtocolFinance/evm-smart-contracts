@@ -18,6 +18,7 @@ import {
   IAccountsDepositWithdrawEndowments,
   IERC20,
   IERC20__factory,
+  OwnershipFacet__factory,
   Registrar,
   Registrar__factory,
   TestFacetProxyContract,
@@ -1099,7 +1100,9 @@ describe("AccountsDepositWithdrawEndowments", function () {
           let finalAmountLeftover = amountLeftAfterApFees.sub(expectedFeeEndow);
 
           await expect(
-            facet.withdraw(normalEndowId, acctType, beneficiaryAddress, beneficiaryId, tokens)
+            facet
+              .connect(endowOwner)
+              .withdraw(normalEndowId, acctType, beneficiaryAddress, beneficiaryId, tokens)
           )
             .to.emit(facet, "EndowmentWithdraw")
             .withArgs(
@@ -1145,7 +1148,9 @@ describe("AccountsDepositWithdrawEndowments", function () {
           await wait(state.setAllowlist(normalEndowId, 0, [beneficiaryAddress]));
 
           await expect(
-            facet.withdraw(normalEndowId, acctType, beneficiaryAddress, beneficiaryId, tokens)
+            facet
+              .connect(endowOwner)
+              .withdraw(normalEndowId, acctType, beneficiaryAddress, beneficiaryId, tokens)
           )
             .to.emit(facet, "EndowmentWithdraw")
             .withArgs(
@@ -1323,7 +1328,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
         await expect(
           facet.withdraw(normalEndowId, acctType, beneficiaryAddress, beneficiaryId, tokens)
-        ).to.be.revertedWith("Beneficiary address is not listed in maturityAllowlist");
+        ).to.be.revertedWith("Unauthorized");
       });
 
       describe("LOCKED withdrawals", () => {
@@ -1337,7 +1342,13 @@ describe("AccountsDepositWithdrawEndowments", function () {
             maturityTime: currTime,
           };
           await wait(state.setEndowmentDetails(normalEndowId, matureEndowment));
-          await wait(state.setAllowlist(normalEndowId, 2, [beneficiaryAddress]));
+          const beneficiarySigner = new ethers.Wallet(
+            genWallet().privateKey, 
+            hre.ethers.provider
+          );
+          await accOwner.sendTransaction({value: ethers.utils.parseEther("1"), to: beneficiarySigner.address})
+
+          await wait(state.setAllowlist(normalEndowId, 2, [beneficiarySigner.address]));
 
           const acctType = VaultType.LOCKED;
           const beneficiaryId = 0;
@@ -1349,7 +1360,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
           const finalAmountLeftover = amount.sub(expectedFeeAp);
 
           await expect(
-            facet.withdraw(normalEndowId, acctType, beneficiaryAddress, beneficiaryId, tokens)
+            facet.connect(beneficiarySigner).withdraw(normalEndowId, acctType, beneficiarySigner.address, beneficiaryId, tokens)
           )
             .to.emit(facet, "EndowmentWithdraw")
             .withArgs(
@@ -1357,13 +1368,13 @@ describe("AccountsDepositWithdrawEndowments", function () {
               tokens[0].addr,
               tokens[0].amnt,
               acctType,
-              beneficiaryAddress,
+              beneficiarySigner.address,
               beneficiaryId
             );
 
           expect(tokenFake.transfer).to.have.been.calledWith(treasury, expectedFeeAp);
           expect(tokenFake.transfer).to.have.been.calledWith(
-            beneficiaryAddress,
+            beneficiarySigner.address,
             finalAmountLeftover
           );
 
