@@ -1339,7 +1339,11 @@ describe("AccountsDepositWithdrawEndowments", function () {
       });
 
       it("reverts if beneficiary address is not listed in maturityAllowlist", async () => {
-        await wait(state.setAllowlist(normalEndowId, VaultType.LIQUID, [genWallet().address]));
+        await wait(
+          state.setAllowlist(normalEndowId, AllowlistType.MaturityAllowlist, [
+            await endowOwner.getAddress(),
+          ])
+        );
 
         const acctType = VaultType.LIQUID;
         const beneficiaryId = 0;
@@ -1352,41 +1356,37 @@ describe("AccountsDepositWithdrawEndowments", function () {
         ).to.be.revertedWith("Beneficiary address is not listed in maturityAllowlist");
       });
 
-      // it("reverts if maturity allowlist is empty", async () => {
-      //   await expect(
-      //     facet.withdraw(normalEndowId, VaultType.LIQUID, genWallet().address, 0, [
-      //       {addr: tokenFake.address, amnt: 1},
-      //     ])
-      //   ).to.be.revertedWith("Unauthorized");
-      // });
+      it("reverts if maturity allowlist is empty", async () => {
+        await expect(
+          facet.withdraw(normalEndowId, VaultType.LIQUID, genWallet().address, 0, [
+            {addr: tokenFake.address, amnt: 1},
+          ])
+        ).to.be.revertedWith("Unauthorized");
+      });
 
-      // it("reverts if owner is not in maturity allowlist", async () => {
-      //   await wait(
-      //     state.setAllowlist(normalEndowId, AllowlistType.MaturityAllowlist, [
-      //       await accOwner.getAddress(),
-      //     ])
-      //   );
-      //   await expect(
-      //     facet.withdraw(normalEndowId, VaultType.LIQUID, genWallet().address, 0, [
-      //       {addr: tokenFake.address, amnt: 1},
-      //     ])
-      //   ).to.be.revertedWith("Unauthorized");
-      // });
+      it("reverts if owner is not in maturity allowlist", async () => {
+        await wait(
+          state.setAllowlist(normalEndowId, AllowlistType.MaturityAllowlist, [genWallet().address])
+        );
+        await expect(
+          facet.withdraw(normalEndowId, VaultType.LIQUID, genWallet().address, 0, [
+            {addr: tokenFake.address, amnt: 1},
+          ])
+        ).to.be.revertedWith("Unauthorized");
+      });
 
-      // it("reverts if sender is not in maturity allowlist", async () => {
-      //   await wait(
-      //     state.setAllowlist(charityId, AllowlistType.MaturityAllowlist, [
-      //       await endowOwner.getAddress(),
-      //     ])
-      //   );
-      //   await expect(
-      //     facet
-      //       .connect(accOwner)
-      //       .withdraw(charityId, VaultType.LIQUID, genWallet().address, 0, [
-      //         {addr: tokenFake.address, amnt: 1},
-      //       ])
-      //   ).to.be.revertedWith("Unauthorized");
-      // });
+      it("reverts if sender is not in maturity allowlist", async () => {
+        await wait(
+          state.setAllowlist(charityId, AllowlistType.MaturityAllowlist, [genWallet().address])
+        );
+        await expect(
+          facet
+            .connect(accOwner)
+            .withdraw(charityId, VaultType.LIQUID, genWallet().address, 0, [
+              {addr: tokenFake.address, amnt: 1},
+            ])
+        ).to.be.revertedWith("Unauthorized");
+      });
 
       describe("LOCKED withdrawals", () => {
         it("passes: Normal to Address (protocol-level normal fee only)", async () => {
@@ -1398,7 +1398,11 @@ describe("AccountsDepositWithdrawEndowments", function () {
             to: beneficiarySigner.address,
           });
 
-          await wait(state.setAllowlist(normalEndowId, 2, [beneficiarySigner.address]));
+          await wait(
+            state.setAllowlist(normalEndowId, AllowlistType.MaturityAllowlist, [
+              beneficiarySigner.address,
+            ])
+          );
 
           const acctType = VaultType.LOCKED;
           const beneficiaryId = 0;
@@ -1438,7 +1442,11 @@ describe("AccountsDepositWithdrawEndowments", function () {
         });
 
         it("passes: Normal to a Charity Endowment transfer", async () => {
-          await wait(state.setAllowlist(normalEndowId, 2, [await indexFund.getAddress()]));
+          await wait(
+            state.setAllowlist(normalEndowId, AllowlistType.MaturityAllowlist, [
+              await endowOwner.getAddress(),
+            ])
+          );
 
           const acctType = VaultType.LOCKED;
           const beneficiaryAddress = ethers.constants.AddressZero;
@@ -1446,13 +1454,10 @@ describe("AccountsDepositWithdrawEndowments", function () {
           const tokens: IAccountsDepositWithdrawEndowments.TokenInfoStruct[] = [
             {addr: tokenFake.address, amnt: 5000},
           ];
-          const regConfig = await registrarFake.queryConfig();
           const amount = BigNumber.from(tokens[0].amnt);
 
           await expect(
-            facet
-              .connect(indexFund)
-              .withdraw(normalEndowId, acctType, beneficiaryAddress, beneficiaryId, tokens)
+            facet.withdraw(normalEndowId, acctType, beneficiaryAddress, beneficiaryId, tokens)
           )
             .to.emit(facet, "EndowmentWithdraw")
             .withArgs(
@@ -1476,6 +1481,47 @@ describe("AccountsDepositWithdrawEndowments", function () {
           );
           expect(lockBalBen).to.equal(lockBal.add(amount));
           expect(liqBalBen).to.equal(liqBal);
+        });
+
+        it("passes: Charity to a Charity Endowment transfer", async () => {
+          const acctType = VaultType.LOCKED;
+          const beneficiaryAddress = ethers.constants.AddressZero;
+          const beneficiaryId = 11;
+          const tokens: IAccountsDepositWithdrawEndowments.TokenInfoStruct[] = [
+            {addr: tokenFake.address, amnt: 5000},
+          ];
+          const amount = BigNumber.from(tokens[0].amnt);
+
+          // create charity endowment to act as beneficiary
+          await wait(state.setEndowmentDetails(beneficiaryId, charity));
+          await wait(
+            state.setAllowlist(charityId, AllowlistType.MaturityAllowlist, [
+              await endowOwner.getAddress(),
+            ])
+          );
+
+          await expect(
+            facet.withdraw(charityId, acctType, beneficiaryAddress, beneficiaryId, tokens)
+          )
+            .to.emit(facet, "EndowmentWithdraw")
+            .withArgs(
+              charityId,
+              tokens[0].addr,
+              tokens[0].amnt,
+              acctType,
+              beneficiaryAddress,
+              beneficiaryId
+            );
+
+          const [lockedBalance] = await state.getEndowmentTokenBalance(charityId, tokens[0].addr);
+          expect(lockedBalance).to.equal(lockBal.sub(amount));
+
+          const [lockBalBen, liqBalBen] = await state.getEndowmentTokenBalance(
+            beneficiaryId,
+            tokens[0].addr
+          );
+          expect(lockBalBen).to.equal(amount);
+          expect(liqBalBen).to.equal(0);
         });
       });
     });
