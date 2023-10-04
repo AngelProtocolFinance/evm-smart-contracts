@@ -255,6 +255,10 @@ contract AccountsDepositWithdrawEndowments is
         beneficiaryEndowId = tempEndowmentState.closingBeneficiary.data.endowId;
       }
     }
+    // If not closing, only owner can call 
+    else {
+      require(msg.sender == tempEndowment.owner, "Unauthorized");
+    }
 
     // place an arbitrary cap on the qty of different tokens per withdraw to limit gas use
     require(tokens.length > 0, "No tokens provided");
@@ -272,10 +276,6 @@ contract AccountsDepositWithdrawEndowments is
         "Beneficiary endowment is closed"
       );
     }
-
-    // Check if maturity has been reached for the endowment (0 == no maturity date)
-    bool mature = (tempEndowment.maturityTime != 0 &&
-      block.timestamp >= tempEndowment.maturityTime);
 
     if (tempEndowment.endowType == LibAccounts.EndowmentType.Daf) {
       require(
@@ -306,6 +306,10 @@ contract AccountsDepositWithdrawEndowments is
         LibAccounts.FeeTypes.EarlyLockedWithdraw
       );
     }
+
+    // Check if maturity has been reached for the endowment (0 == no maturity date)
+    bool mature = (tempEndowment.maturityTime != 0 &&
+      block.timestamp >= tempEndowment.maturityTime);
 
     for (uint256 t = 0; t < tokens.length; t++) {
       // ensure balance of tokens can cover the requested withdraw amount
