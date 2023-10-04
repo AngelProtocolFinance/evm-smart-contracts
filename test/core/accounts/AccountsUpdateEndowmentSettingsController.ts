@@ -16,6 +16,7 @@ import {
 } from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {genWallet, getProxyAdminOwner, getSigners} from "utils";
 import {deployFacetAsProxy, updateAllSettings} from "./utils";
+import {AllowlistType} from "types";
 
 use(smock.matchers);
 
@@ -227,7 +228,9 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
     it("returns same members in starting allowlist if only pre-existing addresses are passed in add", async () => {
       // set starting allowlist
       const wallet = await genWallet().address;
-      await wait(state.setAllowlist(normalEndowId, 0, [wallet]));
+      await wait(
+        state.setAllowlist(normalEndowId, AllowlistType.AllowlistedBeneficiaries, [wallet])
+      );
 
       const remove: any[] = [];
       const add: any[] = [wallet];
@@ -245,7 +248,9 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
       const wallet3 = await genWallet().address;
 
       // set starting allowlist
-      await wait(state.setAllowlist(normalEndowId, 0, [wallet]));
+      await wait(
+        state.setAllowlist(normalEndowId, AllowlistType.AllowlistedBeneficiaries, [wallet])
+      );
 
       const remove: any[] = [wallet2];
       const add: any[] = [wallet, wallet2, wallet3];

@@ -13,6 +13,7 @@ import {
 } from "typechain-types";
 import {genWallet, getProxyAdminOwner, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
+import {AllowlistType} from "types";
 
 describe("AccountsAllowance", function () {
   const {ethers} = hre;
@@ -66,8 +67,14 @@ describe("AccountsAllowance", function () {
     );
 
     // Beneficiaries & Maturity Allowlists set for endowment user
-    await wait(state.setAllowlist(ACCOUNT_ID, 0, [await user.getAddress()])); // beneficiaries
-    await wait(state.setAllowlist(ACCOUNT_ID, 2, [await user.getAddress()])); // maturity
+    await wait(
+      state.setAllowlist(ACCOUNT_ID, AllowlistType.AllowlistedBeneficiaries, [
+        await user.getAddress(),
+      ])
+    );
+    await wait(
+      state.setAllowlist(ACCOUNT_ID, AllowlistType.MaturityAllowlist, [await user.getAddress()])
+    );
   });
 
   let snapshot: SnapshotRestorer;
