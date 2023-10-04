@@ -142,7 +142,7 @@
     "accounts": {
       "diamond": "0xf3f48A60EbA732aC2993e11eC93eAD782Ab237e4",
       "facets": {
-        "accountsDepositWithdrawEndowments": "0xa4341A6Dc7267D6226FAEf9C35Af3cfAd46b624E",
+        "accountsDepositWithdrawEndowments": "0x5e02fd709AE085EEAA446B694d8d7d20445028dF",
         "accountsAllowance": "0x96ca668AEecf5A515d402fE1Ca0C5B664Dfc92d2",
         "accountsCreateEndowment": "0xD81fBBD072E14A0e87Fb0C832F62Ae1134C79571",
         "accountsGasManager": "0xf1475dDa2EC44187DBC1D575696ed1D094D50Ef8",
@@ -420,7 +420,7 @@
     "accounts": {
       "diamond": "0x543dDFcAFAF31629b46cb8c108633cA8A11F31cc",
       "facets": {
-        "accountsDepositWithdrawEndowments": "0x0124773BEA450412ce9aA572b7EF3e4535495F01",
+        "accountsDepositWithdrawEndowments": "0xD5015b1C15be78E3e012899DEc469Cb5E91678d9",
         "accountsAllowance": "0x193556259E1962Faaa0a9Ac7D69DDeF54eD521d1",
         "accountsCreateEndowment": "0x9c6Dae062755a8fe43b8714FafE01755646d2660",
         "accountsGasManager": "0xe224BcDd0aa37C262C7D9865d6fC9F8974996Ca4",
