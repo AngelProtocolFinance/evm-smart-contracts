@@ -1319,6 +1319,8 @@ describe("AccountsDepositWithdrawEndowments", function () {
     });
 
     describe("from Mature endowments", () => {
+      const tempCharityId = 11;
+
       let rootSnapshot: SnapshotRestorer;
 
       before(async () => {
@@ -1327,11 +1329,20 @@ describe("AccountsDepositWithdrawEndowments", function () {
         const currTime = await time.latest();
 
         const endowment = await state.getEndowmentDetails(normalEndowId);
+        const charity = await state.getEndowmentDetails(charityId);
         const matureEndowment: AccountStorage.EndowmentStruct = {
           ...endowment,
           maturityTime: currTime,
         };
+        const charityEndowment: AccountStorage.EndowmentStruct = {
+          ...charity,
+          maturityTime: currTime,
+        };
         await wait(state.setEndowmentDetails(normalEndowId, matureEndowment));
+        await wait(state.setEndowmentDetails(charityId, charityEndowment));
+
+        // temp charity
+        await wait(state.setEndowmentDetails(tempCharityId, charity));
       });
 
       after(async () => {
@@ -1486,14 +1497,13 @@ describe("AccountsDepositWithdrawEndowments", function () {
         it("passes: Charity to a Charity Endowment transfer", async () => {
           const acctType = VaultType.LOCKED;
           const beneficiaryAddress = ethers.constants.AddressZero;
-          const beneficiaryId = 11;
+          const beneficiaryId = tempCharityId;
           const tokens: IAccountsDepositWithdrawEndowments.TokenInfoStruct[] = [
             {addr: tokenFake.address, amnt: 5000},
           ];
           const amount = BigNumber.from(tokens[0].amnt);
 
           // create charity endowment to act as beneficiary
-          await wait(state.setEndowmentDetails(beneficiaryId, charity));
           await wait(
             state.setAllowlist(charityId, AllowlistType.MaturityAllowlist, [
               await endowOwner.getAddress(),
