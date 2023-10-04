@@ -18,7 +18,6 @@ import {
   IAccountsDepositWithdrawEndowments,
   IERC20,
   IERC20__factory,
-  OwnershipFacet__factory,
   Registrar,
   Registrar__factory,
   TestFacetProxyContract,
