@@ -1,23 +1,28 @@
 import {allStrategyConfigs} from "contracts/integrations/stratConfig";
-import {subtask, task, types} from "hardhat/config";
+import {subtask, task} from "hardhat/config";
 import {submitMultiSigTx} from "tasks/helpers";
 import {cliTypes} from "tasks/types";
 import {Registrar__factory} from "typechain-types";
 import {ChainID} from "types";
-import {StratConfig, getAPTeamOwner, getAddressesByNetworkId, isProdNetwork, logger} from "utils";
+import {
+  AllStratConfigs,
+  StratConfig,
+  getAPTeamOwner,
+  getAddressesByNetworkId,
+  getPrimaryChainId,
+  logger,
+} from "utils";
 
 type TaskArgs = {
-  stratConfig: StratConfig;
+  strategyName: keyof AllStratConfigs;
   modifyExisting: boolean;
   apTeamSignerPkey?: string;
 };
 
 task("manage:registrar:setStratParams")
   .addParam(
-    "stratConfig",
-    `The name of the strategy according to StratConfig, possible values: ${Object.keys(
-      allStrategyConfigs
-    ).join(", ")}`,
+    "strategyName",
+    `The name of the strategy, possible values: ${Object.keys(allStrategyConfigs).join(", ")}`,
     undefined,
     cliTypes.stratConfig
   )
@@ -27,25 +32,17 @@ task("manage:registrar:setStratParams")
     "If running on prod, provide a pkey for a valid APTeam Multisig Owner."
   )
   .setAction(async function (taskArguments: TaskArgs, hre) {
-    if (await isProdNetwork(hre)) {
-      await hre.run("manage:registrar:setStratParams:on-network", {
-        ...taskArguments,
-        chainId: ChainID.polygon,
-      });
-      await hre.run("manage:registrar:setStratParams:on-network", {
-        ...taskArguments,
-        chainId: taskArguments.stratConfig.chainId,
-      });
-    } else {
-      await hre.run("manage:registrar:setStratParams:on-network", {
-        ...taskArguments,
-        chainId: ChainID.mumbai,
-      });
-      await hre.run("manage:registrar:setStratParams:on-network", {
-        ...taskArguments,
-        chainId: taskArguments.stratConfig.chainId,
-      });
-    }
+    const mainChainId = await getPrimaryChainId(hre);
+    const stratChainId = allStrategyConfigs[taskArguments.strategyName].chainId;
+
+    await hre.run("manage:registrar:setStratParams:on-network", {
+      ...taskArguments,
+      chainId: mainChainId,
+    });
+    await hre.run("manage:registrar:setStratParams:on-network", {
+      ...taskArguments,
+      chainId: stratChainId,
+    });
   });
 
 subtask(
@@ -53,10 +50,8 @@ subtask(
   "Updates strat params on the network specified by the 'chainId' param"
 )
   .addParam(
-    "stratName",
-    `The name of the strategy according to StratConfig, possible values: ${Object.keys(
-      allStrategyConfigs
-    ).join(", ")}`,
+    "strategyName",
+    `The name of the strategy, possible values: ${Object.keys(allStrategyConfigs).join(", ")}`,
     undefined,
     cliTypes.stratConfig
   )
@@ -85,7 +80,7 @@ subtask(
 
     logger.divider();
     logger.out("Checking current strategy params at specified selector");
-    const config: StratConfig = taskArguments.stratConfig;
+    const config: StratConfig = allStrategyConfigs[taskArguments.strategyName];
     let currentStratParams = await registrar.getStrategyParamsById(config.id);
     if (
       currentStratParams.liquidVaultAddr == hre.ethers.constants.AddressZero &&
