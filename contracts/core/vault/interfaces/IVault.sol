@@ -57,6 +57,9 @@ abstract contract IVault {
   /// @param token The token (if any) that was forwarded along with the calldata packet by GMP
   /// @param lockAmt The amount of said token that is intended to interact with the locked vault
   /// @param liqAmt The amount of said token that is intended to interact with the liquid vault
+  /// @param lockMinTokensOut An array of minimum token amts expected for the locked vault trade path (slippage tolerance)
+  /// @param liqMinTokensOut An array of minimum token amts expected for the liquid vault trade path (slippage tolerance)
+  /// @param status Call success status for fallback/callback logic paths
   struct VaultActionData {
     string destinationChain;
     bytes4 strategyId;
@@ -65,6 +68,8 @@ abstract contract IVault {
     address token;
     uint256 lockAmt;
     uint256 liqAmt;
+    uint256[] lockMinTokensOut;
+    uint256[] liqMinTokensOut;
     VaultActionStatus status;
   }
 
@@ -120,25 +125,37 @@ abstract contract IVault {
   /// @param accountId a unique Id for each Angel Protocol account
   /// @param token the deposited token
   /// @param amt the amount of the deposited token
-  function deposit(uint32 accountId, address token, uint256 amt) external payable virtual;
+  /// @param minTokensOut the amount of tokens expected along each step of the invest request
+  function deposit(
+    uint32 accountId,
+    address token,
+    uint256 amt,
+    uint256[] memory minTokensOut
+  ) external payable virtual;
 
   /// @notice redeem value from the vault contract
   /// @dev allows an Account to redeem from its staked value. The behavior is different dependent on VaultType.
   /// Before returning the redemption amt, the vault must approve the Router to spend the tokens.
   /// @param accountId a unique Id for each Angel Protocol account
   /// @param amt the amount of shares to redeem
+  /// @param minTokensOut the amount of tokens expected along each step of the redemption request
   /// @return RedemptionResponse returns the number of base tokens redeemed by the call and the status
   function redeem(
     uint32 accountId,
-    uint256 amt
+    uint256 amt,
+    uint256[] memory minTokensOut
   ) external payable virtual returns (RedemptionResponse memory);
 
   /// @notice redeem all of the value from the vault contract
   /// @dev allows an Account to redeem all of its staked value. Good for rebasing tokens wherein the value isn't
   /// known explicitly. Before returning the redemption amt, the vault must approve the Router to spend the tokens.
   /// @param accountId a unique Id for each Angel Protocol account
+  /// @param minTokensOut the amount of tokens expected along each step of the redemption request
   /// @return RedemptionResponse returns the number of base tokens redeemed by the call and the status
-  function redeemAll(uint32 accountId) external payable virtual returns (RedemptionResponse memory);
+  function redeemAll(
+    uint32 accountId,
+    uint256[] memory minTokensOut
+  ) external payable virtual returns (RedemptionResponse memory);
 
   /// @notice restricted method for harvesting accrued rewards
   /// @dev Claim reward tokens accumulated to the staked value. The underlying behavior will vary depending

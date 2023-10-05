@@ -38,8 +38,9 @@ interface IStrategy {
   /// 2) Convert the base token into the `stratConfig.yieldToken via integration-specific methods
   /// 3) Set the msg.sender as approved() for the returned amt
   /// @param amt the qty of `stratConfig.baseToken` that the strategy has been approved to use
+  /// @param minTokensOut intermediate trade slippage tolerances
   /// @return yieldTokenAmt the qty of `stratConfig.yieldToken` that were yielded from the deposit action
-  function deposit(uint256 amt) external payable returns (uint256);
+  function deposit(uint256 amt, uint256[] memory minTokensOut) external payable returns (uint256);
 
   /// @notice Accepts `yieldTokens` and converts them back into `baseToken`
   /// @dev This method must:
@@ -47,8 +48,9 @@ interface IStrategy {
   /// 2) Convert the yield tokens provided back into the `stratConfig.baseToken via integration-specific methods
   /// 3) Set the msg.sender as approved() for the returned amt
   /// @param amt the qty of `stratConfig.yieldToken` that this contract has been approved to use by msg.sender
+  /// @param minTokensOut intermediate trade slippage tolerances
   /// @return baseTokenAmt the qty of `stratConfig.baseToken` that are approved for transfer by msg.sender
-  function withdraw(uint256 amt) external payable returns (uint256);
+  function withdraw(uint256 amt, uint256[] memory minTokensOut) external payable returns (uint256);
 
   /// @notice Provide an estimate for the current exchange rate for a given deposit
   /// @dev This method expects that the `amt` provided is denominated in `baseToken`

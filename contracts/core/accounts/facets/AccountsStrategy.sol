@@ -131,6 +131,8 @@ contract AccountsStrategy is
         token: tokenAddress,
         lockAmt: investRequest.lockAmt,
         liqAmt: investRequest.liquidAmt,
+        lockMinTokensOut: investRequest.lockMinTokensOut,
+        liqMinTokensOut: investRequest.liqMinTokensOut,
         status: IVault.VaultActionStatus.UNPROCESSED
       });
       bytes memory packedPayload = RouterLib.packCallData(payload);
@@ -160,6 +162,8 @@ contract AccountsStrategy is
         token: tokenAddress,
         lockAmt: investRequest.lockAmt,
         liqAmt: investRequest.liquidAmt,
+        lockMinTokensOut: investRequest.lockMinTokensOut,
+        liqMinTokensOut: investRequest.liqMinTokensOut,
         status: IVault.VaultActionStatus.UNPROCESSED
       });
       bytes memory packedPayload = RouterLib.packCallData(payload);
@@ -260,6 +264,8 @@ contract AccountsStrategy is
         token: tokenAddress,
         lockAmt: redeemRequest.lockAmt,
         liqAmt: redeemRequest.liquidAmt,
+        lockMinTokensOut: redeemRequest.lockMinTokensOut,
+        liqMinTokensOut: redeemRequest.liqMinTokensOut,
         status: IVault.VaultActionStatus.UNPROCESSED
       });
       bytes memory packedPayload = RouterLib.packCallData(payload);
@@ -299,6 +305,8 @@ contract AccountsStrategy is
         token: tokenAddress,
         lockAmt: redeemRequest.lockAmt,
         liqAmt: redeemRequest.liquidAmt,
+        lockMinTokensOut: redeemRequest.lockMinTokensOut,
+        liqMinTokensOut: redeemRequest.liqMinTokensOut,
         status: IVault.VaultActionStatus.UNPROCESSED
       });
       bytes memory packedPayload = RouterLib.packCallData(payload);
@@ -395,6 +403,8 @@ contract AccountsStrategy is
         token: tokenAddress,
         lockAmt: redeemAllRequest.redeemLocked ? 1 : 0,
         liqAmt: redeemAllRequest.redeemLiquid ? 1 : 0,
+        lockMinTokensOut: redeemAllRequest.lockMinTokensOut,
+        liqMinTokensOut: redeemAllRequest.liqMinTokensOut,
         status: IVault.VaultActionStatus.UNPROCESSED
       });
       bytes memory packedPayload = RouterLib.packCallData(payload);
@@ -433,6 +443,8 @@ contract AccountsStrategy is
         token: tokenAddress,
         lockAmt: redeemAllRequest.redeemLocked ? 1 : 0,
         liqAmt: redeemAllRequest.redeemLiquid ? 1 : 0,
+        lockMinTokensOut: redeemAllRequest.lockMinTokensOut,
+        liqMinTokensOut: redeemAllRequest.liqMinTokensOut,
         status: IVault.VaultActionStatus.UNPROCESSED
       });
       bytes memory packedPayload = RouterLib.packCallData(payload);

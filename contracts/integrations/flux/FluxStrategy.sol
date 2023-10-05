@@ -28,7 +28,8 @@ contract FluxStrategy is APStrategy_V1, ReentrancyGuard {
   /// @param amt the qty of `config.baseToken` that the strategy has been approved to use
   /// @return yieldTokenAmt the qty of `config.yieldToken` that were yielded from the deposit action
   function deposit(
-    uint256 amt
+    uint256 amt,
+    uint256[] memory
   ) external payable override whenNotPaused nonReentrant nonZeroAmount(amt) returns (uint256) {
     IERC20(config.baseToken).safeTransferFrom(_msgSender(), address(this), amt);
     IERC20(config.baseToken).safeApprove(config.yieldToken, amt);
@@ -48,7 +49,8 @@ contract FluxStrategy is APStrategy_V1, ReentrancyGuard {
   /// @param amt the qty of `config.yieldToken` that this contract has been approved to use by msg.sender
   /// @return baseTokenAmt the qty of `config.baseToken` that are approved for transfer by msg.sender
   function withdraw(
-    uint256 amt
+    uint256 amt,
+    uint256[] memory
   ) external payable override whenNotPaused nonReentrant nonZeroAmount(amt) returns (uint256) {
     if (!IFlux(config.yieldToken).transferFrom(_msgSender(), address(this), amt)) {
       revert TransferFailed();

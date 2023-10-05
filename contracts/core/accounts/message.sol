@@ -109,6 +109,8 @@ library AccountMessages {
     string token;
     uint256 lockAmt;
     uint256 liquidAmt;
+    uint256[] lockMinTokensOut;
+    uint256[] liqMinTokensOut;
     uint256 gasFee;
   }
 
@@ -117,6 +119,8 @@ library AccountMessages {
     string token;
     uint256 lockAmt;
     uint256 liquidAmt;
+    uint256[] lockMinTokensOut;
+    uint256[] liqMinTokensOut;
     uint256 gasFee;
   }
 
@@ -125,6 +129,8 @@ library AccountMessages {
     string token;
     bool redeemLocked;
     bool redeemLiquid;
+    uint256[] lockMinTokensOut;
+    uint256[] liqMinTokensOut;
     uint256 gasFee;
   }
 
