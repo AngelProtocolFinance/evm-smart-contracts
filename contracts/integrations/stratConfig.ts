@@ -33,7 +33,24 @@ export const flux: StratConfig = {
   },
 };
 
+export const sommelier: StratConfig = {
+  name: "sommelier",
+  id: "0x00000002",
+  chainId: ChainID.ethereum,
+  tokenName: "RealYieldEthAP",
+  tokenSymbol: "YieldETH_AP",
+  baseToken: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+  yieldToken: "0xb5b29320d2dde5ba5bafa1ebcd270052070483ec",
+  params: {
+    approvalState: StrategyApprovalState.APPROVED,
+    network: getNetworkNameFromChainId(ChainID.ethereum),
+    lockedVaultAddr: getVaultAddress("sommelier", VaultType.LOCKED),
+    liquidVaultAddr: getVaultAddress("sommelier", VaultType.LIQUID),
+  },
+};
+
 export const allStrategyConfigs: AllStratConfigs = {
   dummy: dummy,
   flux: flux,
+  sommelier: sommelier,
 };
